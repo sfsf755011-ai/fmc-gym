@@ -35,7 +35,7 @@
 
   /* Grid: name | preL preR | pre-lat | postL postR | post-lat | diffL | diffR */
   /* columns:  1fr  58px 58px  72px   58px  58px   72px   60px  60px  */
-  .col-grid{display:grid;grid-template-columns:1fr 58px 58px 72px 58px 58px 72px 60px 60px;gap:5px;align-items:center}
+  .col-grid{display:grid;grid-template-columns:1fr 58px 58px 72px 58px 58px 60px 60px 1fr;gap:5px;align-items:center}
 
   .tb{padding:4px 14px 10px}
 
@@ -100,6 +100,9 @@
   .v0{background:var(--surface2);color:var(--text-ter)}
   .verd strong{font-weight:600;display:block;margin-bottom:4px;font-size:13px}
 
+  .note-input{width:100%;border:1px solid var(--border-med);border-radius:var(--rs);padding:5px 8px;font-size:12px;font-family:'DM Sans',sans-serif;color:var(--text-pri);background:var(--bg);transition:border-color .15s,background .15s;resize:none;height:32px;line-height:1.4}
+  .note-input:focus{outline:none;border-color:#888;background:#fff}
+  .note-input::placeholder{color:var(--text-ter)}
   .rbtn{margin-top:14px;width:100%;padding:10px;border-radius:var(--r);border:1px solid var(--border-med);background:transparent;color:var(--text-sec);font-size:13px;font-family:'DM Sans',sans-serif;cursor:pointer;transition:background .12s}
   .rbtn:hover{background:var(--surface2)}
   .footer{margin-top:28px;text-align:center;font-size:11px;color:var(--text-ter)}
@@ -135,15 +138,14 @@
     <div class="group-hdr pre" style="grid-column:span 2">前測 PRE</div>
     <div class="group-hdr pre" style="border-bottom-color:var(--aL)">判讀</div>
     <div class="group-hdr post" style="grid-column:span 2">後測 POST</div>
-    <div class="group-hdr post">判讀</div>
     <div class="group-hdr diff" style="grid-column:span 2">差距</div>
+    <div class="group-hdr diff" style="grid-column:span 1">備註</div>
   </div>
   <div class="col-grid" style="padding:2px 14px 6px">
     <div></div>
     <div class="ch">左 (°)</div><div class="ch">右 (°)</div>
     <div class="ch"></div>
     <div class="ch">左 (°)</div><div class="ch">右 (°)</div>
-    <div class="ch"></div>
     <div class="ch">左</div><div class="ch">右</div>
   </div>
 
@@ -159,9 +161,9 @@
         <div><span class="badge b0" id="pre-shoulder-ir">–</span></div>
         <div class="iw"><input type="number" min="0" max="180" placeholder="–" oninput="calc(this)"><span class="iu">°</span></div>
         <div class="iw"><input type="number" min="0" max="180" placeholder="–" oninput="calc(this)"><span class="iu">°</span></div>
-        <div><span class="badge b0" id="post-shoulder-ir">–</span></div>
         <div><span class="diff-badge d0" id="diffL-shoulder-ir">–</span></div>
         <div><span class="diff-badge d0" id="diffR-shoulder-ir">–</span></div>
+        <div><textarea class="note-input" placeholder="備註…"></textarea></div>
       </div>
 
       <div class="col-grid tr" data-test="shoulder-er">
@@ -171,9 +173,9 @@
         <div><span class="badge b0" id="pre-shoulder-er">–</span></div>
         <div class="iw"><input type="number" min="0" max="180" placeholder="–" oninput="calc(this)"><span class="iu">°</span></div>
         <div class="iw"><input type="number" min="0" max="180" placeholder="–" oninput="calc(this)"><span class="iu">°</span></div>
-        <div><span class="badge b0" id="post-shoulder-er">–</span></div>
         <div><span class="diff-badge d0" id="diffL-shoulder-er">–</span></div>
         <div><span class="diff-badge d0" id="diffR-shoulder-er">–</span></div>
+        <div><textarea class="note-input" placeholder="備註…"></textarea></div>
       </div>
 
       <div class="col-grid tr" data-test="shoulder-abd">
@@ -183,9 +185,9 @@
         <div><span class="badge b0" id="pre-shoulder-abd">–</span></div>
         <div class="iw"><input type="number" min="0" max="180" placeholder="–" oninput="calc(this)"><span class="iu">°</span></div>
         <div class="iw"><input type="number" min="0" max="180" placeholder="–" oninput="calc(this)"><span class="iu">°</span></div>
-        <div><span class="badge b0" id="post-shoulder-abd">–</span></div>
         <div><span class="diff-badge d0" id="diffL-shoulder-abd">–</span></div>
         <div><span class="diff-badge d0" id="diffR-shoulder-abd">–</span></div>
+        <div><textarea class="note-input" placeholder="備註…"></textarea></div>
       </div>
 
     </div>
@@ -202,9 +204,9 @@
         <div><span class="badge b0" id="pre-pelvis-rot">–</span></div>
         <div class="iw"><input type="number" min="0" max="180" placeholder="–" oninput="calc(this)"><span class="iu">°</span></div>
         <div class="iw"><input type="number" min="0" max="180" placeholder="–" oninput="calc(this)"><span class="iu">°</span></div>
-        <div><span class="badge b0" id="post-pelvis-rot">–</span></div>
         <div><span class="diff-badge d0" id="diffL-pelvis-rot">–</span></div>
         <div><span class="diff-badge d0" id="diffR-pelvis-rot">–</span></div>
+        <div><textarea class="note-input" placeholder="備註…"></textarea></div>
       </div>
     </div>
   </div>
@@ -221,9 +223,9 @@
         <div><span class="badge b0" id="pre-hip-ext">–</span></div>
         <div class="iw"><input type="number" min="-30" max="60" placeholder="–" oninput="calc(this)"><span class="iu">°</span></div>
         <div class="iw"><input type="number" min="-30" max="60" placeholder="–" oninput="calc(this)"><span class="iu">°</span></div>
-        <div><span class="badge b0" id="post-hip-ext">–</span></div>
         <div><span class="diff-badge d0" id="diffL-hip-ext">–</span></div>
         <div><span class="diff-badge d0" id="diffR-hip-ext">–</span></div>
+        <div><textarea class="note-input" placeholder="備註…"></textarea></div>
       </div>
 
       <div class="col-grid tr" data-test="femoral-ir">
@@ -233,9 +235,9 @@
         <div><span class="badge b0" id="pre-femoral-ir">–</span></div>
         <div class="iw"><input type="number" min="0" max="90" placeholder="–" oninput="calc(this)"><span class="iu">°</span></div>
         <div class="iw"><input type="number" min="0" max="90" placeholder="–" oninput="calc(this)"><span class="iu">°</span></div>
-        <div><span class="badge b0" id="post-femoral-ir">–</span></div>
         <div><span class="diff-badge d0" id="diffL-femoral-ir">–</span></div>
         <div><span class="diff-badge d0" id="diffR-femoral-ir">–</span></div>
+        <div><textarea class="note-input" placeholder="備註…"></textarea></div>
       </div>
 
       <div class="col-grid tr" data-test="femoral-er">
@@ -245,9 +247,9 @@
         <div><span class="badge b0" id="pre-femoral-er">–</span></div>
         <div class="iw"><input type="number" min="0" max="90" placeholder="–" oninput="calc(this)"><span class="iu">°</span></div>
         <div class="iw"><input type="number" min="0" max="90" placeholder="–" oninput="calc(this)"><span class="iu">°</span></div>
-        <div><span class="badge b0" id="post-femoral-er">–</span></div>
         <div><span class="diff-badge d0" id="diffL-femoral-er">–</span></div>
         <div><span class="diff-badge d0" id="diffR-femoral-er">–</span></div>
+        <div><textarea class="note-input" placeholder="備註…"></textarea></div>
       </div>
 
     </div>
@@ -265,9 +267,9 @@
         <div><span class="badge b0" id="pre-slr">–</span></div>
         <div class="iw"><input type="number" min="0" max="120" placeholder="–" oninput="calc(this)"><span class="iu">°</span></div>
         <div class="iw"><input type="number" min="0" max="120" placeholder="–" oninput="calc(this)"><span class="iu">°</span></div>
-        <div><span class="badge b0" id="post-slr">–</span></div>
         <div><span class="diff-badge d0" id="diffL-slr">–</span></div>
         <div><span class="diff-badge d0" id="diffR-slr">–</span></div>
+        <div><textarea class="note-input" placeholder="備註…"></textarea></div>
       </div>
 
       <div class="col-grid tr" data-test="cervical-rot">
@@ -277,9 +279,9 @@
         <div><span class="badge b0" id="pre-cervical-rot">–</span></div>
         <div class="iw"><input type="number" min="0" max="90" placeholder="–" oninput="calc(this)"><span class="iu">°</span></div>
         <div class="iw"><input type="number" min="0" max="90" placeholder="–" oninput="calc(this)"><span class="iu">°</span></div>
-        <div><span class="badge b0" id="post-cervical-rot">–</span></div>
         <div><span class="diff-badge d0" id="diffL-cervical-rot">–</span></div>
         <div><span class="diff-badge d0" id="diffR-cervical-rot">–</span></div>
+        <div><textarea class="note-input" placeholder="備註…"></textarea></div>
       </div>
 
       <div class="col-grid tr" data-test="cervical-lat">
@@ -289,9 +291,9 @@
         <div><span class="badge b0" id="pre-cervical-lat">–</span></div>
         <div class="iw"><input type="number" min="0" max="90" placeholder="–" oninput="calc(this)"><span class="iu">°</span></div>
         <div class="iw"><input type="number" min="0" max="90" placeholder="–" oninput="calc(this)"><span class="iu">°</span></div>
-        <div><span class="badge b0" id="post-cervical-lat">–</span></div>
         <div><span class="diff-badge d0" id="diffL-cervical-lat">–</span></div>
         <div><span class="diff-badge d0" id="diffR-cervical-lat">–</span></div>
+        <div><textarea class="note-input" placeholder="備註…"></textarea></div>
       </div>
 
     </div>
