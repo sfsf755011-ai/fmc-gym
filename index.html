@@ -144,6 +144,34 @@ select.finput{-webkit-appearance:none;appearance:none;background-image:url("data
 .loading-box{background:#fff;border-radius:14px;padding:24px 32px;text-align:center;color:#111}
 .loading-spinner{width:36px;height:36px;border:3px solid #eee;border-top-color:#111;border-radius:50%;animation:spin .7s linear infinite;margin:0 auto 12px}
 @keyframes spin{to{transform:rotate(360deg)}}
+
+/* ── Custom Keyboard ── */
+.custom-kb{
+  position:fixed;bottom:80px;left:0;right:0;z-index:100;
+  background:rgba(220,222,230,0.98);
+  border-top:1px solid #b0b4c0;
+  border-bottom:1px solid #b0b4c0;
+  padding:10px 8px 12px;
+  backdrop-filter:blur(10px);
+}
+.kb-rows{display:flex;flex-direction:column;gap:7px}
+.kb-row{display:flex;justify-content:center;gap:6px}
+.kb-key{
+  height:44px;min-width:44px;padding:0 8px;
+  border-radius:8px;border:none;
+  background:#fff;color:#111;
+  font-size:17px;font-weight:600;
+  box-shadow:0 1px 0 rgba(0,0,0,.3);
+  cursor:pointer;font-family:inherit;
+  display:flex;align-items:center;justify-content:center;
+  flex:1;max-width:60px;
+  -webkit-tap-highlight-color:transparent;
+  user-select:none;
+}
+.kb-key:active{background:#c8cad0;transform:scale(.95)}
+.kb-key.kb-del{background:#adb0be;color:#fff;font-size:20px;max-width:80px}
+.kb-key.kb-space{background:#fff;max-width:200px;font-size:14px;color:#666}
+.kb-input-wrap{position:relative}
 </style>
 </head>
 <body>
@@ -204,8 +232,46 @@ select.finput{-webkit-appearance:none;appearance:none;background-image:url("data
   </div>
   <div class="pbody">
     <div class="alertbox alerterr" id="name-alert"></div>
-    <label class="flbl">您的姓名</label>
-    <input class="finput" id="name-input" type="text" placeholder="請輸入姓名" autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false" inputmode="search">
+    <div style="background:linear-gradient(135deg,#111,#222);border-radius:14px;padding:16px 18px;margin-bottom:14px;text-align:center">
+      <div style="font-size:22px;font-weight:800;color:#fff;letter-spacing:.04em;margin-bottom:4px">建議直接輸入編號更快喔！</div>
+      <div style="font-size:14px;color:rgba(255,255,255,.5)">例如：Y001、A003、J012</div>
+    </div>
+    <label class="flbl">輸入姓名或學員編號</label>
+    <div class="kb-input-wrap">
+      <input class="finput" id="name-input" type="text" placeholder="輸入編號（如 Y001）或姓名"
+        readonly style="cursor:pointer;caret-color:transparent"
+        autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false">
+    </div>
+    <!-- Custom Keyboard -->
+    <div class="custom-kb" id="custom-kb" style="display:none">
+      <div class="kb-rows">
+        <div class="kb-row">
+          <button class="kb-key" onclick="kbPress('A')">A</button>
+          <button class="kb-key" onclick="kbPress('B')">B</button>
+          <button class="kb-key" onclick="kbPress('F')">F</button>
+          <button class="kb-key" onclick="kbPress('J')">J</button>
+          <button class="kb-key" onclick="kbPress('K')">K</button>
+          <button class="kb-key" onclick="kbPress('O')">O</button>
+          <button class="kb-key" onclick="kbPress('S')">S</button>
+          <button class="kb-key" onclick="kbPress('W')">W</button>
+          <button class="kb-key" onclick="kbPress('Y')">Y</button>
+          <button class="kb-key" onclick="kbPress('Z')">Z</button>
+        </div>
+        <div class="kb-row">
+          <button class="kb-key" onclick="kbPress('1')">1</button>
+          <button class="kb-key" onclick="kbPress('2')">2</button>
+          <button class="kb-key" onclick="kbPress('3')">3</button>
+          <button class="kb-key" onclick="kbPress('4')">4</button>
+          <button class="kb-key" onclick="kbPress('5')">5</button>
+          <button class="kb-key" onclick="kbPress('6')">6</button>
+          <button class="kb-key" onclick="kbPress('7')">7</button>
+          <button class="kb-key" onclick="kbPress('8')">8</button>
+          <button class="kb-key" onclick="kbPress('9')">9</button>
+          <button class="kb-key" onclick="kbPress('0')">0</button>
+          <button class="kb-key kb-del" onclick="kbDel()">⌫</button>
+        </div>
+      </div>
+    </div>
     <div class="stu-found" id="stu-found">
       <div class="stu-fname" id="stu-fname"></div>
       <div class="stu-fdetail" id="stu-fdetail"></div>
@@ -399,32 +465,26 @@ function toArr(v) {
 
 // Start realtime listener - auto-updates whenever Firebase data changes
 function startRealtimeSync() {
-  db.ref('data').on('value', function(snap) {
-    // Update sync status indicator
-    var syncEl = document.getElementById('sync-status');
-    if (syncEl) syncEl.textContent = '';
-    var val = snap.val() || {};
-    coaches = toArr(val.coaches); if (!coaches.length) coaches = getDefaultCoaches();
-    // Deduplicate students by id
-    var rawStu = toArr(val.students);
+  // Only listen to students and coaches - NOT records
+  // This prevents checkin writes from re-triggering the listener
+  db.ref('data/students').on('value', function(snap) {
+    var rawStu = toArr(snap.val());
     var stuMap = {};
     for (var i = 0; i < rawStu.length; i++) {
       if (rawStu[i] && rawStu[i].id) stuMap[rawStu[i].id] = rawStu[i];
     }
     students = Object.values(stuMap);
-    var rawRec = toArr(val.records);
-    records = rawRec.filter(function(r){ return r && r.date; }).sort(function(a,b){
-      var da = a.date + (a.time||''); var db = b.date + (b.time||'');
-      return da > db ? -1 : da < db ? 1 : 0;
-    });
+    var syncEl = document.getElementById('sync-status');
+    if (syncEl) syncEl.textContent = '';
     _dataReady = true;
-    // Run any waiting callbacks
     var cbs = _dataCallbacks.slice();
     _dataCallbacks = [];
     for (var i = 0; i < cbs.length; i++) cbs[i]();
-  }, function(err) {
-    console.error('Sync error:', err);
-    _dataReady = true;
+  });
+  db.ref('data/coaches').on('value', function(snap) {
+    var raw = toArr(snap.val());
+    if (raw.length) coaches = raw;
+    else coaches = getDefaultCoaches();
   });
 }
 
@@ -609,11 +669,12 @@ function goToName() {
   // Data is kept fresh by realtime listener - just enable input
   if (h) h.textContent = '教練：' + selCoach.name + '・請輸入您的姓名';
   var e = document.getElementById('name-input');
-  if (e) { e.disabled = false; e.focus(); }
+  if (e) { e.disabled = false; }
+  showKb();
 }
 
 // ══ Student search ══
-document.getElementById('name-input').addEventListener('input', function() { searchStu(this.value); });
+document.getElementById('name-input').addEventListener('click', function() { showKb(); });
 
 function searchStu(val) {
   selStudent = null;
@@ -666,9 +727,7 @@ function confirmStu(s) {
   document.getElementById('notfound').style.display = 'none';
   document.getElementById('multibox').style.display = 'none';
   document.getElementById('stu-found').style.display = 'block';
-  // Dismiss keyboard after student found
-  var ni = document.getElementById('name-input');
-  if (ni) ni.blur();
+  hideKb();
   var b = document.getElementById('btn-to-sig');
   if (remain <= 0) {
     var a = document.getElementById('name-alert');
@@ -680,7 +739,7 @@ function confirmStu(s) {
   }
 }
 
-function goToSig() { if (selStudent) goScreen('s-sig'); }
+function goToSig() { if (selStudent) { hideKb(); goScreen('s-sig'); } }
 
 // ══ Signature ══
 function initSig() {
@@ -717,13 +776,18 @@ function hasSig() {
 function todayStr() { var d=new Date(); return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); }
 function nowStr() { return new Date().toLocaleTimeString('zh-TW',{hour:'2-digit',minute:'2-digit'}); }
 
+var _submitting = false;
 function submitCheckin() {
+  if (_submitting) return; // prevent double submit
   if (!hasSig()) {
     var a = document.getElementById('sig-alert');
     a.style.display = 'block';
     setTimeout(function() { a.style.display='none'; }, 3000);
     return;
   }
+  _submitting = true;
+  var confirmBtn = document.querySelector('.lbtn-next');
+  if (confirmBtn) { confirmBtn.disabled = true; confirmBtn.textContent = '處理中...'; }
   showLoading('簽到中...');
 
   // Timeout: 12 seconds
@@ -738,6 +802,7 @@ function submitCheckin() {
   function fail(msg) {
     if (_done) return;
     _done = true;
+    _submitting = false;
     clearTimeout(_timeout);
     hideLoading();
     alert(msg);
@@ -746,8 +811,11 @@ function submitCheckin() {
   function showSuccess(stu, nr) {
     if (_done) return;
     _done = true;
+    _submitting = false;
     clearTimeout(_timeout);
     hideLoading();
+    var cb = document.querySelector('.lbtn-next');
+    if (cb) { cb.disabled = false; cb.textContent = '確認簽到 ✓'; }
     selStudent = stu;
     var si = document.getElementById('suc-info');
     var sr = document.getElementById('suc-remain');
@@ -939,6 +1007,34 @@ function showQResult(stu) {
   document.getElementById('q-hist').innerHTML = histHTML;
   document.getElementById('q-result').style.display = 'block';
   setTimeout(function() { var el=document.getElementById('q-result'); if(el) el.scrollIntoView({behavior:'smooth',block:'start'}); }, 100);
+}
+
+
+// ── Custom Keyboard ──
+function kbPress(key) {
+  var inp = document.getElementById('name-input');
+  if (!inp) return;
+  inp.value = inp.value + key;
+  searchStu(inp.value);
+}
+function kbDel() {
+  var inp = document.getElementById('name-input');
+  if (!inp) return;
+  inp.value = inp.value.slice(0, -1);
+  searchStu(inp.value);
+}
+function showKb() {
+  var kb = document.getElementById('custom-kb');
+  if (kb) kb.style.display = 'block';
+  // Push page content up so nothing is hidden
+  var body = document.querySelector('.pbody');
+  if (body) body.style.paddingBottom = '250px';
+}
+function hideKb() {
+  var kb = document.getElementById('custom-kb');
+  if (kb) kb.style.display = 'none';
+  var body = document.querySelector('.pbody');
+  if (body) body.style.paddingBottom = '100px';
 }
 
 // ══ Init ══
