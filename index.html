@@ -204,12 +204,8 @@ select.finput{-webkit-appearance:none;appearance:none;background-image:url("data
   </div>
   <div class="pbody">
     <div class="alertbox alerterr" id="name-alert"></div>
-    <div style="background:linear-gradient(135deg,#111,#222);border-radius:14px;padding:16px 18px;margin-bottom:14px;text-align:center">
-      <div style="font-size:22px;font-weight:800;color:#fff;letter-spacing:.04em;margin-bottom:4px">建議直接輸入編號更快喔！</div>
-      <div style="font-size:14px;color:rgba(255,255,255,.5)">例如：Y001、A003、J012</div>
-    </div>
-    <label class="flbl">輸入姓名或學員編號</label>
-    <input class="finput" id="name-input" type="text" placeholder="輸入編號（如 Y001）或姓名" autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false" inputmode="text">
+    <label class="flbl">您的姓名</label>
+    <input class="finput" id="name-input" type="text" placeholder="請輸入姓名" autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false" inputmode="search">
     <div class="stu-found" id="stu-found">
       <div class="stu-fname" id="stu-fname"></div>
       <div class="stu-fdetail" id="stu-fdetail"></div>
@@ -403,26 +399,32 @@ function toArr(v) {
 
 // Start realtime listener - auto-updates whenever Firebase data changes
 function startRealtimeSync() {
-  // Only listen to students and coaches - NOT records
-  // This prevents checkin writes from re-triggering the listener
-  db.ref('data/students').on('value', function(snap) {
-    var rawStu = toArr(snap.val());
+  db.ref('data').on('value', function(snap) {
+    // Update sync status indicator
+    var syncEl = document.getElementById('sync-status');
+    if (syncEl) syncEl.textContent = '';
+    var val = snap.val() || {};
+    coaches = toArr(val.coaches); if (!coaches.length) coaches = getDefaultCoaches();
+    // Deduplicate students by id
+    var rawStu = toArr(val.students);
     var stuMap = {};
     for (var i = 0; i < rawStu.length; i++) {
       if (rawStu[i] && rawStu[i].id) stuMap[rawStu[i].id] = rawStu[i];
     }
     students = Object.values(stuMap);
-    var syncEl = document.getElementById('sync-status');
-    if (syncEl) syncEl.textContent = '';
+    var rawRec = toArr(val.records);
+    records = rawRec.filter(function(r){ return r && r.date; }).sort(function(a,b){
+      var da = a.date + (a.time||''); var db = b.date + (b.time||'');
+      return da > db ? -1 : da < db ? 1 : 0;
+    });
     _dataReady = true;
+    // Run any waiting callbacks
     var cbs = _dataCallbacks.slice();
     _dataCallbacks = [];
     for (var i = 0; i < cbs.length; i++) cbs[i]();
-  });
-  db.ref('data/coaches').on('value', function(snap) {
-    var raw = toArr(snap.val());
-    if (raw.length) coaches = raw;
-    else coaches = getDefaultCoaches();
+  }, function(err) {
+    console.error('Sync error:', err);
+    _dataReady = true;
   });
 }
 
@@ -715,18 +717,13 @@ function hasSig() {
 function todayStr() { var d=new Date(); return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); }
 function nowStr() { return new Date().toLocaleTimeString('zh-TW',{hour:'2-digit',minute:'2-digit'}); }
 
-var _submitting = false;
 function submitCheckin() {
-  if (_submitting) return; // prevent double submit
   if (!hasSig()) {
     var a = document.getElementById('sig-alert');
     a.style.display = 'block';
     setTimeout(function() { a.style.display='none'; }, 3000);
     return;
   }
-  _submitting = true;
-  var confirmBtn = document.querySelector('.lbtn-next');
-  if (confirmBtn) { confirmBtn.disabled = true; confirmBtn.textContent = '處理中...'; }
   showLoading('簽到中...');
 
   // Timeout: 12 seconds
@@ -741,7 +738,6 @@ function submitCheckin() {
   function fail(msg) {
     if (_done) return;
     _done = true;
-    _submitting = false;
     clearTimeout(_timeout);
     hideLoading();
     alert(msg);
@@ -750,11 +746,8 @@ function submitCheckin() {
   function showSuccess(stu, nr) {
     if (_done) return;
     _done = true;
-    _submitting = false;
     clearTimeout(_timeout);
     hideLoading();
-    var cb = document.querySelector('.lbtn-next');
-    if (cb) { cb.disabled = false; cb.textContent = '確認簽到 ✓'; }
     selStudent = stu;
     var si = document.getElementById('suc-info');
     var sr = document.getElementById('suc-remain');
