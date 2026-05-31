@@ -210,7 +210,7 @@ select.finput{-webkit-appearance:none;appearance:none;background-image:url("data
       <div class="coach-grid" id="coach-grid"></div>
     </div>
     <div class="dark-bottom">
-      <button class="btn-back-d" onclick="goScreen('s-welcome')">返回</button>
+      <button class="btn-back-d" onclick="hideQKb();goScreen('s-welcome')">返回</button>
       <button class="btn-next-d" onclick="goToName()">下一步 →</button>
     </div>
   </div>
@@ -341,7 +341,38 @@ select.finput{-webkit-appearance:none;appearance:none;background-image:url("data
       <label class="flbl">選擇您的教練</label>
       <select class="finput" id="q-coach" style="margin-bottom:14px;font-size:16px;padding:12px 14px" onchange="qReset()"></select>
       <label class="flbl">您的姓名</label>
-      <input class="finput" id="q-name" type="text" placeholder="請輸入姓名" autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false">
+      <input class="finput" id="q-name" type="text" placeholder="請輸入編號或姓名"
+        readonly style="cursor:pointer;caret-color:transparent"
+        autocomplete="off" onclick="showQKb()">
+      <div class="custom-kb" id="query-kb" style="display:none">
+        <div class="kb-rows">
+          <div class="kb-row">
+            <button class="kb-key" onclick="qKbPress('A')">A</button>
+            <button class="kb-key" onclick="qKbPress('B')">B</button>
+            <button class="kb-key" onclick="qKbPress('F')">F</button>
+            <button class="kb-key" onclick="qKbPress('J')">J</button>
+            <button class="kb-key" onclick="qKbPress('K')">K</button>
+            <button class="kb-key" onclick="qKbPress('O')">O</button>
+            <button class="kb-key" onclick="qKbPress('S')">S</button>
+            <button class="kb-key" onclick="qKbPress('W')">W</button>
+            <button class="kb-key" onclick="qKbPress('Y')">Y</button>
+            <button class="kb-key" onclick="qKbPress('Z')">Z</button>
+          </div>
+          <div class="kb-row">
+            <button class="kb-key" onclick="qKbPress('1')">1</button>
+            <button class="kb-key" onclick="qKbPress('2')">2</button>
+            <button class="kb-key" onclick="qKbPress('3')">3</button>
+            <button class="kb-key" onclick="qKbPress('4')">4</button>
+            <button class="kb-key" onclick="qKbPress('5')">5</button>
+            <button class="kb-key" onclick="qKbPress('6')">6</button>
+            <button class="kb-key" onclick="qKbPress('7')">7</button>
+            <button class="kb-key" onclick="qKbPress('8')">8</button>
+            <button class="kb-key" onclick="qKbPress('9')">9</button>
+            <button class="kb-key" onclick="qKbPress('0')">0</button>
+            <button class="kb-key kb-del" onclick="qKbDel()">⌫</button>
+          </div>
+        </div>
+      </div>
       <div class="notfound" id="q-notfound" style="margin-top:10px">找不到此學員</div>
       <div class="multibox" id="q-multi" style="margin-top:10px"></div>
     </div>
@@ -485,6 +516,18 @@ function startRealtimeSync() {
     var raw = toArr(snap.val());
     if (raw.length) coaches = raw;
     else coaches = getDefaultCoaches();
+  });
+  // Load records once (not realtime - avoids re-triggering on checkin write)
+  loadRecords();
+}
+
+function loadRecords() {
+  db.ref('data/records').once('value', function(snap) {
+    var raw = toArr(snap.val());
+    records = raw.filter(function(r){ return r && r.date; }).sort(function(a,b){
+      var da = a.date+(a.time||''); var db2 = b.date+(b.time||'');
+      return da > db2 ? -1 : da < db2 ? 1 : 0;
+    });
   });
 }
 
@@ -825,6 +868,7 @@ function submitCheckin() {
     else if (nr <= 2) tag = '<span class="rbadge rlow">⚠️ 剩餘 ' + nr + ' 堂，請記得續購</span>';
     else tag = '<span class="rbadge rok">剩餘堂數：' + nr + ' 堂</span>';
     if (sr) sr.innerHTML = tag;
+    loadRecords();
     buildSuccessDetail(stu);
     goScreen('s-success');
   }
@@ -905,7 +949,7 @@ function buildSuccessDetail(stu) {
     + '<div class="dcard"><div class="dtitle">🕐 所有簽到紀錄</div>' + histHTML + '</div>';
 }
 
-function resetAll() { selCoach=null; selStudent=null; goScreen('s-welcome'); }
+function resetAll() { selCoach=null; selStudent=null; hideKb(); hideQKb(); goScreen('s-welcome'); }
 
 // ══ Query ══
 function initQuery() {
@@ -940,7 +984,7 @@ function qSearch() {
   for (var i=0;i<students.length;i++) {
     if (students[i].name.indexOf(val)!==-1 && students[i].coach===coach) matches.push(students[i]);
   }
-  if (matches.length===1) { showQResult(matches[0]); }
+  if (matches.length===1) { hideQKb(); showQResult(matches[0]); }
   else if (matches.length>1) {
     var box = document.getElementById('q-multi');
     var html = '<div style="font-size:14px;color:#666;margin-bottom:8px">找到多位學員：</div>';
@@ -1023,6 +1067,32 @@ function kbDel() {
   inp.value = inp.value.slice(0, -1);
   searchStu(inp.value);
 }
+
+function showQKb() {
+  var kb = document.getElementById('query-kb');
+  if (kb) { kb.style.display = 'block'; kb.style.position = 'fixed'; kb.style.bottom = '80px'; kb.style.left = '0'; kb.style.right = '0'; kb.style.zIndex = '100'; }
+  var body = document.querySelector('#s-query .pbody');
+  if (body) body.style.paddingBottom = '250px';
+}
+function hideQKb() {
+  var kb = document.getElementById('query-kb');
+  if (kb) kb.style.display = 'none';
+  var body = document.querySelector('#s-query .pbody');
+  if (body) body.style.paddingBottom = '';
+}
+function qKbPress(key) {
+  var inp = document.getElementById('q-name');
+  if (!inp) return;
+  inp.value = inp.value + key;
+  qSearch();
+}
+function qKbDel() {
+  var inp = document.getElementById('q-name');
+  if (!inp) return;
+  inp.value = inp.value.slice(0, -1);
+  qSearch();
+}
+
 function showKb() {
   var kb = document.getElementById('custom-kb');
   if (kb) kb.style.display = 'block';

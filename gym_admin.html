@@ -478,6 +478,7 @@ tr:hover td{background:var(--bg2)}
           <option value="">全部方式</option>
           <option value="現金">現金</option><option value="匯款">匯款</option><option value="刷卡">刷卡</option>
         </select>
+        <select id="pf-plan-type" onchange="renderPayment()" style="font-size:14px;padding:7px 10px;border-radius:8px;border:1px solid var(--border2);background:var(--bg2);color:var(--text)"><option value="">全部方案</option><option value="1v1">1v1</option><option value="1v2">1v2</option></select>
       </div>
       <div id="payment-list"></div>
     </div>
@@ -490,6 +491,7 @@ tr:hover td{background:var(--bg2)}
       <div class="filter-row">
         <select id="rf-coach" onchange="renderReport()"><option value="">全部教練</option></select>
         <select id="rf-stu" onchange="renderReport()"><option value="">全部學員</option></select>
+        <select id="rf-plan-type" onchange="renderReport()" style="font-size:14px;padding:7px 10px;border-radius:8px;border:1px solid var(--border2);background:var(--bg2);color:var(--text)"><option value="">全部方案</option><option value="1v1">1v1</option><option value="1v2">1v2</option></select>
       </div>
       <div class="table-wrap">
         <table>
@@ -678,8 +680,9 @@ function fbSaveStudents() {
   });
 }
 function fbSaveSingleStudent(stu) {
-  if (!stu || !stu.id) return;
-  fbdb.ref('data/students/' + String(stu.id)).set(stu, function(err) {
+  if (!stu) return;
+  // Firebase stores students as array, so rewrite whole array
+  fbdb.ref('data/students').set(students, function(err) {
     if (err) console.error('Save student error:', err);
   });
 }
@@ -1532,7 +1535,7 @@ function updateEditRemain(){
 }
 function loadEditStu(){
   const id=parseInt(document.getElementById('edit-stu-sel').value);
-  const s=students.find(st=>st.id===id);
+  const s=students.find(function(st){return String(st.id)===String(id);});
   const form=document.getElementById('edit-stu-form');
   if(!s){form.style.display='none';return;}
   populateEditCoach();
@@ -1606,7 +1609,7 @@ function renderEditContracts(s){
 
 function updateContractTotal(stuId, ci){
   // Recalculate and display new total for this contract
-  const s=students.find(st=>st.id===parseInt(stuId));
+  const s=students.find(function(st){return String(st.id)===String(stuId);});
   if(!s||!s.contracts[ci])return;
   const c=s.contracts[ci];
   let newTotal=0;
@@ -1619,7 +1622,7 @@ function updateContractTotal(stuId, ci){
   if(el) el.textContent='NT$'+newTotal.toLocaleString();
 }
 function editConfirmPay(stuId, ci, ii){
-  const s=students.find(st=>st.id===parseInt(stuId));
+  const s=students.find(function(st){return String(st.id)===String(stuId);});
   if(!s||!s.contracts[ci]||!s.contracts[ci].installments[ii])return;
   const ins=s.contracts[ci].installments[ii];
   const paidDate=gv('ec-paiddate-'+ci+'-'+ii)||today();
@@ -1634,7 +1637,7 @@ function editConfirmPay(stuId, ci, ii){
 }
 
 function editCancelPay(stuId, ci, ii){
-  const s=students.find(st=>st.id===parseInt(stuId));
+  const s=students.find(function(st){return String(st.id)===String(stuId);});
   if(!s||!s.contracts[ci]||!s.contracts[ci].installments[ii])return;
   if(!confirm('確定要取消這筆收款紀錄嗎？'))return;
   const ins=s.contracts[ci].installments[ii];
@@ -1660,8 +1663,9 @@ function saveEditStu(){
   if(!name||!coach){toast('請填寫學員姓名與教練');return;}
   const oldName=s.name; const oldCoach=s.coach;
   // Save shianType if applicable
-  if(name==='shian教練'||coach==='shian教練'){
-    s.shianType=document.getElementById('shian-type-company').contains('active')?'company':'self';
+  if(coach==='shian教練'){
+    var scEl=document.getElementById('shian-type-company');
+    s.shianType=(scEl&&scEl.classList.contains('active'))?'company':'self';
   }
   // save session edits
   const newTotal=parseInt(gv('edit-total-sessions'))||s.totalSessions;
@@ -1695,12 +1699,16 @@ function saveEditStu(){
   document.getElementById('edit-stu-form').style.display='none';
 }
 function deleteStu(){
-  const id=parseInt(document.getElementById('edit-stu-sel').value);
-  const s=students.find(st=>st.id===id);if(!s)return;
+  const selVal=document.getElementById('edit-stu-sel').value;
+  const s=students.find(function(st){return String(st.id)===String(selVal);});if(!s)return;
+  const id=s.id;
   if(!confirm('確定要刪除「'+s.name+'」的所有資料嗎？此操作無法還原'))return;
   logAction('刪除學員',s.name,s.coach,'共 '+s.totalSessions+' 堂，已上 '+s.usedSessions+' 堂');
-  students=students.filter(st=>st.id!==id);
-  fbDeleteStudent(id);
+  students=students.filter(function(st){return String(st.id)!==String(id);});
+  // Firebase stores as array (0,1,2...) so we must rewrite the whole array
+  fbdb.ref('data/students').set(students, function(err){
+    if(err) console.error('Delete error:', err);
+  });
   try{save('gym_students',students);}catch(e){}
   toast('已刪除：'+s.name);
   filterEditStudents();
@@ -1789,6 +1797,10 @@ function renderPayment(){
   let list=students.filter(s=>!fc||s.coach===fc);
   if(fs)list=list.filter(s=>getPayStatus(s)===fs);
   if(fm)list=list.filter(s=>(s.contracts||[]).reduce(function(a,c){return a.concat(c.installments||[]);},[]).some(i=>i.method===fm));
+  var fpt=document.getElementById('pf-plan-type')?document.getElementById('pf-plan-type').value:'';
+  if(fpt)list=list.filter(function(s){
+    return (s.contracts||[]).some(function(c){return c.planLabel&&c.planLabel.indexOf(fpt)!==-1;});
+  });
   var allInst=list.reduce(function(a,s){return a.concat((s.contracts||[]).reduce(function(b,c){return b.concat(c.installments);},[]));},[]);
   const paidAmt=allInst.filter(i=>i.paid).reduce((s,i)=>s+i.amount,0);
   const unpaidAmt=allInst.filter(i=>!i.paid).reduce((s,i)=>s+i.amount,0);
@@ -1846,7 +1858,9 @@ function renderReport(){
   csel.innerHTML='<option value="">全部教練</option>'+coaches.map(function(c){return '<option value="'+c.name+'"'+(c.name===cc?' selected':'')+'>'+c.name+'</option>'}).join('');
   const ssel=document.getElementById('rf-stu');const cs=ssel.value;
   ssel.innerHTML='<option value="">全部學員</option>'+Array.from(new Set(records.map(function(r){return r.student;}))).map(function(n){return '<option value="'+n+'"'+(n===cs?' selected':'')+'>'+n+'</option>';}).join('');
-  const filtered=records.filter(r=>(!fc||r.coach===fc)&&(!fs||r.student===fs));
+  var fpt2=document.getElementById('rf-plan-type')?document.getElementById('rf-plan-type').value:'';
+  let filtered=records.filter(r=>(!fc||r.coach===fc)&&(!fs||r.student===fs));
+  if(fpt2){filtered=filtered.filter(function(r){var s=students.find(function(st){return st.name===r.student;});return s&&(s.contracts||[]).some(function(c){return c.planLabel&&c.planLabel.indexOf(fpt2)!==-1;});});}
   const revenue=filtered.reduce((sum,r)=>{const s=students.find(st=>st.name===r.student);return sum+(s?s.pricePerSession:0);},0);
   document.getElementById('rpt-metrics').innerHTML='<div class="metric"><div class="m-label">總簽到</div><div class="m-value">'+filtered.length+'</div><div class="m-sub">堂次</div></div><div class="metric"><div class="m-label">業績</div><div class="m-value">$'+revenue.toLocaleString()+'</div><div class="m-sub">元</div></div><div class="metric"><div class="m-label">活躍學員</div><div class="m-value">'+new Set(filtered.map(function(r){return r.student;})).size+'</div><div class="m-sub">位</div></div>';
   document.getElementById('rpt-tbody').innerHTML=filtered.map(r=>{
