@@ -873,9 +873,21 @@ function submitCheckin() {
     goScreen('s-success');
   }
 
-  // Step 1: 讀取最新學員資料
-  db.ref('data/students/' + selStudent.id).once('value', function(snap) {
-    var stu = snap.val();
+  // Step 1: 從記憶體找學員（Firebase是陣列格式，不能用ID當路徑）
+  var stu = null;
+  for (var i = 0; i < students.length; i++) {
+    if (String(students[i].id) === String(selStudent.id)) { stu = students[i]; break; }
+  }
+  if (!stu || stu.totalSessions - stu.usedSessions <= 0) {
+    fail('堂數已用完，請洽詢前台'); return;
+  }
+  // Step 1.5: 同步從Firebase讀最新堂數（確保資料最新）
+  db.ref('data/students').once('value', function(snap) {
+    var rawStu = snap.val() || [];
+    var arr = Array.isArray(rawStu) ? rawStu : Object.values(rawStu);
+    for (var j = 0; j < arr.length; j++) {
+      if (arr[j] && String(arr[j].id) === String(selStudent.id)) { stu = arr[j]; break; }
+    }
     if (!stu || stu.totalSessions - stu.usedSessions <= 0) {
       fail('堂數已用完，請洽詢前台'); return;
     }
@@ -887,8 +899,12 @@ function submitCheckin() {
     db.ref('data/records').push(rec, function(err1) {
       if (err1) { fail('簽到紀錄儲存失敗，請重試'); return; }
 
-      // Step 3: 紀錄成功後才扣堂數
-      db.ref('data/students/' + stu.id).set(stu, function(err2) {
+      // Step 3: 紀錄成功後才扣堂數，寫回整個陣列
+      // 先更新記憶體
+      for (var k = 0; k < students.length; k++) {
+        if (String(students[k].id) === String(stu.id)) { students[k] = stu; break; }
+      }
+      db.ref('data/students').set(students, function(err2) {
         if (err2) {
           // 紀錄已寫入但堂數沒扣 - 極少見，提示教練處理
           fail('堂數更新失敗，請告知教練手動確認（簽到紀錄已存入）'); return;

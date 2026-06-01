@@ -1868,6 +1868,52 @@ function renderPayment(){
   }).join('');
 }
 
+
+function markPaid(stuId, contractId, instIdx) {
+  var s = students.find(function(st){ return String(st.id)===String(stuId); });
+  if (!s) { toast('找不到學員'); return; }
+  var c = null;
+  for (var i=0;i<(s.contracts||[]).length;i++){
+    if (String(s.contracts[i].id)===String(contractId)){ c=s.contracts[i]; break; }
+  }
+  if (!c || !c.installments[instIdx]) { toast('找不到合約'); return; }
+  var ins = c.installments[instIdx];
+  var pdEl = document.getElementById('pd-'+stuId+'-'+contractId+'-'+instIdx);
+  var paidDate = pdEl ? pdEl.value : today();
+  var method = ins.method || '確認收款';
+  ins.paid = true;
+  ins.paidDate = paidDate;
+  ins.method = method;
+  logAction('標記付款',s.name,s.coach,'第 '+ins.seq+' 期，NT$'+ins.amount.toLocaleString()+'，收款日 '+paidDate);
+  fbSaveSingleStudent(s);
+  try{save('gym_students',students);}catch(e){}
+  renderPayment();
+  toast('✓ 已標記收款：NT$'+ins.amount.toLocaleString());
+}
+
+function togglePay(stuId, contractId, instIdx, paid) {
+  var s = students.find(function(st){ return String(st.id)===String(stuId); });
+  if (!s) { toast('找不到學員'); return; }
+  var c = null;
+  for (var i=0;i<(s.contracts||[]).length;i++){
+    if (String(s.contracts[i].id)===String(contractId)){ c=s.contracts[i]; break; }
+  }
+  if (!c || !c.installments[instIdx]) { toast('找不到合約'); return; }
+  var ins = c.installments[instIdx];
+  if (!paid) {
+    if (!confirm('確定要取消這筆收款嗎？')) return;
+    ins.paid = false; ins.paidDate = null; ins.method = null;
+    logAction('取消付款',s.name,s.coach,'第 '+ins.seq+' 期，NT$'+ins.amount.toLocaleString());
+  } else {
+    ins.paid = true; ins.paidDate = today();
+    logAction('標記付款',s.name,s.coach,'第 '+ins.seq+' 期，NT$'+ins.amount.toLocaleString());
+  }
+  fbSaveSingleStudent(s);
+  try{save('gym_students',students);}catch(e){}
+  renderPayment();
+  toast(paid ? '✓ 已標記收款' : '已取消收款');
+}
+
 function renderReport(){
   const fc=document.getElementById('rf-coach').value;
   const fs=document.getElementById('rf-stu').value;
