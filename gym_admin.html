@@ -509,6 +509,10 @@ tr:hover td{background:var(--bg2)}
         <select id="rf-coach" onchange="renderReport()"><option value="">全部教練</option></select>
         <select id="rf-stu" onchange="renderReport()"><option value="">全部學員</option></select>
         <select id="rf-plan-type" onchange="renderReport()" style="font-size:14px;padding:7px 10px;border-radius:8px;border:1px solid var(--border2);background:var(--bg2);color:var(--text)"><option value="">全部方案</option><option value="1v1">1v1</option><option value="1v2">1v2</option></select>
+          <input type="date" id="rf-date-from" onchange="renderReport()" style="font-size:14px;padding:7px 10px;border-radius:8px;border:1px solid var(--border2);background:var(--bg2);color:var(--text)">
+          <span style="font-size:13px;color:var(--text2)">～</span>
+          <input type="date" id="rf-date-to" onchange="renderReport()" style="font-size:14px;padding:7px 10px;border-radius:8px;border:1px solid var(--border2);background:var(--bg2);color:var(--text)">
+          <button onclick="clearRfDates()" style="font-size:13px;padding:7px 12px;border-radius:8px;border:1px solid var(--border2);background:var(--bg2);color:var(--text2);cursor:pointer">清除</button>
       </div>
       <div class="table-wrap">
         <table>
@@ -1914,6 +1918,12 @@ function togglePay(stuId, contractId, instIdx, paid) {
   toast(paid ? '✓ 已標記收款' : '已取消收款');
 }
 
+function clearRfDates(){
+  var f=document.getElementById('rf-date-from');
+  var t=document.getElementById('rf-date-to');
+  if(f)f.value='';if(t)t.value='';
+  renderReport();
+}
 function renderReport(){
   const fc=document.getElementById('rf-coach').value;
   const fs=document.getElementById('rf-stu').value;
@@ -1922,14 +1932,19 @@ function renderReport(){
   const ssel=document.getElementById('rf-stu');const cs=ssel.value;
   ssel.innerHTML='<option value="">全部學員</option>'+Array.from(new Set(records.map(function(r){return r.student;}))).map(function(n){return '<option value="'+n+'"'+(n===cs?' selected':'')+'>'+n+'</option>';}).join('');
   var fpt2=document.getElementById('rf-plan-type')?document.getElementById('rf-plan-type').value:'';
+  var dateFrom=document.getElementById('rf-date-from')?document.getElementById('rf-date-from').value:'';
+  var dateTo=document.getElementById('rf-date-to')?document.getElementById('rf-date-to').value:'';
   let filtered=records.filter(r=>(!fc||r.coach===fc)&&(!fs||r.student===fs));
+  if(dateFrom)filtered=filtered.filter(function(r){return r.date>=dateFrom;});
+  if(dateTo)filtered=filtered.filter(function(r){return r.date<=dateTo;});
   if(fpt2){filtered=filtered.filter(function(r){var s=students.find(function(st){return st.name===r.student;});return s&&(s.contracts||[]).some(function(c){return c.planLabel&&c.planLabel.indexOf(fpt2)!==-1;});});}
   const revenue=filtered.reduce((sum,r)=>{const s=students.find(st=>st.name===r.student);return sum+(s?s.pricePerSession:0);},0);
   document.getElementById('rpt-metrics').innerHTML='<div class="metric"><div class="m-label">總簽到</div><div class="m-value">'+filtered.length+'</div><div class="m-sub">堂次</div></div><div class="metric"><div class="m-label">業績</div><div class="m-value">$'+revenue.toLocaleString()+'</div><div class="m-sub">元</div></div><div class="metric"><div class="m-label">活躍學員</div><div class="m-value">'+new Set(filtered.map(function(r){return r.student;})).size+'</div><div class="m-sub">位</div></div>';
   document.getElementById('rpt-tbody').innerHTML=filtered.map(r=>{
     const s=students.find(st=>st.name===r.student);
     const ps=s?getPayStatus(s):'unpaid';
-    const lastM=s?(s.contracts||[]).reduce(function(a,c){return a.concat(c.installments||[]);},[]).filter(i=>i.paid&&i.method).slice(-1)[0]:null;
+    var lastInst=s?(s.contracts||[]).reduce(function(a,c){return a.concat(c.installments||[]);},[]).filter(function(i){return i.paid&&i.method;}):[];
+    var lastM=lastInst.length?lastInst[lastInst.length-1].method:null;
     return '<tr><td>'+r.date.slice(5)+'</td><td>'+r.time+'</td><td>'+r.student+'</td><td>'+r.coach+'</td><td style="text-align:center;font-weight:600">'+r.remainAfter+'</td><td>'+payBadge(ps)+'</td><td>'+methodBadge(lastM)+'</td><td style="text-align:center">✍️</td></tr>';
   }).join('');
 }
