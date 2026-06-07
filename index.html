@@ -187,10 +187,42 @@ select.finput{-webkit-appearance:none;appearance:none;background-image:url("data
     <div id="sync-status" style="font-size:12px;color:rgba(255,255,255,.4);margin-bottom:12px;min-height:18px">⟳ 資料同步中...</div>
     <button class="welcome-btn-p" onclick="goScreen('s-coach')">✏️ 開始今日簽到</button>
     <button class="welcome-btn-s" onclick="goScreen('s-query')">🔍 查詢堂數 / 付款狀態</button>
+    <button class="welcome-btn-s" onclick="goScreen('s-daily')" style="margin-top:8px;opacity:.7;font-size:13px;padding:10px 24px">📋 今日簽到總覽</button>
+  </div>
+</div>
+
+<!-- DAILY OVERVIEW -->
+<div class="screen" id="s-daily">
+  <div class="lhead">
+    <div class="lhead-row"><img class="lhead-logo" id="daily-logo" src="" alt="FMC"><span style="font-size:13px;font-weight:600;color:#333">FMC</span></div>
+    <h2>今日簽到總覽</h2>
+    <p id="daily-date-label"></p>
+  </div>
+  <div class="pbody">
+    <!-- 密碼鎖 -->
+    <div id="daily-lock" style="max-width:320px;margin:20px auto;text-align:center;background:#fff;border-radius:16px;padding:28px 24px;box-shadow:0 2px 12px rgba(0,0,0,.08)">
+      <div style="font-size:36px;margin-bottom:12px">🔒</div>
+      <div style="font-size:16px;font-weight:600;color:#111;margin-bottom:16px">請輸入密碼</div>
+      <input type="password" id="daily-pw" placeholder="••••"
+        style="width:100%;text-align:center;font-size:22px;letter-spacing:.3em;padding:10px;border:1.5px solid #ddd;border-radius:10px;outline:none;margin-bottom:14px"
+        onkeydown="if(event.key==='Enter')checkDailyPw()">
+      <button onclick="checkDailyPw()"
+        style="width:100%;padding:12px;background:#111;color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:600;cursor:pointer">確認</button>
+      <div id="daily-pw-err" style="color:#e53e3e;font-size:13px;margin-top:10px;display:none">密碼錯誤</div>
+    </div>
+    <!-- 內容（解鎖後） -->
+    <div id="daily-content" style="display:none">
+      <div id="daily-summary" style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px"></div>
+      <div id="daily-list"></div>
+    </div>
+  </div>
+  <div class="lbottom">
+    <button class="btn-back-d" onclick="hideDailyKb();goScreen('s-welcome')">返回</button>
   </div>
 </div>
 
 <!-- COACH -->
+
 <div class="screen" id="s-coach">
   <div id="coach-bg"></div>
   <div id="coach-fg">
@@ -610,6 +642,19 @@ function updateClock() {
 
 // ══ Screen navigation ══
 function goScreen(id) {
+  // When entering daily screen, check unlock state
+  if (id === 's-daily') {
+    document.getElementById('daily-date-label').textContent = todayStr() + ' 今日簽到';
+    if (_dailyUnlocked) {
+      document.getElementById('daily-lock').style.display = 'none';
+      document.getElementById('daily-content').style.display = 'block';
+      renderDailyOverview();
+    } else {
+      document.getElementById('daily-lock').style.display = 'block';
+      document.getElementById('daily-content').style.display = 'none';
+      setTimeout(function(){ var el=document.getElementById('daily-pw'); if(el)el.focus(); }, 300);
+    }
+  }
   var all = document.querySelectorAll('.screen');
   for (var i = 0; i < all.length; i++) all[i].classList.remove('active');
   var t = document.getElementById(id);
@@ -1123,8 +1168,83 @@ function hideKb() {
   if (body) body.style.paddingBottom = '100px';
 }
 
+
+var _dailyUnlocked = false;
+
+function checkDailyPw() {
+  var pw = document.getElementById('daily-pw').value;
+  var err = document.getElementById('daily-pw-err');
+  // Read password from Firebase
+  db.ref('data/admin_pw').once('value', function(snap) {
+    var stored = snap.val() || '1234';
+    if (pw === stored) {
+      _dailyUnlocked = true;
+      document.getElementById('daily-lock').style.display = 'none';
+      document.getElementById('daily-content').style.display = 'block';
+      document.getElementById('daily-pw').value = '';
+      err.style.display = 'none';
+      renderDailyOverview();
+    } else {
+      err.style.display = 'block';
+      document.getElementById('daily-pw').value = '';
+    }
+  });
+}
+
+function renderDailyOverview() {
+  var t = todayStr();
+  document.getElementById('daily-date-label').textContent = t + ' 今日簽到';
+  // Load latest records
+  db.ref('data/records').once('value', function(snap) {
+    var raw = toArr(snap.val());
+    var todayRecs = raw.filter(function(r) { return r && r.date === t; });
+    todayRecs.sort(function(a, b) { return a.time > b.time ? -1 : 1; });
+
+    // Summary by coach
+    var coachMap = {};
+    todayRecs.forEach(function(r) {
+      if (!coachMap[r.coach]) coachMap[r.coach] = [];
+      coachMap[r.coach].push(r);
+    });
+
+    // Summary cards
+    var sumEl = document.getElementById('daily-summary');
+    sumEl.innerHTML = '<div style="background:#111;color:#fff;border-radius:12px;padding:12px 18px;font-size:14px;font-weight:600">總計 ' + todayRecs.length + ' 堂</div>';
+    Object.keys(coachMap).forEach(function(coach) {
+      sumEl.innerHTML += '<div style="background:#f5f5f5;border-radius:12px;padding:10px 16px;font-size:13px;color:#333">' + coach + '：' + coachMap[coach].length + ' 堂</div>';
+    });
+
+    // List by coach
+    var listEl = document.getElementById('daily-list');
+    if (!todayRecs.length) {
+      listEl.innerHTML = '<div style="text-align:center;color:#999;padding:30px;font-size:14px">今日尚無簽到紀錄</div>';
+      return;
+    }
+    var html2 = '';
+    Object.keys(coachMap).forEach(function(coach) {
+      var recs = coachMap[coach];
+      html2 += '<div style="margin-bottom:16px">';
+      html2 += '<div style="font-size:12px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:.05em;padding:8px 0;border-bottom:2px solid #eee;margin-bottom:6px">' + coach + '・' + recs.length + ' 堂</div>';
+      recs.forEach(function(r) {
+        html2 += '<div style="display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid #f0f0f0;font-size:14px">'
+          + '<span style="font-weight:500;color:#111">' + r.student + '</span>'
+          + '<span style="color:#999;font-size:13px">' + r.time + '</span>'
+          + '</div>';
+      });
+      html2 += '</div>';
+    });
+    listEl.innerHTML = html2;
+  });
+}
+
+// Override goScreen to handle daily unlock state
+var _origGoScreen = null;
+
 // ══ Init ══
 setLogos();
+// Set daily logo
+var dlogo = document.getElementById('daily-logo');
+if (dlogo) { var wlogo = document.getElementById('welcome-logo'); if(wlogo) dlogo.src = wlogo.src; }
 updateClock();
 setInterval(updateClock, 1000);
 // Start syncing data in background immediately - no waiting
