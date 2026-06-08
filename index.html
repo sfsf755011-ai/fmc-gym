@@ -192,32 +192,45 @@ select.finput{-webkit-appearance:none;appearance:none;background-image:url("data
 </div>
 
 <!-- DAILY OVERVIEW -->
-<div class="screen" id="s-daily">
-  <div class="lhead">
-    <div class="lhead-row"><img class="lhead-logo" id="daily-logo" src="" alt="FMC"><span style="font-size:13px;font-weight:600;color:#333">FMC</span></div>
-    <h2>今日簽到總覽</h2>
-    <p id="daily-date-label"></p>
+<div class="screen" id="s-daily" style="background:#111;color:#fff">
+  <div class="lhead" style="background:#111;border-bottom:1px solid #333">
+    <div class="lhead-row"><img class="lhead-logo" id="daily-logo" src="" alt="FMC"><span style="font-size:13px;font-weight:600;color:#fff">FMC</span></div>
+    <h2 style="color:#fff">今日簽到總覽</h2>
+    <p id="daily-date-label" style="color:rgba(255,255,255,.6)"></p>
   </div>
-  <div class="pbody">
+  <div class="pbody" style="padding-bottom:100px">
     <!-- 密碼鎖 -->
-    <div id="daily-lock" style="max-width:320px;margin:20px auto;text-align:center;background:#fff;border-radius:16px;padding:28px 24px;box-shadow:0 2px 12px rgba(0,0,0,.08)">
+    <div id="daily-lock" style="max-width:320px;margin:40px auto;text-align:center">
       <div style="font-size:36px;margin-bottom:12px">🔒</div>
-      <div style="font-size:16px;font-weight:600;color:#111;margin-bottom:16px">請輸入密碼</div>
-      <input type="password" id="daily-pw" placeholder="••••"
-        style="width:100%;text-align:center;font-size:22px;letter-spacing:.3em;padding:10px;border:1.5px solid #ddd;border-radius:10px;outline:none;margin-bottom:14px"
-        onkeydown="if(event.key==='Enter')checkDailyPw()">
-      <button onclick="checkDailyPw()"
-        style="width:100%;padding:12px;background:#111;color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:600;cursor:pointer">確認</button>
-      <div id="daily-pw-err" style="color:#e53e3e;font-size:13px;margin-top:10px;display:none">密碼錯誤</div>
+      <div style="font-size:16px;font-weight:600;color:#fff;margin-bottom:20px">請輸入密碼</div>
+      <!-- Display field -->
+      <div id="daily-pw-display" style="font-size:28px;letter-spacing:.4em;color:#fff;background:#222;border-radius:12px;padding:14px;margin-bottom:16px;min-height:56px">　</div>
+      <div id="daily-pw-err" style="color:#ff6b6b;font-size:13px;margin-bottom:12px;display:none">密碼錯誤</div>
+      <!-- Custom numpad for password -->
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;max-width:240px;margin:0 auto">
+        <button onclick="dailyPwPress('1')" style="padding:18px;font-size:20px;font-weight:600;background:#222;color:#fff;border:1px solid #333;border-radius:12px;cursor:pointer">1</button>
+        <button onclick="dailyPwPress('2')" style="padding:18px;font-size:20px;font-weight:600;background:#222;color:#fff;border:1px solid #333;border-radius:12px;cursor:pointer">2</button>
+        <button onclick="dailyPwPress('3')" style="padding:18px;font-size:20px;font-weight:600;background:#222;color:#fff;border:1px solid #333;border-radius:12px;cursor:pointer">3</button>
+        <button onclick="dailyPwPress('4')" style="padding:18px;font-size:20px;font-weight:600;background:#222;color:#fff;border:1px solid #333;border-radius:12px;cursor:pointer">4</button>
+        <button onclick="dailyPwPress('5')" style="padding:18px;font-size:20px;font-weight:600;background:#222;color:#fff;border:1px solid #333;border-radius:12px;cursor:pointer">5</button>
+        <button onclick="dailyPwPress('6')" style="padding:18px;font-size:20px;font-weight:600;background:#222;color:#fff;border:1px solid #333;border-radius:12px;cursor:pointer">6</button>
+        <button onclick="dailyPwPress('7')" style="padding:18px;font-size:20px;font-weight:600;background:#222;color:#fff;border:1px solid #333;border-radius:12px;cursor:pointer">7</button>
+        <button onclick="dailyPwPress('8')" style="padding:18px;font-size:20px;font-weight:600;background:#222;color:#fff;border:1px solid #333;border-radius:12px;cursor:pointer">8</button>
+        <button onclick="dailyPwPress('9')" style="padding:18px;font-size:20px;font-weight:600;background:#222;color:#fff;border:1px solid #333;border-radius:12px;cursor:pointer">9</button>
+        <button onclick="dailyPwDel()" style="padding:18px;font-size:20px;background:#333;color:#fff;border:1px solid #444;border-radius:12px;cursor:pointer">⌫</button>
+        <button onclick="dailyPwPress('0')" style="padding:18px;font-size:20px;font-weight:600;background:#222;color:#fff;border:1px solid #333;border-radius:12px;cursor:pointer">0</button>
+        <button onclick="checkDailyPw()" style="padding:18px;font-size:18px;background:#fff;color:#111;border:none;border-radius:12px;cursor:pointer;font-weight:700">✓</button>
+      </div>
     </div>
     <!-- 內容（解鎖後） -->
     <div id="daily-content" style="display:none">
-      <div id="daily-summary" style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px"></div>
+      <div id="daily-summary" style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:20px"></div>
       <div id="daily-list"></div>
     </div>
   </div>
-  <div class="lbottom">
-    <button class="btn-back-d" onclick="hideDailyKb();goScreen('s-welcome')">返回</button>
+  <!-- 返回首頁按鈕 -->
+  <div style="position:fixed;bottom:0;left:0;right:0;padding:16px 20px 30px;background:#111;border-top:1px solid #333">
+    <button onclick="exitDailyOverview()" style="width:100%;padding:14px;background:#333;color:#fff;border:none;border-radius:12px;font-size:16px;font-weight:600;cursor:pointer">← 返回首頁</button>
   </div>
 </div>
 
@@ -1170,23 +1183,52 @@ function hideKb() {
 
 
 var _dailyUnlocked = false;
+var _dailyPwVal = '';
+
+function exitDailyOverview() {
+  // Reset unlock state so password is required next time
+  _dailyUnlocked = false;
+  _dailyPwVal = '';
+  document.getElementById('daily-lock').style.display = 'block';
+  document.getElementById('daily-content').style.display = 'none';
+  var disp = document.getElementById('daily-pw-display');
+  if (disp) disp.textContent = '　';
+  var err = document.getElementById('daily-pw-err');
+  if (err) err.style.display = 'none';
+  goScreen('s-welcome');
+}
+
+function dailyPwPress(key) {
+  if (_dailyPwVal.length >= 8) return;
+  _dailyPwVal += key;
+  var disp = document.getElementById('daily-pw-display');
+  if (disp) disp.textContent = '●'.repeat(_dailyPwVal.length);
+}
+function dailyPwDel() {
+  _dailyPwVal = _dailyPwVal.slice(0, -1);
+  var disp = document.getElementById('daily-pw-display');
+  if (disp) disp.textContent = _dailyPwVal.length ? '●'.repeat(_dailyPwVal.length) : '　';
+}
 
 function checkDailyPw() {
-  var pw = document.getElementById('daily-pw').value;
+  var pw = _dailyPwVal;
   var err = document.getElementById('daily-pw-err');
-  // Read password from Firebase
   db.ref('data/admin_pw').once('value', function(snap) {
     var stored = snap.val() || '1234';
     if (pw === stored) {
       _dailyUnlocked = true;
+      _dailyPwVal = '';
       document.getElementById('daily-lock').style.display = 'none';
       document.getElementById('daily-content').style.display = 'block';
-      document.getElementById('daily-pw').value = '';
+      var disp = document.getElementById('daily-pw-display');
+      if (disp) disp.textContent = '　';
       err.style.display = 'none';
       renderDailyOverview();
     } else {
+      _dailyPwVal = '';
+      var disp = document.getElementById('daily-pw-display');
+      if (disp) disp.textContent = '　';
       err.style.display = 'block';
-      document.getElementById('daily-pw').value = '';
     }
   });
 }
@@ -1224,11 +1266,11 @@ function renderDailyOverview() {
     Object.keys(coachMap).forEach(function(coach) {
       var recs = coachMap[coach];
       html2 += '<div style="margin-bottom:16px">';
-      html2 += '<div style="font-size:12px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:.05em;padding:8px 0;border-bottom:2px solid #eee;margin-bottom:6px">' + coach + '・' + recs.length + ' 堂</div>';
+      html2 += '<div style="font-size:13px;font-weight:700;color:rgba(255,255,255,.5);letter-spacing:.05em;padding:10px 0 8px;border-bottom:1px solid #333;margin-bottom:6px">' + coach + '・' + recs.length + ' 堂</div>';
       recs.forEach(function(r) {
-        html2 += '<div style="display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid #f0f0f0;font-size:14px">'
-          + '<span style="font-weight:500;color:#111">' + r.student + '</span>'
-          + '<span style="color:#999;font-size:13px">' + r.time + '</span>'
+        html2 += '<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid #2a2a2a;font-size:14px">'
+          + '<span style="font-weight:600;color:#fff">' + r.student + '</span>'
+          + '<span style="color:rgba(255,255,255,.4);font-size:13px">' + r.time + '</span>'
           + '</div>';
       });
       html2 += '</div>';
