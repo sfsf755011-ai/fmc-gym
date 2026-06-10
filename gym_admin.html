@@ -48,7 +48,7 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'PingFang TC'
 /* ── App 主體 ── */
 #app{display:none}#app.visible{display:flex!important;min-height:100vh}
 #app.visible{display:flex;min-height:100vh}
-.sidebar{width:190px;background:var(--bg);border-right:1px solid var(--border);display:flex;flex-direction:column;position:fixed;top:0;left:0;bottom:0;z-index:20}
+.sidebar{width:190px;background:var(--bg);border-right:1px solid var(--border);display:flex;flex-direction:column;position:fixed;top:0;left:0;bottom:0;z-index:20;overflow-y:auto;-webkit-overflow-scrolling:touch}
 .sb-logo{padding:20px 16px 14px;border-bottom:1px solid var(--border)}
 .sb-logo .t1{font-size:15px;font-weight:700}
 .sb-logo .t2{font-size:11px;color:var(--text3);margin-top:2px}
@@ -62,9 +62,17 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'PingFang TC'
 .logout-btn:hover{background:var(--bg2)}
 .main{margin-left:190px;padding:24px;flex:1;min-height:100vh}
 @media(max-width:680px){
-  .sidebar{display:none}
-  .main{margin-left:0;padding:14px}
+  .sidebar{width:100%;height:auto;position:fixed;top:0;left:0;right:0;bottom:auto;z-index:100;flex-direction:row;flex-wrap:wrap;border-right:none;border-bottom:1px solid var(--border);transform:translateY(-100%);transition:transform .25s ease;padding-bottom:8px}
+  .sidebar.open{transform:translateY(0)}
+  .sb-logo{width:100%;display:flex;justify-content:space-between;align-items:center;padding:12px 16px 8px}
+  .nav-item{padding:10px 14px;font-size:13px;border-left:none;border-bottom:2px solid transparent}
+  .nav-item.active{border-bottom-color:var(--accent);border-left:none}
+  .main{margin-left:0;padding:12px;padding-top:60px}
+  .mobile-menu-btn{display:flex}
 }
+.mobile-menu-btn{display:none;position:fixed;top:0;left:0;right:0;z-index:99;background:var(--bg);border-bottom:1px solid var(--border);padding:12px 16px;align-items:center;justify-content:space-between}
+.mobile-menu-btn .title{font-size:15px;font-weight:700;color:var(--text)}
+.mobile-menu-btn button{background:none;border:none;font-size:22px;cursor:pointer;color:var(--text);padding:4px 8px}
 .page{display:none}.page.active{display:block}
 .pg-title{font-size:22px;font-weight:700;margin-bottom:4px}
 .pg-sub{font-size:14px;color:var(--text2);margin-bottom:20px}
@@ -162,8 +170,12 @@ tr:hover td{background:var(--bg2)}
 
 <!-- 主程式 -->
 <div id="app">
+  <div class="mobile-menu-btn">
+    <span class="title">🏋️ 場館後台</span>
+    <button onclick="toggleMobileMenu()">☰</button>
+  </div>
   <!-- Sidebar -->
-  <div class="sidebar">
+  <div class="sidebar" id="sidebar">
     <div class="sb-logo">
       <div class="t1">場館後台</div>
       <div class="t2" id="sb-time"></div>
@@ -1037,7 +1049,16 @@ function doLogout(){
 document.getElementById('pw-input').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
 
 // ── 頁面切換 ──
+function toggleMobileMenu(){
+  var sb=document.getElementById('sidebar');
+  if(sb)sb.classList.toggle('open');
+}
+function closeMobileMenu(){
+  var sb=document.getElementById('sidebar');
+  if(sb)sb.classList.remove('open');
+}
 function goPage(p,el){
+  closeMobileMenu();
   document.querySelectorAll('.page').forEach(pg=>pg.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(ni=>ni.classList.remove('active'));
   document.getElementById('page-'+p).classList.add('active');
@@ -1129,6 +1150,7 @@ var _shianUnlocked = false;
 var _shianType = 'all'; // self / company / all
 
 function goShian(el) {
+  closeMobileMenu();
   document.querySelectorAll('.page').forEach(pg=>pg.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(ni=>ni.classList.remove('active'));
   document.getElementById('page-shian').classList.add('active');
