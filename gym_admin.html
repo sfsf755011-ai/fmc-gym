@@ -1057,6 +1057,7 @@ function closeMobileMenu(){
   var sb=document.getElementById('sidebar');
   if(sb)sb.classList.remove('open');
 }
+function jsq(s){ return "'" + String(s).replace(/\\/g,'\\\\').replace(/'/g,"\\'") + "'"; }
 function jumpToEditStudent(stuName, coachName){
   // Navigate to students page
   document.querySelectorAll('.page').forEach(pg=>pg.classList.remove('active'));
@@ -1600,13 +1601,13 @@ function renderDashboard(){
     +'<div class="metric-card"><div class="metric-val" style="color:var(--red-text)">'+overdueAll.length+'</div><div class="metric-lbl">逾期未付</div></div>';
   document.getElementById('dash-low').innerHTML=!lowStus.length
     ?'<div style="font-size:13px;color:var(--text3);padding:6px 0">目前無學員即將用完</div>'
-    :lowStus.map(function(s){return '<div style="display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--border);font-size:13px"><span style="cursor:pointer;color:var(--blue)" onclick="jumpToEditStudent('+JSON.stringify(s.name)+','+JSON.stringify(s.coach)+')">'+s.name+' <span style="color:var(--text2)">（'+s.coach+'）</span></span>'+sessionBadge(s)+'</div>';}).join('');
+    :lowStus.map(function(s){return '<div style="display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--border);font-size:13px"><span style="cursor:pointer;color:var(--blue)" onclick=\"jumpToEditStudent('+jsq(s.name)+','+jsq(s.coach)+')\">'+s.name+' <span style="color:var(--text2)">（'+s.coach+'）</span></span>'+sessionBadge(s)+'</div>';}).join('');
   document.getElementById('dash-overdue').innerHTML=!overdueAll.length
     ?'<div style="font-size:13px;color:var(--text3);padding:6px 0">目前無逾期未付款</div>'
     :overdueAll.slice(0,5).map(function(ins){
       var stu=students.find(function(s){return (s.contracts||[]).some(function(c){return c.installments.indexOf(ins)!==-1;});});
       var stuName=stu?stu.name:'未知';
-      var ocoach=stu?stu.coach:'';return '<div style="display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--border);font-size:13px"><span style="cursor:pointer;color:var(--blue)" onclick="jumpToEditStudent('+JSON.stringify(stuName)+','+JSON.stringify(ocoach)+')">'+stuName+' <span style="color:var(--text2)">（'+ins.dueDate+'）</span></span><span style="color:var(--red-text)">NT$'+ins.amount.toLocaleString()+'</span></div>';
+      var ocoach=stu?stu.coach:'';return '<div style="display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--border);font-size:13px"><span style="cursor:pointer;color:var(--blue)" onclick=\"jumpToEditStudent('+jsq(stuName)+','+jsq(ocoach)+')\">'+stuName+' <span style="color:var(--text2)">（'+ins.dueDate+'）</span></span><span style="color:var(--red-text)">NT$'+ins.amount.toLocaleString()+'</span></div>';
     }).join('');
   // populate coach filter
   const df=document.getElementById('dash-coach-filter');
@@ -1928,11 +1929,26 @@ function renderEditContracts(s){
     var c=contracts[ci];
     var totalAmt=c.installments.reduce(function(sum,i){return sum+i.amount;},0);
     var paidAmt=c.installments.filter(function(i){return i.paid;}).reduce(function(sum,i){return sum+i.amount;},0);
+    var unpaidCount=c.installments.filter(function(i){return !i.paid;}).length;
     html+='<div style="margin-bottom:16px;padding-bottom:16px;border-bottom:1px solid var(--border)">';
-    html+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">';
+    html+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;flex-wrap:wrap;gap:8px">';
     html+='<span style="font-size:13px;font-weight:600">'+(c.planLabel||c.sessions+'堂合約')+'・分 '+c.periods+' 期</span>';
     html+='<span style="font-size:13px;color:var(--text2)">已付 NT$'+paidAmt.toLocaleString()+' ／ 總計 <span id="ec-total-'+ci+'" style="font-weight:700;color:var(--text)">NT$'+totalAmt.toLocaleString()+'</span></span>';
     html+='</div>';
+    // 自訂分期期數
+    if(unpaidCount>0){
+      html+='<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;padding:10px;background:var(--bg2);border-radius:8px;flex-wrap:wrap">';
+      html+='<label style="font-size:12px;color:var(--text2);white-space:nowrap">調整總期數（最多8期）：</label>';
+      html+='<select id="ec-periods-'+ci+'" style="font-size:13px;padding:5px 10px;border-radius:6px;border:1px solid var(--border2);background:var(--bg);color:var(--text)">';
+      for(var pn=1;pn<=8;pn++){
+        if(pn<c.installments.filter(function(i){return i.paid;}).length+1 && pn<c.periods) continue;
+        html+='<option value="'+pn+'"'+(pn===c.periods?' selected':'')+'>'+pn+' 期</option>';
+      }
+      html+='</select>';
+      html+='<button onclick="applyPeriodChange('+s.id+','+ci+')" style="padding:5px 12px;border-radius:6px;background:var(--blue);color:#fff;border:none;font-size:12px;font-weight:600;cursor:pointer">套用</button>';
+      html+='<span style="font-size:11px;color:var(--text3)">調整後將重新分配未付款期數的金額（已付款期數不變）</span>';
+      html+='</div>';
+    }
     for(var ii=0;ii<c.installments.length;ii++){
       var ins=c.installments[ii];
       var overdue=!ins.paid&&ins.dueDate<t;
@@ -1963,6 +1979,51 @@ function renderEditContracts(s){
     html+='</div>';
   }
   el.innerHTML=html;
+}
+
+function applyPeriodChange(stuId, ci){
+  var s=students.find(function(st){return String(st.id)===String(stuId);});
+  if(!s)return;
+  var c=s.contracts[ci];
+  if(!c)return;
+  var newPeriods=parseInt(document.getElementById('ec-periods-'+ci).value);
+  if(!newPeriods||newPeriods<1||newPeriods>8)return;
+
+  var paidInst=c.installments.filter(function(i){return i.paid;});
+  var unpaidInst=c.installments.filter(function(i){return !i.paid;});
+  var paidTotal=paidInst.reduce(function(s2,i){return s2+i.amount;},0);
+  var grandTotal=c.installments.reduce(function(s2,i){return s2+i.amount;},0);
+  var remainingTotal=grandTotal-paidTotal;
+
+  var newUnpaidCount=newPeriods-paidInst.length;
+  if(newUnpaidCount<1){toast('期數不可少於已付款期數');return;}
+
+  // 重新分配未付款金額
+  var amt=Math.floor(remainingTotal/newUnpaidCount);
+  var rem=remainingTotal-amt*(newUnpaidCount-1);
+
+  // 取得最後一筆已付款的到期日作為起算基準，否則用今天
+  var baseDate=paidInst.length?paidInst[paidInst.length-1].dueDate:today();
+  var newUnpaid=[];
+  for(var i=0;i<newUnpaidCount;i++){
+    var d=new Date(baseDate);
+    d.setMonth(d.getMonth()+i+1);
+    newUnpaid.push({
+      seq:paidInst.length+i+1,
+      amount:i===newUnpaidCount-1?rem:amt,
+      dueDate:d.toISOString().slice(0,10),
+      paid:false,paidDate:null,method:null
+    });
+  }
+
+  c.installments=paidInst.concat(newUnpaid);
+  c.periods=newPeriods;
+
+  logAction('調整分期',s.name,s.coach,(c.planLabel||c.sessions+'堂合約')+' 改為分 '+newPeriods+' 期（未付款 '+newUnpaidCount+' 期重新分配）');
+  fbSaveSingleStudent(s);
+  try{save('gym_students',students);}catch(e){}
+  renderEditContracts(s);
+  toast('✓ 已調整為分 '+newPeriods+' 期');
 }
 
 function updateContractTotal(stuId, ci){
@@ -2200,7 +2261,7 @@ function renderPayment(){
         +'<tbody>'+instRows+'</tbody></table></div>';
     }).join('');
     return '<tr class="pay-row-main">'
-      +'<td style="font-weight:600;cursor:pointer;color:var(--blue)" onclick="jumpToEditStudent('+JSON.stringify(s.name)+','+JSON.stringify(s.coach)+')">'+s.name+'</td>'
+      +'<td style="font-weight:600;cursor:pointer;color:var(--blue)" onclick=\"jumpToEditStudent('+jsq(s.name)+','+jsq(s.coach)+')\">'+s.name+'</td>'
       +'<td>'+s.coach+'</td>'
       +'<td>'+payBadge(getPayStatus(s))+'</td>'
       +'<td>NT$'+paidT.toLocaleString()+' / NT$'+grandT.toLocaleString()+'</td>'
@@ -2282,7 +2343,7 @@ function renderReport(){
     const ps=s?getPayStatus(s):'unpaid';
     var lastInst=s?(s.contracts||[]).reduce(function(a,c){return a.concat(c.installments||[]);},[]).filter(function(i){return i.paid&&i.method;}):[];
     var lastM=lastInst.length?lastInst[lastInst.length-1].method:null;
-    return '<tr><td>'+r.date.slice(5)+'</td><td>'+r.time+'</td><td style="cursor:pointer;color:var(--blue)" onclick="jumpToEditStudent('+JSON.stringify(r.student)+','+JSON.stringify(r.coach)+')">'+r.student+'</td><td>'+r.coach+'</td><td style="text-align:center;font-weight:600">'+r.remainAfter+'</td><td>'+payBadge(ps)+'</td><td>'+methodBadge(lastM)+'</td><td style="text-align:center">✍️</td></tr>';
+    return '<tr><td>'+r.date.slice(5)+'</td><td>'+r.time+'</td><td style="cursor:pointer;color:var(--blue)" onclick=\"jumpToEditStudent('+jsq(r.student)+','+jsq(r.coach)+')\">'+r.student+'</td><td>'+r.coach+'</td><td style="text-align:center;font-weight:600">'+r.remainAfter+'</td><td>'+payBadge(ps)+'</td><td>'+methodBadge(lastM)+'</td><td style="text-align:center">✍️</td></tr>';
   }).join('');
 }
 function exportCSV(){
