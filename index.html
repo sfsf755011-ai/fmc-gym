@@ -10,7 +10,7 @@
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'PingFang TC',sans-serif;background:#111;color:#fff}
-.screen{display:none;flex-direction:column;min-height:100vh;min-height:100dvh}
+.screen{display:none;flex-direction:column;height:100vh;height:100dvh;overflow:hidden}
 .screen.active{display:flex}
 /* WELCOME */
 #s-welcome{background:linear-gradient(160deg,#1a1a2a 0%,#111 60%);align-items:center;justify-content:center;text-align:center;padding:40px 28px;position:relative;overflow:hidden}
@@ -70,7 +70,7 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'PingFang TC'
 .lsdot.idle{background:#ddd;color:#999}
 .lslbl{font-size:12px;color:#888;white-space:nowrap}
 .lsline{flex:1;height:1px;background:#ccc}
-.pbody{flex:1;overflow-y:auto;padding:16px 18px 100px}
+.pbody{flex:1;overflow-y:auto;overflow-x:hidden;padding:16px 18px 100px;-webkit-overflow-scrolling:touch}
 .flbl{font-size:13px;color:#666;margin-bottom:6px;display:block}
 .finput{width:100%;padding:15px 16px;font-size:19px;border-radius:12px;border:2px solid #ccc;background:#fff;color:#111;outline:none;font-family:inherit}
 .finput:focus{border-color:#111}
@@ -801,6 +801,8 @@ function searchStu(val) {
     }
     box.innerHTML = html;
     box.style.display = 'block';
+    // Scroll results into view
+    setTimeout(function(){ var pb=document.querySelector('#s-name .pbody'); if(pb) pb.scrollTop=pb.scrollHeight; }, 100);
   } else if (val.length >= 2) {
     document.getElementById('notfound').style.display = 'block';
   }
@@ -857,15 +859,20 @@ function initSig() {
     var src = e.touches ? e.touches[0] : e;
     return { x:(src.clientX-r.left)*(sigCanvas.width/r.width), y:(src.clientY-r.top)*(sigCanvas.height/r.height) };
   }
-  sigCanvas.onmousedown = function(e) { sigDrawing=true; var p=pos(e); sigCtx.beginPath(); sigCtx.moveTo(p.x,p.y); };
+  function hideWatermark() {
+    var wm = document.getElementById('sig-watermark');
+    if (wm) wm.classList.add('hide');
+  }
+  sigCanvas.onmousedown = function(e) { sigDrawing=true; hideWatermark(); var p=pos(e); sigCtx.beginPath(); sigCtx.moveTo(p.x,p.y); };
   sigCanvas.onmousemove = function(e) { if(!sigDrawing)return; var p=pos(e); sigCtx.lineTo(p.x,p.y); sigCtx.stroke(); };
   sigCanvas.onmouseup = sigCanvas.onmouseleave = function() { sigDrawing=false; };
-  sigCanvas.ontouchstart = function(e) { e.preventDefault(); sigDrawing=true; var p=pos(e); sigCtx.beginPath(); sigCtx.moveTo(p.x,p.y); };
+  sigCanvas.ontouchstart = function(e) { e.preventDefault(); sigDrawing=true; hideWatermark(); var p=pos(e); sigCtx.beginPath(); sigCtx.moveTo(p.x,p.y); };
   sigCanvas.ontouchmove = function(e) { e.preventDefault(); if(!sigDrawing)return; var p=pos(e); sigCtx.lineTo(p.x,p.y); sigCtx.stroke(); };
   sigCanvas.ontouchend = function() { sigDrawing=false; };
 }
 
-function clearSig() { if (sigCtx && sigCanvas) sigCtx.clearRect(0,0,sigCanvas.width,sigCanvas.height); }
+function clearSig() { if (sigCtx && sigCanvas) sigCtx.clearRect(0,0,sigCanvas.width,sigCanvas.height);   var wm=document.getElementById('sig-watermark'); if(wm)wm.classList.remove('hide');
+}
 function hasSig() {
   if (!sigCtx||!sigCanvas) return false;
   var d = sigCtx.getImageData(0,0,sigCanvas.width,sigCanvas.height).data;
@@ -953,8 +960,12 @@ function submitCheckin() {
     var nr = stu.totalSessions - stu.usedSessions;
     var rec = {date:todayStr(), time:nowStr(), student:stu.name, coach:selCoach.name, remainAfter:nr};
 
-    // Step 2: 先寫簽到紀錄
-    db.ref('data/records').push(rec, function(err1) {
+    // Step 2: 先寫簽到紀錄 - 讀取現有陣列後 unshift，整個寫回（避免 push() 產生混合 key）
+    db.ref('data/records').once('value', function(recSnap) {
+      var recArr = recSnap.val() || [];
+      if (!Array.isArray(recArr)) recArr = Object.values(recArr);
+      recArr.unshift(rec);
+      db.ref('data/records').set(recArr, function(err1) {
       if (err1) { fail('簽到紀錄儲存失敗，請重試'); return; }
 
       // Step 3: 紀錄成功後才扣堂數，寫回整個陣列
@@ -970,9 +981,10 @@ function submitCheckin() {
         // 兩者都成功，顯示簽到完成
         showSuccess(stu, nr);
       });
+      });
+    }, function(err) {
+      fail('讀取資料失敗，請重試');
     });
-  }, function(err) {
-    fail('讀取資料失敗，請重試');
   });
 }
 
@@ -1170,14 +1182,14 @@ function qKbDel() {
 function showKb() {
   var kb = document.getElementById('custom-kb');
   if (kb) kb.style.display = 'block';
-  // Push page content up so nothing is hidden
-  var body = document.querySelector('.pbody');
-  if (body) body.style.paddingBottom = '250px';
+  // Give enough padding so results show above keyboard
+  var body = document.querySelector('#s-name .pbody');
+  if (body) body.style.paddingBottom = '280px';
 }
 function hideKb() {
   var kb = document.getElementById('custom-kb');
   if (kb) kb.style.display = 'none';
-  var body = document.querySelector('.pbody');
+  var body = document.querySelector('#s-name .pbody');
   if (body) body.style.paddingBottom = '100px';
 }
 

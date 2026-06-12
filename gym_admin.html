@@ -66,7 +66,7 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'PingFang TC'
   .sidebar.open{transform:translateY(0)}
   .sb-logo{width:100%;display:flex;justify-content:space-between;align-items:center;padding:12px 16px 8px}
   .nav-item{padding:10px 14px;font-size:13px;border-left:none;border-bottom:2px solid transparent}
-  .nav-item.active{border-bottom-color:var(--accent);border-left:none}
+  .nav-item.active{border-bottom-color:var(--blue);border-left:none}
   .main{margin-left:0;padding:12px;padding-top:60px}
   .mobile-menu-btn{display:flex}
 }
@@ -219,7 +219,7 @@ tr:hover td{background:var(--bg2)}
           <select id="hist-coach" style="font-size:14px;padding:7px 24px 7px 10px;border-radius:8px;border:1px solid var(--border2);background:var(--bg2);color:var(--text);-webkit-appearance:none">
             <option value="">全部教練</option>
           </select>
-          <button onclick="renderHistRecords()" style="padding:7px 16px;border-radius:8px;background:var(--accent);color:#fff;border:none;font-size:14px;font-weight:600;cursor:pointer">查詢</button>
+          <button onclick="renderHistRecords()" style="padding:7px 16px;border-radius:8px;background:var(--blue);color:#fff;border:none;font-size:14px;font-weight:600;cursor:pointer">查詢</button>
           <button onclick="exportHistCSV()" style="padding:7px 16px;border-radius:8px;background:var(--bg2);color:var(--text);border:1px solid var(--border2);font-size:14px;cursor:pointer">⬇ 匯出 CSV</button>
         </div>
         <div id="hist-summary" style="display:none;margin-bottom:10px;padding:10px 14px;background:var(--blue-bg);border-radius:8px;font-size:13px;color:var(--blue-text)"></div>
@@ -623,7 +623,7 @@ tr:hover td{background:var(--bg2)}
           <div class="card-title">月結業績查詢</div>
           <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap">
             <input type="month" id="shian-month" style="font-size:14px;padding:7px 10px;border-radius:8px;border:1px solid var(--border2);background:var(--bg2);color:var(--text)">
-            <button onclick="renderShianMonthly()" style="padding:7px 16px;border-radius:8px;background:var(--accent);color:#fff;border:none;font-size:14px;font-weight:600;cursor:pointer">查詢</button>
+            <button onclick="renderShianMonthly()" style="padding:7px 16px;border-radius:8px;background:var(--blue);color:#fff;border:none;font-size:14px;font-weight:600;cursor:pointer">查詢</button>
             <button onclick="exportShianCSV()" style="padding:7px 16px;border-radius:8px;background:var(--bg2);color:var(--text);border:1px solid var(--border2);font-size:14px;cursor:pointer">⬇ 匯出</button>
           </div>
           <div id="shian-monthly-self" style="margin-bottom:14px">
@@ -695,7 +695,7 @@ tr:hover td{background:var(--bg2)}
         </div>
 
         <!-- 結果卡 -->
-        <div id="salary-result-card" class="card" style="background:var(--accent);color:#fff;margin-bottom:16px">
+        <div id="salary-result-card" class="card" style="background:var(--blue);color:#fff;margin-bottom:16px">
           <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:12px;margin-bottom:16px" id="salary-metrics"></div>
           <div style="border-top:1px solid rgba(255,255,255,.2);padding-top:14px;display:flex;justify-content:space-between;align-items:center">
             <span style="font-size:14px;color:rgba(255,255,255,.7)">本月應付薪資</span>
@@ -1056,6 +1056,45 @@ function toggleMobileMenu(){
 function closeMobileMenu(){
   var sb=document.getElementById('sidebar');
   if(sb)sb.classList.remove('open');
+}
+function jumpToEditStudent(stuName, coachName){
+  // Navigate to students page
+  document.querySelectorAll('.page').forEach(pg=>pg.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(ni=>ni.classList.remove('active'));
+  document.getElementById('page-students').classList.add('active');
+  var navItems=document.querySelectorAll('.nav-item');
+  for(var i=0;i<navItems.length;i++){
+    if(navItems[i].getAttribute('onclick')&&navItems[i].getAttribute('onclick').indexOf("'students'")!==-1){
+      navItems[i].classList.add('active');break;
+    }
+  }
+  closeMobileMenu();
+  fbLoadAll(function(){
+    // Switch to "編輯學員" sub-tab
+    var editTabBtn=null;
+    document.querySelectorAll('#page-students .tab').forEach(function(b){
+      if(b.getAttribute('onclick')&&b.getAttribute('onclick').indexOf("'edit'")!==-1) editTabBtn=b;
+    });
+    if(editTabBtn) stuTab('edit', editTabBtn);
+    // Set coach filter and select student
+    var coachFilter=document.getElementById('edit-coach-filter');
+    if(coachFilter){
+      coachFilter.value=coachName;
+      filterEditStudents();
+      var stu=students.find(function(s){return s.name===stuName&&s.coach===coachName;});
+      if(stu){
+        var sel=document.getElementById('edit-stu-sel');
+        if(sel){
+          sel.value=String(stu.id);
+          loadEditStu();
+          setTimeout(function(){
+            var form=document.getElementById('edit-stu-form');
+            if(form)form.scrollIntoView({behavior:'smooth',block:'start'});
+          },200);
+        }
+      }
+    }
+  });
 }
 function goPage(p,el){
   closeMobileMenu();
@@ -1561,13 +1600,13 @@ function renderDashboard(){
     +'<div class="metric-card"><div class="metric-val" style="color:var(--red-text)">'+overdueAll.length+'</div><div class="metric-lbl">逾期未付</div></div>';
   document.getElementById('dash-low').innerHTML=!lowStus.length
     ?'<div style="font-size:13px;color:var(--text3);padding:6px 0">目前無學員即將用完</div>'
-    :lowStus.map(function(s){return '<div style="display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--border);font-size:13px"><span>'+s.name+' <span style="color:var(--text2)">（'+s.coach+'）</span></span>'+sessionBadge(s)+'</div>';}).join('');
+    :lowStus.map(function(s){return '<div style="display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--border);font-size:13px"><span style="cursor:pointer;color:var(--blue)" onclick="jumpToEditStudent('+JSON.stringify(s.name)+','+JSON.stringify(s.coach)+')">'+s.name+' <span style="color:var(--text2)">（'+s.coach+'）</span></span>'+sessionBadge(s)+'</div>';}).join('');
   document.getElementById('dash-overdue').innerHTML=!overdueAll.length
     ?'<div style="font-size:13px;color:var(--text3);padding:6px 0">目前無逾期未付款</div>'
     :overdueAll.slice(0,5).map(function(ins){
       var stu=students.find(function(s){return (s.contracts||[]).some(function(c){return c.installments.indexOf(ins)!==-1;});});
       var stuName=stu?stu.name:'未知';
-      return '<div style="display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--border);font-size:13px"><span>'+stuName+' <span style="color:var(--text2)">（'+ins.dueDate+'）</span></span><span style="color:var(--red-text)">NT$'+ins.amount.toLocaleString()+'</span></div>';
+      var ocoach=stu?stu.coach:'';return '<div style="display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--border);font-size:13px"><span style="cursor:pointer;color:var(--blue)" onclick="jumpToEditStudent('+JSON.stringify(stuName)+','+JSON.stringify(ocoach)+')">'+stuName+' <span style="color:var(--text2)">（'+ins.dueDate+'）</span></span><span style="color:var(--red-text)">NT$'+ins.amount.toLocaleString()+'</span></div>';
     }).join('');
   // populate coach filter
   const df=document.getElementById('dash-coach-filter');
@@ -2161,7 +2200,7 @@ function renderPayment(){
         +'<tbody>'+instRows+'</tbody></table></div>';
     }).join('');
     return '<tr class="pay-row-main">'
-      +'<td style="font-weight:600">'+s.name+'</td>'
+      +'<td style="font-weight:600;cursor:pointer;color:var(--blue)" onclick="jumpToEditStudent('+JSON.stringify(s.name)+','+JSON.stringify(s.coach)+')">'+s.name+'</td>'
       +'<td>'+s.coach+'</td>'
       +'<td>'+payBadge(getPayStatus(s))+'</td>'
       +'<td>NT$'+paidT.toLocaleString()+' / NT$'+grandT.toLocaleString()+'</td>'
@@ -2243,7 +2282,7 @@ function renderReport(){
     const ps=s?getPayStatus(s):'unpaid';
     var lastInst=s?(s.contracts||[]).reduce(function(a,c){return a.concat(c.installments||[]);},[]).filter(function(i){return i.paid&&i.method;}):[];
     var lastM=lastInst.length?lastInst[lastInst.length-1].method:null;
-    return '<tr><td>'+r.date.slice(5)+'</td><td>'+r.time+'</td><td>'+r.student+'</td><td>'+r.coach+'</td><td style="text-align:center;font-weight:600">'+r.remainAfter+'</td><td>'+payBadge(ps)+'</td><td>'+methodBadge(lastM)+'</td><td style="text-align:center">✍️</td></tr>';
+    return '<tr><td>'+r.date.slice(5)+'</td><td>'+r.time+'</td><td style="cursor:pointer;color:var(--blue)" onclick="jumpToEditStudent('+JSON.stringify(r.student)+','+JSON.stringify(r.coach)+')">'+r.student+'</td><td>'+r.coach+'</td><td style="text-align:center;font-weight:600">'+r.remainAfter+'</td><td>'+payBadge(ps)+'</td><td>'+methodBadge(lastM)+'</td><td style="text-align:center">✍️</td></tr>';
   }).join('');
 }
 function exportCSV(){
