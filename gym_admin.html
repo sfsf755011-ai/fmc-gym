@@ -1550,7 +1550,7 @@ function renderSalary(){
   var v2Bonus=v2Sessions*100;
   var bonusRate=getRevenueBonusRate(revenue);
   var revenueBonus=revenue>=120001?revenue*bonusRate:0;
-  var revenuePenalty=revenue>0&&revenue<120000?totalSessions*50:0;
+  var revenuePenalty=revenue>0&&revenue<120000?paidSessions*50:0;
   var subsidy=HEALTH_SUBSIDY[coachName]||0;
   var groupBonus=parseInt(document.getElementById('group-bonus').value)||0;
   var subtotal=BASE_SALARY+allowance+commission+v2Bonus+revenueBonus-revenuePenalty+subsidy;
@@ -1579,7 +1579,7 @@ function renderSalary(){
   }
   if(v2Sessions>0)rows.push({name:'1v2加成（'+v2Sessions+'堂 × $100）',amt:v2Bonus,type:'green'});
   if(revenueBonus>0)rows.push({name:'業績加成（'+fmtMoney(revenue)+' × '+(bonusRate*100)+'%）',amt:revenueBonus,type:'green'});
-  if(revenuePenalty>0)rows.push({name:'業績未達標（'+totalSessions+'堂 × -$50）',amt:-revenuePenalty,type:'red'});
+  if(revenuePenalty>0)rows.push({name:'業績未達標（計薪'+paidSessions+'堂 × -$50）',amt:-revenuePenalty,type:'red'});
   if(subsidy!==0)rows.push({name:'健保/就保補助',amt:subsidy,type:subsidy>0?'green':'red'});
   rows.push({name:'小計（店業績調整前）',amt:subtotal,type:'bold'});
   rows.push({name:'店業績乘數（'+(mult*100).toFixed(1)+'%）',amt:subtotal*mult-subtotal,type:mult>=1?'green':'red'});
