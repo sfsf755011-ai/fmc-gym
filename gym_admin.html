@@ -708,6 +708,12 @@ tr:hover td{background:var(--bg2)}
           <div class="card-title">薪資明細</div>
           <div id="salary-breakdown"></div>
         </div>
+
+        <!-- 已付款業績明細 -->
+        <div class="card">
+          <div class="card-title">本月已付款業績明細</div>
+          <div id="salary-revenue-list"></div>
+        </div>
       </div>
     </div>
 
@@ -1523,6 +1529,19 @@ function renderSalary(){
     },0);
   },0);
 
+  // 收集當月已付款明細
+  var revenueDetails=[];
+  coachStudents.forEach(function(s){
+    (s.contracts||[]).forEach(function(c){
+      c.installments.forEach(function(i){
+        if(i.paid&&i.paidDate&&i.paidDate.startsWith(month)){
+          revenueDetails.push({name:s.name,plan:c.planLabel||(c.sessions+'堂合約'),seq:i.seq,amount:i.amount,paidDate:i.paidDate,method:i.method});
+        }
+      });
+    });
+  });
+  revenueDetails.sort(function(a,b){return a.paidDate>b.paidDate?-1:1;});
+
   // Calculate salary
   var template=SALARY_TEMPLATES[coachName]||'senior';
   var allowance=PERSONAL_ALLOWANCE[coachName]||PERSONAL_ALLOWANCE_DEFAULT;
@@ -1578,6 +1597,31 @@ function renderSalary(){
       +'</div>';
   });
   document.getElementById('salary-breakdown').innerHTML=bdHtml;
+
+  // 已付款業績明細列表
+  var revListEl=document.getElementById('salary-revenue-list');
+  if(!revenueDetails.length){
+    revListEl.innerHTML='<div style="font-size:13px;color:var(--text3);padding:6px 0">本月尚無已確認付款的學員</div>';
+  } else {
+    var revHtml='<div style="overflow-x:auto"><table style="width:100%;font-size:13px"><thead><tr style="text-align:left;color:var(--text2)">'
+      +'<th style="padding:6px 8px">學員</th><th style="padding:6px 8px">方案</th><th style="padding:6px 8px">期數</th>'
+      +'<th style="padding:6px 8px;text-align:right">金額</th><th style="padding:6px 8px">付款方式</th><th style="padding:6px 8px">收款日</th>'
+      +'</tr></thead><tbody>';
+    revenueDetails.forEach(function(d){
+      revHtml+='<tr style="border-top:1px solid var(--border)">'
+        +'<td style="padding:6px 8px;font-weight:600;cursor:pointer;color:var(--blue)" onclick=\"jumpToEditStudent('+jsq(d.name)+','+jsq(coachDisplayNames[coachName]||coachName)+')\">'+d.name+'</td>'
+        +'<td style="padding:6px 8px;color:var(--text2)">'+d.plan+'</td>'
+        +'<td style="padding:6px 8px;color:var(--text2)">第'+d.seq+'期</td>'
+        +'<td style="padding:6px 8px;text-align:right;font-weight:600">'+fmtMoney(d.amount)+'</td>'
+        +'<td style="padding:6px 8px;color:var(--text2)">'+(d.method||'—')+'</td>'
+        +'<td style="padding:6px 8px;color:var(--text2)">'+d.paidDate+'</td>'
+        +'</tr>';
+    });
+    revHtml+='</tbody></table></div>';
+    revHtml+='<div style="margin-top:10px;padding-top:10px;border-top:2px solid var(--border2);display:flex;justify-content:space-between;font-weight:700;font-size:14px">'
+      +'<span>共 '+revenueDetails.length+' 筆</span><span>'+fmtMoney(revenue)+'</span></div>';
+    revListEl.innerHTML=revHtml;
+  }
 }
 // ══ End 薪資計算 ══
 
