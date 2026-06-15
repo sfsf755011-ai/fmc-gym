@@ -1607,18 +1607,17 @@ function renderSalary(){
   if(!revenueDetails.length){
     revListEl.innerHTML='<div style="font-size:13px;color:var(--text3);padding:6px 0">本月尚無已確認付款的學員</div>';
   } else {
-    var revHtml='<div style="overflow-x:auto"><table style="width:100%;font-size:13px"><thead><tr style="text-align:left;color:var(--text2)">'
-      +'<th style="padding:6px 8px">學員</th><th style="padding:6px 8px">方案</th><th style="padding:6px 8px">期數</th>'
-      +'<th style="padding:6px 8px;text-align:right">金額</th><th style="padding:6px 8px">付款方式</th><th style="padding:6px 8px">收款日</th>'
+    var revHtml='<div style="overflow-x:auto"><table style="width:100%;font-size:12px"><thead><tr style="text-align:left;color:var(--text2)">'
+      +'<th style="padding:5px 6px">學員</th><th style="padding:5px 6px">期數</th>'
+      +'<th style="padding:5px 6px;text-align:right">金額</th><th style="padding:5px 6px">付款方式</th><th style="padding:5px 6px">收款日</th>'
       +'</tr></thead><tbody>';
     revenueDetails.forEach(function(d){
       revHtml+='<tr style="border-top:1px solid var(--border)">'
-        +'<td style="padding:6px 8px;font-weight:600;cursor:pointer;color:var(--blue)" onclick=\"jumpToEditStudent('+jsq(d.name)+','+jsq(coachDisplayNames[coachName]||coachName)+')\">'+d.name+'</td>'
-        +'<td style="padding:6px 8px;color:var(--text2)">'+d.plan+'</td>'
-        +'<td style="padding:6px 8px;color:var(--text2)">第'+d.seq+'期</td>'
-        +'<td style="padding:6px 8px;text-align:right;font-weight:600">'+fmtMoney(d.amount)+'</td>'
-        +'<td style="padding:6px 8px;color:var(--text2)">'+(d.method||'—')+'</td>'
-        +'<td style="padding:6px 8px;color:var(--text2)">'+d.paidDate+'</td>'
+        +'<td style="padding:5px 6px;font-weight:600;cursor:pointer;color:var(--blue);white-space:nowrap" onclick=\"jumpToEditStudent('+jsq(d.name)+','+jsq(coachDisplayNames[coachName]||coachName)+')\">'+d.name+'</td>'
+        +'<td style="padding:5px 6px;color:var(--text2);white-space:nowrap">第'+d.seq+'期</td>'
+        +'<td style="padding:5px 6px;text-align:right;font-weight:600;white-space:nowrap">'+fmtMoney(d.amount)+'</td>'
+        +'<td style="padding:5px 6px;color:var(--text2);white-space:nowrap">'+(d.method||'—')+'</td>'
+        +'<td style="padding:5px 6px;color:var(--text2);white-space:nowrap">'+d.paidDate+'</td>'
         +'</tr>';
     });
     revHtml+='</tbody></table></div>';
