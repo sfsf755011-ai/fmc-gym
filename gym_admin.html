@@ -398,9 +398,19 @@ tr:hover td{background:var(--bg2)}
         <!-- Step 2: 選學員 -->
         <div class="card" id="edit-stu-pick-card" style="display:none">
           <div class="card-title">第二步：選擇學員</div>
-          <select class="form-input" id="edit-stu-sel" onchange="loadEditStu()">
+          <select class="form-input" id="edit-stu-sel" onchange="loadEditStu()" style="display:none">
             <option value="">— 請選擇學員 —</option>
           </select>
+          <div style="overflow-x:auto">
+            <table style="width:100%;font-size:13px">
+              <thead><tr style="text-align:left;color:var(--text2)">
+                <th style="padding:6px 8px">編號</th><th style="padding:6px 8px">姓名</th>
+                <th style="padding:6px 8px">方案</th><th style="padding:6px 8px">堂數</th>
+                <th style="padding:6px 8px">付款狀況</th>
+              </tr></thead>
+              <tbody id="edit-stu-quicklist"></tbody>
+            </table>
+          </div>
         </div>
         <!-- Step 3: 編輯表單 -->
         <div id="edit-stu-form" style="display:none">
@@ -1921,7 +1931,66 @@ function filterEditStudents(){
   document.getElementById('edit-stu-sel').innerHTML=
     '<option value="">— 請選擇學員 —</option>'+
     list.map(function(s){return '<option value="'+s.id+'">'+s.name+'</option>';}).join('');
+  renderEditStuQuicklist(list);
   pickCard.style.display='block';
+}
+
+function renderEditStuQuicklist(list){
+  var tbody=document.getElementById('edit-stu-quicklist');
+  if(!tbody)return;
+  if(!list.length){
+    tbody.innerHTML='<tr><td colspan="5" style="text-align:center;color:var(--text3);padding:16px">此教練尚無學員</td></tr>';
+    return;
+  }
+  tbody.innerHTML=list.map(function(s){
+    var planLabel=(s.contracts&&s.contracts.length)?(s.contracts[s.contracts.length-1].planLabel||'—'):'—';
+    var payStatus=getPayStatus(s);
+    var payBg=payStatus==='paid'?'badge-green':payStatus==='partial'?'badge-amber':payStatus==='overdue'?'badge-red':'badge-red';
+    var payText=payStatus==='paid'?'已付清':payStatus==='partial'?'部分付款':payStatus==='overdue'?'⚠️ 逾期':'未付款';
+    // 找出下一筆未付款的期數，供快速標記
+    var nextUnpaid=null,nextCi=-1,nextIi=-1;
+    (s.contracts||[]).forEach(function(c,ci){
+      c.installments.forEach(function(ins,ii){
+        if(!ins.paid&&!nextUnpaid){nextUnpaid=ins;nextCi=ci;nextIi=ii;}
+      });
+    });
+    var payAction=nextUnpaid
+      ?'<button onclick="event.stopPropagation();quickMarkPaid('+s.id+','+nextCi+','+nextIi+')" style="padding:4px 10px;border-radius:6px;background:var(--green);color:#fff;border:none;font-size:11px;font-weight:600;cursor:pointer;white-space:nowrap">✓ 標記第'+nextUnpaid.seq+'期已付</button>'
+      :'<span style="font-size:11px;color:var(--text3)">—</span>';
+    return '<tr style="border-top:1px solid var(--border);cursor:pointer" onclick="quickSelectStu('+s.id+')">'
+      +'<td style="padding:8px;color:var(--text2)">'+(s.id?String(s.id).slice(-4):'—')+'</td>'
+      +'<td style="padding:8px;font-weight:600;color:var(--blue)">'+s.name+'</td>'
+      +'<td style="padding:8px;color:var(--text2);font-size:12px">'+planLabel+'</td>'
+      +'<td style="padding:8px;color:var(--text2);white-space:nowrap">'+s.usedSessions+'/'+s.totalSessions+'</td>'
+      +'<td style="padding:8px"><span class="badge '+payBg+'" style="margin-right:6px">'+payText+'</span>'+payAction+'</td>'
+      +'</tr>';
+  }).join('');
+}
+
+function quickSelectStu(id){
+  var sel=document.getElementById('edit-stu-sel');
+  if(sel){sel.value=String(id);loadEditStu();}
+  setTimeout(function(){
+    var form=document.getElementById('edit-stu-form');
+    if(form)form.scrollIntoView({behavior:'smooth',block:'start'});
+  },150);
+}
+
+function quickMarkPaid(stuId, ci, ii){
+  var s=students.find(function(st){return String(st.id)===String(stuId);});
+  if(!s||!s.contracts[ci]||!s.contracts[ci].installments[ii])return;
+  var ins=s.contracts[ci].installments[ii];
+  ins.paid=true;
+  ins.paidDate=today();
+  ins.method=ins.method||'確認收款';
+  logAction('標記付款',s.name,s.coach,'第 '+ins.seq+' 期，NT$'+ins.amount.toLocaleString()+'，收款日 '+today());
+  fbSaveSingleStudent(s);
+  try{save('gym_students',students);}catch(e){}
+  toast('✓ 已標記 '+s.name+' 第'+ins.seq+'期已付款');
+  // 重新渲染列表
+  var coachName=document.getElementById('edit-coach-filter').value;
+  var list=students.filter(function(st){return st.coach===coachName;});
+  renderEditStuQuicklist(list);
 }
 function populateEditCoach(){
   document.getElementById('edit-stu-coach').innerHTML=coaches.map(function(c){return '<option value="'+c.name+'">'+c.name+'</option>';}).join('');
