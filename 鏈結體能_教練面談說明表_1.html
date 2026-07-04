@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>鏈結體能 — 教練面談說明</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;600;700&family=DM+Mono:wght@400;500&family=Bebas+Neue&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy: #0D1B2A;
+    --steel: #1B3A5C;
+    --blue: #2E6DA4;
+    --ice: #A8C8E8;
+    --chain: #5B8DB8;
+    --gold: #C8A84B;
+    --off: #F5F2EC;
+    --text: #1A1A2E;
+    --muted: #6B7A8D;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--navy);
+    font-family: 'Noto Serif TC', serif;
+    color: var(--off);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Background texture */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      repeating-linear-gradient(0deg, transparent, transparent 40px, rgba(255,255,255,0.015) 40px, rgba(255,255,255,0.015) 41px),
+      repeating-linear-gradient(90deg, transparent, transparent 40px, rgba(255,255,255,0.015) 40px, rgba(255,255,255,0.015) 41px);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .page {
+    position: relative;
+    z-index: 1;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 60px 40px 80px;
+  }
+
+  /* Header */
+  .header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    margin-bottom: 50px;
+    padding-bottom: 30px;
+    border-bottom: 1px solid rgba(168, 200, 232, 0.25);
+    animation: fadeDown 0.8s ease both;
+  }
+
+  .brand-block {}
+
+  .brand-en {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 13px;
+    letter-spacing: 4px;
+    color: var(--gold);
+    margin-bottom: 6px;
+  }
+
+  .brand-zh {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 52px;
+    letter-spacing: 6px;
+    color: var(--off);
+    line-height: 1;
+  }
+
+  .brand-tag {
+    font-size: 12px;
+    color: var(--ice);
+    letter-spacing: 2px;
+    margin-top: 8px;
+    opacity: 0.7;
+  }
+
+  .doc-label {
+    text-align: right;
+  }
+
+  .doc-title {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--gold);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+
+  .doc-sub {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--off);
+    letter-spacing: 2px;
+  }
+
+  /* Chain decoration */
+  .chain-deco {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 44px;
+    animation: fadeIn 1s 0.3s ease both;
+  }
+
+  .chain-link {
+    width: 24px;
+    height: 12px;
+    border: 2px solid var(--gold);
+    border-radius: 6px;
+    opacity: 0.6;
+  }
+
+  .chain-line {
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, var(--gold) 0%, transparent 100%);
+    opacity: 0.3;
+  }
+
+  /* Section */
+  .section {
+    margin-bottom: 40px;
+    animation: fadeUp 0.7s ease both;
+  }
+
+  .section:nth-child(2) { animation-delay: 0.1s; }
+  .section:nth-child(3) { animation-delay: 0.2s; }
+  .section:nth-child(4) { animation-delay: 0.3s; }
+  .section:nth-child(5) { animation-delay: 0.4s; }
+  .section:nth-child(6) { animation-delay: 0.5s; }
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 16px;
+  }
+
+  .section-num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 36px;
+    color: var(--gold);
+    line-height: 1;
+    opacity: 0.5;
+    min-width: 36px;
+  }
+
+  .section-title {
+    font-size: 17px;
+    font-weight: 700;
+    letter-spacing: 3px;
+    color: var(--ice);
+    text-transform: uppercase;
+  }
+
+  .section-line {
+    flex: 1;
+    height: 1px;
+    background: rgba(168, 200, 232, 0.2);
+  }
+
+  /* Cards */
+  .card {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(168, 200, 232, 0.12);
+    border-radius: 8px;
+    overflow: hidden;
+    backdrop-filter: blur(4px);
+  }
+
+  .card-row {
+    display: grid;
+    grid-template-columns: 160px 1fr;
+    border-bottom: 1px solid rgba(168, 200, 232, 0.08);
+  }
+
+  .card-row:last-child { border-bottom: none; }
+
+  .card-label {
+    padding: 14px 18px;
+    background: rgba(46, 109, 164, 0.15);
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 1.5px;
+    color: var(--gold);
+    display: flex;
+    align-items: center;
+    border-right: 1px solid rgba(168, 200, 232, 0.08);
+  }
+
+  .card-value {
+    padding: 14px 20px;
+    font-size: 14px;
+    line-height: 1.7;
+    color: var(--off);
+    display: flex;
+    align-items: center;
+  }
+
+  /* KPI grid */
+  .kpi-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  .kpi-card {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(168, 200, 232, 0.12);
+    border-radius: 8px;
+    padding: 20px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .kpi-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--gold), transparent);
+  }
+
+  .kpi-icon {
+    font-size: 22px;
+    margin-bottom: 8px;
+  }
+
+  .kpi-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+
+  .kpi-value {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--off);
+    line-height: 1.5;
+  }
+
+  .kpi-note {
+    font-size: 12px;
+    color: var(--ice);
+    opacity: 0.6;
+    margin-top: 4px;
+    line-height: 1.5;
+  }
+
+  /* Mission block */
+  .mission-block {
+    background: linear-gradient(135deg, rgba(46,109,164,0.2) 0%, rgba(13,27,42,0.6) 100%);
+    border: 1px solid rgba(168,200,232,0.2);
+    border-radius: 8px;
+    padding: 28px 30px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .mission-block::after {
+    content: 'FMC';
+    position: absolute;
+    right: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 80px;
+    color: rgba(168,200,232,0.06);
+    letter-spacing: 4px;
+  }
+
+  .mission-en {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 3px;
+    color: var(--gold);
+    margin-bottom: 10px;
+  }
+
+  .mission-zh {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--off);
+    line-height: 1.8;
+    margin-bottom: 14px;
+  }
+
+  .mission-desc {
+    font-size: 13px;
+    color: var(--ice);
+    opacity: 0.75;
+    line-height: 1.9;
+  }
+
+  /* Tags */
+  .tag-row {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 14px;
+  }
+
+  .tag {
+    background: rgba(200,168,75,0.12);
+    border: 1px solid rgba(200,168,75,0.3);
+    border-radius: 4px;
+    padding: 4px 12px;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 1px;
+    color: var(--gold);
+  }
+
+  /* Footer */
+  .footer {
+    margin-top: 50px;
+    padding-top: 24px;
+    border-top: 1px solid rgba(168,200,232,0.15);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    animation: fadeIn 1s 0.6s ease both;
+  }
+
+  .footer-note {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: var(--muted);
+  }
+
+  .footer-logo {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 18px;
+    letter-spacing: 4px;
+    color: rgba(168,200,232,0.3);
+  }
+
+  /* Highlight */
+  .hl { color: var(--gold); font-weight: 600; }
+  .hl-blue { color: var(--ice); }
+
+  /* Animations */
+  @keyframes fadeDown {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  @media print {
+    body { background: white; color: #111; }
+    body::before { display: none; }
+    .brand-zh, .doc-sub { color: #111; }
+    .section-title { color: #2E6DA4; }
+    .card-value, .kpi-value, .mission-zh { color: #111; }
+    .mission-block::after { display: none; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- Header -->
+  <div class="header">
+    <div class="brand-block">
+      <div class="brand-en">FUNCTION MOVEMENT CONNECT</div>
+      <div class="brand-zh">鏈結體能</div>
+      <div class="brand-tag">致力於讓更多人擁有健康且真正好用的身體</div>
+    </div>
+    <div class="doc-label">
+      <div class="doc-title">INTERVIEW BRIEF</div>
+      <div class="doc-sub">教練面談說明</div>
+    </div>
+  </div>
+
+  <div class="chain-deco">
+    <div class="chain-link"></div>
+    <div class="chain-link"></div>
+    <div class="chain-link"></div>
+    <div class="chain-line"></div>
+  </div>
+
+  <!-- 01 品牌理念 -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-num">01</div>
+      <div class="section-title">品牌理念</div>
+      <div class="section-line"></div>
+    </div>
+    <div class="mission-block">
+      <div class="mission-en">FMC — FUNCTION · MOVEMENT · CONNECT</div>
+      <div class="mission-zh">功能性動作，鏈結人體與生活</div>
+      <div class="mission-desc">
+        我們相信每個人都值得擁有一個健康且真正「好用」的身體。<br>
+        FMC 不只是訓練，是透過功能性動作連結身體結構、動作模式與真實生活需求，<br>
+        讓每位學員在日常生活中都能感受到訓練帶來的真實改變。
+      </div>
+      <div class="tag-row">
+        <span class="tag">功能性訓練</span>
+        <span class="tag">動作結構</span>
+        <span class="tag">全齡適用</span>
+        <span class="tag">科學化教學</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 02 職位說明 -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-num">02</div>
+      <div class="section-title">職位說明與工作內容</div>
+      <div class="section-line"></div>
+    </div>
+    <div class="card">
+      <div class="card-row">
+        <div class="card-label">職位</div>
+        <div class="card-value">功能性體能教練</div>
+      </div>
+      <div class="card-row">
+        <div class="card-label">教學方向</div>
+        <div class="card-value">功能性動作訓練、體態調整、全齡健康體能指導</div>
+      </div>
+      <div class="card-row">
+        <div class="card-label">每月內容產出</div>
+        <div class="card-value">每月 1 篇有價值學員回饋 ＋ 至少 10 則有內容限時動態</div>
+      </div>
+      <div class="card-row">
+        <div class="card-label">工作型態</div>
+        <div class="card-value">
+          <span>彈性排課，初期可持續在外教課；不強制排班，時間自主安排</span>
+        </div>
+      </div>
+      <div class="card-row">
+        <div class="card-label">其他要求</div>
+        <div class="card-value">如實履行合約工作內容、維護品牌形象、無損害公司名譽之行為</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 03 試用期 -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-num">03</div>
+      <div class="section-title">試用期規定</div>
+      <div class="section-line"></div>
+    </div>
+    <div class="card">
+      <div class="card-row">
+        <div class="card-label">轉正時機</div>
+        <div class="card-value">依學生量協商決定，無固定期限，以實際授課量為轉正基準</div>
+      </div>
+      <div class="card-row">
+        <div class="card-label">初期彈性</div>
+        <div class="card-value">試用期間可同時在外接課，不受排班限制，保留時間自主權</div>
+      </div>
+      <div class="card-row">
+        <div class="card-label">收入來源</div>
+        <div class="card-value">試用期以課程抽成計算，詳見薪資結構說明</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 04 薪資結構 -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-num">04</div>
+      <div class="section-title">薪資結構與分紅制度</div>
+      <div class="section-line"></div>
+    </div>
+    <div class="card" style="margin-bottom:12px;">
+      <div class="card-row">
+        <div class="card-label">底薪</div>
+        <div class="card-value">依薪資表規定（面談時提供）</div>
+      </div>
+      <div class="card-row">
+        <div class="card-label">教學抽成</div>
+        <div class="card-value">依個人授課業績比例抽成</div>
+      </div>
+      <div class="card-row">
+        <div class="card-label">分紅制度</div>
+        <div class="card-value">在職滿 <span class="hl">5 年</span>後具備分紅資格，詳細條件屆時另行說明</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 05 績效指標 -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-num">05</div>
+      <div class="section-title">達標條件與績效指標</div>
+      <div class="section-line"></div>
+    </div>
+    <div class="kpi-grid">
+      <div class="kpi-card">
+        <div class="kpi-icon">💰</div>
+        <div class="kpi-label">REVENUE</div>
+        <div class="kpi-value">月平均業績 13 萬</div>
+        <div class="kpi-note">以個人直接帶來之營收計算，季平均達標即可</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-icon">📝</div>
+        <div class="kpi-label">FEEDBACK</div>
+        <div class="kpi-value">每月 1 篇學員回饋</div>
+        <div class="kpi-note">需具實質內容，經負責人認定後發布於指定平台</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-icon">📱</div>
+        <div class="kpi-label">SOCIAL</div>
+        <div class="kpi-value">每月 10 則限時動態</div>
+        <div class="kpi-note">需符合品牌調性，由負責人審核確認</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-icon">🛡️</div>
+        <div class="kpi-label">REPUTATION</div>
+        <div class="kpi-value">零名譽損害行為</div>
+        <div class="kpi-note">無有損公司名譽之行為或書面客訴，違反則取消當季分紅資格</div>
+      </div>
+    </div>
+    <div style="margin-top:12px; padding: 14px 18px; background: rgba(200,168,75,0.06); border: 1px solid rgba(200,168,75,0.2); border-radius:8px; font-size:13px; color: var(--ice); line-height:1.8;">
+      ⚡ 所有指標須於當季<span class="hl">同時達標</span>方具備分紅資格。任一未達標，當季分紅資格取消，不影響其他教練。
+    </div>
+  </div>
+
+  <!-- 06 福利與保險 -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-num">06</div>
+      <div class="section-title">福利制度與保險說明</div>
+      <div class="section-line"></div>
+    </div>
+
+    <!-- 保險 -->
+    <div style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2px;color:var(--gold);margin-bottom:10px;">INSURANCE</div>
+    <div class="card" style="margin-bottom:16px;">
+      <div class="card-row">
+        <div class="card-label">勞保</div>
+        <div class="card-value">公司未滿五人，<span class="hl">勞保由公會加保</span>，教練需自行加入所屬職業工會</div>
+      </div>
+      <div class="card-row">
+        <div class="card-label">健保</div>
+        <div class="card-value"><span class="hl">公司負責投保</span>，雇主依法負擔應繳保費</div>
+      </div>
+      <div class="card-row">
+        <div class="card-label">勞退</div>
+        <div class="card-value"><span class="hl">公司提撥</span>，依法每月提撥薪資 6% 至個人退休金專戶</div>
+      </div>
+      <div class="card-row">
+        <div class="card-label">就業保險</div>
+        <div class="card-value"><span class="hl">公司負責投保</span>，保障失業、育嬰等相關給付</div>
+      </div>
+    </div>
+
+    <!-- 假別與福利 -->
+    <div style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2px;color:var(--gold);margin-bottom:10px;">BENEFITS & LEAVE</div>
+    <div class="kpi-grid">
+      <div class="kpi-card">
+        <div class="kpi-icon">📅</div>
+        <div class="kpi-label">DAYS OFF</div>
+        <div class="kpi-value">月休 8 天</div>
+        <div class="kpi-note">每月固定休假，彈性排定</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-icon">📚</div>
+        <div class="kpi-label">STUDY LEAVE</div>
+        <div class="kpi-value">進修假</div>
+        <div class="kpi-note">鼓勵持續學習，支持專業進修</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-icon">🎁</div>
+        <div class="kpi-label">BONUS</div>
+        <div class="kpi-value">年終獎金</div>
+        <div class="kpi-note">依年度表現發放，具體金額面議</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-icon">🗓️</div>
+        <div class="kpi-label">ANNUAL LEAVE</div>
+        <div class="kpi-value">紅字日補特休</div>
+        <div class="kpi-note">國定假日若遇上班日，補入特別休假</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="footer">
+    <div class="footer-note">CONFIDENTIAL · FOR INTERVIEW USE ONLY</div>
+    <div class="footer-logo">鏈結體能 FMC</div>
+  </div>
+
+</div>
+</body>
+</html>
