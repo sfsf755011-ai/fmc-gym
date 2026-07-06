@@ -1054,8 +1054,9 @@ function buildSuccessDetail(stu) {
   else {
     for (var i=0;i<myRec.length;i++) {
       var r=myRec[i];
-      histHTML += '<div class="hrow"><div><div style="font-weight:500">' + r.date + '</div>'
-        + '<div style="font-size:12px;color:#aaa">' + r.time + '・' + r.coach + '</div></div>'
+      var rDs=(r.date||'')+(r.time?' '+r.time:'');
+      histHTML += '<div class="hrow"><div><div style="font-weight:600;color:#111">' + rDs + '</div>'
+        + '<div style="font-size:12px;color:#aaa">' + r.coach + '</div></div>'
         + '<span style="font-size:12px;color:#888">剩 ' + r.remainAfter + ' 堂</span></div>';
     }
   }
@@ -1158,8 +1159,9 @@ function showQResult(stu) {
   var histHTML=!myRec.length?'<div style="font-size:13px;color:#aaa;padding:6px 0">尚無上課紀錄</div>':'';
   for (var i=0;i<myRec.length;i++) {
     var r=myRec[i];
-    histHTML+='<div class="qhrow"><div><div style="font-weight:500">'+r.date+'</div>'
-      +'<div style="font-size:12px;color:#aaa">'+r.time+'・'+r.coach+'</div></div>'
+    var rDateStr=(r.date||'')+(r.time?' '+r.time:'');
+    histHTML+='<div class="qhrow"><div><div style="font-weight:600;color:#111">'+rDateStr+'</div>'
+      +'<div style="font-size:12px;color:#aaa">'+r.coach+'</div></div>'
       +'<span style="font-size:13px;color:#888">剩 '+r.remainAfter+' 堂</span></div>';
   }
   document.getElementById('q-hist').innerHTML = histHTML;
