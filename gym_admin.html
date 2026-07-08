@@ -754,6 +754,34 @@ tr:hover td{background:var(--bg2)}
           <div id="salary-revenue-list"></div>
         </div>
       </div>
+
+      <!-- 主管總表（admin only） -->
+      <div id="salary-admin-panel" style="display:none">
+        <div class="card" style="border:1.5px solid var(--blue);margin-bottom:16px">
+          <div class="card-title" style="color:var(--blue)">📊 全教練薪資總表設定</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
+            <div>
+              <label style="font-size:12px;color:var(--text2);display:block;margin-bottom:4px">計算月份</label>
+              <input type="month" id="admin-month" oninput="renderAdminTable()"
+                style="width:100%;padding:8px 10px;border-radius:8px;border:1px solid var(--border2);background:var(--bg2);color:var(--text);font-size:14px">
+            </div>
+            <div>
+              <label style="font-size:12px;color:var(--text2);display:block;margin-bottom:4px">店總營收 NT$</label>
+              <input type="number" id="admin-store-rev" min="0" placeholder="輸入本月店總營收" oninput="renderAdminTable()"
+                style="width:100%;padding:8px 10px;border-radius:8px;border:1px solid var(--border2);background:var(--bg2);color:var(--text);font-size:14px">
+            </div>
+          </div>
+          <div style="font-size:13px;font-weight:600;color:var(--text2);margin-bottom:8px">各教練團課獎金</div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px;margin-bottom:14px" id="admin-group-bonus-inputs"></div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <button onclick="saveAdminSettings()" class="btn btn-primary" style="flex:1">💾 儲存本月設定</button>
+            <button onclick="exportAdminPDF()" class="btn btn-secondary" style="flex:1">🖨️ 輸出 PDF</button>
+            <button onclick="exportAdminExcel()" class="btn btn-secondary" style="flex:1">📊 輸出 Excel</button>
+          </div>
+          <div id="admin-save-status" style="font-size:13px;color:var(--green-text);margin-top:8px;display:none">✓ 已儲存</div>
+        </div>
+        <div id="admin-salary-table"></div>
+      </div>
     </div>
 
     <div id="page-settings" class="page">
@@ -1476,6 +1504,12 @@ function checkSalaryPw(){
       _salaryAdmin=true;
       _salaryCoach='apple';
       document.getElementById('salary-coach-sel').style.display='block';
+      document.getElementById('salary-admin-panel').style.display='block';
+      // init admin month
+      var d2=new Date();
+      var am=d2.getFullYear()+'-'+String(d2.getMonth()+1).padStart(2,'0');
+      document.getElementById('admin-month').value=am;
+      loadAdminSettings(am);
     } else {
       _salaryAdmin=false;
       _salaryCoach=match;
@@ -1497,6 +1531,7 @@ function exitSalary(){
   _salaryCoach=null; _salaryAdmin=false;
   document.getElementById('salary-lock').style.display='block';
   document.getElementById('salary-content').style.display='none';
+  document.getElementById('salary-admin-panel').style.display='none';
 }
 
 function getStoreMultiplier(rev){
@@ -1719,6 +1754,184 @@ function renderSalary(){
   }
 }
 // ══ End 薪資計算 ══
+
+// ══ 主管薪資總表 ══
+var ADMIN_COACHES = ['apple','sherry','jay','jenny','yoyo','fiona'];
+var COACH_DISPLAY = {apple:'apple教練',sherry:'sherry教練',jay:'jay教練',jenny:'jenny教練',yoyo:'yoyo教練',fiona:'fiona教練'};
+
+function initAdminGroupBonusInputs(){
+  var el=document.getElementById('admin-group-bonus-inputs');
+  if(!el)return;
+  el.innerHTML=ADMIN_COACHES.map(function(c){
+    return '<div><label style="font-size:12px;color:var(--text2);display:block;margin-bottom:4px">'+COACH_DISPLAY[c]+'</label>'
+      +'<input type="number" id="agb-'+c+'" min="0" placeholder="0" oninput="renderAdminTable()"'
+      +' style="width:100%;padding:7px 10px;border-radius:8px;border:1px solid var(--border2);background:var(--bg2);color:var(--text);font-size:13px"></div>';
+  }).join('');
+}
+
+function getAdminInputs(){
+  var month=document.getElementById('admin-month').value||'';
+  var storeRev=parseInt(document.getElementById('admin-store-rev').value)||0;
+  var groupBonuses={};
+  ADMIN_COACHES.forEach(function(c){
+    groupBonuses[c]=parseInt(document.getElementById('agb-'+c)?document.getElementById('agb-'+c).value:0)||0;
+  });
+  return {month:month, storeRev:storeRev, groupBonuses:groupBonuses};
+}
+
+function loadAdminSettings(month){
+  initAdminGroupBonusInputs();
+  fbdb.ref('data/salary_settings/'+month).once('value',function(snap){
+    var d=snap.val();
+    if(!d)return;
+    if(d.storeRev) document.getElementById('admin-store-rev').value=d.storeRev;
+    if(d.groupBonuses){
+      ADMIN_COACHES.forEach(function(c){
+        var el=document.getElementById('agb-'+c);
+        if(el&&d.groupBonuses[c]) el.value=d.groupBonuses[c];
+      });
+    }
+    renderAdminTable();
+  });
+}
+
+function saveAdminSettings(){
+  var inp=getAdminInputs();
+  if(!inp.month){toast('請先選擇月份');return;}
+  fbdb.ref('data/salary_settings/'+inp.month).set(inp,function(err){
+    if(err){toast('❌ 儲存失敗');return;}
+    var el=document.getElementById('admin-save-status');
+    el.style.display='block';
+    setTimeout(function(){el.style.display='none';},2000);
+    toast('✓ 已儲存 '+inp.month+' 薪資設定');
+  });
+}
+
+function calcCoachSalary(coachKey, month, storeRev, groupBonus){
+  var coachName=COACH_DISPLAY[coachKey];
+  var mult=getStoreMultiplier(storeRev);
+  var monthRecs=records.filter(function(r){return r.date&&r.date.startsWith(month)&&r.coach===coachName;});
+  var totalSessions=monthRecs.length;
+  var v2Sessions=monthRecs.filter(function(r){
+    var s=students.find(function(st){return st.name===r.student;});
+    return s&&(s.contracts||[]).some(function(c){return c.planLabel&&c.planLabel.indexOf('1v2')!==-1;});
+  }).length;
+  var paidSessions=Math.max(0,totalSessions-30);
+  var coachStudents=students.filter(function(s){return s.coach===coachName;});
+  var revFrom=month+'-01';
+  var revTo=month+'-31';
+  var revenue=coachStudents.reduce(function(sum,s){
+    return sum+(s.contracts||[]).reduce(function(cs,c){
+      return cs+c.installments.filter(function(i){return i.paid&&i.paidDate&&i.paidDate>=revFrom&&i.paidDate<=revTo;}).reduce(function(is,i){return is+i.amount;},0);
+    },0);
+  },0);
+  var template=SALARY_TEMPLATES[coachKey]||'senior';
+  var allowance=PERSONAL_ALLOWANCE[coachKey]||PERSONAL_ALLOWANCE_DEFAULT;
+  var commResult=calcCommission(paidSessions,template);
+  var commission=commResult.total;
+  var v2Bonus=v2Sessions*100;
+  var bonusRate=getRevenueBonusRate(revenue);
+  var revenueBonus=revenue>=120001?revenue*bonusRate:0;
+  var revenuePenalty=revenue>0&&revenue<120000?paidSessions*50:0;
+  var subsidy=HEALTH_SUBSIDY[coachKey]||0;
+  var subtotal=BASE_SALARY+allowance+commission+v2Bonus+revenueBonus-revenuePenalty+subsidy;
+  var finalSalary=subtotal*mult+groupBonus*mult;
+  return {
+    coachKey:coachKey, coachName:coachName,
+    totalSessions:totalSessions, paidSessions:paidSessions, v2Sessions:v2Sessions,
+    revenue:revenue, commission:commission, v2Bonus:v2Bonus,
+    revenueBonus:revenueBonus, revenuePenalty:revenuePenalty,
+    subsidy:subsidy, allowance:allowance, groupBonus:groupBonus*mult,
+    subtotal:subtotal, mult:mult, finalSalary:finalSalary
+  };
+}
+
+function renderAdminTable(){
+  var inp=getAdminInputs();
+  if(!inp.month){document.getElementById('admin-salary-table').innerHTML='';return;}
+  var results=ADMIN_COACHES.map(function(c){return calcCoachSalary(c,inp.month,inp.storeRev,inp.groupBonuses[c]||0);});
+  var totalSalary=results.reduce(function(s,r){return s+r.finalSalary;},0);
+
+  var html='<div id="admin-print-area">';
+  html+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px">';
+  html+='<div style="font-size:16px;font-weight:700">'+inp.month+' 全教練薪資總表</div>';
+  html+='<div style="font-size:14px;color:var(--text2)">店總營收：NT$'+inp.storeRev.toLocaleString()+' （'+(results[0].mult*100).toFixed(1)+'%）</div>';
+  html+='</div>';
+
+  // Summary table
+  html+='<div style="overflow-x:auto;margin-bottom:20px"><table style="width:100%;font-size:13px;border-collapse:collapse">';
+  html+='<thead><tr style="background:var(--bg2)">';
+  ['教練','總堂','計薪堂','1v2','當月業績','底薪+加給','堂數抽成','業績加減','健保補助','團課獎金','店業績調整','最終薪資'].forEach(function(h){
+    html+='<th style="padding:8px 10px;text-align:right;font-weight:600;white-space:nowrap;border-bottom:2px solid var(--border2)">'+h+'</th>';
+  });
+  html+='</tr></thead><tbody>';
+
+  results.forEach(function(r,i){
+    var bg=i%2===0?'':'background:var(--bg2)';
+    html+='<tr style="'+bg+'">';
+    html+='<td style="padding:8px 10px;font-weight:700;white-space:nowrap;border-bottom:1px solid var(--border)">'+r.coachName+'</td>';
+    html+='<td style="padding:8px 10px;text-align:right;border-bottom:1px solid var(--border)">'+r.totalSessions+'</td>';
+    html+='<td style="padding:8px 10px;text-align:right;border-bottom:1px solid var(--border)">'+r.paidSessions+'</td>';
+    html+='<td style="padding:8px 10px;text-align:right;border-bottom:1px solid var(--border)">'+r.v2Sessions+'</td>';
+    html+='<td style="padding:8px 10px;text-align:right;border-bottom:1px solid var(--border)">'+fmtMoney(r.revenue)+'</td>';
+    html+='<td style="padding:8px 10px;text-align:right;border-bottom:1px solid var(--border)">'+fmtMoney(BASE_SALARY+r.allowance)+'</td>';
+    html+='<td style="padding:8px 10px;text-align:right;border-bottom:1px solid var(--border)">'+fmtMoney(r.commission+(r.v2Bonus||0))+'</td>';
+    var revAdj=r.revenueBonus-r.revenuePenalty;
+    html+='<td style="padding:8px 10px;text-align:right;border-bottom:1px solid var(--border);color:'+(revAdj>=0?'var(--green-text)':'var(--red-text)')+'">'+fmtMoney(revAdj)+'</td>';
+    html+='<td style="padding:8px 10px;text-align:right;border-bottom:1px solid var(--border);color:'+(r.subsidy>=0?'var(--green-text)':'var(--red-text)')+'">'+fmtMoney(r.subsidy)+'</td>';
+    html+='<td style="padding:8px 10px;text-align:right;border-bottom:1px solid var(--border)">'+fmtMoney(r.groupBonus)+'</td>';
+    html+='<td style="padding:8px 10px;text-align:right;border-bottom:1px solid var(--border)">'+fmtMoney(r.finalSalary-r.subtotal*r.mult)+'</td>';
+    html+='<td style="padding:8px 10px;text-align:right;font-weight:700;border-bottom:1px solid var(--border)">'+fmtMoney(r.finalSalary)+'</td>';
+    html+='</tr>';
+  });
+
+  // Total row
+  html+='<tr style="background:var(--accent);color:#fff">';
+  html+='<td style="padding:8px 10px;font-weight:700">總計</td>';
+  html+='<td colspan="10" style="padding:8px 10px"></td>';
+  html+='<td style="padding:8px 10px;text-align:right;font-weight:800;font-size:15px">'+fmtMoney(totalSalary)+'</td>';
+  html+='</tr>';
+  html+='</tbody></table></div>';
+  html+='</div>';
+
+  document.getElementById('admin-salary-table').innerHTML=html;
+}
+
+function exportAdminPDF(){
+  var printArea=document.getElementById('admin-print-area');
+  if(!printArea){toast('請先計算薪資總表');return;}
+  var inp=getAdminInputs();
+  var w=window.open('','_blank');
+  w.document.write('<html><head><title>'+inp.month+' 薪資總表</title>');
+  w.document.write('<style>body{font-family:-apple-system,sans-serif;font-size:12px;padding:20px}table{border-collapse:collapse;width:100%}th,td{border:1px solid #ddd;padding:6px 10px}th{background:#f5f5f7;font-weight:600}tr:nth-child(even){background:#f9f9f9}@media print{button{display:none}}</style>');
+  w.document.write('</head><body>');
+  w.document.write('<h2>'+inp.month+' FMC 全教練薪資總表</h2>');
+  w.document.write('<p>店總營收：NT$'+inp.storeRev.toLocaleString()+'　乘數：'+(getStoreMultiplier(inp.storeRev)*100).toFixed(1)+'%</p>');
+  w.document.write(printArea.innerHTML);
+  w.document.write('<br><button onclick="window.print()">🖨️ 列印 / 儲存PDF</button>');
+  w.document.write('</body></html>');
+  w.document.close();
+}
+
+function exportAdminExcel(){
+  var inp=getAdminInputs();
+  if(!inp.month){toast('請先選擇月份');return;}
+  var results=ADMIN_COACHES.map(function(c){return calcCoachSalary(c,inp.month,inp.storeRev,inp.groupBonuses[c]||0);});
+
+  var headers=['教練','總堂數','計薪堂數','1v2堂數','當月業績','底薪+加給','堂數抽成+1v2','業績加減','健保補助','團課獎金','店業績調整','最終薪資'];
+  var rows=results.map(function(r){
+    var revAdj=r.revenueBonus-r.revenuePenalty;
+    return [r.coachName,r.totalSessions,r.paidSessions,r.v2Sessions,r.revenue,BASE_SALARY+r.allowance,r.commission+(r.v2Bonus||0),revAdj,r.subsidy,r.groupBonus,r.finalSalary-r.subtotal*r.mult,r.finalSalary];
+  });
+
+  var csv='\uFEFF'+headers.join(',')+'\n'+rows.map(function(r){return r.join(',');}).join('\n');
+  var a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));
+  a.download=inp.month+'_薪資總表.csv';
+  a.click();
+  toast('✓ CSV 已下載（可用 Excel 開啟）');
+}
+// ══ End 主管薪資總表 ══
 
 function renderDashboard(){
   var t=today();
