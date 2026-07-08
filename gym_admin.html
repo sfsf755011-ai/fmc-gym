@@ -192,6 +192,7 @@ tr:hover td{background:var(--bg2)}
     <div class="sb-footer">
       <a class="client-link" href="gym_checkin_client.html" target="_blank">→ 開啟簽到頁面</a>
       <button class="logout-btn" onclick="doLogout()">登出</button>
+      <div style="text-align:center;font-size:11px;color:var(--text3);padding:6px 0 2px;letter-spacing:.05em">v250708a</div>
     </div>
   </div>
 
@@ -1604,15 +1605,18 @@ function renderSalary(){
 
   // Revenue from paid installments in this month
   var coachStudents=students.filter(function(s){return s.coach===(coachDisplayNames[coachName]||coachName);});
+  // shian只計算公司學生業績
   var revenue=coachStudents.reduce(function(sum,s){
+    if(coachName==='shian'&&s.shianType!=='company') return sum;
     return sum+(s.contracts||[]).reduce(function(cs,c){
       return cs+c.installments.filter(function(i){return i.paid&&i.paidDate&&i.paidDate.startsWith(month);}).reduce(function(is,i){return is+i.amount;},0);
     },0);
   },0);
 
-  // 收集當月已付款明細
+  // 收集當月已付款明細（shian只收公司學生）
   var revenueDetails=[];
   coachStudents.forEach(function(s){
+    if(coachName==='shian'&&s.shianType!=='company') return;
     (s.contracts||[]).forEach(function(c){
       c.installments.forEach(function(i){
         if(i.paid&&i.paidDate&&i.paidDate.startsWith(month)){
@@ -1638,35 +1642,41 @@ function renderSalary(){
 
   if(coachName==='shian'){
     // shian 特殊計算：公司學生每堂課程單價 × 60%，無底薪、無業績加成
-    var shianStoreAllowance=parseInt(document.getElementById('shian-store-allowance')?document.getElementById('shian-store-allowance').value:0)||0;
-    var shianLaborSubsidy=parseInt(document.getElementById('shian-labor-subsidy')?document.getElementById('shian-labor-subsidy').value:0)||0;
+    // 店長加給：從2026-03起$10000，每年3月+$1000
+    var baseYear=2026; var baseMonth=3; var baseAmt=10000;
+    var nowDate=new Date(); var nowYear=nowDate.getFullYear(); var nowMon=nowDate.getMonth()+1;
+    var yearsElapsed=nowYear-baseYear+(nowMon>=baseMonth?0:-1);
+    var shianStoreAllowance=baseAmt+Math.max(0,yearsElapsed)*1000;
+    var shianLaborSubsidy=1500;
+    // 店業績抽成
+    var shianStoreRev=parseInt(document.getElementById('store-revenue')?document.getElementById('store-revenue').value:0)||0;
+    var shianStorePct=shianStoreRev>=1000000?0.01:shianStoreRev>=950000?0.0075:shianStoreRev>=850000?0.005:0;
+    var shianStoreBonus=Math.round(shianStoreRev*shianStorePct);
     // 計算公司學生的課程費用：從記錄中找出公司學生上的課，用其pricePerSession × 60%
-    var shianCommission=monthRecs.reduce(function(sum,r){
+    var companyRecs=monthRecs.filter(function(r){var s=students.find(function(st){return st.name===r.student&&st.coach==='shian教練';});return s&&s.shianType==='company';});
+    var shianCommission=companyRecs.reduce(function(sum,r){
       var s=students.find(function(st){return st.name===r.student&&st.coach==='shian教練';});
-      if(s&&s.shianType==='company'){
-        return sum+Math.round((s.pricePerSession||0)*0.6);
-      }
-      return sum;
+      return sum+Math.round((s&&s.pricePerSession||0)*0.6);
     },0);
-    subtotal=shianCommission+shianStoreAllowance+shianLaborSubsidy;
-    finalSalary=subtotal*mult+groupBonus*mult;
+    var shianStorePctLabel=shianStoreRev>=1000000?'1%':shianStoreRev>=950000?'0.75%':shianStoreRev>=850000?'0.5%':'0%';
+    subtotal=shianCommission+shianStoreAllowance+shianLaborSubsidy+shianStoreBonus;
+    finalSalary=subtotal+groupBonus;
     // 更新 metrics
     document.getElementById('salary-metrics').innerHTML=
-      '<div style="background:rgba(255,255,255,.12);border-radius:10px;padding:12px"><div style="font-size:11px;color:rgba(255,255,255,.6);margin-bottom:4px">公司學生堂數</div><div style="font-size:22px;font-weight:700">'+monthRecs.filter(function(r){var s=students.find(function(st){return st.name===r.student&&st.coach==='shian教練';});return s&&s.shianType==='company';}).length+' 堂</div></div>'
+      '<div style="background:rgba(255,255,255,.12);border-radius:10px;padding:12px"><div style="font-size:11px;color:rgba(255,255,255,.6);margin-bottom:4px">公司學生堂數</div><div style="font-size:22px;font-weight:700">'+companyRecs.length+' 堂</div></div>'
       +'<div style="background:rgba(255,255,255,.12);border-radius:10px;padding:12px"><div style="font-size:11px;color:rgba(255,255,255,.6);margin-bottom:4px">課程抽成（60%）</div><div style="font-size:22px;font-weight:700">'+fmtMoney(shianCommission)+'</div></div>'
-      +'<div style="background:rgba(255,255,255,.12);border-radius:10px;padding:12px"><div style="font-size:11px;color:rgba(255,255,255,.6);margin-bottom:4px">店長加給</div><div style="font-size:22px;font-weight:700">'+fmtMoney(shianStoreAllowance)+'</div></div>'
-      +'<div style="background:rgba(255,255,255,.12);border-radius:10px;padding:12px"><div style="font-size:11px;color:rgba(255,255,255,.6);margin-bottom:4px">當月業績</div><div style="font-size:22px;font-weight:700">'+fmtMoney(revenue)+'</div></div>';
+      +'<div style="background:rgba(255,255,255,.12);border-radius:10px;padding:12px"><div style="font-size:11px;color:rgba(255,255,255,.6);margin-bottom:4px">店長加給（'+shianStoreAllowance.toLocaleString()+'）</div><div style="font-size:22px;font-weight:700">'+fmtMoney(shianStoreAllowance)+'</div></div>'
+      +'<div style="background:rgba(255,255,255,.12);border-radius:10px;padding:12px"><div style="font-size:11px;color:rgba(255,255,255,.6);margin-bottom:4px">店業績抽成（'+shianStorePctLabel+'）</div><div style="font-size:22px;font-weight:700">'+fmtMoney(shianStoreBonus)+'</div></div>';
     document.getElementById('salary-total').textContent=fmtMoney(finalSalary);
     // shian 明細
     var bdHtml='';
     var shianRows=[
-      {name:'課程抽成（公司學生 '+monthRecs.filter(function(r){var s=students.find(function(st){return st.name===r.student&&st.coach==='shian教練';});return s&&s.shianType==='company';}).length+' 堂 × 單價60%）',amt:shianCommission,type:'normal'},
-      {name:'店長加給',amt:shianStoreAllowance,type:'normal'},
-      {name:'勞退補助',amt:shianLaborSubsidy,type:'green'},
-      {name:'小計（店業績調整前）',amt:subtotal,type:'bold'},
-      {name:'店業績乘數（'+(mult*100).toFixed(1)+'%）',amt:subtotal*mult-subtotal,type:mult>=1?'green':'red'},
+      {name:'課程抽成（公司學生 '+companyRecs.length+' 堂 × 單價60%）',amt:shianCommission,type:'normal'},
+      {name:'店長加給（固定，2026.03起，每年3月+$1,000）',amt:shianStoreAllowance,type:'normal'},
+      {name:'勞退補助（固定）',amt:shianLaborSubsidy,type:'green'},
+      {name:'店業績抽成（NT$'+shianStoreRev.toLocaleString()+' × '+shianStorePctLabel+'）',amt:shianStoreBonus,type:shianStoreBonus>0?'green':'muted'},
     ];
-    if(groupBonus>0) shianRows.push({name:'團體課程獎金（× '+(mult*100).toFixed(1)+'%）',amt:groupBonus*mult,type:'green'});
+    if(groupBonus>0) shianRows.push({name:'團體課程獎金',amt:groupBonus,type:'green'});
     shianRows.push({name:'最終薪資',amt:finalSalary,type:'total'});
     shianRows.forEach(function(r){
       var amtCls=r.type==='red'?'color:var(--red-text)':r.type==='green'?'color:var(--green-text)':r.type==='muted'?'color:var(--text3)':'';
@@ -1756,7 +1766,7 @@ function renderSalary(){
 // ══ End 薪資計算 ══
 
 // ══ 主管薪資總表 ══
-var ADMIN_COACHES = ['apple','sherry','jay','jenny','yoyo','fiona'];
+var ADMIN_COACHES = ['apple','sherry','jay','jenny','yoyo'];
 var COACH_DISPLAY = {apple:'apple教練',sherry:'sherry教練',jay:'jay教練',jenny:'jenny教練',yoyo:'yoyo教練',fiona:'fiona教練'};
 
 function initAdminGroupBonusInputs(){
@@ -1913,23 +1923,44 @@ function exportAdminPDF(){
   w.document.close();
 }
 
+function ri(n){return Math.round(n);}
+
 function exportAdminExcel(){
   var inp=getAdminInputs();
   if(!inp.month){toast('請先選擇月份');return;}
   var results=ADMIN_COACHES.map(function(c){return calcCoachSalary(c,inp.month,inp.storeRev,inp.groupBonuses[c]||0);});
 
-  var headers=['教練','總堂數','計薪堂數','1v2堂數','當月業績','底薪+加給','堂數抽成+1v2','業績加減','健保補助','團課獎金','店業績調整','最終薪資'];
-  var rows=results.map(function(r){
-    var revAdj=r.revenueBonus-r.revenuePenalty;
-    return [r.coachName,r.totalSessions,r.paidSessions,r.v2Sessions,r.revenue,BASE_SALARY+r.allowance,r.commission+(r.v2Bonus||0),revAdj,r.subsidy,r.groupBonus,r.finalSalary-r.subtotal*r.mult,r.finalSalary];
+  var allRows=[];
+  // 主要教練表頭
+  allRows.push(['教練','總堂數','計薪堂數','1v2堂數','當月業績','底薪+加給','堂數抽成+1v2','業績加減','健保補助','團課獎金','店業績調整','最終薪資']);
+  results.forEach(function(r){
+    var revAdj=ri(r.revenueBonus)-ri(r.revenuePenalty);
+    allRows.push([r.coachName,r.totalSessions,r.paidSessions,r.v2Sessions,ri(r.revenue),ri(BASE_SALARY+r.allowance),ri(r.commission+(r.v2Bonus||0)),revAdj,ri(r.subsidy),ri(r.groupBonus),ri(r.finalSalary-r.subtotal*r.mult),ri(r.finalSalary)]);
   });
+  // 空行
+  allRows.push([]);
+  // 獨立教練區塊
+  allRows.push(['教練','私教課程','團體課程','業績抽成','額外加給','總薪資']);
+  allRows.push(['shian（見薪資頁）','','','','','']);
+  // daniel row - SUM formula at col F (index 6), data at B-E (index 2-5)
+  var danielRow = allRows.length + 1;
+  allRows.push(['daniel','','','','','=B'+danielRow+'+C'+danielRow+'+D'+danielRow+'+E'+danielRow]);
+  var qqRow = allRows.length + 1;
+  allRows.push(['QQ','','','','','=B'+qqRow+'+C'+qqRow+'+D'+qqRow+'+E'+qqRow]);
 
-  var csv='\uFEFF'+headers.join(',')+'\n'+rows.map(function(r){return r.join(',');}).join('\n');
+  var csv='﻿'+allRows.map(function(r){
+    return r.map(function(v){
+      v=v===undefined||v===null?'':v;
+      if(typeof v==='string'&&(v.indexOf(',')!==-1||v.indexOf('"')!==-1)) return '"'+String(v).replace(/"/g,'""')+'"';
+      return v;
+    }).join(',');
+  }).join('\n');
+
   var a=document.createElement('a');
   a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));
   a.download=inp.month+'_薪資總表.csv';
   a.click();
-  toast('✓ CSV 已下載（可用 Excel 開啟）');
+  toast('✓ CSV 已下載（daniel/QQ 列請手動填入，總薪資欄自動加總）');
 }
 // ══ End 主管薪資總表 ══
 
