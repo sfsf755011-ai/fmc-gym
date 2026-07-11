@@ -192,7 +192,7 @@ tr:hover td{background:var(--bg2)}
     <div class="sb-footer">
       <a class="client-link" href="gym_checkin_client.html" target="_blank">→ 開啟簽到頁面</a>
       <button class="logout-btn" onclick="doLogout()">登出</button>
-      <div style="text-align:center;font-size:11px;color:var(--text3);padding:6px 0 2px;letter-spacing:.05em">v250708a</div>
+      <div style="text-align:center;font-size:11px;color:var(--text3);padding:6px 0 2px;letter-spacing:.05em">v250708z</div>
     </div>
   </div>
 
@@ -692,7 +692,7 @@ tr:hover td{background:var(--bg2)}
               <option value="fiona">fiona教練</option>
             <option value="shian">shian教練</option>
             </select>
-            <input type="month" id="salary-month" onchange="renderSalary()"
+            <input type="month" id="salary-month" onchange="loadSalarySettings(this.value)"
               style="font-size:14px;padding:7px 10px;border-radius:8px;border:1px solid var(--border2);background:var(--bg2);color:var(--text)">
             <button onclick="exitSalary()" style="padding:7px 14px;border-radius:8px;background:var(--bg2);color:var(--text2);border:1px solid var(--border2);font-size:13px;cursor:pointer">登出</button>
           </div>
@@ -718,20 +718,25 @@ tr:hover td{background:var(--bg2)}
           </div>
         </div>
         <div class="card" style="border:1.5px solid var(--amber);background:var(--amber-bg);margin-bottom:16px">
-          <div class="card-title" style="color:var(--amber-text)">🏪 店總營收（手動輸入）</div>
-          <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
-            <input type="number" id="store-revenue" min="0" placeholder="輸入本月店總營收"
-              oninput="renderSalary()"
-              style="flex:1;min-width:180px;font-size:15px;padding:9px 12px;border-radius:8px;border:1.5px solid var(--amber);background:var(--bg);color:var(--text)">
-            <div id="store-mult-preview" style="font-size:13px;color:var(--amber-text);font-weight:600"></div>
+          <div class="card-title" style="color:var(--amber-text)">🏪 主管設定（唯讀）</div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px">
+            <div>
+              <div style="font-size:12px;color:var(--amber-text);margin-bottom:4px">店總營收</div>
+              <div id="store-revenue-display" style="font-size:15px;font-weight:700;padding:9px 12px;background:var(--bg);border-radius:8px;border:1.5px solid var(--amber);color:var(--text)">—</div>
+              <input type="hidden" id="store-revenue">
+              <div id="store-mult-preview" style="font-size:12px;color:var(--amber-text);font-weight:600;margin-top:4px"></div>
+            </div>
+            <div>
+              <div style="font-size:12px;color:var(--amber-text);margin-bottom:4px">體驗成交（堂）</div>
+              <div id="trial-display" style="font-size:15px;font-weight:700;padding:9px 12px;background:var(--bg);border-radius:8px;border:1.5px solid var(--amber);color:var(--text)">0</div>
+            </div>
+            <div>
+              <div style="font-size:12px;color:var(--amber-text);margin-bottom:4px">團體課程獎金</div>
+              <div id="group-bonus-display" style="font-size:15px;font-weight:700;padding:9px 12px;background:var(--bg);border-radius:8px;border:1.5px solid var(--amber);color:var(--text)">—</div>
+              <input type="hidden" id="group-bonus">
+            </div>
           </div>
-          <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:10px">
-            <label style="font-size:13px;color:var(--amber-text);font-weight:600;white-space:nowrap">團體課程獎金 NT$</label>
-            <input type="number" id="group-bonus" min="0" placeholder="輸入團課獎金金額"
-              oninput="renderSalary()"
-              style="flex:1;min-width:180px;font-size:15px;padding:9px 12px;border-radius:8px;border:1.5px solid var(--amber);background:var(--bg);color:var(--text)">
-            <div style="font-size:12px;color:var(--amber-text)">（比照店業績乘數計算）</div
-          </div>
+          <input type="hidden" id="group-bonus">
         </div>
 
         <!-- 結果卡 -->
@@ -763,7 +768,7 @@ tr:hover td{background:var(--bg2)}
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
             <div>
               <label style="font-size:12px;color:var(--text2);display:block;margin-bottom:4px">計算月份</label>
-              <input type="month" id="admin-month" oninput="renderAdminTable()"
+              <input type="month" id="admin-month" oninput="loadSalarySettings(this.value)"
                 style="width:100%;padding:8px 10px;border-radius:8px;border:1px solid var(--border2);background:var(--bg2);color:var(--text);font-size:14px">
             </div>
             <div>
@@ -774,6 +779,8 @@ tr:hover td{background:var(--bg2)}
           </div>
           <div style="font-size:13px;font-weight:600;color:var(--text2);margin-bottom:8px">各教練團課獎金</div>
           <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px;margin-bottom:14px" id="admin-group-bonus-inputs"></div>
+          <div style="font-size:13px;font-weight:600;color:var(--text2);margin-bottom:8px">各教練體驗成交（堂數）</div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px;margin-bottom:14px" id="admin-trial-inputs"></div>
           <div style="display:flex;gap:8px;flex-wrap:wrap">
             <button onclick="saveAdminSettings()" class="btn btn-primary" style="flex:1">💾 儲存本月設定</button>
             <button onclick="exportAdminPDF()" class="btn btn-secondary" style="flex:1">🖨️ 輸出 PDF</button>
@@ -1472,13 +1479,13 @@ var HEALTH_SUBSIDY = { jenny: -907, apple: -1333, jay: -481, yoyo: 3726, sherry:
 
 var COMMISSION_JUNIOR = [
   {from:1,to:10,rate:200},{from:11,to:20,rate:300},{from:21,to:40,rate:400},
-  {from:41,to:60,rate:450},{from:61,to:80,rate:500},{from:81,to:100,rate:525},
-  {from:101,to:9999,rate:550}
+  {from:41,to:60,rate:450},{from:61,to:70,rate:500},{from:71,to:90,rate:525},
+  {from:91,to:9999,rate:550}
 ];
 var COMMISSION_SENIOR = [
   {from:1,to:10,rate:200},{from:11,to:20,rate:300},{from:21,to:40,rate:400},
-  {from:41,to:60,rate:450},{from:61,to:80,rate:500},{from:81,to:90,rate:535},
-  {from:91,to:100,rate:545},{from:101,to:9999,rate:555}
+  {from:41,to:60,rate:450},{from:61,to:70,rate:500},{from:71,to:80,rate:535},
+  {from:81,to:90,rate:545},{from:91,to:9999,rate:555}
 ];
 var REVENUE_BONUS = [
   {from:240001,rate:0.05},{from:200001,rate:0.045},{from:160001,rate:0.04},
@@ -1491,6 +1498,68 @@ var STORE_MULTS = [
 
 var _salaryCoach = null;
 var _salaryAdmin = false;
+
+function loadSalarySettings(month){
+  if(!month) return;
+  fbdb.ref('data/salary_settings/'+month).once('value', function(snap){
+    var d = snap.val();
+    if(d){
+      // Store trial sessions globally for renderSalary
+      window._savedTrialSessions = {};
+      if(d.trialSessions) Object.keys(d.trialSessions).forEach(function(c){
+        var cname = ({"apple":"apple教練","sherry":"sherry教練","jay":"jay教練","jenny":"jenny教練","yoyo":"yoyo教練","fiona":"fiona教練","shian":"shian教練"})[c]||c;
+        window._savedTrialSessions[cname] = d.trialSessions[c]||0;
+      });
+      // Load store revenue
+      var storeVal = d.storeRev||0;
+      var storeEl = document.getElementById('store-revenue');
+      if(storeEl) storeEl.value = storeVal;
+      var adminStoreEl = document.getElementById('admin-store-rev');
+      if(adminStoreEl) adminStoreEl.value = storeVal;
+      var storeDisp = document.getElementById('store-revenue-display');
+      if(storeDisp) storeDisp.textContent = 'NT$'+(storeVal).toLocaleString();
+
+      // Load group bonus and trial for this coach (non-admin)
+      if(!_salaryAdmin && _salaryCoach){
+        // Save coachResults for this coach globally - renderSalary will use this
+        window._savedCoachResult = (d.coachResults&&d.coachResults[_salaryCoach])||null;
+        // Try to load from saved coachResults first (most reliable)
+        var cr=d.coachResults&&d.coachResults[_salaryCoach];
+        var gbVal=cr?cr.groupBonus:((d.groupBonuses&&d.groupBonuses[_salaryCoach])||0);
+        var trialVal=cr?cr.trial:((d.trialSessions&&d.trialSessions[_salaryCoach])||0);
+        // Set hidden inputs
+        var gbEl=document.getElementById('group-bonus');
+        if(gbEl) gbEl.value=gbVal;
+        // Set display elements
+        var gbDisp=document.getElementById('group-bonus-display');
+        if(gbDisp) gbDisp.textContent=gbVal>0?'NT$'+gbVal.toLocaleString():'—';
+        var trialDisp=document.getElementById('trial-display');
+        if(trialDisp) trialDisp.textContent=trialVal;
+        // Store trial globally
+        window._savedTrialSessions={};
+        window._savedTrialSessions[_salaryCoach]=trialVal;
+        var dispNames={'apple':'apple教練','sherry':'sherry教練','jay':'jay教練','jenny':'jenny教練','yoyo':'yoyo教練','fiona':'fiona教練','shian':'shian教練'};
+        window._savedTrialSessions[dispNames[_salaryCoach]||_salaryCoach]=trialVal;
+      }
+      // trial-display updated above for non-admin
+      // For admin, load all group bonuses
+      if(_salaryAdmin && d.groupBonuses){
+        ADMIN_COACHES.forEach(function(c){
+          var el = document.getElementById('agb-'+c);
+          if(el && d.groupBonuses[c] !== undefined) el.value = d.groupBonuses[c];
+        });
+        if(d.storeRev) document.getElementById('admin-store-rev').value = d.storeRev;
+      }
+      if(_salaryAdmin && d.trialSessions){
+        ADMIN_COACHES.forEach(function(c){
+          var el = document.getElementById('atr-'+c);
+          if(el && d.trialSessions[c] !== undefined) el.value = d.trialSessions[c];
+        });
+      }
+    }
+    renderSalary();
+  });
+}
 
 function checkSalaryPw(){
   var pw = document.getElementById('salary-pw').value;
@@ -1508,6 +1577,8 @@ function checkSalaryPw(){
       document.getElementById('salary-admin-panel').style.display='block';
       // init admin month
       var d2=new Date();
+      // Default to previous month (where salary data is most likely stored)
+      d2.setMonth(d2.getMonth()-1);
       var am=d2.getFullYear()+'-'+String(d2.getMonth()+1).padStart(2,'0');
       document.getElementById('admin-month').value=am;
       loadAdminSettings(am);
@@ -1515,13 +1586,23 @@ function checkSalaryPw(){
       _salaryAdmin=false;
       _salaryCoach=match;
       document.getElementById('salary-coach-sel').style.display='none';
+      // Make store-revenue readonly for non-admin
+      var srEl=document.getElementById('store-revenue');
+      if(srEl){srEl.readOnly=true;srEl.style.opacity='0.7';}
     }
     var isShian=(match==='shian'||match==='admin');
     document.getElementById('shian-extra-fields').style.display=match==='shian'?'block':'none';
+    // Default to previous month where salary data is stored
     var d=new Date();
+    d.setMonth(d.getMonth()-1);
     var m=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');
     document.getElementById('salary-month').value=m;
-    renderSalary();
+    // For non-admin: set coach selector to match logged-in coach
+    if(!_salaryAdmin && _salaryCoach){
+      var csel=document.getElementById('salary-coach-sel');
+      if(csel) csel.value=_salaryCoach;
+    }
+    loadSalarySettings(m);
   } else {
     err.style.display='block';
     document.getElementById('salary-pw').value='';
@@ -1530,9 +1611,28 @@ function checkSalaryPw(){
 
 function exitSalary(){
   _salaryCoach=null; _salaryAdmin=false;
+  window._savedCoachResult=null;
+  window._savedTrialSessions={};
+  // Reset all display elements
+  var storeDisp=document.getElementById('store-revenue-display');
+  if(storeDisp) storeDisp.textContent='—';
+  var trialDisp=document.getElementById('trial-display');
+  if(trialDisp) trialDisp.textContent='0';
+  var gbDisp=document.getElementById('group-bonus-display');
+  if(gbDisp) gbDisp.textContent='—';
+  var gbEl=document.getElementById('group-bonus');
+  if(gbEl) gbEl.value='';
+  var storeEl=document.getElementById('store-revenue');
+  if(storeEl) storeEl.value='';
   document.getElementById('salary-lock').style.display='block';
   document.getElementById('salary-content').style.display='none';
   document.getElementById('salary-admin-panel').style.display='none';
+  // Hide shian fields
+  var shianEl=document.getElementById('shian-extra-fields');
+  if(shianEl) shianEl.style.display='none';
+  // Reset coach selector label
+  document.getElementById('salary-coach-label').textContent='';
+  document.getElementById('salary-month-label').textContent='';
 }
 
 function getStoreMultiplier(rev){
@@ -1543,14 +1643,15 @@ function getRevenueBonusRate(rev){
   for(var i=0;i<REVENUE_BONUS.length;i++){if(rev>=REVENUE_BONUS[i].from)return REVENUE_BONUS[i].rate;}
   return 0;
 }
-function calcCommission(paidSessions, template){
-  // Flat rate: find which tier paidSessions falls in, apply that rate to ALL paid sessions
+function calcCommission(paidSessions, template, totalSessions){
+  // Tier is determined by TOTAL sessions, but amount = paidSessions × rate
   if(paidSessions<=0) return {total:0,details:[],rate:0,tierLabel:''};
   var tiers=template==='junior'?COMMISSION_JUNIOR:COMMISSION_SENIOR;
+  var tierBase=totalSessions||paidSessions; // use totalSessions for tier lookup
   var rate=tiers[0].rate;
   var tierLabel='';
   for(var i=0;i<tiers.length;i++){
-    if(paidSessions>=tiers[i].from){
+    if(tierBase>=tiers[i].from){
       rate=tiers[i].rate;
       tierLabel=tiers[i].to===9999?'第'+(tiers[i].from+30)+'堂以上':'第'+(tiers[i].from+30)+'~'+(tiers[i].to+30)+'堂';
     }
@@ -1570,6 +1671,74 @@ function renderSalary(){
   var coachName=_salaryAdmin?document.getElementById('salary-coach-sel').value:_salaryCoach;
   var month=document.getElementById('salary-month').value;
   if(!month)return;
+
+  // Non-admin: read from saved coachResults instead of recalculating
+  if(!_salaryAdmin && window._savedCoachResult){
+    var cr=window._savedCoachResult;
+    // Update display elements
+    var storeDisp=document.getElementById('store-revenue-display');
+    if(storeDisp) storeDisp.textContent='NT$'+(cr.storeRev||0).toLocaleString();
+    var trialDisp=document.getElementById('trial-display');
+    if(trialDisp) trialDisp.textContent=cr.trial||0;
+    var gbDisp=document.getElementById('group-bonus-display');
+    if(gbDisp) gbDisp.textContent=(cr.groupBonus||0)>0?'NT$'+(cr.groupBonus).toLocaleString():'—';
+    var multVal=cr.isShian?1:(cr.mult||1);
+    var multEl=document.getElementById('store-mult-preview');
+    if(multEl) multEl.textContent=(multVal*100).toFixed(1)+'% 乘數';
+    document.getElementById('salary-total').textContent='NT$'+(cr.finalSalary||0).toLocaleString();
+
+    var rows=[];
+    if(cr.isShian){
+      // shian special display
+      document.getElementById('salary-metrics').innerHTML=
+        '<div style="background:rgba(255,255,255,.12);border-radius:10px;padding:12px"><div style="font-size:11px;color:rgba(255,255,255,.6);margin-bottom:4px">課程抽成</div><div style="font-size:22px;font-weight:700">NT$'+(cr.commission||0).toLocaleString()+'</div></div>'
+        +'<div style="background:rgba(255,255,255,.12);border-radius:10px;padding:12px"><div style="font-size:11px;color:rgba(255,255,255,.6);margin-bottom:4px">店業績抽成</div><div style="font-size:22px;font-weight:700">NT$'+(cr.storeBonus||0).toLocaleString()+'</div></div>'
+        +'<div style="background:rgba(255,255,255,.12);border-radius:10px;padding:12px"><div style="font-size:11px;color:rgba(255,255,255,.6);margin-bottom:4px">店長加給</div><div style="font-size:22px;font-weight:700">NT$'+(cr.storeAllowance||0).toLocaleString()+'</div></div>'
+        +'<div style="background:rgba(255,255,255,.12);border-radius:10px;padding:12px"><div style="font-size:11px;color:rgba(255,255,255,.6);margin-bottom:4px">團課獎金</div><div style="font-size:22px;font-weight:700">NT$'+(cr.groupBonus||0).toLocaleString()+'</div></div>';
+      rows=[
+        {name:'課程抽成（公司學生 × 單價60%）',amt:cr.commission||0,type:'normal'},
+        {name:'店長加給（固定，2026.03起，每年3月+$1,000）',amt:cr.storeAllowance||0,type:'normal'},
+        {name:'勞退補助（固定）',amt:cr.laborSubsidy||0,type:'green'},
+        {name:'店業績抽成（NT$'+(cr.storeRev||0).toLocaleString()+' × '+cr.storePct+'）',amt:cr.storeBonus||0,type:'green'},
+      ];
+      if((cr.groupBonus||0)>0) rows.push({name:'團體課程獎金',amt:cr.groupBonus,type:'green'});
+      rows.push({name:'最終薪資',amt:cr.finalSalary||0,type:'total'});
+    } else {
+      // regular coach display
+      document.getElementById('salary-metrics').innerHTML=
+        '<div style="background:rgba(255,255,255,.12);border-radius:10px;padding:12px"><div style="font-size:11px;color:rgba(255,255,255,.6);margin-bottom:4px">總堂數</div><div style="font-size:22px;font-weight:700">'+(cr.totalSessions||0)+' 堂</div></div>'
+        +'<div style="background:rgba(255,255,255,.12);border-radius:10px;padding:12px"><div style="font-size:11px;color:rgba(255,255,255,.6);margin-bottom:4px">計薪堂數</div><div style="font-size:22px;font-weight:700">'+(cr.paidSessions||0)+' 堂</div></div>'
+        +'<div style="background:rgba(255,255,255,.12);border-radius:10px;padding:12px"><div style="font-size:11px;color:rgba(255,255,255,.6);margin-bottom:4px">1v2 堂數</div><div style="font-size:22px;font-weight:700">'+(cr.v2Sessions||0)+' 堂</div></div>'
+        +'<div style="background:rgba(255,255,255,.12);border-radius:10px;padding:12px"><div style="font-size:11px;color:rgba(255,255,255,.6);margin-bottom:4px">當月業績</div><div style="font-size:22px;font-weight:700">NT$'+(cr.revenue||0).toLocaleString()+'</div></div>';
+      rows=[
+        {name:'底薪',amt:cr.baseSalary||25200,type:'normal'},
+        {name:'個人加給',amt:cr.allowance||0,type:'normal'},
+        {name:'堂數抽成小計（計薪 '+(cr.paidSessions||0)+' 堂）',amt:cr.commission||0,type:'bold'},
+        {name:'1v2加成（'+(cr.v2Sessions||0)+'堂 × $100）',amt:cr.v2Bonus||0,type:'green'},
+      ];
+      if((cr.revenueBonus||0)>0) rows.push({name:'業績加成',amt:cr.revenueBonus,type:'green'});
+      if((cr.revenuePenalty||0)>0) rows.push({name:'業績未達標',amt:-(cr.revenuePenalty),type:'red'});
+      if((cr.subsidy||0)!==0) rows.push({name:'健保/就保補助',amt:cr.subsidy||0,type:(cr.subsidy||0)>=0?'green':'red'});
+      if((cr.groupBonus||0)>0) rows.push({name:'團體課程獎金',amt:cr.groupBonus,type:'green'});
+      rows.push({name:'店業績乘數（'+((cr.mult||1)*100).toFixed(1)+'%，調整額）',amt:cr.storeAdj||0,type:(cr.mult||1)>=1?'green':'red'});
+      rows.push({name:'最終薪資',amt:cr.finalSalary||0,type:'total'});
+    }
+    var bdHtml='';
+    rows.forEach(function(r){
+      var amtCls=r.type==='red'?'color:var(--red-text)':r.type==='green'?'color:var(--green-text)':'';
+      var boldStyle=r.type==='bold'||r.type==='total'?'font-weight:700;':'';
+      var borderStyle=r.type==='total'?'border-top:2px solid var(--border2);padding-top:10px;margin-top:4px;':'';
+      bdHtml+='<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);'+borderStyle+boldStyle+'">'
+        +'<span style="color:var(--text2);'+boldStyle+'">'+r.name+'</span>'
+        +'<span style="'+amtCls+boldStyle+'">'+(r.amt>=0?'':'-')+'NT$'+Math.abs(Math.round(r.amt)).toLocaleString()+'</span>'
+        +'</div>';
+    });
+    document.getElementById('salary-breakdown').innerHTML=bdHtml;
+    var revListEl=document.getElementById('salary-revenue-list');
+    if(revListEl) revListEl.innerHTML='';
+    return;
+  }
+
   var storeRev=parseInt(document.getElementById('store-revenue').value)||0;
 
   // Update store mult preview
@@ -1601,7 +1770,11 @@ function renderSalary(){
     }
   });
   var v1Sessions=totalSessions-v2Sessions;
-  var paidSessions=Math.max(0,totalSessions-30);
+  var trialFromSettings=(window._savedTrialSessions&&window._savedTrialSessions[coachName])||0;
+  var paidSessions=Math.max(0,totalSessions+trialFromSettings-30);
+  // Update trial display for non-admin coaches
+  var trialDisp=document.getElementById('trial-display');
+  if(trialDisp) trialDisp.textContent=trialFromSettings;
 
   // Revenue from paid installments in this month
   var coachStudents=students.filter(function(s){return s.coach===(coachDisplayNames[coachName]||coachName);});
@@ -1630,13 +1803,13 @@ function renderSalary(){
   // Calculate salary
   var template=SALARY_TEMPLATES[coachName]||'senior';
   var allowance=PERSONAL_ALLOWANCE[coachName]||PERSONAL_ALLOWANCE_DEFAULT;
-  var commResult=calcCommission(paidSessions,template);
-  var commission=commResult.total;
-  var v2Bonus=v2Sessions*100;
+  var commResult=calcCommission(paidSessions,template,totalSessions+trialFromSettings);
+  var commission=commResult.total; // exact integer
+  var v2Bonus=v2Sessions*100; // exact integer
   var bonusRate=getRevenueBonusRate(revenue);
-  var revenueBonus=revenue>=120001?revenue*bonusRate:0;
-  var revenuePenalty=revenue>0&&revenue<120000?paidSessions*50:0;
-  var subsidy=HEALTH_SUBSIDY[coachName]||0;
+  var revenueBonus=revenue>=120001?revenue*bonusRate:0; // float - don't round yet
+  var revenuePenalty=revenue>0&&revenue<120000?paidSessions*50:0; // exact integer
+  var subsidy=HEALTH_SUBSIDY[coachName]||0; // exact integer
   var groupBonus=parseInt(document.getElementById('group-bonus').value)||0;
   var subtotal, finalSalary;
 
@@ -1694,8 +1867,8 @@ function renderSalary(){
     return;
   }
 
-  subtotal=BASE_SALARY+allowance+commission+v2Bonus+revenueBonus-revenuePenalty+subsidy;
-  finalSalary=subtotal*mult + groupBonus*mult;
+  subtotal=BASE_SALARY+allowance+commission+v2Bonus+revenueBonus-revenuePenalty+subsidy+groupBonus;
+  finalSalary=Math.round(subtotal*mult);
 
   // Metrics
   document.getElementById('salary-metrics').innerHTML=
@@ -1710,8 +1883,9 @@ function renderSalary(){
     {name:'底薪',amt:BASE_SALARY,type:'normal'},
     {name:'個人加給',amt:allowance,type:'normal'},
   ];
+  var trialLabel=trialFromSettings>0?' （含體驗成交 '+trialFromSettings+' 堂）':'';
   if(paidSessions>0){
-    rows.push({name:'堂數抽成小計（計薪 '+paidSessions+' 堂）',amt:commission,type:'bold'});
+    rows.push({name:'堂數抽成小計（計薪 '+paidSessions+' 堂'+trialLabel+'）',amt:commission,type:'bold'});
     commResult.details.forEach(function(d){
       rows.push({name:'　'+d.label+' × '+d.sessions+'堂 × $'+d.rate,amt:d.amount,type:'muted'});
     });
@@ -1722,9 +1896,9 @@ function renderSalary(){
   if(revenueBonus>0)rows.push({name:'業績加成（'+fmtMoney(revenue)+' × '+(bonusRate*100)+'%）',amt:revenueBonus,type:'green'});
   if(revenuePenalty>0)rows.push({name:'業績未達標（計薪'+paidSessions+'堂 × -$50）',amt:-revenuePenalty,type:'red'});
   if(subsidy!==0)rows.push({name:'健保/就保補助',amt:subsidy,type:subsidy>0?'green':'red'});
-  rows.push({name:'小計（店業績調整前）',amt:subtotal,type:'bold'});
-  rows.push({name:'店業績乘數（'+(mult*100).toFixed(1)+'%）',amt:subtotal*mult-subtotal,type:mult>=1?'green':'red'});
-  if(groupBonus>0)rows.push({name:'團體課程獎金（× '+(mult*100).toFixed(1)+'%）',amt:groupBonus*mult,type:'green'});
+  if(groupBonus>0)rows.push({name:'團體課程獎金',amt:groupBonus,type:'green'});
+  // 小計行已移除（依需求）
+  rows.push({name:'店業績乘數（'+(mult*100).toFixed(1)+'%，調整額）',amt:Math.round(subtotal*mult-subtotal),type:mult>=1?'green':'red'});
   rows.push({name:'最終薪資',amt:finalSalary,type:'total'});
 
   var bdHtml='';
@@ -1766,15 +1940,20 @@ function renderSalary(){
 // ══ End 薪資計算 ══
 
 // ══ 主管薪資總表 ══
-var ADMIN_COACHES = ['apple','sherry','jay','jenny','yoyo'];
-var COACH_DISPLAY = {apple:'apple教練',sherry:'sherry教練',jay:'jay教練',jenny:'jenny教練',yoyo:'yoyo教練',fiona:'fiona教練'};
+var ADMIN_COACHES = ['apple','sherry','jay','jenny','yoyo','shian'];
+var COACH_DISPLAY = {apple:'apple教練',sherry:'sherry教練',jay:'jay教練',jenny:'jenny教練',yoyo:'yoyo教練',fiona:'fiona教練',shian:'shian教練'};
 
 function initAdminGroupBonusInputs(){
   var el=document.getElementById('admin-group-bonus-inputs');
-  if(!el)return;
-  el.innerHTML=ADMIN_COACHES.map(function(c){
+  if(el) el.innerHTML=ADMIN_COACHES.map(function(c){
     return '<div><label style="font-size:12px;color:var(--text2);display:block;margin-bottom:4px">'+COACH_DISPLAY[c]+'</label>'
       +'<input type="number" id="agb-'+c+'" min="0" placeholder="0" oninput="renderAdminTable()"'
+      +' style="width:100%;padding:7px 10px;border-radius:8px;border:1px solid var(--border2);background:var(--bg2);color:var(--text);font-size:13px"></div>';
+  }).join('');
+  var el2=document.getElementById('admin-trial-inputs');
+  if(el2) el2.innerHTML=ADMIN_COACHES.map(function(c){
+    return '<div><label style="font-size:12px;color:var(--text2);display:block;margin-bottom:4px">'+COACH_DISPLAY[c]+'</label>'
+      +'<input type="number" id="atr-'+c+'" min="0" placeholder="0" oninput="renderAdminTable()"'
       +' style="width:100%;padding:7px 10px;border-radius:8px;border:1px solid var(--border2);background:var(--bg2);color:var(--text);font-size:13px"></div>';
   }).join('');
 }
@@ -1783,10 +1962,12 @@ function getAdminInputs(){
   var month=document.getElementById('admin-month').value||'';
   var storeRev=parseInt(document.getElementById('admin-store-rev').value)||0;
   var groupBonuses={};
+  var trialSessions={};
   ADMIN_COACHES.forEach(function(c){
     groupBonuses[c]=parseInt(document.getElementById('agb-'+c)?document.getElementById('agb-'+c).value:0)||0;
+    trialSessions[c]=parseInt(document.getElementById('atr-'+c)?document.getElementById('atr-'+c).value:0)||0;
   });
-  return {month:month, storeRev:storeRev, groupBonuses:groupBonuses};
+  return {month:month, storeRev:storeRev, groupBonuses:groupBonuses, trialSessions:trialSessions};
 }
 
 function loadAdminSettings(month){
@@ -1798,7 +1979,13 @@ function loadAdminSettings(month){
     if(d.groupBonuses){
       ADMIN_COACHES.forEach(function(c){
         var el=document.getElementById('agb-'+c);
-        if(el&&d.groupBonuses[c]) el.value=d.groupBonuses[c];
+        if(el&&d.groupBonuses[c]!==undefined) el.value=d.groupBonuses[c];
+      });
+    }
+    if(d.trialSessions){
+      ADMIN_COACHES.forEach(function(c){
+        var el=document.getElementById('atr-'+c);
+        if(el&&d.trialSessions[c]!==undefined) el.value=d.trialSessions[c];
       });
     }
     renderAdminTable();
@@ -1808,25 +1995,80 @@ function loadAdminSettings(month){
 function saveAdminSettings(){
   var inp=getAdminInputs();
   if(!inp.month){toast('請先選擇月份');return;}
-  fbdb.ref('data/salary_settings/'+inp.month).set(inp,function(err){
+  // Calculate and save each coach's full salary result
+  var coachResults={};
+  ADMIN_COACHES.forEach(function(c){
+    if(c==='shian'){
+      // shian special calculation
+      var shianStoreRev=inp.storeRev||0;
+      var baseYear=2026,baseMonth=3,baseAmt=10000;
+      var nowD=new Date(inp.month+'-01');
+      var nowY=nowD.getFullYear(),nowMon=nowD.getMonth()+1;
+      var yearsElapsed=nowY-baseYear+(nowMon>=baseMonth?0:-1);
+      var shianStoreAllowance=baseAmt+Math.max(0,yearsElapsed)*1000;
+      var shianLaborSubsidy=1500;
+      var shianStorePct=shianStoreRev>=1000000?0.01:shianStoreRev>=950000?0.0075:shianStoreRev>=850000?0.005:0;
+      var shianStoreBonus=Math.round(shianStoreRev*shianStorePct);
+      // Get shian commission from records
+      var shianRecs=records.filter(function(r){return r.date&&r.date.startsWith(inp.month)&&r.coach==='shian教練';});
+      var companyRecs=shianRecs.filter(function(r){var s=students.find(function(st){return st.name===r.student&&st.coach==='shian教練';});return s&&s.shianType==='company';});
+      var shianCommission=companyRecs.reduce(function(sum,r){var s=students.find(function(st){return st.name===r.student&&st.coach==='shian教練';});return sum+Math.round((s&&s.pricePerSession||0)*0.6);},0);
+      var groupBonus=inp.groupBonuses[c]||0;
+      var finalSalary=shianCommission+shianStoreAllowance+shianLaborSubsidy+shianStoreBonus+groupBonus;
+      coachResults[c]={
+        coachName:'shian教練', month:inp.month,
+        isShian:true,
+        commission:shianCommission,
+        storeAllowance:shianStoreAllowance,
+        laborSubsidy:shianLaborSubsidy,
+        storeBonus:shianStoreBonus,
+        storePct:(shianStorePct*100).toFixed(2)+'%',
+        groupBonus:groupBonus,
+        storeRev:shianStoreRev,
+        finalSalary:finalSalary
+      };
+    } else {
+      var r=calcCoachSalary(c,inp.month,inp.storeRev,inp.groupBonuses[c]||0,(inp.trialSessions||{})[c]||0);
+      coachResults[c]={
+        coachName:r.coachName, month:inp.month,
+        totalSessions:r.totalSessions+((inp.trialSessions||{})[c]||0),
+        paidSessions:r.paidSessions, v2Sessions:r.v2Sessions,
+        trial:(inp.trialSessions||{})[c]||0,
+        revenue:Math.round(r.revenue),
+        baseSalary:25200, allowance:r.allowance,
+        commission:Math.round(r.commission),
+        v2Bonus:r.v2Bonus,
+        revenueBonus:Math.round(r.revenueBonus),
+        revenuePenalty:Math.round(r.revenuePenalty),
+        subsidy:r.subsidy,
+        groupBonus:inp.groupBonuses[c]||0,
+        storeRev:inp.storeRev, mult:r.mult,
+        storeAdj:Math.round(r.subtotal*r.mult-r.subtotal),
+        finalSalary:r.finalSalary
+      };
+    }
+  });
+  var saveData=Object.assign({},inp,{coachResults:coachResults});
+  fbdb.ref('data/salary_settings/'+inp.month).set(saveData,function(err){
     if(err){toast('❌ 儲存失敗');return;}
     var el=document.getElementById('admin-save-status');
     el.style.display='block';
     setTimeout(function(){el.style.display='none';},2000);
-    toast('✓ 已儲存 '+inp.month+' 薪資設定');
+    toast('✓ 已儲存 '+inp.month+' 薪資設定（含各教練薪資結果）');
   });
 }
 
-function calcCoachSalary(coachKey, month, storeRev, groupBonus){
+function calcCoachSalary(coachKey, month, storeRev, groupBonus, trialCount){
   var coachName=COACH_DISPLAY[coachKey];
   var mult=getStoreMultiplier(storeRev);
   var monthRecs=records.filter(function(r){return r.date&&r.date.startsWith(month)&&r.coach===coachName;});
   var totalSessions=monthRecs.length;
+  var trial=trialCount||0;
   var v2Sessions=monthRecs.filter(function(r){
     var s=students.find(function(st){return st.name===r.student;});
     return s&&(s.contracts||[]).some(function(c){return c.planLabel&&c.planLabel.indexOf('1v2')!==-1;});
   }).length;
-  var paidSessions=Math.max(0,totalSessions-30);
+  var paidSessions=Math.max(0,totalSessions+trial-30);
   var coachStudents=students.filter(function(s){return s.coach===coachName;});
   var revFrom=month+'-01';
   var revTo=month+'-31';
@@ -1837,15 +2079,15 @@ function calcCoachSalary(coachKey, month, storeRev, groupBonus){
   },0);
   var template=SALARY_TEMPLATES[coachKey]||'senior';
   var allowance=PERSONAL_ALLOWANCE[coachKey]||PERSONAL_ALLOWANCE_DEFAULT;
-  var commResult=calcCommission(paidSessions,template);
+  var commResult=calcCommission(paidSessions,template,totalSessions+trial);
   var commission=commResult.total;
   var v2Bonus=v2Sessions*100;
   var bonusRate=getRevenueBonusRate(revenue);
-  var revenueBonus=revenue>=120001?revenue*bonusRate:0;
+  var revenueBonus=revenue>=120001?revenue*bonusRate:0; // float - round at end
   var revenuePenalty=revenue>0&&revenue<120000?paidSessions*50:0;
   var subsidy=HEALTH_SUBSIDY[coachKey]||0;
-  var subtotal=BASE_SALARY+allowance+commission+v2Bonus+revenueBonus-revenuePenalty+subsidy;
-  var finalSalary=subtotal*mult+groupBonus*mult;
+  var subtotal=BASE_SALARY+allowance+commission+v2Bonus+revenueBonus-revenuePenalty+subsidy+groupBonus;
+  var finalSalary=Math.round(subtotal*mult);
   return {
     coachKey:coachKey, coachName:coachName,
     totalSessions:totalSessions, paidSessions:paidSessions, v2Sessions:v2Sessions,
@@ -1859,7 +2101,7 @@ function calcCoachSalary(coachKey, month, storeRev, groupBonus){
 function renderAdminTable(){
   var inp=getAdminInputs();
   if(!inp.month){document.getElementById('admin-salary-table').innerHTML='';return;}
-  var results=ADMIN_COACHES.map(function(c){return calcCoachSalary(c,inp.month,inp.storeRev,inp.groupBonuses[c]||0);});
+  var results=ADMIN_COACHES.filter(function(c){return c!=='shian';}).map(function(c){return calcCoachSalary(c,inp.month,inp.storeRev,inp.groupBonuses[c]||0,(inp.trialSessions||{})[c]||0);});
   var totalSalary=results.reduce(function(s,r){return s+r.finalSalary;},0);
 
   var html='<div id="admin-print-area">';
@@ -1869,29 +2111,32 @@ function renderAdminTable(){
   html+='</div>';
 
   // Summary table
-  html+='<div style="overflow-x:auto;margin-bottom:20px"><table style="width:100%;font-size:13px;border-collapse:collapse">';
+  html+='<div style="overflow-x:auto;margin-bottom:20px"><table style="width:100%;font-size:12px;border-collapse:collapse;min-width:900px">';
   html+='<thead><tr style="background:var(--bg2)">';
-  ['教練','總堂','計薪堂','1v2','當月業績','底薪+加給','堂數抽成','業績加減','健保補助','團課獎金','店業績調整','最終薪資'].forEach(function(h){
-    html+='<th style="padding:8px 10px;text-align:right;font-weight:600;white-space:nowrap;border-bottom:2px solid var(--border2)">'+h+'</th>';
+  ['教練','總堂','計薪堂','1v2','當月業績','底薪+加給','堂數抽成+1v2','個人業績加減','健保補助','團課獎金','店營收%','最終薪資'].forEach(function(h){
+    html+='<th style="padding:6px 8px;text-align:right;font-weight:600;white-space:pre;border-bottom:2px solid var(--border2);font-size:11px">'+h+'</th>';
   });
   html+='</tr></thead><tbody>';
 
   results.forEach(function(r,i){
     var bg=i%2===0?'':'background:var(--bg2)';
-    html+='<tr style="'+bg+'">';
-    html+='<td style="padding:8px 10px;font-weight:700;white-space:nowrap;border-bottom:1px solid var(--border)">'+r.coachName+'</td>';
-    html+='<td style="padding:8px 10px;text-align:right;border-bottom:1px solid var(--border)">'+r.totalSessions+'</td>';
-    html+='<td style="padding:8px 10px;text-align:right;border-bottom:1px solid var(--border)">'+r.paidSessions+'</td>';
-    html+='<td style="padding:8px 10px;text-align:right;border-bottom:1px solid var(--border)">'+r.v2Sessions+'</td>';
-    html+='<td style="padding:8px 10px;text-align:right;border-bottom:1px solid var(--border)">'+fmtMoney(r.revenue)+'</td>';
-    html+='<td style="padding:8px 10px;text-align:right;border-bottom:1px solid var(--border)">'+fmtMoney(BASE_SALARY+r.allowance)+'</td>';
-    html+='<td style="padding:8px 10px;text-align:right;border-bottom:1px solid var(--border)">'+fmtMoney(r.commission+(r.v2Bonus||0))+'</td>';
+    var p='padding:5px 8px;border-bottom:1px solid var(--border)';
     var revAdj=r.revenueBonus-r.revenuePenalty;
-    html+='<td style="padding:8px 10px;text-align:right;border-bottom:1px solid var(--border);color:'+(revAdj>=0?'var(--green-text)':'var(--red-text)')+'">'+fmtMoney(revAdj)+'</td>';
-    html+='<td style="padding:8px 10px;text-align:right;border-bottom:1px solid var(--border);color:'+(r.subsidy>=0?'var(--green-text)':'var(--red-text)')+'">'+fmtMoney(r.subsidy)+'</td>';
-    html+='<td style="padding:8px 10px;text-align:right;border-bottom:1px solid var(--border)">'+fmtMoney(r.groupBonus)+'</td>';
-    html+='<td style="padding:8px 10px;text-align:right;border-bottom:1px solid var(--border)">'+fmtMoney(r.finalSalary-r.subtotal*r.mult)+'</td>';
-    html+='<td style="padding:8px 10px;text-align:right;font-weight:700;border-bottom:1px solid var(--border)">'+fmtMoney(r.finalSalary)+'</td>';
+    var gOrig=inp.groupBonuses[r.coachKey]||0;
+    function n(v){return Math.round(v).toLocaleString();}
+    html+='<tr style="'+bg+'">';
+    html+='<td style="'+p+';font-weight:700;white-space:nowrap">'+r.coachName+'</td>';
+    html+='<td style="'+p+';text-align:right">'+(r.totalSessions+(inp.trialSessions[r.coachKey]||0))+'</td>';
+    html+='<td style="'+p+';text-align:right">'+r.paidSessions+'</td>';
+    html+='<td style="'+p+';text-align:right">'+r.v2Sessions+'</td>';
+    html+='<td style="'+p+';text-align:right">'+n(r.revenue)+'</td>';
+    html+='<td style="'+p+';text-align:right">'+n(BASE_SALARY+r.allowance)+'</td>';
+    html+='<td style="'+p+';text-align:right">'+n(r.commission+(r.v2Bonus||0))+'</td>';
+    html+='<td style="'+p+';text-align:right;color:'+(revAdj>=0?'var(--green-text)':'var(--red-text)')+'">'+n(revAdj)+'</td>';
+    html+='<td style="'+p+';text-align:right;color:'+(r.subsidy>=0?'var(--green-text)':'var(--red-text)')+'">'+n(r.subsidy)+'</td>';
+    html+='<td style="'+p+';text-align:right">'+n(gOrig)+'</td>';
+    html+='<td style="'+p+';text-align:right;color:var(--blue)">'+(r.mult*100).toFixed(1)+'%</td>';
+    html+='<td style="'+p+';text-align:right;font-weight:700">'+n(r.finalSalary)+'</td>';
     html+='</tr>';
   });
 
@@ -1899,7 +2144,7 @@ function renderAdminTable(){
   html+='<tr style="background:var(--accent);color:#fff">';
   html+='<td style="padding:8px 10px;font-weight:700">總計</td>';
   html+='<td colspan="10" style="padding:8px 10px"></td>';
-  html+='<td style="padding:8px 10px;text-align:right;font-weight:800;font-size:15px">'+fmtMoney(totalSalary)+'</td>';
+  html+='<td style="padding:8px 10px;text-align:right;font-weight:800;font-size:14px;min-width:150px;white-space:nowrap;word-break:keep-all">NT$'+Math.round(totalSalary).toLocaleString()+'</td>';
   html+='</tr>';
   html+='</tbody></table></div>';
   html+='</div>';
@@ -1928,55 +2173,101 @@ function ri(n){return Math.round(n);}
 function exportAdminExcel(){
   var inp=getAdminInputs();
   if(!inp.month){toast('請先選擇月份');return;}
-  var results=ADMIN_COACHES.map(function(c){return calcCoachSalary(c,inp.month,inp.storeRev,inp.groupBonuses[c]||0);});
+  var results=ADMIN_COACHES.filter(function(c){return c!=='shian';}).map(function(c){return calcCoachSalary(c,inp.month,inp.storeRev,inp.groupBonuses[c]||0,(inp.trialSessions||{})[c]||0);});
 
   var allRows=[];
-  // 主要教練表頭
-  allRows.push(['教練','總堂數','計薪堂數','1v2堂數','當月業績','底薪+加給','堂數抽成+1v2','業績加減','健保補助','團課獎金','店業績調整','最終薪資']);
-  results.forEach(function(r){
+  // 主要教練表頭 (A~L)
+  // A:教練 B:總堂數 C:計薪堂數 D:1v2堂數 E:當月業績
+  // F:底薪+加給 G:堂數抽成+1v2 H:個人業績加減 I:健保補助 J:團課獎金
+  // K:店營收% L:最終薪資(公式=F+G+H+I+J)×K
+  allRows.push(['教練','總堂數','計薪堂數','1v2堂數','當月業績','底薪+加給','堂數抽成+1v2','個人業績加減','健保補助','團課獎金','店營收%','最終薪資']);
+  var multPct=getStoreMultiplier(inp.storeRev); // e.g. 1.025
+  results.forEach(function(r,idx){
+    var rowNum=idx+2; // row 2 onwards (row 1 = header)
     var revAdj=ri(r.revenueBonus)-ri(r.revenuePenalty);
-    allRows.push([r.coachName,r.totalSessions,r.paidSessions,r.v2Sessions,ri(r.revenue),ri(BASE_SALARY+r.allowance),ri(r.commission+(r.v2Bonus||0)),revAdj,ri(r.subsidy),ri(r.groupBonus),ri(r.finalSalary-r.subtotal*r.mult),ri(r.finalSalary)]);
+    var groupOrig=inp.groupBonuses[r.coachKey]||0; // original input, not multiplied
+    var multLabel=(multPct*100).toFixed(1)+'%';
+    allRows.push([r.coachName,r.totalSessions+(inp.trialSessions[r.coachKey]||0),r.paidSessions,r.v2Sessions,ri(r.revenue),ri(BASE_SALARY+r.allowance),ri(r.commission+(r.v2Bonus||0)),revAdj,ri(r.subsidy),groupOrig,multLabel,ri(r.finalSalary)]);
   });
   // 空行
   allRows.push([]);
   // 獨立教練區塊
   allRows.push(['教練','私教課程','團體課程','業績抽成','額外加給','總薪資']);
-  allRows.push(['shian（見薪資頁）','','','','','']);
+  // shian: fill from coachResults
+  var shianCr=results.find(function(r){return r&&r.coachKey==='shian';});
+  // Actually shian is not in calcCoachSalary results (different calc)
+  // We need to get shian data from inp.coachResultsShian if available
+  // shian from calcCoachSalary (now included)
+  var shianResult=ADMIN_COACHES.indexOf('shian')>=0?
+    (function(){
+      var shianStoreRev=inp.storeRev||0;
+      var baseAmt=10000;
+      var nowD2=new Date((inp.month||'2026-06')+'-01');
+      var yearsEl=nowD2.getFullYear()-2026+(nowD2.getMonth()+1>=3?0:-1);
+      var storeAllow=baseAmt+Math.max(0,yearsEl)*1000;
+      var laborSub=1500;
+      var storePct=shianStoreRev>=1000000?0.01:shianStoreRev>=950000?0.0075:shianStoreRev>=850000?0.005:0;
+      var storeBonus=Math.round(shianStoreRev*storePct);
+      var shianRecs2=records.filter(function(r){return r.date&&r.date.startsWith(inp.month)&&r.coach==='shian教練';});
+      var compRecs2=shianRecs2.filter(function(r){var s2=students.find(function(st){return st.name===r.student&&st.coach==='shian教練';});return s2&&s2.shianType==='company';});
+      var comm2=compRecs2.reduce(function(sum,r){var s2=students.find(function(st){return st.name===r.student&&st.coach==='shian教練';});return sum+Math.round((s2&&s2.pricePerSession||0)*0.6);},0);
+      var grp2=inp.groupBonuses['shian']||0;
+      return {commission:comm2,groupBonus:grp2,storeBonus:storeBonus,storeAllow:storeAllow,laborSub:laborSub,final:comm2+storeAllow+laborSub+storeBonus+grp2};
+    })():null;
+  if(shianResult){
+    allRows.push(['shian教練',shianResult.commission,shianResult.groupBonus,shianResult.storeBonus,shianResult.storeAllow+shianResult.laborSub,shianResult.final]);
+  } else {
+    allRows.push(['shian（見薪資頁）','','','','','']);
+  }
   // daniel row - SUM formula at col F (index 6), data at B-E (index 2-5)
   var danielRow = allRows.length + 1;
   allRows.push(['daniel','','','','','=B'+danielRow+'+C'+danielRow+'+D'+danielRow+'+E'+danielRow]);
   var qqRow = allRows.length + 1;
   allRows.push(['QQ','','','','','=B'+qqRow+'+C'+qqRow+'+D'+qqRow+'+E'+qqRow]);
+  var janeRow = allRows.length + 1;
+  allRows.push(['jane','','','','','=B'+janeRow+'+C'+janeRow+'+D'+janeRow+'+E'+janeRow]);
+  var fionaRow = allRows.length + 1;
+  allRows.push(['fiona','','','','','=B'+fionaRow+'+C'+fionaRow+'+D'+fionaRow+'+E'+fionaRow]);
 
-  var csv='﻿'+allRows.map(function(r){
-    return r.map(function(v){
-      v=v===undefined||v===null?'':v;
-      if(typeof v==='string'&&(v.indexOf(',')!==-1||v.indexOf('"')!==-1)) return '"'+String(v).replace(/"/g,'""')+'"';
-      return v;
-    }).join(',');
-  }).join('\n');
+  // 人事費用總計
+  var mainStart=2; var mainEnd=1+results.length;
+  var shianIndepRow=mainEnd+3; var danielRowNum=mainEnd+4; var qqRowNum=mainEnd+5; var janeRowNum=mainEnd+6; var fionaRowNum=mainEnd+7;
+  allRows.push([]);
+  // Total: main coaches (L col) + shian indep + daniel + QQ + jane + fiona
+  allRows.push(['','','','','人事費用總計','=SUM(L'+mainStart+':L'+mainEnd+')+F'+shianIndepRow+'+F'+danielRowNum+'+F'+qqRowNum+'+F'+janeRowNum+'+F'+fionaRowNum]);
 
+  // Format numbers with commas, no decimals
+  function fmtCell(v){
+    if(v===undefined||v===null) return '';
+    if(typeof v==='string'&&v[0]==='=') return v;
+    // Numbers: quote them so commas inside don't break CSV columns
+    if(typeof v==='number') return Math.round(v);
+    if(typeof v==='string'&&(v.indexOf(',')!==-1||v.indexOf('"')!==-1)) return '"'+v.replace(/"/g,'""')+'"';
+    return v;
+  }
+  var csv='\uFEFF'+allRows.map(function(r){return r.map(fmtCell).join(',');}).join('\n');
   var a=document.createElement('a');
   a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));
   a.download=inp.month+'_薪資總表.csv';
   a.click();
-  toast('✓ CSV 已下載（daniel/QQ 列請手動填入，總薪資欄自動加總）');
+  toast('\u2713 CSV 已下載');
 }
-// ══ End 主管薪資總表 ══
 
+
+// ══ 總覽 ══
 function renderDashboard(){
   var t=today();
-  document.getElementById('dash-date').textContent=
-    new Date().toLocaleDateString('zh-TW',{year:'numeric',month:'long',day:'numeric',weekday:'long'});
+  document.getElementById('dash-date').textContent=new Date().toLocaleDateString('zh-TW',{year:'numeric',month:'long',day:'numeric',weekday:'long'});
   var todayRec=records.filter(function(r){return r.date===t&&r.coach!=='shian教練';});
-  var totalRev=records.filter(function(r){return r.coach!=='shian教練';}).reduce(function(s,r){
-    var st=students.find(function(st){return st.name===r.student;});
-    return s+(st?st.pricePerSession:0);
+  var totalRev=students.reduce(function(sum,s){
+    if(s.coach==='shian教練')return sum;
+    return sum+(s.contracts||[]).reduce(function(cs,c){
+      return cs+c.installments.filter(function(i){return i.paid&&i.paidDate&&i.paidDate.startsWith(t.slice(0,7));}).reduce(function(is,i){return is+i.amount;},0);
+    },0);
   },0);
   var lowStus=students.filter(function(s){var r=s.totalSessions-s.usedSessions;return r<=2&&r>=0;});
-  var overdueAll=students.reduce(function(a,s){
-    return a.concat((s.contracts||[]).reduce(function(b,c){return b.concat(c.installments||[]);},[]));
-  },[]).filter(function(i){return !i.paid&&i.dueDate<t;});
+  var overdueAll=students.reduce(function(a,s){return a.concat((s.contracts||[]).reduce(function(b,c){return b.concat(c.installments||[]);},[]));},
+  []).filter(function(i){return !i.paid&&i.dueDate<t;});
   document.getElementById('dash-metrics').innerHTML=
     '<div class="metric-card"><div class="metric-val">'+todayRec.length+'</div><div class="metric-lbl">今日簽到</div></div>'
     +'<div class="metric-card"><div class="metric-val">NT$'+totalRev.toLocaleString()+'</div><div class="metric-lbl">本月業績</div></div>'
@@ -1984,700 +2275,220 @@ function renderDashboard(){
     +'<div class="metric-card"><div class="metric-val" style="color:var(--red-text)">'+overdueAll.length+'</div><div class="metric-lbl">逾期未付</div></div>';
   document.getElementById('dash-low').innerHTML=!lowStus.length
     ?'<div style="font-size:13px;color:var(--text3);padding:6px 0">目前無學員即將用完</div>'
-    :lowStus.map(function(s){return '<div style="display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--border);font-size:13px"><span style="cursor:pointer;color:var(--blue)" onclick=\"jumpToEditStudent('+jsq(s.name)+','+jsq(s.coach)+')\">'+s.name+' <span style="color:var(--text2)">（'+s.coach+'）</span></span>'+sessionBadge(s)+'</div>';}).join('');
+    :lowStus.map(function(s){return '<div style="display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--border);font-size:13px"><span style="cursor:pointer;color:var(--blue)" onclick="jumpToEditStudent('+jsq(s.name)+','+jsq(s.coach)+')">'+s.name+' <span style="color:var(--text2)">（'+s.coach+'）</span></span>'+sessionBadge(s)+'</div>';}).join('');
   document.getElementById('dash-overdue').innerHTML=!overdueAll.length
     ?'<div style="font-size:13px;color:var(--text3);padding:6px 0">目前無逾期未付款</div>'
     :overdueAll.slice(0,5).map(function(ins){
       var stu=students.find(function(s){return (s.contracts||[]).some(function(c){return c.installments.indexOf(ins)!==-1;});});
-      var stuName=stu?stu.name:'未知';
-      var ocoach=stu?stu.coach:'';return '<div style="display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--border);font-size:13px"><span style="cursor:pointer;color:var(--blue)" onclick=\"jumpToEditStudent('+jsq(stuName)+','+jsq(ocoach)+')\">'+stuName+' <span style="color:var(--text2)">（'+ins.dueDate+'）</span></span><span style="color:var(--red-text)">NT$'+ins.amount.toLocaleString()+'</span></div>';
+      var stuName=stu?stu.name:'未知'; var ocoach=stu?stu.coach:'';
+      return '<div style="display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--border);font-size:13px"><span style="cursor:pointer;color:var(--blue)" onclick="jumpToEditStudent('+jsq(stuName)+','+jsq(ocoach)+')">'+stuName+' <span style="color:var(--text2)">（'+ins.dueDate+'）</span></span><span style="color:var(--red-text)">NT$'+ins.amount.toLocaleString()+'</span></div>';
     }).join('');
-  // populate coach filter
-  const df=document.getElementById('dash-coach-filter');
-  if(df){const cur=df.value;df.innerHTML='<option value="">全部教練</option>'+coaches.map(c=>'<option value="'+c.name+'"'+(c.name===cur?' selected':'')+'>'+c.name+'</option>').join('');}
-  renderTodayRecords();
-  initHistFilter();
+  initHistFilter();renderTodayRecords();
 }
 function renderTodayRecords(){
-  const t=today();
-  const fc=document.getElementById('dash-coach-filter')?document.getElementById('dash-coach-filter').value:'';
-  const allToday=records.filter(r=>r.date===t&&r.coach!=='shian教練');
-  const todayRec=fc?allToday.filter(r=>r.coach===fc):allToday;
-  document.getElementById('dash-today').innerHTML=!todayRec.length
-    ?'<div style="font-size:13px;color:var(--text3);padding:6px 0">'+(fc?fc+' 今日尚無簽到紀錄':'今日尚無簽到紀錄')+'</div>'
-    :todayRec.map(r=>'<div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border);font-size:13px"><div><span style="font-weight:500">'+r.student+'</span> <span style="color:var(--text2)">・'+r.coach+'</span></div><span style="color:var(--text2)">'+r.time+'</span></div>').join('');
+  var t=today();
+  var fc=document.getElementById('dash-coach-filter')?document.getElementById('dash-coach-filter').value:'';
+  var todayRec=records.filter(function(r){return r.date===t&&(!fc||r.coach===fc);});
+  todayRec.sort(function(a,b){return (a.time||'')>(b.time||'')?-1:1;});
+  var el=document.getElementById('dash-today-list');
+  if(!el)return;
+  if(!todayRec.length){el.innerHTML='<div style="font-size:13px;color:var(--text3);padding:8px 0">今日尚無簽到</div>';return;}
+  el.innerHTML=todayRec.map(function(r){return '<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px"><div><span style="font-weight:600">'+r.student+'</span> <span style="color:var(--text2);font-size:12px">・'+r.coach+'</span></div><span style="color:var(--text2)">'+r.time+'</span></div>';}).join('');
+}
+function initHistFilter(){
+  var csel=document.getElementById('hist-coach');
+  if(!csel)return;
+  var cur=csel.value;
+  csel.innerHTML='<option value="">全部教練</option>'+coaches.map(function(c){return '<option value="'+c.name+'"'+(c.name===cur?' selected':'')+'>'+c.name+'</option>';}).join('');
+  var dsel=document.getElementById('dash-coach-filter');
+  if(!dsel)return;
+  var cur2=dsel.value;
+  dsel.innerHTML='<option value="">全部教練</option>'+coaches.map(function(c){return '<option value="'+c.name+'"'+(c.name===cur2?' selected':'')+'>'+c.name+'</option>';}).join('');
 }
 
-// ── 學員列表 ──
-function stuTab(tab,btn){
-  document.querySelectorAll('#page-students .tab').forEach(b=>b.classList.remove('active'));btn.classList.add('active');
-  ['list','add','topup','edit'].forEach(t=>document.getElementById('sp-'+t).style.display=t===tab?'block':'none');
-  if(tab==='list')renderStuList();
-  if(tab==='add')populateAddCoach();
-  if(tab==='topup'){populateTuSelect();}
-  if(tab==='edit'){populateEditStuSelect();populateEditCoach();}
-}
+// ══ 學員列表 ══
 function renderStuList(){
-  const cf=document.getElementById('sf-coach').value;
-  const sf=document.getElementById('sf-status').value;
-  const sel=document.getElementById('sf-coach');const cur=sel.value;
-  sel.innerHTML='<option value="">全部教練</option>'+coaches.map(function(c){return '<option value="'+c.name+'"'+(c.name===cur?' selected':'')+'>'+c.name+'</option>';}).join('');
-  let list=students.filter(s=>!cf||s.coach===cf);
-  if(sf==='ok')list=list.filter(s=>s.totalSessions-s.usedSessions>2);
-  else if(sf==='low')list=list.filter(s=>{const r=s.totalSessions-s.usedSessions;return r>0&&r<=2;});
-  else if(sf==='out')list=list.filter(s=>s.totalSessions-s.usedSessions<=0);
+  var fc=document.getElementById('sl-coach-filter')?document.getElementById('sl-coach-filter').value:'';
+  var csel=document.getElementById('sl-coach-filter');
+  if(csel){var cur=csel.value;csel.innerHTML='<option value="">全部教練</option>'+coaches.map(function(c){return '<option value="'+c.name+'"'+(c.name===cur?' selected':'')+'>'+c.name+'</option>';}).join('');}
+  var list=students.filter(function(s){return !fc||s.coach===fc;});
   document.getElementById('stu-tbody').innerHTML=list.map(function(s){
-    return '<tr>'
-      +'<td>'+s.name+'</td><td>'+s.coach+'</td>'
+    return '<tr>'+'<td>'+s.name+'</td><td>'+s.coach+'</td>'
       +'<td style="font-weight:600">'+(s.totalSessions-s.usedSessions)+'</td>'
       +'<td>'+s.totalSessions+'</td><td>'+s.usedSessions+'</td>'
       +'<td>'+payBadge(getPayStatus(s))+'</td>'
       +'</tr>';
   }).join('');
 }
-let selAddPlanKey=null,addDiscountEnabled=false;
-function selectAddPeriod(n,btn){addPeriods=n;document.querySelectorAll('#add-period-pills .pill').forEach(b=>b.classList.remove('active'));btn.classList.add('active');renderAddDetail();}
-function selectAddPlan(key,btn){
-  selAddPlanKey=key;
-  document.querySelectorAll('#sp-add .plan-btn').forEach(b=>b.classList.remove('active'));
-  btn.classList.add('active');
-  const plan=PLANS[key];
-  const aspr=document.getElementById('add-single-price-row');
-  if(aspr)aspr.style.display=key==='single'?'block':'none';
-  const addSingleSes=key==='single'?(parseInt(gv('add-single-price-input'))||0):0;
-  document.getElementById('add-plan-summary').style.display='block';
-  document.getElementById('add-plan-name').textContent=plan.label;
-  document.getElementById('add-plan-price-display').textContent=key==='single'?(addSingleSes?addSingleSes+' 堂 / $0':'—'):'NT$'+plan.price.toLocaleString();
-  document.getElementById('add-plan-sessions-display').textContent=key==='single'?(addSingleSes?'贈送 '+addSingleSes+' 堂，金額 $0':''):plan.sessions+' 堂';
-  renderAddDetail();
-}
-function updateAddSinglePrice(){
-  const val=parseInt(document.getElementById('add-single-price-input').value)||0;
-  const d=document.getElementById('add-single-price-display');if(d)d.textContent=val?val+' 堂（贈送）':'輸入贈送堂數';
-  const pd=document.getElementById('add-plan-price-display');if(pd&&selAddPlanKey==='single')pd.textContent=val?val+' 堂 / $0':'—';
-  const sd=document.getElementById('add-plan-sessions-display');if(sd&&selAddPlanKey==='single')sd.textContent=val?'贈送 '+val+' 堂，金額 $0':'';
-  document.getElementById('add-detail').innerHTML=val?'<div style="font-size:13px;color:var(--green-text);background:var(--green-bg);padding:10px 14px;border-radius:8px;margin-top:8px">✓ 贈送 '+val+' 堂，金額 $0，直接加入學員堂數</div>':'';
-}
-function toggleAddDiscount(){
-  addDiscountEnabled=!addDiscountEnabled;
-  const chk=document.getElementById('add-discount-check');
-  const row=document.getElementById('add-discount-row');
-  chk.innerHTML=addDiscountEnabled?'<svg width="13" height="13" viewBox="0 0 13 13"><polyline points="1.5,6.5 5,10 11.5,3" fill="none" stroke="var(--green)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>':'';
-  chk.style.borderColor=addDiscountEnabled?'var(--green)':'var(--border2)';
-  chk.style.background=addDiscountEnabled?'var(--green-bg)':'var(--bg)';
-  row.style.display=addDiscountEnabled?'block':'none';
-  renderAddDetail();
-}
-function renderAddDetail(){
-  if(!selAddPlanKey){document.getElementById('add-detail').innerHTML='';return;}
-  const plan=PLANS[selAddPlanKey];
-  const discountVal=parseInt(gv('add-discount-price'))||0;
-  const addGiftSessions=selAddPlanKey==='single'?(parseInt(gv('add-single-price-input'))||0):0;
-  if(selAddPlanKey==='single'&&addGiftSessions<1){toast('請輸入贈送堂數');return;}
-  const addEffSessions=selAddPlanKey==='single'?addGiftSessions:plan.sessions;
-  const addBasePrice=selAddPlanKey==='single'?0:plan.price;
-  const total=selAddPlanKey==='single'?0:(addDiscountEnabled&&discountVal>0?discountVal:addBasePrice);
-  document.getElementById('add-detail').innerHTML=installHTML(total,addPeriods,'ad');
-}
-function populateAddCoach(){
-  document.getElementById('add-coach').innerHTML=coaches.map(function(c){return '<option value="'+c.name+'">'+c.name+'</option>';}).join('');
-}
-function addStudent(){
-  // First reload to get latest student list, then add
-  fbLoadAll(function() { _doAddStudent(); });
-}
-function _doAddStudent(){
-  const name=document.getElementById('add-name').value.trim();
-  const coach=document.getElementById('add-coach').value;
-  if(!name){toast('請填寫學員姓名');return;}
-  if(!selAddPlanKey){toast('請選擇方案');return;}
-  const plan=PLANS[selAddPlanKey];
-  const discountVal=parseInt(gv('add-discount-price'))||0;
-  const total=addDiscountEnabled&&discountVal>0?discountVal:plan.price;
-  const pricePerSession=Math.round(total/plan.sessions);
-  const inst=selAddPlanKey==='single'?[{seq:1,amount:0,dueDate:today(),paid:true,paidDate:today(),method:'贈送'}]:collectInst('ad',addPeriods,total);
-  const usedInput=parseInt(gv('add-used-sessions'))||0;
-  const usedSessions=Math.min(usedInput, plan.sessions);
-  const addTotalSessions=selAddPlanKey==='single'?addEffSessions:plan.sessions;
-  const addPricePerSes=selAddPlanKey==='single'?0:pricePerSession;
-  students.push({id:Date.now(),name,coach,totalSessions:addTotalSessions,usedSessions:usedSessions,pricePerSession:addPricePerSes,
-    contracts:[{id:Date.now()+1,sessions:addTotalSessions,totalAmount:total,periods:selAddPlanKey==='single'?1:addPeriods,
-      planLabel:plan.label+(addDiscountEnabled?'（舊生折扣）':''),installments:inst}]});
-  // Handle gift sessions
-  const addGift=parseInt(gv('add-gift-sessions'))||0;
-  if(addGift>0){
-    students[students.length-1].totalSessions+=addGift;
-    students[students.length-1].contracts.push({id:Date.now()+3,sessions:addGift,totalAmount:0,periods:1,
-      planLabel:plan.label+'（贈送 '+addGift+' 堂）',
-      installments:[{seq:1,amount:0,dueDate:today(),paid:true,paidDate:today(),method:'贈送'}]});
-  }
-  logAction('新增學員',name,coach,plan.label+'，'+addTotalSessions+' 堂'+(addGift>0?'＋贈送'+addGift+'堂':'')+' NT$'+total.toLocaleString()+(addDiscountEnabled?'（舊生折扣）':''));
-  document.getElementById('add-gift-sessions').value='';document.getElementById('add-gift-preview').style.display='none';  saveStudentsOnly(students[students.length-1]);toast('✓ 新增學員：'+name+'（'+coach+'，'+plan.label+'，'+plan.sessions+' 堂，NT$'+total.toLocaleString()+'）');
-  document.getElementById('add-name').value='';
-  if(document.getElementById('add-used-sessions'))document.getElementById('add-used-sessions').value='';
-  selAddPlanKey=null;addDiscountEnabled=false;
-  document.querySelectorAll('#sp-add .plan-btn').forEach(b=>b.classList.remove('active'));
-  document.getElementById('add-plan-summary').style.display='none';
-  document.getElementById('add-discount-check').innerHTML='';
-  document.getElementById('add-discount-check').style.borderColor='var(--border2)';
-  document.getElementById('add-discount-check').style.background='var(--bg)';
-  document.getElementById('add-discount-row').style.display='none';
-  if(document.getElementById('add-discount-price'))document.getElementById('add-discount-price').value='';
-  document.getElementById('add-detail').innerHTML='';
-}
-function selectTuPeriod(n,btn){tuPeriods=n;document.querySelectorAll('#tu-period-pills .pill').forEach(b=>b.classList.remove('active'));btn.classList.add('active');renderTuDetail();}
-function populateTuSelect(){
-  // 初始化教練下拉
-  var tuCoach=document.getElementById('tu-coach-filter');
-  if(tuCoach){
-    var cur=tuCoach.value;
-    tuCoach.innerHTML='<option value="">— 請選擇教練 —</option>'+
-      coaches.map(function(c){return '<option value="'+c.name+'"'+(c.name===cur?' selected':'')+'>'+c.name+'</option>';}).join('');
-  }
-  document.getElementById('tu-stu-card').style.display='none';
-  document.getElementById('tu-stu').innerHTML='';
-  document.getElementById('tu-cur').textContent='';
-}
 
-function filterTuStudents(){
-  var coachName=document.getElementById('tu-coach-filter').value;
-  var card=document.getElementById('tu-stu-card');
-  if(!coachName){card.style.display='none';return;}
-  var list=students.filter(function(s){return s.coach===coachName;});
-  document.getElementById('tu-stu').innerHTML=
-    '<option value="">— 請選擇學員 —</option>'+
-    list.map(function(s){return '<option value="'+s.id+'">'+s.name+'</option>';}).join('');
-  card.style.display='block';
-  document.getElementById('tu-cur').textContent='';
-  tuStuChanged();
-}
-const PLANS={
-  'single-1':{label:'單堂',sessions:1,price:1800,senior:false},
-  'n1v1-10':{label:'一般方案 1v1',sessions:10,price:16999,senior:false},
-  'n1v1-20':{label:'一般方案 1v1',sessions:20,price:31999,senior:false},
-  'n1v2-10':{label:'一般方案 1v2',sessions:10,price:24000,senior:false},
-  'n1v2-20':{label:'一般方案 1v2',sessions:20,price:43000,senior:false},
-  'n1v1-30':{label:'一般方案 1v1',sessions:30,price:39000,senior:false},
-  'n1v2-30':{label:'一般方案 1v2',sessions:30,price:54000,senior:false},
-  's1v1-20':{label:'長青方案 1v1',sessions:20,price:28000,senior:true},
-  's1v2-20':{label:'長青方案 1v2',sessions:20,price:39000,senior:true},
-};
-let selPlanKey=null,discountEnabled=false;
-function tuStuChanged(){
-  const id=parseInt(document.getElementById('tu-stu').value);
-  const s=students.find(function(st){return String(st.id)===String(id);});if(!s)return;
-  const r=s.totalSessions-s.usedSessions;
-  document.getElementById('tu-cur').textContent='目前剩餘 '+r+' 堂・'+s.coach;
-}
-function selectPlan(key,btn){
-  selPlanKey=key;
-  document.querySelectorAll('.plan-btn').forEach(b=>b.classList.remove('active'));
-  btn.classList.add('active');
-  const plan=PLANS[key];
-  const spr=document.getElementById('single-price-row');
-  if(spr)spr.style.display=key==='single'?'block':'none';
-  const singleSessions=key==='single'?(parseInt(gv('single-price-input'))||0):0;
-  document.getElementById('tu-plan-summary').style.display='block';
-  document.getElementById('tu-plan-name').textContent=plan.label;
-  document.getElementById('tu-plan-price-display').textContent=key==='single'?(singleSessions?singleSessions+' 堂 / $0':'—'):'NT$'+plan.price.toLocaleString();
-  document.getElementById('tu-plan-sessions-display').textContent=key==='single'?(singleSessions?'贈送 '+singleSessions+' 堂，金額 $0':''):plan.sessions+' 堂';
-  renderTuDetail();
-}
-function updateSinglePrice(){
-  const val=parseInt(document.getElementById('single-price-input').value)||0;
-  const d=document.getElementById('single-price-display');if(d)d.textContent=val?val+' 堂（贈送）':'輸入贈送堂數';
-  const pd=document.getElementById('tu-plan-price-display');if(pd&&selPlanKey==='single')pd.textContent=val?val+' 堂 / $0':'—';
-  const sd=document.getElementById('tu-plan-sessions-display');if(sd&&selPlanKey==='single')sd.textContent=val?'贈送 '+val+' 堂，金額 $0':'';
-  // No installment detail for gift sessions
-  document.getElementById('tu-detail').innerHTML=val?'<div style="font-size:13px;color:var(--green-text);background:var(--green-bg);padding:10px 14px;border-radius:8px;margin-top:8px">✓ 贈送 '+val+' 堂，金額 $0，直接加入學員堂數</div>':'';
-}
-function toggleDiscount(){
-  discountEnabled=!discountEnabled;
-  const chk=document.getElementById('discount-check');
-  const row=document.getElementById('discount-row');
-  chk.innerHTML=discountEnabled?'<svg width="13" height="13" viewBox="0 0 13 13"><polyline points="1.5,6.5 5,10 11.5,3" fill="none" stroke="var(--green)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>':'';
-  chk.style.borderColor=discountEnabled?'var(--green)':'var(--border2)';
-  chk.style.background=discountEnabled?'var(--green-bg)':'var(--bg)';
-  row.style.display=discountEnabled?'block':'none';
-  renderTuDetail();
-}
-function renderTuDetail(){
-  if(!selPlanKey){document.getElementById('tu-detail').innerHTML='';return;}
-  const plan=PLANS[selPlanKey];
-  const discountVal=parseInt(gv('tu-discount-price'))||0;
-  const giftSessions=selPlanKey==='single'?(parseInt(gv('single-price-input'))||0):0;
-  if(selPlanKey==='single'&&giftSessions<1){toast('請輸入贈送堂數');return;}
-  const effectiveSessions=selPlanKey==='single'?giftSessions:plan.sessions;
-  const basePrice=selPlanKey==='single'?0:plan.price;
-  const total=selPlanKey==='single'?0:(discountEnabled&&discountVal>0?discountVal:basePrice);
-  document.getElementById('tu-detail').innerHTML=installHTML(total,tuPeriods,'tu');
-}
-function doTopup(){
-  const stuId=parseInt(document.getElementById('tu-stu').value);
-  if(!stuId){toast('請選擇學員');return;}
-  if(!selPlanKey){toast('請選擇方案');return;}
-  // Reload first to get latest data
-  fbLoadAll(function(){ _doTopup(); });
-}
-function _doTopup(){
-  const id=parseInt(document.getElementById('tu-stu').value);
-  const s=students.find(st=>st.id===id);
-  if(!s){toast('請選擇學員');return;}
-  if(!selPlanKey){toast('請選擇方案');return;}
-  const plan=PLANS[selPlanKey];
-  const discountVal=parseInt(gv('tu-discount-price'))||0;
-  const total=discountEnabled&&discountVal>0?discountVal:plan.price;
-  const pricePerSession=Math.round(total/plan.sessions);
-  const inst=selPlanKey==='single'?[{seq:1,amount:0,dueDate:today(),paid:true,paidDate:today(),method:'贈送'}]:collectInst('tu',tuPeriods,total);
-  const tpSessions=selPlanKey==='single'?giftSessions:plan.sessions;
-  s.totalSessions+=tpSessions;
-  if(selPlanKey!=='single')s.pricePerSession=pricePerSession;
-  s.contracts=s.contracts||[];
-  s.contracts.push({
-    id:Date.now(),sessions:tpSessions,totalAmount:total,periods:selPlanKey==='single'?1:tuPeriods,
-    planLabel:plan.label+(selPlanKey==='single'?'（贈送）':discountEnabled?'（舊生折扣）':''),installments:inst
-  });
-  // Handle gift sessions
-  const tuGift=parseInt(gv('tu-gift-sessions'))||0;
-  if(tuGift>0){
-    s.totalSessions+=tuGift;
-    s.contracts.push({id:Date.now()+2,sessions:tuGift,totalAmount:0,periods:1,
-      planLabel:plan.label+'（贈送 '+tuGift+' 堂）',
-      installments:[{seq:1,amount:0,dueDate:today(),paid:true,paidDate:today(),method:'贈送'}]});
-  }
-  logAction('儲值',s.name,s.coach,plan.label+'，'+tpSessions+' 堂'+(tuGift>0?'＋贈送'+tuGift+'堂':'')+' NT$'+total.toLocaleString()+'，分 '+(selPlanKey==='single'?1:tuPeriods)+' 期'+(discountEnabled?'（舊生折扣）':''));
-  document.getElementById('tu-gift-sessions').value='';document.getElementById('tu-gift-preview').style.display='none';
-  saveStudentsOnly(s);
-  toast('✓ '+s.name+' '+plan.label+' '+plan.sessions+'堂，NT$'+total.toLocaleString()+'，分 '+tuPeriods+' 期');
-  selPlanKey=null;discountEnabled=false;
-  document.querySelectorAll('.plan-btn').forEach(b=>b.classList.remove('active'));
-  document.getElementById('tu-plan-summary').style.display='none';
-  document.getElementById('discount-check').innerHTML='';
-  document.getElementById('discount-check').style.borderColor='var(--border2)';
-  document.getElementById('discount-check').style.background='var(--bg)';
-  document.getElementById('discount-row').style.display='none';
-  if(document.getElementById('tu-discount-price'))document.getElementById('tu-discount-price').value='';
-  document.getElementById('tu-detail').innerHTML='';
-}
-function populateEditStuSelect(){
-  // populate coach filter
-  const cf=document.getElementById('edit-coach-filter');
-  const cur=cf.value;
-  cf.innerHTML='<option value="">— 請選擇教練 —</option>'+
-    coaches.map(function(c){return '<option value="'+c.name+'"'+(c.name===cur?' selected':'')+'>'+c.name+'</option>';}).join('');
-  document.getElementById('edit-stu-pick-card').style.display='none';
-  document.getElementById('edit-stu-form').style.display='none';
-}
-function filterEditStudents(){
-  const coachName=document.getElementById('edit-coach-filter').value;
-  const pickCard=document.getElementById('edit-stu-pick-card');
-  const form=document.getElementById('edit-stu-form');
-  form.style.display='none';
-  if(!coachName){pickCard.style.display='none';return;}
-  const list=students.filter(s=>s.coach===coachName);
-  document.getElementById('edit-stu-sel').innerHTML=
-    '<option value="">— 請選擇學員 —</option>'+
-    list.map(function(s){return '<option value="'+s.id+'">'+s.name+'</option>';}).join('');
-  renderEditStuQuicklist(list);
-  pickCard.style.display='block';
-}
-
-function renderEditStuQuicklist(list){
-  var tbody=document.getElementById('edit-stu-quicklist');
-  if(!tbody)return;
-  if(!list.length){
-    tbody.innerHTML='<tr><td colspan="5" style="text-align:center;color:var(--text3);padding:16px">此教練尚無學員</td></tr>';
-    return;
-  }
+// ══ 付款追蹤 ══
+function renderPayment(){
+  var fc=document.getElementById('pf-coach').value;
+  var fs=document.getElementById('pf-status').value;
+  var fm=document.getElementById('pf-method').value;
+  var csel=document.getElementById('pf-coach');var cc=csel.value;
+  csel.innerHTML='<option value="">全部教練</option>'+coaches.map(function(c){return '<option value="'+c.name+'"'+(c.name===cc?' selected':'')+'>'+c.name+'</option>';}).join('');
+  var fpt=document.getElementById('pf-plan-type')?document.getElementById('pf-plan-type').value:'';
+  var t=today();
+  var list=students.filter(function(s){return !fc||s.coach===fc;});
+  if(fs)list=list.filter(function(s){return getPayStatus(s)===fs;});
+  if(fm)list=list.filter(function(s){return (s.contracts||[]).reduce(function(a,c){return a.concat(c.installments||[]);},[] ).some(function(i){return i.method===fm;});});
+  if(fpt)list=list.filter(function(s){return (s.contracts||[]).some(function(c){return c.planLabel&&c.planLabel.indexOf(fpt)!==-1;});});
+  var allInst=list.reduce(function(a,s){return a.concat((s.contracts||[]).reduce(function(b,c){return b.concat(c.installments);},[]));},[]);
+  var paidAmt=allInst.filter(function(i){return i.paid;}).reduce(function(s,i){return s+i.amount;},0);
+  var unpaidAmt=allInst.filter(function(i){return !i.paid;}).reduce(function(s,i){return s+i.amount;},0);
+  document.getElementById('pay-paid').textContent='NT$'+paidAmt.toLocaleString();
+  document.getElementById('pay-unpaid').textContent='NT$'+unpaidAmt.toLocaleString();
+  var tbody=document.getElementById('pay-tbody');
+  if(!list.length){tbody.innerHTML='<tr><td colspan="8" style="text-align:center;color:var(--text3);padding:20px">尚無資料</td></tr>';return;}
   tbody.innerHTML=list.map(function(s){
-    var planLabel=(s.contracts&&s.contracts.length)?(s.contracts[s.contracts.length-1].planLabel||'—'):'—';
-    var payStatus=getPayStatus(s);
-    var payBg=payStatus==='paid'?'badge-green':payStatus==='partial'?'badge-amber':payStatus==='overdue'?'badge-red':'badge-red';
-    var payText=payStatus==='paid'?'已付清':payStatus==='partial'?'部分付款':payStatus==='overdue'?'⚠️ 逾期':'未付款';
-    // 找出下一筆未付款的期數，供快速標記
-    var nextUnpaid=null,nextCi=-1,nextIi=-1;
-    (s.contracts||[]).forEach(function(c,ci){
-      c.installments.forEach(function(ins,ii){
-        if(!ins.paid&&!nextUnpaid){nextUnpaid=ins;nextCi=ci;nextIi=ii;}
-      });
-    });
-    var payAction=nextUnpaid
-      ?'<button onclick="event.stopPropagation();quickMarkPaid('+s.id+','+nextCi+','+nextIi+')" style="padding:4px 10px;border-radius:6px;background:var(--green);color:#fff;border:none;font-size:11px;font-weight:600;cursor:pointer;white-space:nowrap">✓ 標記第'+nextUnpaid.seq+'期已付</button>'
-      :'<span style="font-size:11px;color:var(--text3)">—</span>';
-    return '<tr style="border-top:1px solid var(--border);cursor:pointer" onclick="quickSelectStu('+s.id+')">'
-      +'<td style="padding:8px;color:var(--text2)">'+(s.id?String(s.id).slice(-4):'—')+'</td>'
-      +'<td style="padding:8px;font-weight:600;color:var(--blue)">'+s.name+'</td>'
-      +'<td style="padding:8px;color:var(--text2);font-size:12px">'+planLabel+'</td>'
-      +'<td style="padding:8px;color:var(--text2);white-space:nowrap">'+s.usedSessions+'/'+s.totalSessions+'</td>'
-      +'<td style="padding:8px"><span class="badge '+payBg+'" style="margin-right:6px">'+payText+'</span>'+payAction+'</td>'
-      +'</tr>';
+    var allI=(s.contracts||[]).reduce(function(a,c){return a.concat(c.installments);},[]);
+    var paidT=allI.filter(function(i){return i.paid;}).reduce(function(n,i){return n+i.amount;},0);
+    var grandT=allI.reduce(function(n,i){return n+i.amount;},0);
+    var contractRows=(s.contracts||[]).map(function(c){
+      var instRows=c.installments.map(function(ins,idx){
+        var overdue=!ins.paid&&ins.dueDate<t;
+        var badge=ins.paid?'<span class="badge badge-green">已付</span>':overdue?'<span class="badge badge-red">⚠️ 逾期</span>':'<span class="badge badge-amber">待付</span>';
+        var actions=ins.paid
+          ?'<button class="btn btn-danger" onclick="togglePay('+s.id+','+c.id+','+idx+',false)">取消</button>'
+          :'<div style="display:flex;flex-direction:column;gap:4px">'
+            +'<input type="date" id="pd-'+s.id+'-'+c.id+'-'+idx+'" value="'+t+'" style="font-size:12px;padding:3px 6px;border-radius:4px;border:1px solid var(--border2);background:var(--bg2);color:var(--text)">'
+            +'<button class="btn btn-success" onclick="markPaid('+s.id+','+c.id+','+idx+')">標記已付</button>'
+            +'</div>';
+        return '<tr><td>第 '+ins.seq+' 期</td><td>NT$'+ins.amount.toLocaleString()+'</td>'
+          +'<td style="color:'+(overdue?'var(--red-text)':'var(--text)')+'">'+ins.dueDate+(overdue?' ⚠️':'')+'</td>'
+          +'<td>'+methodBadge(ins.method)+'</td><td>'+badge+'</td>'
+          +'<td style="color:var(--text2);font-size:12px">'+(ins.paidDate||'—')+'</td>'
+          +'<td colspan="2">'+actions+'</td></tr>';
+      }).join('');
+      return '<div style="font-size:12px;color:var(--text3);margin-bottom:6px">'+c.sessions+' 堂合約・分 '+c.periods+' 期</div>'
+        +'<div style="overflow-x:auto"><table class="itbl"><thead><tr><th style="width:40px">期數</th><th style="width:80px">金額</th>'
+        +'<th style="width:100px">預定付款日</th><th>付款方式</th><th style="width:54px">狀態</th>'
+        +'<th style="width:88px">收款日</th><th colspan="2" style="width:160px">操作</th></tr></thead>'
+        +'<tbody>'+instRows+'</tbody></table></div>';
+    }).join('');
+    return '<tr class="pay-row-main">'
+      +'<td style="font-weight:600;cursor:pointer;color:var(--blue)" onclick="jumpToEditStudent('+jsq(s.name)+','+jsq(s.coach)+')">'+s.name+'</td>'
+      +'<td>'+s.coach+'</td><td>'+payBadge(getPayStatus(s))+'</td>'
+      +'<td>NT$'+paidT.toLocaleString()+' / NT$'+grandT.toLocaleString()+'</td>'
+      +'<td colspan="4"><div style="padding:8px 0">'+contractRows+'</div></td></tr>';
   }).join('');
 }
 
-function quickSelectStu(id){
-  var sel=document.getElementById('edit-stu-sel');
-  if(sel){sel.value=String(id);loadEditStu();}
-  setTimeout(function(){
-    var form=document.getElementById('edit-stu-form');
-    if(form)form.scrollIntoView({behavior:'smooth',block:'start'});
-  },150);
-}
-
-function quickMarkPaid(stuId, ci, ii){
+function markPaid(stuId,contractId,instIdx){
   var s=students.find(function(st){return String(st.id)===String(stuId);});
-  if(!s||!s.contracts[ci]||!s.contracts[ci].installments[ii])return;
-  var ins=s.contracts[ci].installments[ii];
-  ins.paid=true;
-  ins.paidDate=today();
-  ins.method=ins.method||'確認收款';
-  logAction('標記付款',s.name,s.coach,'第 '+ins.seq+' 期，NT$'+ins.amount.toLocaleString()+'，收款日 '+today());
-  fbSaveSingleStudent(s);
-  try{save('gym_students',students);}catch(e){}
-  toast('✓ 已標記 '+s.name+' 第'+ins.seq+'期已付款');
-  // 重新渲染列表
-  var coachName=document.getElementById('edit-coach-filter').value;
-  var list=students.filter(function(st){return st.coach===coachName;});
-  renderEditStuQuicklist(list);
-}
-function populateEditCoach(){
-  document.getElementById('edit-stu-coach').innerHTML=coaches.map(function(c){return '<option value="'+c.name+'">'+c.name+'</option>';}).join('');
-}
-function updateEditRemain(){
-  const total=parseInt(gv('edit-total-sessions'))||0;
-  const used=parseInt(gv('edit-used-sessions'))||0;
-  const remain=total-used;
-  const disp=document.getElementById('edit-remain-display');
-  const warn=document.getElementById('edit-session-warning');
-  if(disp){
-    disp.textContent=remain+' 堂';
-    disp.style.color=remain<=0?'var(--red-text)':remain<=2?'var(--amber-text)':'var(--green-text)';
-    disp.style.background=remain<=0?'var(--red-bg)':remain<=2?'var(--amber-bg)':'var(--green-bg)';
-  }
-  if(warn)warn.style.display=used>total?'block':'none';
-}
-function loadEditStu(){
-  const id=parseInt(document.getElementById('edit-stu-sel').value);
-  const s=students.find(function(st){return String(st.id)===String(id);});
-  const form=document.getElementById('edit-stu-form');
-  if(!s){form.style.display='none';return;}
-  populateEditCoach();
-  document.getElementById('edit-stu-name').value=s.name;
-  document.getElementById('edit-stu-coach').value=s.coach;
-  const shianTypeRow=document.getElementById('edit-shian-type-row');
-  if(shianTypeRow){
-    const isShian=s.coach==='shian教練';
-    shianTypeRow.style.display=isShian?'block':'none';
-    if(isShian){
-      const st=s.shianType||'self';
-      document.getElementById('shian-type-self').classList.toggle('active',st==='self');
-      document.getElementById('shian-type-company').classList.toggle('active',st==='company');
-    }
-  }
-  document.getElementById('edit-total-sessions').value=s.totalSessions||0;
-  document.getElementById('edit-used-sessions').value=s.usedSessions||0;
-  updateEditRemain();
-  renderEditContracts(s);
-  renderEditCheckinHistory(s);
-  form.style.display='block';
-  // Bind live update
-  document.getElementById('edit-total-sessions').oninput=updateEditRemain;
-  document.getElementById('edit-used-sessions').oninput=updateEditRemain;
-}
-function renderEditCheckinHistory(s){
-  var el=document.getElementById('edit-checkin-history');
-  if(!el)return;
-  el.innerHTML='<div style="font-size:13px;color:var(--text3);padding:6px 0">載入中...</div>';
-
-  // 最近10次簽到紀錄（從 records 篩選）
-  var recs=records.filter(function(r){return r.student===s.name;})
-    .sort(function(a,b){return (a.date+a.time)<(b.date+b.time)?1:-1;})
-    .slice(0,10);
-
-  // 簽名（從獨立路徑載入，避免拖慢整體載入）
-  fbdb.ref('data/signatures/'+String(s.id)).once('value', function(snap){
-    var sigs=snap.val()||[];
-    if(!Array.isArray(sigs))sigs=Object.values(sigs);
-    // 建立 date+time -> sig 的對照表
-    var sigMap={};
-    sigs.forEach(function(sg){sigMap[sg.date+'_'+sg.time]=sg.sig;});
-
-    if(!recs.length){
-      el.innerHTML='<div style="font-size:13px;color:var(--text3);padding:6px 0">尚無簽到紀錄</div>';
-      return;
-    }
-
-    var html='<div style="display:flex;flex-direction:column;gap:6px">';
-    recs.forEach(function(r){
-      var sig=sigMap[r.date+'_'+r.time];
-      html+='<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 10px;background:var(--bg2);border-radius:8px">';
-      html+='<div style="font-size:13px"><span style="font-weight:600">'+r.date+'</span> <span style="color:var(--text2)">'+r.time+'</span> <span style="color:var(--text2);margin-left:6px">剩 '+r.remainAfter+' 堂</span></div>';
-      if(sig){
-        html+='<img src="'+sig+'" style="height:36px;border-radius:4px;border:1px solid var(--border2);background:#fff">';
-      }else{
-        html+='<span style="font-size:11px;color:var(--text3)">無簽名</span>';
-      }
-      html+='</div>';
-    });
-    html+='</div>';
-    el.innerHTML=html;
-  }, function(err){
-    // 簽名讀取失敗時仍顯示簽到記錄
-    var html='<div style="display:flex;flex-direction:column;gap:6px">';
-    recs.forEach(function(r){
-      html+='<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 10px;background:var(--bg2);border-radius:8px">';
-      html+='<div style="font-size:13px"><span style="font-weight:600">'+r.date+'</span> <span style="color:var(--text2)">'+r.time+'</span> <span style="color:var(--text2);margin-left:6px">剩 '+r.remainAfter+' 堂</span></div>';
-      html+='<span style="font-size:11px;color:var(--text3)">無簽名</span></div>';
-    });
-    html+='</div>';
-    el.innerHTML=html;
-  });
-}
-
-function renderEditContracts(s){
-  var contracts=s.contracts||[];
-  var el=document.getElementById('edit-contracts-list');
-  if(!contracts.length){el.innerHTML='<div style="font-size:13px;color:var(--text3);padding:6px 0">尚無付款合約</div>';return;}
-  var t=today();
-  var html='';
-  for(var ci=0;ci<contracts.length;ci++){
-    var c=contracts[ci];
-    var totalAmt=c.installments.reduce(function(sum,i){return sum+i.amount;},0);
-    var paidAmt=c.installments.filter(function(i){return i.paid;}).reduce(function(sum,i){return sum+i.amount;},0);
-    var unpaidCount=c.installments.filter(function(i){return !i.paid;}).length;
-    html+='<div style="margin-bottom:16px;padding-bottom:16px;border-bottom:1px solid var(--border)">';
-    html+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;flex-wrap:wrap;gap:8px">';
-    html+='<span style="font-size:13px;font-weight:600">'+(c.planLabel||c.sessions+'堂合約')+'・分 '+c.periods+' 期</span>';
-    html+='<span style="font-size:13px;color:var(--text2)">已付 NT$'+paidAmt.toLocaleString()+' ／ 總計 <span id="ec-total-'+ci+'" style="font-weight:700;color:var(--text)">NT$'+totalAmt.toLocaleString()+'</span></span>';
-    html+='</div>';
-    // 自訂分期期數
-    if(unpaidCount>0){
-      html+='<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;padding:10px;background:var(--bg2);border-radius:8px;flex-wrap:wrap">';
-      html+='<label style="font-size:12px;color:var(--text2);white-space:nowrap">調整總期數（最多8期）：</label>';
-      html+='<select id="ec-periods-'+ci+'" style="font-size:13px;padding:5px 10px;border-radius:6px;border:1px solid var(--border2);background:var(--bg);color:var(--text)">';
-      for(var pn=1;pn<=8;pn++){
-        if(pn<c.installments.filter(function(i){return i.paid;}).length+1 && pn<c.periods) continue;
-        html+='<option value="'+pn+'"'+(pn===c.periods?' selected':'')+'>'+pn+' 期</option>';
-      }
-      html+='</select>';
-      html+='<button onclick="applyPeriodChange('+s.id+','+ci+')" style="padding:5px 12px;border-radius:6px;background:var(--blue);color:#fff;border:none;font-size:12px;font-weight:600;cursor:pointer">套用</button>';
-      html+='<span style="font-size:11px;color:var(--text3)">調整後將重新分配未付款期數的金額（已付款期數不變）</span>';
-      html+='</div>';
-    }
-    for(var ii=0;ii<c.installments.length;ii++){
-      var ins=c.installments[ii];
-      var overdue=!ins.paid&&ins.dueDate<t;
-      var statusBadge=ins.paid?'<span class="badge badge-green">✓ 已付款</span>':overdue?'<span class="badge badge-red">⚠️ 逾期</span>':'<span class="badge badge-amber">待付款</span>';
-      var bg=ins.paid?'var(--green-bg)':overdue?'var(--red-bg)':'var(--bg2)';
-      var border=ins.paid?'var(--green)':overdue?'var(--red)':'var(--border2)';
-      html+='<div style="background:'+bg+';border-radius:10px;padding:12px 14px;margin-bottom:8px;border:1px solid '+border+'">';
-      html+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">';
-      html+='<span style="font-weight:600">第 '+ins.seq+' 期</span>';
-      html+='<div style="display:flex;align-items:center;gap:8px">'+statusBadge;
-      if(ins.paid){html+=' <button onclick="editCancelPay('+s.id+','+ci+','+ii+')" style="font-size:11px;padding:3px 8px;border-radius:6px;border:1px solid var(--border2);background:var(--bg);color:var(--text2);cursor:pointer">取消</button>';}
-      html+='</div></div>';
-      html+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:'+(ins.paid?'4':'10')+'px">';
-      html+='<div><label style="font-size:12px;color:var(--text2);display:block;margin-bottom:3px">金額（元）</label>';
-      html+='<input type="number" id="ec-amt-'+ci+'-'+ii+'" value="'+ins.amount+'" min="0" class="date-input" style="width:100%" oninput="updateContractTotal('+s.id+','+ci+')"></div>';
-      html+='<div><label style="font-size:12px;color:var(--text2);display:block;margin-bottom:3px">預定付款日</label>';
-      html+='<input type="date" id="ec-due-'+ci+'-'+ii+'" value="'+ins.dueDate+'" class="date-input" style="width:100%"'+(ins.paid?' disabled':'')+'/></div></div>';
-      if(!ins.paid){
-        html+='<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">';
-        html+='<label style="font-size:12px;color:var(--text2);white-space:nowrap">教練確認收款日：</label>';
-        html+='<input type="date" id="ec-paiddate-'+ci+'-'+ii+'" value="'+today()+'" style="font-size:13px;padding:5px 8px;border-radius:6px;border:1px solid var(--border2);background:var(--bg);color:var(--text)">';
-        html+='<button onclick="editConfirmPay('+s.id+','+ci+','+ii+')" style="padding:6px 14px;border-radius:8px;background:var(--green);color:#fff;border:none;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap">✓ 確認已付款</button>';
-        html+='</div>';
-      }
-      if(ins.paid){html+='<div style="font-size:12px;color:var(--green-text);margin-top:2px">實際收款日：'+(ins.paidDate||'—')+'</div>';}
-      html+='</div>';
-    }
-    html+='</div>';
-  }
-  el.innerHTML=html;
-}
-
-function applyPeriodChange(stuId, ci){
-  var s=students.find(function(st){return String(st.id)===String(stuId);});
-  if(!s)return;
-  var c=s.contracts[ci];
-  if(!c)return;
-  var newPeriods=parseInt(document.getElementById('ec-periods-'+ci).value);
-  if(!newPeriods||newPeriods<1||newPeriods>8)return;
-
-  var paidInst=c.installments.filter(function(i){return i.paid;});
-  var unpaidInst=c.installments.filter(function(i){return !i.paid;});
-  var paidTotal=paidInst.reduce(function(s2,i){return s2+i.amount;},0);
-  var grandTotal=c.installments.reduce(function(s2,i){return s2+i.amount;},0);
-  var remainingTotal=grandTotal-paidTotal;
-
-  var newUnpaidCount=newPeriods-paidInst.length;
-  if(newUnpaidCount<1){toast('期數不可少於已付款期數');return;}
-
-  // 重新分配未付款金額
-  var amt=Math.floor(remainingTotal/newUnpaidCount);
-  var rem=remainingTotal-amt*(newUnpaidCount-1);
-
-  // 取得最後一筆已付款的到期日作為起算基準，否則用今天
-  var baseDate=paidInst.length?paidInst[paidInst.length-1].dueDate:today();
-  var newUnpaid=[];
-  for(var i=0;i<newUnpaidCount;i++){
-    var d=new Date(baseDate);
-    d.setMonth(d.getMonth()+i+1);
-    newUnpaid.push({
-      seq:paidInst.length+i+1,
-      amount:i===newUnpaidCount-1?rem:amt,
-      dueDate:d.toISOString().slice(0,10),
-      paid:false,paidDate:null,method:null
-    });
-  }
-
-  c.installments=paidInst.concat(newUnpaid);
-  c.periods=newPeriods;
-
-  logAction('調整分期',s.name,s.coach,(c.planLabel||c.sessions+'堂合約')+' 改為分 '+newPeriods+' 期（未付款 '+newUnpaidCount+' 期重新分配）');
-  fbSaveSingleStudent(s);
-  try{save('gym_students',students);}catch(e){}
-  renderEditContracts(s);
-  toast('✓ 已調整為分 '+newPeriods+' 期');
-}
-
-function updateContractTotal(stuId, ci){
-  // Recalculate and display new total for this contract
-  const s=students.find(function(st){return String(st.id)===String(stuId);});
-  if(!s||!s.contracts[ci])return;
-  const c=s.contracts[ci];
-  let newTotal=0;
-  c.installments.forEach((ins,ii)=>{
-    const el=document.getElementById('ec-amt-'+ci+'-'+ii);
-    const val=el?parseInt(el.value)||0:ins.amount;
-    newTotal+=val;
-  });
-  const el=document.getElementById('ec-total-'+ci);
-  if(el) el.textContent='NT$'+newTotal.toLocaleString();
-}
-function editConfirmPay(stuId, ci, ii){
-  const s=students.find(function(st){return String(st.id)===String(stuId);});
-  if(!s||!s.contracts[ci]||!s.contracts[ci].installments[ii])return;
-  const ins=s.contracts[ci].installments[ii];
-  const paidDate=gv('ec-paiddate-'+ci+'-'+ii)||today();
-  ins.paid=true;
-  ins.paidDate=paidDate;
-  ins.method=ins.method||'確認收款';
+  if(!s){toast('找不到學員');return;}
+  var c=null;
+  for(var i=0;i<(s.contracts||[]).length;i++){if(String(s.contracts[i].id)===String(contractId)){c=s.contracts[i];break;}}
+  if(!c||!c.installments[instIdx]){toast('找不到合約');return;}
+  var ins=c.installments[instIdx];
+  var pdEl=document.getElementById('pd-'+stuId+'-'+contractId+'-'+instIdx);
+  var paidDate=pdEl?pdEl.value:today();
+  ins.paid=true;ins.paidDate=paidDate;ins.method=ins.method||'確認收款';
   logAction('標記付款',s.name,s.coach,'第 '+ins.seq+' 期，NT$'+ins.amount.toLocaleString()+'，收款日 '+paidDate);
   fbSaveSingleStudent(s);
   try{save('gym_students',students);}catch(e){}
-  toast('✓ 已確認收款：NT$'+ins.amount.toLocaleString());
-  renderEditContracts(s);
+  renderPayment();toast('✓ 已標記收款：NT$'+ins.amount.toLocaleString());
 }
-
-function editCancelPay(stuId, ci, ii){
-  const s=students.find(function(st){return String(st.id)===String(stuId);});
-  if(!s||!s.contracts[ci]||!s.contracts[ci].installments[ii])return;
-  if(!confirm('確定要取消這筆收款紀錄嗎？'))return;
-  const ins=s.contracts[ci].installments[ii];
-  ins.paid=false; ins.paidDate=null; ins.method=null;
-  logAction('取消付款',s.name,s.coach,'第 '+ins.seq+' 期，NT$'+ins.amount.toLocaleString());
+function togglePay(stuId,contractId,instIdx,paid){
+  var s=students.find(function(st){return String(st.id)===String(stuId);});
+  if(!s)return;
+  var c=null;
+  for(var i=0;i<(s.contracts||[]).length;i++){if(String(s.contracts[i].id)===String(contractId)){c=s.contracts[i];break;}}
+  if(!c||!c.installments[instIdx])return;
+  var ins=c.installments[instIdx];
+  if(!paid){if(!confirm('確定要取消這筆收款嗎？'))return;ins.paid=false;ins.paidDate=null;ins.method=null;}
+  else{ins.paid=true;ins.paidDate=today();}
   fbSaveSingleStudent(s);
   try{save('gym_students',students);}catch(e){}
-  toast('已取消收款紀錄');
-  renderEditContracts(s);
-}
-function saveEditStu(){
-  const selEl=document.getElementById('edit-stu-sel');
-  if(!selEl||!selEl.value){toast('請先選擇學員');return;}
-  const selVal=selEl.value;
-  // Find student by matching ID as string
-  var s=null;
-  for(var i=0;i<students.length;i++){
-    if(String(students[i].id)===String(selVal)){s=students[i];break;}
-  }
-  if(!s){toast('找不到學員，請重新進入編輯頁面');return;}
-  const name=document.getElementById('edit-stu-name').value.trim();
-  const coach=document.getElementById('edit-stu-coach').value;
-  if(!name||!coach){toast('請填寫學員姓名與教練');return;}
-  const oldName=s.name; const oldCoach=s.coach;
-  // Save shianType if applicable
-  if(coach==='shian教練'){
-    var scEl=document.getElementById('shian-type-company');
-    s.shianType=(scEl&&scEl.classList.contains('active'))?'company':'self';
-  }
-  // save session edits
-  const newTotal=parseInt(gv('edit-total-sessions'))||s.totalSessions;
-  const newUsed=parseInt(gv('edit-used-sessions'))||s.usedSessions;
-  if(newUsed>newTotal){toast('已上堂數不能超過總購堂數');return;}
-  s.totalSessions=newTotal;
-  s.usedSessions=newUsed;
-  // save contract edits (all installments, paid or not)
-  (s.contracts||[]).forEach((c,ci)=>{
-    c.installments.forEach((ins,ii)=>{
-      const amtEl=document.getElementById('ec-amt-'+ci+'-'+ii);
-      const dueEl=document.getElementById('ec-due-'+ci+'-'+ii);
-      if(amtEl)ins.amount=parseInt(amtEl.value)||ins.amount;
-      if(dueEl&&!ins.paid)ins.dueDate=dueEl.value||ins.dueDate;
-    });
-    // Update contract totalAmount to match sum of installments
-    c.totalAmount=c.installments.reduce((sum,i)=>sum+i.amount,0);
-  });
-  // recalc pricePerSession
-  const allInst=(s.contracts||[]).reduce(function(a,c){return a.concat(c.installments||[]);},[]);
-  const contractTotal=allInst.reduce((sum,i)=>sum+i.amount,0);
-  s.pricePerSession=Math.round(contractTotal/(s.totalSessions||1));
-  records.forEach(r=>{if(r.student===oldName)r.student=name;});
-  s.name=name;s.coach=coach;
-  logAction('編輯學員',name,coach,'姓名：'+oldName+'→'+name+'，教練：'+oldCoach+'→'+coach+'，堂數：總'+s.totalSessions+'/已上'+s.usedSessions+'/剩'+(s.totalSessions-s.usedSessions));
-  fbSaveSingleStudent(s);
-  try{save('gym_students',students);save('gym_records',records);}catch(e){}
-  toast('✓ 學員資料已更新：'+name);
-  filterEditStudents();
-  document.getElementById('edit-stu-form').style.display='none';
-}
-function deleteStu(){
-  const selVal=document.getElementById('edit-stu-sel').value;
-  const s=students.find(function(st){return String(st.id)===String(selVal);});if(!s)return;
-  const id=s.id;
-  if(!confirm('確定要刪除「'+s.name+'」的所有資料嗎？此操作無法還原'))return;
-  logAction('刪除學員',s.name,s.coach,'共 '+s.totalSessions+' 堂，已上 '+s.usedSessions+' 堂');
-  students=students.filter(function(st){return String(st.id)!==String(id);});
-  // Firebase stores as array (0,1,2...) so we must rewrite the whole array
-  fbdb.ref('data/students').set(students, function(err){
-    if(err) console.error('Delete error:', err);
-  });
-  try{save('gym_students',students);}catch(e){}
-  toast('已刪除：'+s.name);
-  filterEditStudents();
-  document.getElementById('edit-stu-form').style.display='none';
+  renderPayment();toast(paid?'✓ 已標記收款':'已取消收款');
 }
 
-// ── 教練管理 ──
-function coachTab(tab,btn){
-  document.querySelectorAll('#page-coaches-mgmt .tab').forEach(b=>b.classList.remove('active'));btn.classList.add('active');
-  document.getElementById('cp-list').style.display=tab==='list'?'block':'none';
-  document.getElementById('cp-add').style.display=tab==='add'?'block':'none';
-  if(tab==='list')renderCoachList();
-  if(tab==='add')renderCoachEditList();
+// ══ 月結報表 ══
+function renderReport(){
+  var fc=document.getElementById('rf-coach').value;
+  var fs=document.getElementById('rf-stu').value;
+  var csel=document.getElementById('rf-coach');var cc=csel.value;
+  csel.innerHTML='<option value="">全部教練</option>'+coaches.map(function(c){return '<option value="'+c.name+'"'+(c.name===cc?' selected':'')+'>'+c.name+'</option>';}).join('');
+  var ssel=document.getElementById('rf-stu');var cs=ssel.value;
+  ssel.innerHTML='<option value="">全部學員</option>'+Array.from(new Set(records.map(function(r){return r.student;}))).map(function(n){return '<option value="'+n+'"'+(n===cs?' selected':'')+'>'+n+'</option>';}).join('');
+  var fpt2=document.getElementById('rf-plan-type')?document.getElementById('rf-plan-type').value:'';
+  var dateFrom=document.getElementById('rf-date-from')?document.getElementById('rf-date-from').value:'';
+  var dateTo=document.getElementById('rf-date-to')?document.getElementById('rf-date-to').value:'';
+  let filtered=records.filter(function(r){return (!fc||r.coach===fc)&&(!fs||r.student===fs);});
+  if(dateFrom)filtered=filtered.filter(function(r){return r.date>=dateFrom;});
+  if(dateTo)filtered=filtered.filter(function(r){return r.date<=dateTo;});
+  if(fpt2){filtered=filtered.filter(function(r){var s=students.find(function(st){return st.name===r.student;});return s&&(s.contracts||[]).some(function(c){return c.planLabel&&c.planLabel.indexOf(fpt2)!==-1;});});}
+  var revFrom=dateFrom||(today().slice(0,7)+'-01');
+  var revTo=dateTo||today();
+  var revenue=students.reduce(function(sum,s){
+    if(fc&&s.coach!==fc)return sum;
+    if(fs&&s.name!==fs)return sum;
+    if(fpt2&&!(s.contracts||[]).some(function(c){return c.planLabel&&c.planLabel.indexOf(fpt2)!==-1;}))return sum;
+    return sum+(s.contracts||[]).reduce(function(cs,c){
+      return cs+c.installments.filter(function(i){return i.paid&&i.paidDate&&i.paidDate>=revFrom&&i.paidDate<=revTo;}).reduce(function(is,i){return is+i.amount;},0);
+    },0);
+  },0);
+  document.getElementById('rpt-metrics').innerHTML='<div class="metric"><div class="m-label">總簽到</div><div class="m-value">'+filtered.length+'</div><div class="m-sub">堂次</div></div><div class="metric"><div class="m-label">業績（確認收款 '+revFrom.slice(5)+'~'+revTo.slice(5)+'）</div><div class="m-value">$'+revenue.toLocaleString()+'</div><div class="m-sub">元</div></div><div class="metric"><div class="m-label">活躍學員</div><div class="m-value">'+new Set(filtered.map(function(r){return r.student;})).size+'</div><div class="m-sub">位</div></div>';
+  var tbody=document.getElementById('rpt-tbody');
+  if(!filtered.length){tbody.innerHTML='<tr><td colspan="8" style="text-align:center;color:var(--text3);padding:20px">尚無資料</td></tr>';return;}
+  tbody.innerHTML=filtered.map(function(r){
+    var s=students.find(function(st){return st.name===r.student;});
+    var ps=s?getPayStatus(s):'unpaid';
+    var lastInst=s?(s.contracts||[]).reduce(function(a,c){return a.concat(c.installments||[]);},[]).filter(function(i){return i.paid&&i.method;}):'';
+    var lastM=lastInst.length?lastInst[lastInst.length-1].method:null;
+    return '<tr><td>'+r.date.slice(5)+'</td><td>'+r.time+'</td><td style="cursor:pointer;color:var(--blue)" onclick="jumpToEditStudent('+jsq(r.student)+','+jsq(r.coach)+')">'+r.student+'</td><td>'+r.coach+'</td><td style="text-align:center;font-weight:600">'+r.remainAfter+'</td><td>'+payBadge(ps)+'</td><td>'+methodBadge(lastM)+'</td><td style="text-align:center">✍️</td></tr>';
+  }).join('');
 }
+function clearRfDates(){
+  var f=document.getElementById('rf-date-from');var t2=document.getElementById('rf-date-to');
+  if(f)f.value='';if(t2)t2.value='';renderReport();
+}
+function exportCSV(){
+  var fc=document.getElementById('rf-coach').value;
+  var fs=document.getElementById('rf-stu').value;
+  var filtered=records.filter(function(r){return (!fc||r.coach===fc)&&(!fs||r.student===fs);});
+  var rows=[['日期','時間','學員','教練','扣後餘堂','付款狀態','付款方式']];
+  filtered.forEach(function(r){
+    var s=students.find(function(st){return st.name===r.student;});
+    var psMap={paid:'已付清',partial:'部分付款',unpaid:'未付款'};
+    var ps=s?psMap[getPayStatus(s)]||'未付款':'未付款';
+    var allInst=s?(s.contracts||[]).reduce(function(a,c){return a.concat(c.installments);},[]).filter(function(i){return i.paid&&i.method;}):'';
+    var m=allInst.length?allInst[allInst.length-1].method:'';
+    rows.push([r.date,r.time,r.student,r.coach,r.remainAfter,ps,m]);
+  });
+  var csv='\uFEFF'+rows.map(function(r){return r.map(function(v){return '"'+String(v).replace(/"/g,'""')+'"';}).join(',');}).join('\n');
+  var a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));
+  a.download='簽到報表_'+today()+'.csv';a.click();toast('✓ CSV 已下載');
+}
+
+// ══ 教練管理 ══
 function renderCoachList(){
-  const maxC=Math.max.apply(null, coaches.map(function(c){return records.filter(function(r){return r.coach===c.name;}).length;}).concat([1]));
-  const maxR=Math.max.apply(null, coaches.map(function(c){return records.filter(function(r){return r.coach===c.name;}).reduce(function(s,r){var st=students.find(function(st){return st.name===r.student;});return s+(st?st.pricePerSession:0);},0);}).concat([1]));
-  const totalC=records.length;
-  const totalR=records.reduce((s,r)=>{const st=students.find(st=>st.name===r.student);return s+(st?st.pricePerSession:0);},0);
-  document.getElementById('co-overall').innerHTML='<div class="metric"><div class="m-label">全場堂數</div><div class="m-value">'+totalC+'</div><div class="m-sub">堂</div></div><div class="metric"><div class="m-label">全場業績</div><div class="m-value">$'+totalR.toLocaleString()+'</div><div class="m-sub">元</div></div><div class="metric"><div class="m-label">在籍學員</div><div class="m-value">'+students.length+'</div><div class="m-sub">位</div></div>';
-  document.getElementById('co-cards').innerHTML=coaches.map(c=>{
-    const col=coachColor(c.name);
-    const cls=records.filter(r=>r.coach===c.name).length;
-    const rev=records.filter(r=>r.coach===c.name).reduce((s,r)=>{const st=students.find(st=>st.name===r.student);return s+(st?st.pricePerSession:0);},0);
-    const stuCount=students.filter(s=>s.coach===c.name).length;
+  var coachColors=['#e3f2fd','#f3e5f5','#e8f5e9','#fff3e0','#fce4ec','#f1f8e9','#e0f7fa'];
+  var co=document.getElementById('co-overall');
+  var totalC=records.length;
+  var totalR=students.reduce(function(s2,s){return s2+(s.contracts||[]).reduce(function(cs,c){return cs+c.installments.filter(function(i){return i.paid;}).reduce(function(is,i){return is+i.amount;},0);},0);},0);
+  if(co)co.innerHTML='<div class="metric"><div class="m-label">全場堂數</div><div class="m-value">'+totalC+'</div><div class="m-sub">堂</div></div><div class="metric"><div class="m-label">全場業績</div><div class="m-value">$'+totalR.toLocaleString()+'</div><div class="m-sub">元</div></div><div class="metric"><div class="m-label">在籍學員</div><div class="m-value">'+students.length+'</div><div class="m-sub">位</div></div>';
+  var list=document.getElementById('coach-list');
+  if(!list)return;
+  var maxC=Math.max.apply(null,coaches.map(function(c){return records.filter(function(r){return r.coach===c.name;}).length;}).concat([1]));
+  var maxR=Math.max.apply(null,coaches.map(function(c){return records.filter(function(r){return r.coach===c.name;}).reduce(function(s2,r){var st=students.find(function(st){return st.name===r.student;});return s2+(st?st.pricePerSession:0);},0);}).concat([1]));
+  list.innerHTML=coaches.map(function(c,ci){
+    var col=coachColor(c.name);
+    var cls=records.filter(function(r){return r.coach===c.name;}).length;
+    var stuCount=students.filter(function(s){return s.coach===c.name;}).length;
+    var rev=records.filter(function(r){return r.coach===c.name;}).reduce(function(s2,r){var st=students.find(function(st){return st.name===r.student;});return s2+(st?st.pricePerSession:0);},0);
     return '<div class="card" style="margin-bottom:12px">'
       +'<div style="display:flex;align-items:center;gap:14px;margin-bottom:14px">'
       +'<div style="width:44px;height:44px;border-radius:50%;background:'+col.bg+';color:'+col.fg+';display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:700;flex-shrink:0">'+c.name[0]+'</div>'
-      +'<div><div style="font-size:16px;font-weight:700">'+c.name+'</div>'
-      +'<div style="font-size:13px;color:var(--text2)">在籍 '+stuCount+' 位學員</div></div>'
-      +'<div style="margin-left:auto;text-align:right">'
-      +'<div style="font-size:20px;font-weight:700">'+cls+' 堂</div>'
-      +'<div style="font-size:13px;color:var(--text2)">NT$'+rev.toLocaleString()+'</div></div></div>'
+      +'<div><div style="font-size:16px;font-weight:700">'+c.name+'</div><div style="font-size:13px;color:var(--text2)">在籍 '+stuCount+' 位學員</div></div>'
+      +'<div style="margin-left:auto;text-align:right"><div style="font-size:20px;font-weight:700">'+cls+' 堂</div><div style="font-size:13px;color:var(--text2)">NT$'+rev.toLocaleString()+'</div></div></div>'
       +'<div class="bar-row"><span class="bar-lbl">堂數</span><div class="bar-bg"><div class="bar-fill" style="width:'+Math.round(cls/maxC*100)+'%;background:var(--blue)"></div></div><span class="bar-val" style="color:var(--blue)">'+cls+' 堂</span></div>'
       +'<div class="bar-row"><span class="bar-lbl">業績</span><div class="bar-bg"><div class="bar-fill" style="width:'+Math.round(rev/maxR*100)+'%;background:var(--green)"></div></div><span class="bar-val" style="color:var(--green)">$'+rev.toLocaleString()+'</span></div>'
       +'</div>';
   }).join('');
+  renderCoachEditList();
 }
 function renderCoachEditList(){
   document.getElementById('coach-edit-list').innerHTML=coaches.map(function(c){
@@ -2691,247 +2502,308 @@ function renderCoachEditList(){
   }).join('');
 }
 function saveCoach(id){
-  const c=coaches.find(co=>co.id===id);if(!c)return;
-  const oldName=c.name;
-  const newName=document.getElementById('ce-name-'+id).value.trim();
-  const newSpec=document.getElementById('ce-spec-'+id).value.trim();
-  if(!newName||!newSpec){toast('請填寫姓名與專項');return;}
-  // Update references
-  students.forEach(s=>{if(s.coach===oldName)s.coach=newName;});
-  records.forEach(r=>{if(r.coach===oldName)r.coach=newName;});
+  var c=coaches.find(function(c){return c.id===id;});if(!c)return;
+  var newName=document.getElementById('ce-name-'+id).value.trim();
+  var newSpec=document.getElementById('ce-spec-'+id).value.trim();
+  if(!newName){toast('教練名稱不能為空');return;}
   c.name=newName;c.specialty=newSpec;
-  saveCoachesOnly();toast('✓ 已更新：'+newName);
+  fbSaveCoaches();toast('✓ 已更新：'+newName);renderCoachEditList();
 }
 function addCoach(){
-  const name=document.getElementById('nc-name').value.trim();
-  const spec=document.getElementById('nc-spec').value.trim();
-  if(!name||!spec){toast('請填寫姓名與專項');return;}
-  coaches.push({id:Date.now(),name,specialty:spec});
-  saveCoachesOnly();renderCoachEditList();
+  var name=document.getElementById('nc-name').value.trim();
+  var spec=document.getElementById('nc-spec').value.trim();
+  if(!name){toast('請輸入教練名稱');return;}
+  coaches.push({id:Date.now(),name:name,specialty:spec});
+  fbSaveCoaches();renderCoachEditList();
   document.getElementById('nc-name').value='';document.getElementById('nc-spec').value='';
   toast('✓ 已新增教練：'+name);
 }
 function removeCoach(id){
-  const c=coaches.find(co=>co.id===id);if(!c)return;
+  var c=coaches.find(function(c){return c.id===id;});if(!c)return;
   if(!confirm('確定要移除「'+c.name+'」嗎？'))return;
-  coaches=coaches.filter(co=>co.id!==id);
-  saveCoachesOnly();renderCoachEditList();toast('已移除：'+c.name);
+  coaches=coaches.filter(function(c){return c.id!==id;});
+  fbSaveCoaches();renderCoachEditList();toast('已移除：'+c.name);
 }
 
-// ── 付款追蹤 ──
-function renderPayment(){
-  const fc=document.getElementById('pf-coach').value;
-  const fs=document.getElementById('pf-status').value;
-  const fm=document.getElementById('pf-method').value;
-  const csel=document.getElementById('pf-coach');const cc=csel.value;
-  csel.innerHTML='<option value="">全部教練</option>'+coaches.map(c=>'<option value="'+c.name+'"'+(c.name===cc?' selected':'')+'>'+c.name+'</option>').join('');
-  const t=today();
-  let list=students.filter(s=>!fc||s.coach===fc);
-  if(fs)list=list.filter(s=>getPayStatus(s)===fs);
-  if(fm)list=list.filter(s=>(s.contracts||[]).reduce(function(a,c){return a.concat(c.installments||[]);},[]).some(i=>i.method===fm));
-  var fpt=document.getElementById('pf-plan-type')?document.getElementById('pf-plan-type').value:'';
-  if(fpt)list=list.filter(function(s){
-    return (s.contracts||[]).some(function(c){return c.planLabel&&c.planLabel.indexOf(fpt)!==-1;});
-  });
-  var allInst=list.reduce(function(a,s){return a.concat((s.contracts||[]).reduce(function(b,c){return b.concat(c.installments);},[]));},[]);
-  const paidAmt=allInst.filter(i=>i.paid).reduce((s,i)=>s+i.amount,0);
-  const unpaidAmt=allInst.filter(i=>!i.paid).reduce((s,i)=>s+i.amount,0);
-  document.getElementById('pay-paid').textContent='NT$'+paidAmt.toLocaleString();
-  document.getElementById('pay-unpaid').textContent='NT$'+unpaidAmt.toLocaleString();
-  const tbody=document.getElementById('pay-tbody');
-  if(!list.length){tbody.innerHTML='<tr><td colspan="8" style="text-align:center;color:var(--text3);padding:20px">尚無資料</td></tr>';return;}
+// ══ 學員管理 ══
+function renderEditStuQuicklist(list){
+  var tbody=document.getElementById('edit-stu-quicklist');
+  if(!tbody)return;
+  if(!list.length){tbody.innerHTML='<tr><td colspan="5" style="text-align:center;color:var(--text3);padding:16px">此教練尚無學員</td></tr>';return;}
   tbody.innerHTML=list.map(function(s){
-    const allI=(s.contracts||[]).reduce(function(a,c){return a.concat(c.installments||[]);},[]);
-    const paidT=allI.filter(i=>i.paid).reduce((n,i)=>n+i.amount,0);
-    const grandT=allI.reduce((n,i)=>n+i.amount,0);
-    var contractRows=(s.contracts||[]).map(function(c){
-      var instRows=c.installments.map(function(ins,idx){
-        const overdue=!ins.paid&&ins.dueDate<t;
-        const badge=ins.paid?'<span class="badge badge-green">已付</span>'
-          :overdue?'<span class="badge badge-red">⚠️ 逾期</span>'
-          :'<span class="badge badge-amber">待付</span>';
-        const actions=ins.paid
-          ?'<button class="btn btn-danger" onclick="togglePay('+s.id+','+c.id+','+idx+',false)">取消</button>'
-          :'<div style="display:flex;flex-direction:column;gap:4px">'
-            +'<input type="date" id="pd-'+s.id+'-'+c.id+'-'+idx+'" value="'+t+'" style="font-size:12px;padding:3px 6px;border-radius:4px;border:1px solid var(--border2);background:var(--bg2);color:var(--text)">'
-            +'<button class="btn btn-success" onclick="markPaid('+s.id+','+c.id+','+idx+')">標記已付</button>'
-            +'</div>';
-        return '<tr>'
-          +'<td>第 '+ins.seq+' 期</td>'
-          +'<td>NT$'+ins.amount.toLocaleString()+'</td>'
-          +'<td style="color:'+(overdue?'var(--red-text)':'var(--text)')+'">'+ins.dueDate+(overdue?' ⚠️':'')+'</td>'
-          +'<td>'+methodBadge(ins.method)+'</td>'
-          +'<td>'+badge+'</td>'
-          +'<td style="color:var(--text2);font-size:12px">'+(ins.paidDate||'—')+'</td>'
-          +'<td colspan="2">'+actions+'</td>'
-          +'</tr>';
-      }).join('');
-      return '<div style="font-size:12px;color:var(--text3);margin-bottom:6px">'+c.sessions+' 堂合約・分 '+c.periods+' 期</div>'
-        +'<div style="overflow-x:auto"><table class="itbl">'
-        +'<thead><tr><th style="width:40px">期數</th><th style="width:80px">金額</th>'
-        +'<th style="width:100px">預定付款日</th><th>付款方式</th><th style="width:54px">狀態</th>'
-        +'<th style="width:88px">收款日</th><th colspan="2" style="width:160px">操作</th></tr></thead>'
-        +'<tbody>'+instRows+'</tbody></table></div>';
-    }).join('');
-    return '<tr class="pay-row-main">'
-      +'<td style="font-weight:600;cursor:pointer;color:var(--blue)" onclick=\"jumpToEditStudent('+jsq(s.name)+','+jsq(s.coach)+')\">'+s.name+'</td>'
-      +'<td>'+s.coach+'</td>'
-      +'<td>'+payBadge(getPayStatus(s))+'</td>'
-      +'<td>NT$'+paidT.toLocaleString()+' / NT$'+grandT.toLocaleString()+'</td>'
-      +'<td colspan="4"><div style="padding:8px 0">'+contractRows+'</div></td>'
+    var planLabel=(s.contracts&&s.contracts.length)?(s.contracts[s.contracts.length-1].planLabel||'—'):'—';
+    var payStatus=getPayStatus(s);
+    var payBg=payStatus==='paid'?'badge-green':payStatus==='partial'?'badge-amber':payStatus==='overdue'?'badge-red':'badge-red';
+    var payText=payStatus==='paid'?'已付清':payStatus==='partial'?'部分付款':payStatus==='overdue'?'⚠️ 逾期':'未付款';
+    var nextUnpaid=null,nextCi=-1,nextIi=-1;
+    (s.contracts||[]).forEach(function(c,ci){c.installments.forEach(function(ins,ii){if(!ins.paid&&!nextUnpaid){nextUnpaid=ins;nextCi=ci;nextIi=ii;}});});
+    var payAction=nextUnpaid
+      ?'<button onclick="event.stopPropagation();quickMarkPaid('+s.id+','+nextCi+','+nextIi+')" style="padding:4px 10px;border-radius:6px;background:var(--green);color:#fff;border:none;font-size:11px;font-weight:600;cursor:pointer;white-space:nowrap">✓ 標記第'+nextUnpaid.seq+'期已付</button>'
+      :'<span style="font-size:11px;color:var(--text3)">—</span>';
+    return '<tr style="border-top:1px solid var(--border);cursor:pointer" onclick="quickSelectStu('+s.id+')">'
+      +'<td style="padding:8px;color:var(--text2)">'+(s.id?String(s.id).slice(-4):'—')+'</td>'
+      +'<td style="padding:8px;font-weight:600;color:var(--blue)">'+s.name+'</td>'
+      +'<td style="padding:8px;color:var(--text2);font-size:12px">'+planLabel+'</td>'
+      +'<td style="padding:8px;color:var(--text2);white-space:nowrap">'+s.usedSessions+'/'+s.totalSessions+'</td>'
+      +'<td style="padding:8px"><span class="badge '+payBg+'" style="margin-right:6px">'+payText+'</span>'+payAction+'</td>'
       +'</tr>';
   }).join('');
 }
-
-
-function markPaid(stuId, contractId, instIdx) {
-  var s = students.find(function(st){ return String(st.id)===String(stuId); });
-  if (!s) { toast('找不到學員'); return; }
-  var c = null;
-  for (var i=0;i<(s.contracts||[]).length;i++){
-    if (String(s.contracts[i].id)===String(contractId)){ c=s.contracts[i]; break; }
+function quickSelectStu(id){
+  var sel=document.getElementById('edit-stu-sel');
+  if(sel){sel.value=String(id);loadEditStu();}
+  setTimeout(function(){var form=document.getElementById('edit-stu-form');if(form)form.scrollIntoView({behavior:'smooth',block:'start'});},150);
+}
+function quickMarkPaid(stuId,ci,ii){
+  var s=students.find(function(st){return String(st.id)===String(stuId);});
+  if(!s||!s.contracts[ci]||!s.contracts[ci].installments[ii])return;
+  var ins=s.contracts[ci].installments[ii];
+  ins.paid=true;ins.paidDate=today();ins.method=ins.method||'確認收款';
+  logAction('標記付款',s.name,s.coach,'第 '+ins.seq+' 期，NT$'+ins.amount.toLocaleString()+'，收款日 '+today());
+  fbSaveSingleStudent(s);try{save('gym_students',students);}catch(e){}
+  toast('✓ 已標記 '+s.name+' 第'+ins.seq+'期已付款');
+  var coachName=document.getElementById('edit-coach-filter').value;
+  var list2=students.filter(function(st){return st.coach===coachName;});
+  renderEditStuQuicklist(list2);
+}
+function filterEditStudents(){
+  var coachName=document.getElementById('edit-coach-filter').value;
+  var pickCard=document.getElementById('edit-stu-pick-card');
+  var form=document.getElementById('edit-stu-form');
+  form.style.display='none';
+  if(!coachName){pickCard.style.display='none';return;}
+  var list=students.filter(function(s){return s.coach===coachName;});
+  document.getElementById('edit-stu-sel').innerHTML='<option value="">— 請選擇學員 —</option>'+list.map(function(s){return '<option value="'+s.id+'">'+s.name+'</option>';}).join('');
+  renderEditStuQuicklist(list);
+  pickCard.style.display='block';
+}
+function populateEditCoach(){
+  var sel=document.getElementById('edit-coach-filter');
+  if(!sel)return;
+  var cur=sel.value;
+  sel.innerHTML='<option value="">— 請選擇教練 —</option>'+coaches.map(function(c){return '<option value="'+c.name+'"'+(c.name===cur?' selected':'')+'>'+c.name+'</option>';}).join('');
+  var cs2=document.getElementById('edit-stu-coach');
+  if(cs2){var cur2=cs2.value;cs2.innerHTML=coaches.map(function(c){return '<option value="'+c.name+'"'+(c.name===cur2?' selected':'')+'>'+c.name+'</option>';}).join('');}
+}
+function loadEditStu(){
+  var id=parseInt(document.getElementById('edit-stu-sel').value);
+  var s=students.find(function(st){return String(st.id)===String(id);});
+  var form=document.getElementById('edit-stu-form');
+  if(!s){form.style.display='none';return;}
+  populateEditCoach();
+  document.getElementById('edit-stu-name').value=s.name;
+  document.getElementById('edit-stu-coach').value=s.coach;
+  var shianTypeRow=document.getElementById('edit-shian-type-row');
+  if(shianTypeRow){
+    var isShian=s.coach==='shian教練';
+    shianTypeRow.style.display=isShian?'block':'none';
+    if(isShian){var st2=s.shianType||'self';document.getElementById('shian-type-self').classList.toggle('active',st2==='self');document.getElementById('shian-type-company').classList.toggle('active',st2==='company');}
   }
-  if (!c || !c.installments[instIdx]) { toast('找不到合約'); return; }
-  var ins = c.installments[instIdx];
-  var pdEl = document.getElementById('pd-'+stuId+'-'+contractId+'-'+instIdx);
-  var paidDate = pdEl ? pdEl.value : today();
-  var method = ins.method || '確認收款';
-  ins.paid = true;
-  ins.paidDate = paidDate;
-  ins.method = method;
-  logAction('標記付款',s.name,s.coach,'第 '+ins.seq+' 期，NT$'+ins.amount.toLocaleString()+'，收款日 '+paidDate);
-  fbSaveSingleStudent(s);
-  try{save('gym_students',students);}catch(e){}
-  renderPayment();
-  toast('✓ 已標記收款：NT$'+ins.amount.toLocaleString());
+  document.getElementById('edit-total-sessions').value=s.totalSessions;
+  document.getElementById('edit-used-sessions').value=s.usedSessions;
+  updateEditRemain();
+  renderEditContracts(s);
+  renderEditCheckinHistory(s);
+  form.style.display='block';
 }
-
-function togglePay(stuId, contractId, instIdx, paid) {
-  var s = students.find(function(st){ return String(st.id)===String(stuId); });
-  if (!s) { toast('找不到學員'); return; }
-  var c = null;
-  for (var i=0;i<(s.contracts||[]).length;i++){
-    if (String(s.contracts[i].id)===String(contractId)){ c=s.contracts[i]; break; }
-  }
-  if (!c || !c.installments[instIdx]) { toast('找不到合約'); return; }
-  var ins = c.installments[instIdx];
-  if (!paid) {
-    if (!confirm('確定要取消這筆收款嗎？')) return;
-    ins.paid = false; ins.paidDate = null; ins.method = null;
-    logAction('取消付款',s.name,s.coach,'第 '+ins.seq+' 期，NT$'+ins.amount.toLocaleString());
-  } else {
-    ins.paid = true; ins.paidDate = today();
-    logAction('標記付款',s.name,s.coach,'第 '+ins.seq+' 期，NT$'+ins.amount.toLocaleString());
-  }
-  fbSaveSingleStudent(s);
-  try{save('gym_students',students);}catch(e){}
-  renderPayment();
-  toast(paid ? '✓ 已標記收款' : '已取消收款');
+function updateEditRemain(){
+  var total=parseInt(document.getElementById('edit-total-sessions').value)||0;
+  var used=parseInt(document.getElementById('edit-used-sessions').value)||0;
+  var el=document.getElementById('edit-remain-display');
+  if(el){el.textContent=(total-used)+' 堂';el.style.background=total-used<=2?'var(--red)':'var(--green)';}
+  var warn=document.getElementById('edit-over-warn');
+  if(warn)warn.style.display=used>total?'block':'none';
 }
-
-function clearRfDates(){
-  var f=document.getElementById('rf-date-from');
-  var t=document.getElementById('rf-date-to');
-  if(f)f.value='';if(t)t.value='';
-  renderReport();
+function setShianType(type,btn){
+  var id=parseInt(document.getElementById('edit-stu-sel').value);
+  var s=students.find(function(st){return String(st.id)===String(id);});
+  if(!s)return;
+  s.shianType=type;
+  document.getElementById('shian-type-self').classList.toggle('active',type==='self');
+  document.getElementById('shian-type-company').classList.toggle('active',type==='company');
 }
-function renderReport(){
-  const fc=document.getElementById('rf-coach').value;
-  const fs=document.getElementById('rf-stu').value;
-  const csel=document.getElementById('rf-coach');const cc=csel.value;
-  csel.innerHTML='<option value="">全部教練</option>'+coaches.map(function(c){return '<option value="'+c.name+'"'+(c.name===cc?' selected':'')+'>'+c.name+'</option>'}).join('');
-  const ssel=document.getElementById('rf-stu');const cs=ssel.value;
-  ssel.innerHTML='<option value="">全部學員</option>'+Array.from(new Set(records.map(function(r){return r.student;}))).map(function(n){return '<option value="'+n+'"'+(n===cs?' selected':'')+'>'+n+'</option>';}).join('');
-  var fpt2=document.getElementById('rf-plan-type')?document.getElementById('rf-plan-type').value:'';
-  var dateFrom=document.getElementById('rf-date-from')?document.getElementById('rf-date-from').value:'';
-  var dateTo=document.getElementById('rf-date-to')?document.getElementById('rf-date-to').value:'';
-  let filtered=records.filter(r=>(!fc||r.coach===fc)&&(!fs||r.student===fs));
-  if(dateFrom)filtered=filtered.filter(function(r){return r.date>=dateFrom;});
-  if(dateTo)filtered=filtered.filter(function(r){return r.date<=dateTo;});
-  if(fpt2){filtered=filtered.filter(function(r){var s=students.find(function(st){return st.name===r.student;});return s&&(s.contracts||[]).some(function(c){return c.planLabel&&c.planLabel.indexOf(fpt2)!==-1;});});}
-  // 業績 = 日期區間內確認付款金額（預設為當月1日至今日）
-  var revFrom=dateFrom||(today().slice(0,7)+'-01');
-  var revTo=dateTo||today();
-  var revenue=students.reduce(function(sum,s){
-    if(fc&&s.coach!==fc)return sum;
-    if(fs&&s.name!==fs)return sum;
-    if(fpt2&&!(s.contracts||[]).some(function(c){return c.planLabel&&c.planLabel.indexOf(fpt2)!==-1;}))return sum;
-    return sum+(s.contracts||[]).reduce(function(cs,c){
-      return cs+c.installments.filter(function(i){return i.paid&&i.paidDate&&i.paidDate>=revFrom&&i.paidDate<=revTo;}).reduce(function(is,i){return is+i.amount;},0);
-    },0);
-  },0);
-  document.getElementById('rpt-metrics').innerHTML='<div class="metric"><div class="m-label">總簽到</div><div class="m-value">'+filtered.length+'</div><div class="m-sub">堂次</div></div><div class="metric"><div class="m-label">業績（確認收款 '+revFrom.slice(5)+'~'+revTo.slice(5)+'）</div><div class="m-value">$'+revenue.toLocaleString()+'</div><div class="m-sub">元</div></div><div class="metric"><div class="m-label">活躍學員</div><div class="m-value">'+new Set(filtered.map(function(r){return r.student;})).size+'</div><div class="m-sub">位</div></div>';
-  document.getElementById('rpt-tbody').innerHTML=filtered.map(r=>{
-    const s=students.find(st=>st.name===r.student);
-    const ps=s?getPayStatus(s):'unpaid';
-    var lastInst=s?(s.contracts||[]).reduce(function(a,c){return a.concat(c.installments||[]);},[]).filter(function(i){return i.paid&&i.method;}):[];
-    var lastM=lastInst.length?lastInst[lastInst.length-1].method:null;
-    return '<tr><td>'+r.date.slice(5)+'</td><td>'+r.time+'</td><td style="cursor:pointer;color:var(--blue)" onclick=\"jumpToEditStudent('+jsq(r.student)+','+jsq(r.coach)+')\">'+r.student+'</td><td>'+r.coach+'</td><td style="text-align:center;font-weight:600">'+r.remainAfter+'</td><td>'+payBadge(ps)+'</td><td>'+methodBadge(lastM)+'</td><td style="text-align:center">✍️</td></tr>';
-  }).join('');
-}
-function exportCSV(){
-  var fc=document.getElementById('rf-coach').value;
-  var fs=document.getElementById('rf-stu').value;
-  var filtered=records.filter(function(r){return (!fc||r.coach===fc)&&(!fs||r.student===fs);});
-  var rows=[['日期','時間','學員','教練','扣後餘堂','付款狀態','付款方式']];
-  filtered.forEach(function(r){
-    var s=students.find(function(st){return st.name===r.student;});
-    var psMap={paid:'已付清',partial:'部分付款',unpaid:'未付款'};
-    var ps=s?psMap[getPayStatus(s)]||'未付款':'未付款';
-    var allInst=s?(s.contracts||[]).reduce(function(acc,c){return acc.concat(c.installments);},[]).filter(function(i){return i.paid&&i.method;}):'';
-    var m=allInst.length?allInst[allInst.length-1].method:'';
-    rows.push([r.date,r.time,r.student,r.coach,r.remainAfter,ps,m]);
+function saveEditStu(){
+  var selEl=document.getElementById('edit-stu-sel');
+  if(!selEl||!selEl.value){toast('請先選擇學員');return;}
+  var selVal=selEl.value;
+  var s=null;
+  for(var i=0;i<students.length;i++){if(String(students[i].id)===String(selVal)){s=students[i];break;}}
+  if(!s){toast('找不到學員，請重新進入編輯頁面');return;}
+  var name=document.getElementById('edit-stu-name').value.trim();
+  var coach=document.getElementById('edit-stu-coach').value;
+  if(!name){toast('學員姓名不能為空');return;}
+  var oldName=s.name;var oldCoach=s.coach;
+  var newTotal=parseInt(document.getElementById('edit-total-sessions').value)||s.totalSessions;
+  var newUsed=parseInt(document.getElementById('edit-used-sessions').value)||s.usedSessions;
+  if(newUsed>newTotal){toast('已上堂數不能超過總購堂數');return;}
+  s.totalSessions=newTotal;s.usedSessions=newUsed;
+  if(coach==='shian教練'){var scEl=document.getElementById('shian-type-company');s.shianType=(scEl&&scEl.classList.contains('active'))?'company':'self';}
+  (s.contracts||[]).forEach(function(c,ci){
+    c.installments.forEach(function(ins,ii){
+      var amtEl=document.getElementById('ec-amt-'+ci+'-'+ii);
+      var dueEl=document.getElementById('ec-due-'+ci+'-'+ii);
+      if(amtEl)ins.amount=parseInt(amtEl.value)||ins.amount;
+      if(dueEl&&!ins.paid)ins.dueDate=dueEl.value||ins.dueDate;
+    });
   });
-  var csv='﻿'+rows.map(function(r){return r.map(function(v){return '"'+String(v).replace(/"/g,'""')+'"';}).join(',');}).join('\n');
-  var a=document.createElement('a');
-  a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));
-  a.download='簽到報表_'+today()+'.csv';a.click();toast('✓ CSV 已下載');
+  if(oldName!==name){records.forEach(function(r){if(r.student===oldName)r.student=name;});fbSaveRecords();}
+  s.name=name;s.coach=coach;
+  logAction('編輯學員',name,coach,'姓名：'+oldName+'→'+name+'，教練：'+oldCoach+'→'+coach+'，堂數：總'+s.totalSessions+'/已上'+s.usedSessions+'/剩'+(s.totalSessions-s.usedSessions));
+  fbSaveSingleStudent(s);
+  try{save('gym_students',students);save('gym_records',records);}catch(e){}
+  toast('✓ 學員資料已更新：'+name);
+  filterEditStudents();
+  document.getElementById('edit-stu-form').style.display='none';
+}
+function deleteStu(){
+  var selVal=document.getElementById('edit-stu-sel').value;
+  var s=students.find(function(st){return String(st.id)===String(selVal);});if(!s)return;
+  var id=s.id;
+  if(!confirm('確定要刪除「'+s.name+'」的所有資料嗎？此操作無法還原'))return;
+  logAction('刪除學員',s.name,s.coach,'共 '+s.totalSessions+' 堂，已上 '+s.usedSessions+' 堂');
+  students=students.filter(function(st){return String(st.id)!==String(id);});
+  fbdb.ref('data/students').set(students,function(err){if(err)console.error('Delete error:',err);});
+  try{save('gym_students',students);}catch(e){}
+  toast('已刪除：'+s.name);
+  filterEditStudents();document.getElementById('edit-stu-form').style.display='none';
+}
+function applyPeriodChange(stuId,ci){
+  var s=students.find(function(st){return String(st.id)===String(stuId);});
+  if(!s)return;
+  var c=s.contracts[ci];if(!c)return;
+  var newPeriods=parseInt(document.getElementById('ec-periods-'+ci).value);
+  if(!newPeriods||newPeriods<1||newPeriods>8)return;
+  var paidInst=c.installments.filter(function(i){return i.paid;});
+  var paidTotal=paidInst.reduce(function(s2,i){return s2+i.amount;},0);
+  var grandTotal=c.installments.reduce(function(s2,i){return s2+i.amount;},0);
+  var remainingTotal=grandTotal-paidTotal;
+  var newUnpaidCount=newPeriods-paidInst.length;
+  if(newUnpaidCount<1){toast('期數不可少於已付款期數');return;}
+  var amt=Math.floor(remainingTotal/newUnpaidCount);
+  var rem=remainingTotal-amt*(newUnpaidCount-1);
+  var baseDate=paidInst.length?paidInst[paidInst.length-1].dueDate:today();
+  var newUnpaid=[];
+  for(var i2=0;i2<newUnpaidCount;i2++){
+    var d=new Date(baseDate);d.setMonth(d.getMonth()+i2+1);
+    newUnpaid.push({seq:paidInst.length+i2+1,amount:i2===newUnpaidCount-1?rem:amt,dueDate:d.toISOString().slice(0,10),paid:false,paidDate:null,method:null});
+  }
+  c.installments=paidInst.concat(newUnpaid);c.periods=newPeriods;
+  logAction('調整分期',s.name,s.coach,(c.planLabel||c.sessions+'堂合約')+' 改為分 '+newPeriods+' 期');
+  fbSaveSingleStudent(s);try{save('gym_students',students);}catch(e){}
+  renderEditContracts(s);toast('✓ 已調整為分 '+newPeriods+' 期');
+}
+function editConfirmPay(stuId,ci,ii){
+  var s=students.find(function(st){return String(st.id)===String(stuId);});
+  if(!s||!s.contracts[ci]||!s.contracts[ci].installments[ii])return;
+  var ins=s.contracts[ci].installments[ii];
+  var paidDate=gv('ec-paiddate-'+ci+'-'+ii)||today();
+  ins.paid=true;ins.paidDate=paidDate;ins.method=ins.method||'確認收款';
+  logAction('標記付款',s.name,s.coach,'第 '+ins.seq+' 期，NT$'+ins.amount.toLocaleString()+'，收款日 '+paidDate);
+  fbSaveSingleStudent(s);try{save('gym_students',students);}catch(e){}
+  renderEditContracts(s);toast('✓ 已確認收款');
+}
+function editCancelPay(stuId,ci,ii){
+  var s=students.find(function(st){return String(st.id)===String(stuId);});
+  if(!s||!s.contracts[ci]||!s.contracts[ci].installments[ii])return;
+  if(!confirm('確定要取消這筆收款嗎？'))return;
+  var ins=s.contracts[ci].installments[ii];
+  ins.paid=false;ins.paidDate=null;ins.method=null;
+  logAction('取消付款',s.name,s.coach,'第 '+ins.seq+' 期，NT$'+ins.amount.toLocaleString());
+  fbSaveSingleStudent(s);try{save('gym_students',students);}catch(e){}
+  renderEditContracts(s);toast('已取消收款');
+}
+function updateContractTotal(stuId,ci){
+  var total=0;
+  var c=students.find(function(st){return String(st.id)===String(stuId);});
+  if(!c||!c.contracts||!c.contracts[ci])return;
+  c.contracts[ci].installments.forEach(function(ins,ii){
+    var el=document.getElementById('ec-amt-'+ci+'-'+ii);
+    if(el)total+=parseInt(el.value)||0;
+  });
+  var el2=document.getElementById('ec-total-'+ci);
+  if(el2)el2.textContent='NT$'+total.toLocaleString();
+}
+function renderEditCheckinHistory(s){
+  var el=document.getElementById('edit-checkin-history');if(!el)return;
+  el.innerHTML='<div style="font-size:13px;color:var(--text3);padding:6px 0">載入中...</div>';
+  var recs=records.filter(function(r){return r.student===s.name;}).sort(function(a,b){return (a.date+a.time)<(b.date+b.time)?1:-1;}).slice(0,10);
+  fbdb.ref('data/signatures/'+String(s.id)).once('value',function(snap){
+    var sigs=snap.val()||[];if(!Array.isArray(sigs))sigs=Object.values(sigs);
+    var sigMap={};sigs.forEach(function(sg){sigMap[sg.date+'_'+sg.time]=sg.sig;});
+    if(!recs.length){el.innerHTML='<div style="font-size:13px;color:var(--text3);padding:6px 0">尚無簽到紀錄</div>';return;}
+    var h='<div style="display:flex;flex-direction:column;gap:6px">';
+    recs.forEach(function(r){
+      var sig=sigMap[r.date+'_'+r.time];
+      h+='<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 10px;background:var(--bg2);border-radius:8px">';
+      h+='<div style="font-size:13px"><span style="font-weight:600">'+r.date+'</span> <span style="color:var(--text2)">'+r.time+'</span> <span style="color:var(--text2);margin-left:6px">剩 '+r.remainAfter+' 堂</span></div>';
+      h+=sig?'<img src="'+sig+'" style="height:36px;border-radius:4px;border:1px solid var(--border2);background:#fff">':'<span style="font-size:11px;color:var(--text3)">無簽名</span>';
+      h+='</div>';
+    });
+    h+='</div>';el.innerHTML=h;
+  },function(){el.innerHTML='<div style="font-size:13px;color:var(--text3)">無法載入簽名</div>';});
 }
 
-// ── 設定 ──
-function changePassword(){
-  const old=document.getElementById('pw-old').value;
-  const nw=document.getElementById('pw-new').value;
-  const conf=document.getElementById('pw-confirm').value;
-  const msg=document.getElementById('pw-msg');
-  if(old!==_adminPw){msg.textContent='❌ 目前密碼錯誤';msg.style.color='var(--red-text)';msg.style.display='block';return;}
-  if(!nw){msg.textContent='❌ 新密碼不能為空';msg.style.color='var(--red-text)';msg.style.display='block';return;}
-  if(nw!==conf){msg.textContent='❌ 兩次輸入的密碼不一致';msg.style.color='var(--red-text)';msg.style.display='block';return;}
-  _adminPw=nw;
-  fbdb.ref('data/admin_pw').set(nw);
-  msg.textContent='✓ 密碼已更新';msg.style.color='var(--green-text)';msg.style.display='block';
-  document.getElementById('pw-old').value='';document.getElementById('pw-new').value='';document.getElementById('pw-confirm').value='';
-  setTimeout(()=>msg.style.display='none',3000);
-}
-function exportBackup(){
-  const data={coaches,students,records,exportedAt:new Date().toISOString()};
-  const a=document.createElement('a');
-  a.href=URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:'application/json'}));
-  a.download='場館備份_'+today()+'.json';a.click();toast('✓ 備份已下載');
-}
-function importBackup(input){
-  const file=input.files[0];if(!file)return;
-  const reader=new FileReader();
-  reader.onload=e=>{
-    try{
-      const data=JSON.parse(e.target.result);
-      if(!data.coaches||!data.students||!data.records){toast('❌ 備份格式錯誤');return;}
-      if(!confirm('確定要匯入此備份？現有資料將被覆蓋'))return;
-      save('gym_coaches',data.coaches);save('gym_students',data.students);save('gym_records',data.records);
-      reloadData();toast('✓ 備份匯入成功');
-    }catch(e){toast('❌ 備份格式錯誤');}
-  };
-  reader.readAsText(file);
-  input.value='';
-}
-function clearAllData(){
-  if(!confirm('確定要清除所有學員、教練與簽到資料嗎？\n此操作無法還原！'))return;
-  if(!confirm('再次確認：清除後資料無法還原，請確定已備份'))return;
-  localStorage.removeItem('gym_coaches');localStorage.removeItem('gym_students');localStorage.removeItem('gym_records');
-  reloadData();toast('已清除全部資料');
+function renderEditContracts(s){
+  var contracts=s.contracts||[];
+  var el=document.getElementById('edit-contracts-list');
+  if(!el)return;
+  if(!contracts.length){el.innerHTML='<div style="font-size:13px;color:var(--text3);padding:6px 0">尚無付款合約</div>';return;}
+  var t=today();
+  var h2='';
+  for(var ci=0;ci<contracts.length;ci++){
+    var c=contracts[ci];
+    var totalAmt=c.installments.reduce(function(sum,i){return sum+i.amount;},0);
+    var paidAmt=c.installments.filter(function(i){return i.paid;}).reduce(function(sum,i){return sum+i.amount;},0);
+    var unpaidCount=c.installments.filter(function(i){return !i.paid;}).length;
+    h2+='<div style="margin-bottom:16px;padding-bottom:16px;border-bottom:1px solid var(--border)">';
+    h2+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;flex-wrap:wrap;gap:8px">';
+    h2+='<span style="font-size:13px;font-weight:600">'+(c.planLabel||c.sessions+'堂合約')+'・分 '+c.periods+' 期</span>';
+    h2+='<span style="font-size:13px;color:var(--text2)">已付 NT$'+paidAmt.toLocaleString()+' ／ 總計 <span id="ec-total-'+ci+'" style="font-weight:700;color:var(--text)">NT$'+totalAmt.toLocaleString()+'</span></span>';
+    h2+='</div>';
+    if(unpaidCount>0){
+      h2+='<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;padding:10px;background:var(--bg2);border-radius:8px;flex-wrap:wrap">';
+      h2+='<label style="font-size:12px;color:var(--text2);white-space:nowrap">調整總期數（最多8期）：</label>';
+      h2+='<select id="ec-periods-'+ci+'" style="font-size:13px;padding:5px 10px;border-radius:6px;border:1px solid var(--border2);background:var(--bg);color:var(--text)">';
+      for(var pn=1;pn<=8;pn++){h2+='<option value="'+pn+'"'+(pn===c.periods?' selected':'')+'>'+pn+' 期</option>';}
+      h2+='</select>';
+      h2+='<button onclick="applyPeriodChange('+s.id+','+ci+')" style="padding:5px 12px;border-radius:6px;background:var(--blue);color:#fff;border:none;font-size:12px;font-weight:600;cursor:pointer">套用</button>';
+      h2+='</div>';
+    }
+    for(var ii=0;ii<c.installments.length;ii++){
+      var ins=c.installments[ii];
+      var overdue=!ins.paid&&ins.dueDate<t;
+      var statusBadge=ins.paid?'<span class="badge badge-green">✓ 已付款</span>':overdue?'<span class="badge badge-red">⚠️ 逾期</span>':'<span class="badge badge-amber">待付款</span>';
+      var bg=ins.paid?'var(--green-bg)':overdue?'var(--red-bg)':'var(--bg2)';
+      var border=ins.paid?'var(--green)':overdue?'var(--red)':'var(--border2)';
+      h2+='<div style="background:'+bg+';border-radius:10px;padding:12px 14px;margin-bottom:8px;border:1px solid '+border+'">';
+      h2+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">';
+      h2+='<span style="font-weight:600">第 '+ins.seq+' 期</span>';
+      h2+='<div style="display:flex;align-items:center;gap:8px">'+statusBadge;
+      if(ins.paid){h2+=' <button onclick="editCancelPay('+s.id+','+ci+','+ii+')" style="font-size:11px;padding:3px 8px;border-radius:6px;border:1px solid var(--border2);background:var(--bg);color:var(--text2);cursor:pointer">取消</button>';}
+      h2+='</div></div>';
+      h2+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:'+(ins.paid?'4':'10')+'px">';
+      h2+='<div><label style="font-size:12px;color:var(--text2);display:block;margin-bottom:3px">金額（元）</label>';
+      h2+='<input type="number" id="ec-amt-'+ci+'-'+ii+'" value="'+ins.amount+'" min="0" class="date-input" style="width:100%" oninput="updateContractTotal('+s.id+','+ci+')"></div>';
+      h2+='<div><label style="font-size:12px;color:var(--text2);display:block;margin-bottom:3px">預定付款日</label>';
+      h2+='<input type="date" id="ec-due-'+ci+'-'+ii+'" value="'+ins.dueDate+'" class="date-input" style="width:100%"'+(ins.paid?' disabled':'')+'/></div></div>';
+      if(!ins.paid){
+        h2+='<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">';
+        h2+='<label style="font-size:12px;color:var(--text2);white-space:nowrap">教練確認收款日：</label>';
+        h2+='<input type="date" id="ec-paiddate-'+ci+'-'+ii+'" value="'+today()+'" style="font-size:13px;padding:5px 8px;border-radius:6px;border:1px solid var(--border2);background:var(--bg);color:var(--text)">';
+        h2+='<button onclick="editConfirmPay('+s.id+','+ci+','+ii+')" style="padding:6px 14px;border-radius:8px;background:var(--green);color:#fff;border:none;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap">✓ 確認已付款</button>';
+        h2+='</div>';
+      }
+      if(ins.paid){h2+='<div style="font-size:12px;color:var(--green-text);margin-top:2px">實際收款日：'+(ins.paidDate||'—')+'</div>';}
+      h2+='</div>';
+    }
+    h2+='</div>';
+  }
+  el.innerHTML=h2;
 }
 
+// ══ Init ══
 reloadData();
+
 </script>
 </body>
 </html>
