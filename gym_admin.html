@@ -70,7 +70,7 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'PingFang TC'
   .main{margin-left:0;padding:12px;padding-top:60px}
   .mobile-menu-btn{display:flex}
 }
-.mobile-menu-btn{display:none;position:fixed;top:0;left:0;right:0;z-index:99;background:var(--bg);border-bottom:1px solid var(--border);padding:12px 16px;align-items:center;justify-content:space-between}
+.mobile-menu-btn{display:none;position:fixed;top:0;left:0;right:0;height:50px;z-index:99;background:var(--bg);border-bottom:1px solid var(--border);padding:12px 16px;align-items:center;justify-content:space-between;overflow:hidden}
 .mobile-menu-btn .title{font-size:15px;font-weight:700;color:var(--text)}
 .mobile-menu-btn button{background:none;border:none;font-size:22px;cursor:pointer;color:var(--text);padding:4px 8px}
 .page{display:none}.page.active{display:block}
@@ -192,7 +192,7 @@ tr:hover td{background:var(--bg2)}
     <div class="sb-footer">
       <a class="client-link" href="gym_checkin_client.html" target="_blank">→ 開啟簽到頁面</a>
       <button class="logout-btn" onclick="doLogout()">登出</button>
-      <div style="text-align:center;font-size:11px;color:var(--text3);padding:6px 0 2px;letter-spacing:.05em">v250708z</div>
+      <div id="version-label" style="text-align:center;font-size:11px;color:var(--text3);padding:6px 0 2px;letter-spacing:.05em;cursor:default" onclick="versionClick()">v250715e</div>
     </div>
   </div>
 
@@ -758,6 +758,19 @@ tr:hover td{background:var(--bg2)}
         <div class="card">
           <div class="card-title">本月已付款業績明細</div>
           <div id="salary-revenue-list"></div>
+        </div>
+
+        <!-- Debug 面板（連點版本號三下顯示）-->
+        <div id="salary-debug-panel" style="display:none">
+          <div class="card" style="border:2px solid #ff6b35;background:rgba(255,107,53,0.05)">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+              <div class="card-title" style="color:#ff6b35;margin:0">🐛 Debug 面板</div>
+              <button onclick="document.getElementById('salary-debug-panel').style.display='none'"
+                style="padding:4px 10px;border-radius:6px;border:1px solid #ff6b35;background:transparent;color:#ff6b35;cursor:pointer;font-size:12px">關閉</button>
+            </div>
+            <div id="debug-content" style="font-family:monospace;font-size:12px;line-height:1.8"></div>
+            <button onclick="refreshDebug()" style="margin-top:10px;padding:6px 14px;border-radius:6px;background:#ff6b35;color:#fff;border:none;cursor:pointer;font-size:12px">🔄 重新整理</button>
+          </div>
         </div>
       </div>
 
@@ -2255,6 +2268,56 @@ function exportAdminExcel(){
 
 
 // ══ 總覽 ══
+
+// ── Debug 機制 ──
+var _versionClickCount = 0;
+var _versionClickTimer = null;
+
+function versionClick(){
+  _versionClickCount++;
+  clearTimeout(_versionClickTimer);
+  _versionClickTimer = setTimeout(function(){ _versionClickCount = 0; }, 1000);
+  if(_versionClickCount >= 3){
+    _versionClickCount = 0;
+    var panel = document.getElementById('salary-debug-panel');
+    if(panel){
+      panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+      if(panel.style.display === 'block') refreshDebug();
+    }
+  }
+}
+
+function refreshDebug(){
+  var el = document.getElementById('debug-content');
+  if(!el) return;
+  var lines = [];
+  lines.push('<b style="color:#ff6b35">─── 薪資頁狀態 ───</b>');
+  lines.push('_salaryCoach: <span style="color:#4da3f5">' + JSON.stringify(_salaryCoach) + '</span>');
+  lines.push('_salaryAdmin: <span style="color:#4da3f5">' + JSON.stringify(_salaryAdmin) + '</span>');
+  var monthEl = document.getElementById('salary-month');
+  lines.push('salary-month: <span style="color:#4da3f5">' + (monthEl ? monthEl.value : 'NOT FOUND') + '</span>');
+  var storeEl = document.getElementById('store-revenue');
+  lines.push('store-revenue.value: <span style="color:#4da3f5">' + (storeEl ? storeEl.value : 'NOT FOUND') + '</span>');
+  var gbEl = document.getElementById('group-bonus');
+  lines.push('group-bonus.value: <span style="color:#4da3f5">' + (gbEl ? gbEl.value : 'NOT FOUND') + '</span>');
+  var trialEl = document.getElementById('trial-display');
+  lines.push('trial-display: <span style="color:#4da3f5">' + (trialEl ? trialEl.textContent : 'NOT FOUND') + '</span>');
+  lines.push('');
+  lines.push('<b style="color:#ff6b35">─── _savedCoachResult ───</b>');
+  if(window._savedCoachResult){
+    var cr = window._savedCoachResult;
+    Object.keys(cr).forEach(function(k){
+      lines.push(k + ': <span style="color:#66bb6a">' + JSON.stringify(cr[k]) + '</span>');
+    });
+  } else {
+    lines.push('<span style="color:#ef5350">null（尚未從 Firebase 載入）</span>');
+  }
+  lines.push('');
+  lines.push('<b style="color:#ff6b35">─── _savedTrialSessions ───</b>');
+  lines.push('<span style="color:#66bb6a">' + JSON.stringify(window._savedTrialSessions||{}) + '</span>');
+  el.innerHTML = lines.join('<br>');
+}
+
 function renderDashboard(){
   var t=today();
   document.getElementById('dash-date').textContent=new Date().toLocaleDateString('zh-TW',{year:'numeric',month:'long',day:'numeric',weekday:'long'});
@@ -2289,11 +2352,37 @@ function renderTodayRecords(){
   var t=today();
   var fc=document.getElementById('dash-coach-filter')?document.getElementById('dash-coach-filter').value:'';
   var todayRec=records.filter(function(r){return r.date===t&&(!fc||r.coach===fc);});
-  todayRec.sort(function(a,b){return (a.time||'')>(b.time||'')?-1:1;});
-  var el=document.getElementById('dash-today-list');
+  var el=document.getElementById('dash-today');
   if(!el)return;
   if(!todayRec.length){el.innerHTML='<div style="font-size:13px;color:var(--text3);padding:8px 0">今日尚無簽到</div>';return;}
-  el.innerHTML=todayRec.map(function(r){return '<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px"><div><span style="font-weight:600">'+r.student+'</span> <span style="color:var(--text2);font-size:12px">・'+r.coach+'</span></div><span style="color:var(--text2)">'+r.time+'</span></div>';}).join('');
+  // 依教練分類
+  var byCoach={};
+  coaches.forEach(function(c){byCoach[c.name]=[];});
+  todayRec.forEach(function(r){
+    if(!byCoach[r.coach])byCoach[r.coach]=[];
+    byCoach[r.coach].push(r);
+  });
+  var html='';
+  Object.keys(byCoach).forEach(function(coachName){
+    var recs=byCoach[coachName];
+    if(!recs.length)return;
+    recs.sort(function(a,b){return (a.time||'')>(b.time||'')?-1:1;});
+    var col=coachColor(coachName);
+    html+='<div style="margin-bottom:12px">';
+    html+='<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">';
+    html+='<div style="width:8px;height:8px;border-radius:50%;background:'+col.fg+'"></div>';
+    html+='<span style="font-size:12px;font-weight:700;color:'+col.fg+'">'+coachName+'</span>';
+    html+='<span style="font-size:12px;color:var(--text3)">'+recs.length+' 堂</span>';
+    html+='</div>';
+    recs.forEach(function(r){
+      html+='<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);font-size:13px;padding-left:16px">';
+      html+='<span style="font-weight:600">'+r.student+'</span>';
+      html+='<span style="color:var(--text2)">'+r.time+'</span>';
+      html+='</div>';
+    });
+    html+='</div>';
+  });
+  el.innerHTML=html;
 }
 function initHistFilter(){
   var csel=document.getElementById('hist-coach');
@@ -2470,7 +2559,7 @@ function renderCoachList(){
   var totalC=records.length;
   var totalR=students.reduce(function(s2,s){return s2+(s.contracts||[]).reduce(function(cs,c){return cs+c.installments.filter(function(i){return i.paid;}).reduce(function(is,i){return is+i.amount;},0);},0);},0);
   if(co)co.innerHTML='<div class="metric"><div class="m-label">全場堂數</div><div class="m-value">'+totalC+'</div><div class="m-sub">堂</div></div><div class="metric"><div class="m-label">全場業績</div><div class="m-value">$'+totalR.toLocaleString()+'</div><div class="m-sub">元</div></div><div class="metric"><div class="m-label">在籍學員</div><div class="m-value">'+students.length+'</div><div class="m-sub">位</div></div>';
-  var list=document.getElementById('coach-list');
+  var list=document.getElementById('co-cards');
   if(!list)return;
   var maxC=Math.max.apply(null,coaches.map(function(c){return records.filter(function(r){return r.coach===c.name;}).length;}).concat([1]));
   var maxR=Math.max.apply(null,coaches.map(function(c){return records.filter(function(r){return r.coach===c.name;}).reduce(function(s2,r){var st=students.find(function(st){return st.name===r.student;});return s2+(st?st.pricePerSession:0);},0);}).concat([1]));
@@ -2799,6 +2888,58 @@ function renderEditContracts(s){
     h2+='</div>';
   }
   el.innerHTML=h2;
+}
+
+
+function stuTab(tab,btn){
+  document.querySelectorAll('#page-students .tab').forEach(b=>b.classList.remove('active'));btn.classList.add('active');
+  ['list','add','topup','edit'].forEach(t=>document.getElementById('sp-'+t).style.display=t===tab?'block':'none');
+  if(tab==='list')renderStuList();
+  if(tab==='add')populateAddCoach();
+  if(tab==='topup'){populateTuSelect();}
+  if(tab==='edit'){filterEditStudents();populateEditCoach();}
+}
+function populateAddCoach(){
+  var el=document.getElementById('add-coach');
+  if(el) el.innerHTML=coaches.map(function(c){return '<option value="'+c.name+'">'+c.name+'</option>';}).join('');
+}
+function populateTuSelect(){
+  var tuCoach=document.getElementById('tu-coach-filter');
+  if(tuCoach){
+    var cur=tuCoach.value;
+    tuCoach.innerHTML='<option value="">— 請選擇教練 —</option>'+
+      coaches.map(function(c){return '<option value="'+c.name+'"'+(c.name===cur?' selected':'')+'>'+c.name+'</option>';}).join('');
+  }
+  document.getElementById('tu-stu-card').style.display='none';
+}
+function filterTuStudents(){
+  var coachName=document.getElementById('tu-coach-filter').value;
+  var card=document.getElementById('tu-stu-card');
+  if(!coachName){card.style.display='none';return;}
+  var list=students.filter(function(s){return s.coach===coachName;});
+  document.getElementById('tu-stu').innerHTML=
+    '<option value="">— 請選擇學員 —</option>'+
+    list.map(function(s){return '<option value="'+s.id+'">'+s.name+'</option>';}).join('');
+  card.style.display='block';
+  tuStuChanged();
+}
+function tuStuChanged(){
+  var id=parseInt(document.getElementById('tu-stu').value);
+  var s=students.find(function(st){return String(st.id)===String(id);});
+  if(!s)return;
+  var r=s.totalSessions-s.usedSessions;
+  document.getElementById('tu-cur').textContent='目前剩餘 '+r+' 堂・'+s.coach;
+}
+
+
+
+function coachTab(tab,btn){
+  document.querySelectorAll('#page-coaches-mgmt .tab').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('cp-list').style.display=tab==='list'?'block':'none';
+  document.getElementById('cp-add').style.display=tab==='add'?'block':'none';
+  if(tab==='list')renderCoachList();
+  if(tab==='add')renderCoachEditList();
 }
 
 // ══ Init ══
