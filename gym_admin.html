@@ -2933,6 +2933,184 @@ function tuStuChanged(){
 
 
 
+// ── 方案資料 ──
+var PLANS={
+  'single-1': {label:'單堂課程',      sessions:1,  price:1800,  type:'1v1'},
+  'n1v1-10':  {label:'1v1・10堂',    sessions:10, price:16999, type:'1v1'},
+  'n1v1-20':  {label:'1v1・20堂',    sessions:20, price:31999, type:'1v1'},
+  'n1v2-10':  {label:'1v2・10堂',    sessions:10, price:24000, type:'1v2'},
+  'n1v2-20':  {label:'1v2・20堂',    sessions:20, price:43000, type:'1v2'},
+  'n1v1-30':  {label:'1v1・30堂',    sessions:30, price:39000, type:'1v1'},
+  'n1v2-30':  {label:'1v2・30堂',    sessions:30, price:54000, type:'1v2'},
+  's1v1-20':  {label:'長青1v1・20堂', sessions:20, price:28000, type:'1v1'},
+  's1v2-20':  {label:'長青1v2・20堂', sessions:20, price:39000, type:'1v2'}
+};
+var _addPlan=null,_tuPlan=null,_addDiscountOn=false,_tuDiscountOn=false;
+
+// ── 新增學員：方案選擇 ──
+function selectAddPlan(planId,btn){
+  _addPlan=planId;
+  document.querySelectorAll('#sp-add .plan-btn').forEach(function(b){b.classList.remove('active');});
+  btn.classList.add('active');
+  var p=PLANS[planId];if(!p)return;
+  document.getElementById('add-plan-summary').style.display='block';
+  document.getElementById('add-plan-name').textContent=p.label;
+  document.getElementById('add-plan-price-display').textContent='NT$'+p.price.toLocaleString();
+  document.getElementById('add-plan-sessions-display').textContent=p.sessions+' 堂・單價 NT$'+Math.round(p.price/p.sessions).toLocaleString();
+  renderAddDetail();
+}
+function selectAddPeriod(n,btn){
+  addPeriods=n;
+  document.querySelectorAll('#add-period-pills .pill').forEach(function(b){b.classList.remove('active');});
+  btn.classList.add('active');
+  renderAddDetail();
+}
+function toggleAddDiscount(){
+  _addDiscountOn=!_addDiscountOn;
+  var chk=document.getElementById('add-discount-check');
+  var row=document.getElementById('add-discount-row');
+  if(_addDiscountOn){
+    chk.innerHTML='✓';chk.style.background='var(--blue)';chk.style.borderColor='var(--blue)';chk.style.color='#fff';
+    row.style.display='block';
+  }else{
+    chk.innerHTML='';chk.style.background='var(--bg)';chk.style.borderColor='var(--border2)';chk.style.color='';
+    row.style.display='none';document.getElementById('add-discount-price').value='';
+  }
+  renderAddDetail();
+}
+function renderAddDetail(){
+  if(!_addPlan)return;
+  var p=PLANS[_addPlan];if(!p)return;
+  var price=p.price;
+  if(_addDiscountOn){var d=parseInt(document.getElementById('add-discount-price').value);if(d>0)price=d;}
+  document.getElementById('add-detail').innerHTML=installHTML(price,addPeriods,'add');
+}
+function updateGiftPreview(prefix){
+  var val=parseInt(document.getElementById(prefix+'-gift-sessions').value);
+  var el=document.getElementById(prefix+'-gift-preview');if(!el)return;
+  if(!val||val<=0){el.style.display='none';return;}
+  el.style.display='block';
+  el.textContent='✓ 將在原方案堂數之外，額外贈送 '+val+' 堂';
+}
+function addStudent(){
+  var name=document.getElementById('add-name').value.trim();
+  var coach=document.getElementById('add-coach').value;
+  if(!name){toast('請輸入學員姓名');return;}
+  if(!coach){toast('請選擇教練');return;}
+  if(!_addPlan){toast('請選擇課程方案');return;}
+  var p=PLANS[_addPlan];
+  var price=p.price;
+  if(_addDiscountOn){var d=parseInt(document.getElementById('add-discount-price').value);if(d>0)price=d;}
+  var gift=parseInt(document.getElementById('add-gift-sessions').value)||0;
+  var usedInit=parseInt(document.getElementById('add-used-sessions').value)||0;
+  var totalSessions=p.sessions+gift;
+  if(usedInit>totalSessions){toast('已上堂數不能超過總堂數');return;}
+  var inst=collectInst('add',addPeriods,price);
+  var newId=students.length?Math.max.apply(null,students.map(function(s){return s.id||0;}))+1:1;
+  var contract={
+    planId:_addPlan,planLabel:p.label+(gift?'＋贈'+gift+'堂':''),
+    sessions:p.sessions,giftSessions:gift,price:price,
+    pricePerSession:Math.round(price/p.sessions),periods:addPeriods,
+    date:today(),installments:inst
+  };
+  var stu={id:newId,name:name,coach:coach,totalSessions:totalSessions,usedSessions:usedInit,contracts:[contract]};
+  if(coach==='shian教練')stu.shianType='self';
+  students.push(stu);
+  logAction('新增學員',name,coach,p.label+'・'+totalSessions+'堂・NT$'+price.toLocaleString()+(addPeriods>1?'・'+addPeriods+'期付':''));
+  fbSaveSingleStudent(stu);
+  try{save('gym_students',students);}catch(e){}
+  toast('✓ 已新增學員：'+name);
+  // 重置表單
+  document.getElementById('add-name').value='';
+  _addPlan=null;_addDiscountOn=false;addPeriods=1;
+  document.querySelectorAll('#sp-add .plan-btn').forEach(function(b){b.classList.remove('active');});
+  document.getElementById('add-plan-summary').style.display='none';
+  var chk=document.getElementById('add-discount-check');
+  chk.innerHTML='';chk.style.background='var(--bg)';chk.style.borderColor='var(--border2)';
+  document.getElementById('add-discount-row').style.display='none';
+  document.querySelectorAll('#add-period-pills .pill').forEach(function(b,i){b.classList.toggle('active',i===0);});
+  document.getElementById('add-detail').innerHTML='';
+  document.getElementById('add-gift-sessions').value='';
+  document.getElementById('add-gift-preview').style.display='none';
+  document.getElementById('add-used-sessions').value='';
+}
+
+// ── 儲值：方案選擇 ──
+function selectPlan(planId,btn){
+  _tuPlan=planId;
+  document.querySelectorAll('#sp-topup .plan-btn').forEach(function(b){b.classList.remove('active');});
+  btn.classList.add('active');
+  var p=PLANS[planId];if(!p)return;
+  document.getElementById('tu-plan-summary').style.display='block';
+  document.getElementById('tu-plan-name').textContent=p.label;
+  document.getElementById('tu-plan-price-display').textContent='NT$'+p.price.toLocaleString();
+  document.getElementById('tu-plan-sessions-display').textContent=p.sessions+' 堂・單價 NT$'+Math.round(p.price/p.sessions).toLocaleString();
+  renderTuDetail();
+}
+function selectTuPeriod(n,btn){
+  tuPeriods=n;
+  document.querySelectorAll('#tu-period-pills .pill').forEach(function(b){b.classList.remove('active');});
+  btn.classList.add('active');
+  renderTuDetail();
+}
+function toggleDiscount(){
+  _tuDiscountOn=!_tuDiscountOn;
+  var chk=document.getElementById('discount-check');
+  var row=document.getElementById('discount-row');
+  if(_tuDiscountOn){
+    chk.innerHTML='✓';chk.style.background='var(--blue)';chk.style.borderColor='var(--blue)';chk.style.color='#fff';
+    row.style.display='block';
+  }else{
+    chk.innerHTML='';chk.style.background='var(--bg)';chk.style.borderColor='var(--border2)';chk.style.color='';
+    row.style.display='none';document.getElementById('tu-discount-price').value='';
+  }
+  renderTuDetail();
+}
+function renderTuDetail(){
+  if(!_tuPlan)return;
+  var p=PLANS[_tuPlan];if(!p)return;
+  var price=p.price;
+  if(_tuDiscountOn){var d=parseInt(document.getElementById('tu-discount-price').value);if(d>0)price=d;}
+  document.getElementById('tu-detail').innerHTML=installHTML(price,tuPeriods,'tu');
+}
+function doTopup(){
+  var stuId=document.getElementById('tu-stu').value;
+  var s=students.find(function(st){return String(st.id)===String(stuId);});
+  if(!s){toast('請先選擇學員');return;}
+  if(!_tuPlan){toast('請選擇課程方案');return;}
+  var p=PLANS[_tuPlan];
+  var price=p.price;
+  if(_tuDiscountOn){var d=parseInt(document.getElementById('tu-discount-price').value);if(d>0)price=d;}
+  var gift=parseInt(document.getElementById('tu-gift-sessions').value)||0;
+  var newSessions=p.sessions+gift;
+  var inst=collectInst('tu',tuPeriods,price);
+  var contract={
+    planId:_tuPlan,planLabel:p.label+(gift?'＋贈'+gift+'堂':''),
+    sessions:p.sessions,giftSessions:gift,price:price,
+    pricePerSession:Math.round(price/p.sessions),periods:tuPeriods,
+    date:today(),installments:inst
+  };
+  s.contracts=s.contracts||[];
+  s.contracts.push(contract);
+  s.totalSessions+=newSessions;
+  logAction('儲值',s.name,s.coach,p.label+'・+'+newSessions+'堂・NT$'+price.toLocaleString()+(tuPeriods>1?'・'+tuPeriods+'期付':''));
+  fbSaveSingleStudent(s);
+  try{save('gym_students',students);}catch(e){}
+  toast('✓ 已為 '+s.name+' 新增合約：'+newSessions+' 堂');
+  // 重置
+  _tuPlan=null;_tuDiscountOn=false;tuPeriods=1;
+  document.querySelectorAll('#sp-topup .plan-btn').forEach(function(b){b.classList.remove('active');});
+  document.getElementById('tu-plan-summary').style.display='none';
+  var chk=document.getElementById('discount-check');
+  chk.innerHTML='';chk.style.background='var(--bg)';chk.style.borderColor='var(--border2)';
+  document.getElementById('discount-row').style.display='none';
+  document.querySelectorAll('#tu-period-pills .pill').forEach(function(b,i){b.classList.toggle('active',i===0);});
+  document.getElementById('tu-detail').innerHTML='';
+  document.getElementById('tu-gift-sessions').value='';
+  document.getElementById('tu-gift-preview').style.display='none';
+  tuStuChanged();
+}
+
 function coachTab(tab,btn){
   document.querySelectorAll('#page-coaches-mgmt .tab').forEach(b=>b.classList.remove('active'));
   btn.classList.add('active');
