@@ -447,9 +447,9 @@ html,body{font-family:-apple-system,BlinkMacSystemFont,'PingFang TC','Microsoft 
           <div class="pci-name">健美／爆發力運動</div>
           <div><span class="pci-range">1.6–2.0</span><span class="pci-unit">g／kg</span></div>
         </div>
-        <div class="protein-cat-item" onclick="selectProteinCat(1.8,2.7,'降體重減脂期',this)">
+        <div class="protein-cat-item" onclick="selectProteinCat(1.8,2.2,'降體重減脂期',this)">
           <div class="pci-name">降體重減脂期</div>
-          <div><span class="pci-range">1.8–2.7</span><span class="pci-unit">g／kg</span></div>
+          <div><span class="pci-range">1.8–2.2</span><span class="pci-unit">g／kg</span></div>
         </div>
       </div>
 
@@ -707,20 +707,28 @@ function confirmProtein(){
   // build fat ref
   var minByKg=Math.round(_weight*0.55);
   var minByPct=Math.round(_target*0.25/9);
-  var maxByPct=Math.round(_target*0.30/9);
+  var maxMeal=Math.round(_target*0.27/9);
+  var minEat=Math.round(_target*0.28/9);
+  var maxEat=Math.round(_target*0.30/9);
   document.getElementById('fat-ref-grid').innerHTML=
-    '<div class="fat-ref-card">'+
+    '<div class="fat-ref-card" style="grid-column:1/-1">'+
       '<div class="fat-ref-title">最低下限（體重基準）</div>'+
       '<div><span class="fat-ref-value">'+minByKg+'</span><span class="fat-ref-unit"> g</span></div>'+
       '<div class="fat-ref-formula">'+_weight+' kg × 0.55 g／kg</div>'+
     '</div>'+
     '<div class="fat-ref-card">'+
-      '<div class="fat-ref-title">建議區間（目標熱量 25–30%）</div>'+
-      '<div><span class="fat-ref-value">'+minByPct+'–'+maxByPct+'</span><span class="fat-ref-unit"> g</span></div>'+
-      '<div class="fat-ref-formula">'+_target+' kcal × 25–30% ÷ 9</div>'+
+      '<div class="fat-ref-title">🍱 自行備餐建議區間（25–27%）</div>'+
+      '<div><span class="fat-ref-value">'+minByPct+'–'+maxMeal+'</span><span class="fat-ref-unit"> g</span></div>'+
+      '<div class="fat-ref-formula">'+_target+' kcal × 25–27% ÷ 9</div>'+
+    '</div>'+
+    '<div class="fat-ref-card">'+
+      '<div class="fat-ref-title">🥡 外食適用（28–30%）</div>'+
+      '<div><span class="fat-ref-value">'+minEat+'–'+maxEat+'</span><span class="fat-ref-unit"> g</span></div>'+
+      '<div class="fat-ref-formula">'+_target+' kcal × 28–30% ÷ 9</div>'+
     '</div>';
   var suggested=Math.max(minByKg,minByPct);
   document.getElementById('inp-fat').value=suggested;
+  document.getElementById('inp-fat').min=suggested;
   updateFatCalc();
   document.getElementById('section-fat').classList.remove('hidden');
   setTimeout(function(){document.getElementById('section-fat').scrollIntoView({behavior:'smooth',block:'start'});},150);
