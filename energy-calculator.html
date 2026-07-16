@@ -523,6 +523,9 @@ html,body{font-family:-apple-system,BlinkMacSystemFont,'PingFang TC','Microsoft 
           <div class="final-date" id="macro-date"></div>
         </div>
 
+        <!-- selected options summary -->
+        <div id="macro-summary-tags" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px"></div>
+
         <!-- summary row -->
         <div class="row-card dark" style="margin-bottom:14px">
           <div><div class="lbl">目標熱量</div><div class="note" id="macro-target-note"></div></div>
@@ -767,6 +770,15 @@ function showMacroFinal(){
   document.getElementById('macro-target-note').textContent=
     'TDEE '+_tdee.toLocaleString()+' × '+_goalCoeff+' （'+_goalName+'）';
   document.getElementById('macro-target-val').textContent=_target.toLocaleString();
+
+  var goalColor=_goalType==='gain'?'#16a34a':_goalType==='lose'?'#334155':'#475569';
+  document.getElementById('macro-summary-tags').innerHTML=
+    '<div style="display:flex;align-items:center;gap:6px;padding:7px 13px;background:var(--slate-100);border-radius:99px;font-size:12px;font-weight:700;color:var(--slate-700)">'+
+      '<span>🏃 活動量</span><span style="color:var(--slate-500);font-weight:400">'+_actName+'</span><span style="color:var(--slate-400)">×'+_actCoeff+'</span>'+
+    '</div>'+
+    '<div style="display:flex;align-items:center;gap:6px;padding:7px 13px;background:var(--slate-100);border-radius:99px;font-size:12px;font-weight:700;color:'+goalColor+'">'+
+      '<span>🎯 目標</span><span style="font-weight:400">'+_goalName+'</span><span style="opacity:.7">×'+_goalCoeff+'</span>'+
+    '</div>';
 
   var pP=Math.round(_proteinKcal/_target*100);
   var pF=Math.round(_fatKcal/_target*100);
