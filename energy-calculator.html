@@ -1,0 +1,868 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>每日消耗能量精算</title>
+<style>
+:root{
+  --bg:#f1f5f9;--white:#fff;
+  --slate-50:#f8fafc;--slate-100:#f1f5f9;--slate-200:#e2e8f0;--slate-300:#cbd5e1;
+  --slate-400:#94a3b8;--slate-500:#64748b;--slate-600:#475569;--slate-700:#334155;
+  --slate-800:#1e293b;--slate-900:#0f172a;
+  --green:#16a34a;--green-light:#f0fdf4;--green-mid:#bbf7d0;
+  --border:var(--slate-200);--border2:var(--slate-300);
+  --text:var(--slate-900);--text2:var(--slate-500);--text3:var(--slate-400);
+  --radius:16px;--radius-sm:10px;
+  --shadow:0 1px 3px rgba(0,0,0,.08),0 1px 2px rgba(0,0,0,.05);
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{font-family:-apple-system,BlinkMacSystemFont,'PingFang TC','Microsoft JhengHei',sans-serif;background:var(--bg);color:var(--text);font-size:15px;min-height:100vh}
+
+/* ── Header ── */
+.header{background:var(--slate-800);padding:22px 20px 20px}
+.tags{display:flex;gap:6px;margin-bottom:10px}
+.tag{font-size:11px;font-weight:600;padding:3px 10px;border-radius:99px;background:rgba(255,255,255,.12);color:rgba(255,255,255,.75);letter-spacing:.04em}
+.header h1{font-size:24px;font-weight:800;color:#fff;margin-bottom:4px}
+.header p{font-size:13px;color:rgba(255,255,255,.55)}
+
+/* ── Container ── */
+.container{max-width:700px;margin:0 auto;padding:20px 16px 80px}
+
+/* ── Section ── */
+.section{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:22px 20px;margin-bottom:18px;box-shadow:var(--shadow)}
+.section-title{font-size:11px;font-weight:700;color:var(--slate-500);text-transform:uppercase;letter-spacing:.08em;margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.section-title::before{content:'';display:block;width:3px;height:13px;background:var(--slate-700);border-radius:2px;flex-shrink:0}
+.step-num{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:50%;background:var(--slate-700);color:#fff;font-size:11px;font-weight:700;flex-shrink:0}
+
+/* ── Page divider ── */
+.page-divider{border:none;border-top:2px dashed var(--slate-300);margin:8px 0 24px;position:relative}
+.page-label{text-align:center;margin:-10px 0 20px;font-size:11px;font-weight:700;color:var(--slate-400);text-transform:uppercase;letter-spacing:.1em}
+
+/* ── Form ── */
+.form-grid{display:grid;gap:12px;margin-bottom:14px}
+.form-grid.col2{grid-template-columns:1fr 1fr}
+.form-grid.col3{grid-template-columns:1fr 1fr 1fr}
+.form-group{}
+.form-label{display:block;font-size:12px;font-weight:600;color:var(--text2);margin-bottom:6px}
+.form-input{width:100%;padding:11px 13px;font-size:15px;border:1.5px solid var(--border2);border-radius:var(--radius-sm);background:var(--slate-50);color:var(--text);font-family:inherit;outline:none;transition:all .15s;-webkit-appearance:none;appearance:none}
+.form-input:focus{border-color:var(--slate-600);background:var(--white)}
+.input-hint{font-size:11px;color:var(--text3);margin-top:4px}
+
+/* ── Gender ── */
+.gender-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.gender-btn{padding:12px;border:1.5px solid var(--border2);border-radius:var(--radius-sm);background:var(--slate-50);color:var(--text2);font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;transition:all .15s;text-align:center}
+.gender-btn:hover{border-color:var(--slate-600);color:var(--slate-700)}
+.gender-btn.active{border-color:var(--slate-700);background:var(--slate-800);color:#fff}
+
+/* ── Buttons ── */
+.btn-primary{width:100%;padding:14px;background:var(--slate-800);color:#fff;border:none;border-radius:var(--radius-sm);font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;transition:opacity .15s;margin-top:4px;letter-spacing:.02em}
+.btn-primary:hover{background:var(--slate-700)}
+.btn-primary:active{transform:scale(.98)}
+.btn-next{width:100%;padding:14px;background:var(--slate-900);color:#fff;border:none;border-radius:var(--radius-sm);font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:8px;margin-top:6px}
+.btn-next:hover{background:var(--slate-700)}
+
+/* ── Result boxes ── */
+.result-box{background:var(--slate-50);border:1.5px solid var(--slate-200);border-radius:var(--radius-sm);padding:18px 20px;margin-bottom:20px}
+.result-top{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px}
+.result-label{font-size:12px;font-weight:700;color:var(--slate-600);text-transform:uppercase;letter-spacing:.05em}
+.result-value{font-size:38px;font-weight:800;color:var(--slate-800);line-height:1}
+.result-unit{font-size:13px;color:var(--slate-500);margin-left:4px}
+.result-formula{font-size:12px;color:var(--text2);margin-top:6px;line-height:1.6;font-family:monospace}
+
+.result-dark{background:var(--slate-800);border-radius:var(--radius-sm);padding:18px 20px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:20px}
+.result-dark .result-label{color:rgba(255,255,255,.6)}
+.result-dark .result-value{color:#fff}
+.result-dark .result-unit{color:rgba(255,255,255,.55)}
+.result-dark .result-formula{color:rgba(255,255,255,.45)}
+
+/* ── Activity list ── */
+.activity-list{display:flex;flex-direction:column;gap:9px}
+.activity-item{border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:13px 15px;cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:13px}
+.activity-item:hover{border-color:var(--slate-400);background:var(--slate-50)}
+.activity-item.selected{border-color:var(--slate-700);background:var(--slate-50);box-shadow:0 0 0 1px var(--slate-300)}
+.ai-icon{font-size:20px;width:28px;text-align:center;flex-shrink:0}
+.ai-info{flex:1}
+.ai-name{font-size:14px;font-weight:700;color:var(--text)}
+.ai-desc{font-size:12px;color:var(--text2);margin-top:2px}
+.ai-coeff{font-size:19px;font-weight:800;color:var(--slate-700);flex-shrink:0}
+.activity-item.selected .ai-name{color:var(--slate-800)}
+.activity-item.selected .ai-coeff{color:var(--slate-900)}
+
+/* ── Goal list ── */
+.goal-list{display:flex;flex-direction:column;gap:8px}
+.goal-item{border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:11px 15px;cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:12px}
+.goal-item:hover{border-color:var(--slate-400)}
+.gi-bar{width:4px;height:32px;border-radius:3px;flex-shrink:0;background:var(--slate-300)}
+.goal-item.lose .gi-bar{background:var(--slate-500)}
+.goal-item.maintain .gi-bar{background:var(--slate-400)}
+.goal-item.gain .gi-bar{background:var(--green)}
+.goal-item.selected{border-color:var(--slate-700);background:var(--slate-50)}
+.goal-item.selected.gain{border-color:var(--green);background:var(--green-light)}
+.gi-name{font-size:13px;font-weight:700;color:var(--text);min-width:72px}
+.gi-coeff{font-size:17px;font-weight:800;min-width:46px;text-align:right;flex-shrink:0;color:var(--slate-700)}
+.goal-item.selected.gain .gi-coeff{color:var(--green)}
+.gi-desc{font-size:12px;color:var(--text2);flex:1}
+
+/* ── Final card page 1 ── */
+.final-card{background:var(--white);border:1.5px solid var(--slate-200);border-radius:var(--radius);padding:22px 20px;margin-bottom:14px}
+.final-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:18px;flex-wrap:wrap;gap:8px}
+.final-title{font-size:15px;font-weight:800;color:var(--slate-800)}
+.final-name{font-size:13px;color:var(--text2);margin-top:2px}
+.final-date{font-size:11px;color:var(--text3)}
+.final-metrics{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:14px}
+.final-metric{background:var(--slate-50);border-radius:var(--radius-sm);padding:12px 14px;border:1px solid var(--slate-200)}
+.fm-label{font-size:10px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px}
+.fm-value{font-size:20px;font-weight:800;color:var(--text)}
+.fm-unit{font-size:11px;color:var(--text2);font-weight:400}
+.row-card{border-radius:var(--radius-sm);padding:13px 16px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center}
+.row-card.light{background:var(--slate-50);border:1px solid var(--slate-200)}
+.row-card.dark{background:var(--slate-800)}
+.row-card .lbl{font-size:12px;font-weight:700}
+.row-card.light .lbl{color:var(--slate-600)}
+.row-card.dark .lbl{color:rgba(255,255,255,.65)}
+.row-card .note{font-size:11px;color:var(--slate-400);margin-top:2px}
+.row-card.dark .note{color:rgba(255,255,255,.35)}
+.row-card .val{font-size:24px;font-weight:800}
+.row-card.light .val{color:var(--slate-800)}
+.row-card.dark .val{color:#fff}
+.goal-badge{display:inline-flex;align-items:center;gap:5px;padding:4px 11px;border-radius:99px;font-size:12px;font-weight:700;margin-bottom:10px;background:var(--slate-100);color:var(--slate-700)}
+.goal-badge.gain{background:var(--green-light);color:var(--green)}
+
+/* ── Protein section ── */
+.protein-cat-list{display:flex;flex-direction:column;gap:8px;margin-bottom:16px}
+.protein-cat-item{border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:12px 16px;cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:14px}
+.protein-cat-item:hover{border-color:var(--slate-400);background:var(--slate-50)}
+.protein-cat-item.selected{border-color:var(--slate-700);background:var(--slate-50)}
+.pci-name{flex:1;font-size:14px;font-weight:700;color:var(--text)}
+.pci-range{font-size:16px;font-weight:800;color:var(--slate-700);white-space:nowrap}
+.pci-unit{font-size:11px;color:var(--text2);margin-left:4px}
+.protein-cat-item.selected .pci-name{color:var(--slate-800)}
+
+.protein-input-card{background:var(--slate-50);border:1.5px solid var(--slate-300);border-radius:var(--radius-sm);padding:16px;margin-bottom:14px}
+.protein-range-label{font-size:12px;font-weight:700;color:var(--slate-600);margin-bottom:10px}
+.protein-slider-row{display:flex;align-items:center;gap:12px;margin-bottom:10px}
+.protein-slider{flex:1;-webkit-appearance:none;height:6px;border-radius:3px;background:var(--slate-200);outline:none}
+.protein-slider::-webkit-slider-thumb{-webkit-appearance:none;width:22px;height:22px;border-radius:50%;background:var(--slate-800);cursor:pointer;border:3px solid var(--white);box-shadow:0 1px 3px rgba(0,0,0,.2)}
+.protein-ratio-display{font-size:20px;font-weight:800;color:var(--slate-800);min-width:54px;text-align:right;white-space:nowrap}
+.protein-calc-display{background:var(--white);border:1px solid var(--slate-200);border-radius:var(--radius-sm);padding:10px 14px;font-size:13px;color:var(--text2);line-height:1.8}
+.protein-calc-display .big{font-size:22px;font-weight:800;color:var(--slate-800)}
+
+/* ── Fat section ── */
+.fat-ref-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.fat-ref-card{background:var(--slate-50);border:1px solid var(--slate-200);border-radius:var(--radius-sm);padding:12px 14px}
+.fat-ref-title{font-size:11px;font-weight:700;color:var(--slate-500);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px}
+.fat-ref-value{font-size:18px;font-weight:800;color:var(--slate-700)}
+.fat-ref-unit{font-size:11px;color:var(--text2)}
+.fat-ref-formula{font-size:11px;color:var(--slate-400);margin-top:2px}
+.fat-input-row{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+.fat-input-row input{flex:1}
+
+/* ── Carb section ── */
+.carb-auto-card{background:var(--slate-800);border-radius:var(--radius-sm);padding:16px 18px;margin-bottom:14px}
+.carb-auto-formula{font-size:12px;color:rgba(255,255,255,.5);margin-bottom:6px;font-family:monospace}
+.carb-auto-value{font-size:32px;font-weight:800;color:#fff}
+.carb-auto-unit{font-size:13px;color:rgba(255,255,255,.55);margin-left:4px}
+
+/* ── Macro final ── */
+.macro-table{width:100%;border-collapse:collapse;font-size:13px;margin-bottom:14px}
+.macro-table th{text-align:left;padding:9px 12px;font-weight:700;font-size:11px;color:var(--text2);border-bottom:2px solid var(--slate-200);text-transform:uppercase;letter-spacing:.04em;background:var(--slate-50)}
+.macro-table td{padding:10px 12px;border-bottom:1px solid var(--slate-100);color:var(--text);vertical-align:middle}
+.macro-table tr:last-child td{border-bottom:none}
+.macro-table .macro-bar-cell{width:90px}
+.macro-color-dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px}
+.macro-bar-wrap{background:var(--slate-100);border-radius:99px;height:7px;overflow:hidden}
+.macro-bar-fill{height:100%;border-radius:99px}
+.info-note{background:var(--slate-50);border-left:3px solid var(--slate-400);border-radius:0 var(--radius-sm) var(--radius-sm) 0;padding:11px 14px;font-size:12px;color:var(--text2);line-height:1.7;margin-bottom:14px}
+
+/* ── Export ── */
+.export-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.btn-export{padding:13px;border:none;border-radius:var(--radius-sm);font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;transition:opacity .15s}
+.btn-export:hover{opacity:.85}
+.btn-print{background:var(--slate-900);color:#fff}
+.btn-reset{background:var(--slate-100);color:var(--slate-600);border:1.5px solid var(--slate-200)}
+
+/* ── Divider ── */
+.divider{height:1px;background:var(--slate-200);margin:18px 0}
+
+/* ── Hidden ── */
+.hidden{display:none!important}
+
+/* ── Responsive ── */
+@media(max-width:520px){
+  .form-grid.col3{grid-template-columns:1fr}
+  .final-metrics{grid-template-columns:1fr 1fr}
+  .fat-ref-grid{grid-template-columns:1fr}
+  .export-row{grid-template-columns:1fr}
+}
+
+/* ── Print（only macro-final result card） ── */
+@media print{
+  body{background:#fff!important}
+  *:not(#section-macro-final):not(#section-macro-final *){display:none!important}
+  #section-macro-final{display:block!important;border:none!important;box-shadow:none!important;margin:0!important;padding:0!important}
+  *{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
+}
+
+/* ── Screenshot overlay ── */
+#screenshot-overlay{display:none;position:fixed;inset:0;z-index:9999;background:#e2e8f0;overflow:auto;padding:24px 16px}
+#screenshot-overlay.active{display:flex;flex-direction:column;align-items:center;gap:16px}
+#screenshot-overlay .overlay-hint{font-size:13px;color:#475569;background:#fff;padding:8px 16px;border-radius:8px;border:1px solid #cbd5e1}
+#screenshot-overlay .overlay-close{background:var(--slate-900);color:#fff;border:none;border-radius:10px;padding:10px 28px;font-size:15px;font-weight:700;cursor:pointer}
+#screenshot-card-wrap{background:#fff;border-radius:16px;padding:20px;box-shadow:0 4px 24px rgba(0,0,0,.1);width:100%;max-width:560px}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div style="display:flex;align-items:center;gap:14px;margin-bottom:12px">
+    <img src="健身空間 - 2.png" width="52" height="52" style="flex-shrink:0;border-radius:50%" alt="FMC">
+    <div>
+      <div class="tags" style="margin-bottom:6px">
+        <span class="tag">計算工具</span>
+        <span class="tag">每日熱量</span>
+        <span class="tag">三大營養素</span>
+      </div>
+      <h1>每日消耗能量精算</h1>
+    </div>
+  </div>
+  <p>BMR → TDEE → 目標熱量 → 三大營養素分配</p>
+</div>
+
+<div class="container">
+
+  <!-- ══ PAGE 1 ══ -->
+
+  <!-- Step 1: 基本資料 -->
+  <div class="section" id="section-basic">
+    <div class="section-title"><span class="step-num">1</span>基本資料</div>
+
+    <div class="form-grid col2" style="margin-bottom:14px">
+      <div class="form-group">
+        <label class="form-label">學員姓名</label>
+        <input class="form-input" id="inp-name" type="text" placeholder="例：王小明">
+      </div>
+      <div class="form-group">
+        <label class="form-label">性別</label>
+        <div class="gender-row">
+          <button class="gender-btn" id="btn-male" onclick="selectGender('male')">♂ 男性</button>
+          <button class="gender-btn" id="btn-female" onclick="selectGender('female')">♀ 女性</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-grid col3">
+      <div class="form-group">
+        <label class="form-label">體重</label>
+        <input class="form-input" id="inp-weight" type="number" min="20" max="300" placeholder="kg" inputmode="decimal">
+        <div class="input-hint">公斤（kg）</div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">身高</label>
+        <input class="form-input" id="inp-height" type="number" min="100" max="250" placeholder="cm" inputmode="decimal">
+        <div class="input-hint">公分（cm）</div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">年齡</label>
+        <input class="form-input" id="inp-age" type="number" min="10" max="120" placeholder="歲" inputmode="numeric">
+        <div class="input-hint">歲</div>
+      </div>
+    </div>
+
+    <button class="btn-primary" onclick="calcBMR()">計算 BMR →</button>
+  </div>
+
+  <!-- Step 2: BMR + 活動程度 -->
+  <div class="section hidden" id="section-activity">
+    <div class="section-title"><span class="step-num">2</span>基礎代謝率（BMR）</div>
+    <div class="result-box">
+      <div class="result-top">
+        <div>
+          <div class="result-label">BMR · 基礎代謝率</div>
+          <div class="result-formula" id="bmr-formula"></div>
+        </div>
+        <div style="text-align:right">
+          <span class="result-value" id="bmr-value">—</span>
+          <span class="result-unit">kcal／天</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+    <div class="section-title" style="margin-bottom:10px"><span class="step-num">2</span>選擇活動程度</div>
+    <div style="font-size:12px;color:var(--text2);margin-bottom:14px">TDEE = BMR × 活動係數，請依學員實際生活狀況選擇：</div>
+
+    <div class="activity-list">
+      <div class="activity-item" onclick="selectActivity(1.2,'久坐／無運動習慣',this)">
+        <div class="ai-icon">🪑</div>
+        <div class="ai-info"><div class="ai-name">久坐／無運動習慣</div><div class="ai-desc">幾乎不動，辦公室族、整天坐著</div></div>
+        <div class="ai-coeff">× 1.2</div>
+      </div>
+      <div class="activity-item" onclick="selectActivity(1.375,'輕度運動者',this)">
+        <div class="ai-icon">🚶</div>
+        <div class="ai-info"><div class="ai-name">輕度運動者</div><div class="ai-desc">每週 1–3 天輕度運動</div></div>
+        <div class="ai-coeff">× 1.375</div>
+      </div>
+      <div class="activity-item" onclick="selectActivity(1.55,'中度運動者',this)">
+        <div class="ai-icon">🏃</div>
+        <div class="ai-info"><div class="ai-name">中度運動者</div><div class="ai-desc">每週 3–5 天中等強度訓練</div></div>
+        <div class="ai-coeff">× 1.55</div>
+      </div>
+      <div class="activity-item" onclick="selectActivity(1.725,'高度運動者',this)">
+        <div class="ai-icon">💪</div>
+        <div class="ai-info"><div class="ai-name">高度運動者</div><div class="ai-desc">每週 6–7 天高強度訓練</div></div>
+        <div class="ai-coeff">× 1.725</div>
+      </div>
+      <div class="activity-item" onclick="selectActivity(1.9,'超強度／體力活工作',this)">
+        <div class="ai-icon">🔥</div>
+        <div class="ai-info"><div class="ai-name">超強度／體力活工作</div><div class="ai-desc">每天訓練兩次、體力勞動工作者</div></div>
+        <div class="ai-coeff">× 1.9</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Step 3: TDEE + 目標 -->
+  <div class="section hidden" id="section-goal">
+    <div class="section-title"><span class="step-num">3</span>每日總消耗熱量（TDEE）</div>
+    <div class="result-dark">
+      <div>
+        <div class="result-label">TDEE · 每日總消耗熱量</div>
+        <div class="result-formula" id="tdee-note"></div>
+      </div>
+      <div style="text-align:right">
+        <span class="result-value" id="tdee-value">—</span>
+        <span class="result-unit">kcal／天</span>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+    <div class="section-title" style="margin-bottom:10px"><span class="step-num">3</span>選擇目標，計算目標熱量</div>
+    <div style="font-size:12px;color:var(--text2);margin-bottom:14px">目標熱量 = TDEE × 係數，先定熱量再分配三大營養素：</div>
+
+    <div class="goal-list">
+      <div class="goal-item lose" onclick="selectGoal(0.75,'可能消耗肌肉','lose',this)">
+        <div class="gi-bar"></div><div class="gi-name">可能消耗肌肉</div>
+        <div class="gi-coeff">× 0.75</div>
+        <div class="gi-desc">赤字過大，肌肉流失風險高，不建議長期執行</div>
+      </div>
+      <div class="goal-item lose" onclick="selectGoal(0.80,'瘋狂減脂','lose',this)">
+        <div class="gi-bar"></div><div class="gi-name">瘋狂減脂</div>
+        <div class="gi-coeff">× 0.80</div>
+        <div class="gi-desc">快速減脂，需搭配高蛋白保肌，恢復能力下降</div>
+      </div>
+      <div class="goal-item lose" onclick="selectGoal(0.85,'正常減脂','lose',this)">
+        <div class="gi-bar"></div><div class="gi-name">正常減脂</div>
+        <div class="gi-coeff">× 0.85</div>
+        <div class="gi-desc">最常用的減脂區間，兼顧速度與肌肉保留</div>
+      </div>
+      <div class="goal-item lose" onclick="selectGoal(0.90,'最少減脂','lose',this)">
+        <div class="gi-bar"></div><div class="gi-name">最少減脂</div>
+        <div class="gi-coeff">× 0.90</div>
+        <div class="gi-desc">緩慢赤字，適合訓練量高或恢復差的人</div>
+      </div>
+      <div class="goal-item maintain" onclick="selectGoal(1.00,'維持體態','maintain',this)">
+        <div class="gi-bar"></div><div class="gi-name">維持體態</div>
+        <div class="gi-coeff">× 1.00</div>
+        <div class="gi-desc">熱量平衡，體重維持穩定</div>
+      </div>
+      <div class="goal-item gain" onclick="selectGoal(1.05,'最少增肌','gain',this)">
+        <div class="gi-bar"></div><div class="gi-name">最少增肌</div>
+        <div class="gi-coeff">× 1.05</div>
+        <div class="gi-desc">緩慢盈餘，體脂增加最少，進度較慢</div>
+      </div>
+      <div class="goal-item gain" onclick="selectGoal(1.10,'正常增肌','gain',this)">
+        <div class="gi-bar"></div><div class="gi-name">正常增肌</div>
+        <div class="gi-coeff">× 1.10</div>
+        <div class="gi-desc">最常用的增肌區間，兼顧肌肉生長與體脂控制</div>
+      </div>
+      <div class="goal-item gain" onclick="selectGoal(1.15,'瘋狂增肌','gain',this)">
+        <div class="gi-bar"></div><div class="gi-name">瘋狂增肌</div>
+        <div class="gi-coeff">× 1.15</div>
+        <div class="gi-desc">快速增肌，體脂也會明顯上升</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Step 4: 第一頁結果 -->
+  <div class="section hidden" id="section-final">
+    <div class="section-title"><span class="step-num">4</span>熱量計算結果</div>
+    <div class="final-card" id="final-card-p1">
+      <div class="final-header">
+        <div>
+          <div class="final-title" id="final-title-p1">每日消耗能量精算結果</div>
+          <div class="final-name" id="final-name-p1"></div>
+        </div>
+        <div class="final-date" id="final-date-p1"></div>
+      </div>
+      <div class="final-metrics" id="final-metrics-p1"></div>
+      <div class="row-card light" style="margin-bottom:10px">
+        <div><div class="lbl">BMR · 基礎代謝率</div><div class="note" id="fp1-bmr-formula"></div></div>
+        <div style="text-align:right"><span class="val" id="fp1-bmr">—</span> <span style="font-size:12px;color:var(--text2)">kcal</span></div>
+      </div>
+      <div class="row-card dark" style="margin-bottom:10px">
+        <div><div class="lbl">TDEE · 每日總消耗熱量</div><div class="note" id="fp1-tdee-note"></div></div>
+        <div style="text-align:right"><span class="val" id="fp1-tdee">—</span> <span style="font-size:12px;color:rgba(255,255,255,.5)">kcal</span></div>
+      </div>
+      <div id="fp1-goal-badge" style="margin-bottom:10px"></div>
+      <div class="row-card dark" id="fp1-target-box">
+        <div><div class="lbl">目標熱量 · 每天攝取</div><div class="note" id="fp1-target-note"></div></div>
+        <div style="text-align:right"><span style="font-size:34px;font-weight:800;color:#fff" id="fp1-target">—</span> <span style="font-size:12px;color:rgba(255,255,255,.5)">kcal／天</span></div>
+      </div>
+    </div>
+
+    <div id="section-next-btn">
+      <button class="btn-next no-print" onclick="goMacro()">
+        ➤ 下一步：三大營養素精算
+      </button>
+    </div>
+  </div>
+
+  <!-- ══ PAGE 2：三大營養素 ══ -->
+
+  <div class="hidden" id="macro-page">
+    <div style="margin:8px 0 18px;text-align:center">
+      <div style="font-size:11px;font-weight:700;color:var(--slate-400);text-transform:uppercase;letter-spacing:.1em;padding:10px 0;border-top:2px dashed var(--slate-300)">三大營養素精算</div>
+    </div>
+
+    <!-- Step 5: 蛋白質 -->
+    <div class="section" id="section-protein">
+      <div class="section-title"><span class="step-num">5</span>🥩 蛋白質（第一步）</div>
+
+      <div class="info-note">
+        依族群設定目標克數。<strong>先把蛋白質克數定好，再分配其他熱量。</strong><br>
+        1g 蛋白質 = 4 kcal
+      </div>
+
+      <div class="protein-cat-list" id="protein-cat-list">
+        <div class="protein-cat-item" onclick="selectProteinCat(1.2,1.4,'一般民眾（有運動）',this)">
+          <div class="pci-name">一般民眾（有運動）</div>
+          <div><span class="pci-range">1.2–1.4</span><span class="pci-unit">g／kg</span></div>
+        </div>
+        <div class="protein-cat-item" onclick="selectProteinCat(1.3,1.8,'耐力型運動',this)">
+          <div class="pci-name">耐力型運動</div>
+          <div><span class="pci-range">1.3–1.8</span><span class="pci-unit">g／kg</span></div>
+        </div>
+        <div class="protein-cat-item" onclick="selectProteinCat(1.6,2.0,'健美／爆發力運動',this)">
+          <div class="pci-name">健美／爆發力運動</div>
+          <div><span class="pci-range">1.6–2.0</span><span class="pci-unit">g／kg</span></div>
+        </div>
+        <div class="protein-cat-item" onclick="selectProteinCat(1.8,2.7,'降體重減脂期',this)">
+          <div class="pci-name">降體重減脂期</div>
+          <div><span class="pci-range">1.8–2.7</span><span class="pci-unit">g／kg</span></div>
+        </div>
+      </div>
+
+      <div class="protein-input-card hidden" id="protein-input-card">
+        <div class="protein-range-label" id="protein-range-label"></div>
+        <div class="protein-slider-row">
+          <input type="range" class="protein-slider" id="protein-slider" oninput="updateProtein()">
+          <div class="protein-ratio-display" id="protein-ratio-display">—</div>
+        </div>
+        <div class="protein-calc-display" id="protein-calc-display"></div>
+      </div>
+
+      <button class="btn-primary hidden" id="protein-confirm-btn" onclick="confirmProtein()">確認蛋白質 →</button>
+    </div>
+
+    <!-- Step 6: 脂肪 -->
+    <div class="section hidden" id="section-fat">
+      <div class="section-title"><span class="step-num">6</span>🥑 脂肪（第二步）</div>
+
+      <div class="info-note">
+        設定下限，不能太低。脂肪低於 20% 總熱量會影響荷爾蒙合成與脂溶性維生素吸收。<br>
+        1g 脂肪 = 9 kcal
+      </div>
+
+      <div class="fat-ref-grid" id="fat-ref-grid"></div>
+
+      <div class="form-group" style="margin-bottom:14px">
+        <label class="form-label">請輸入脂肪攝取量（公克）</label>
+        <div class="fat-input-row">
+          <input class="form-input" id="inp-fat" type="number" min="20" max="300" placeholder="輸入脂肪克數" inputmode="decimal" oninput="updateFatCalc()">
+          <span style="font-size:13px;color:var(--text2);white-space:nowrap">g／天</span>
+        </div>
+        <div id="fat-calc-display" style="font-size:13px;color:var(--text2);padding:8px 0"></div>
+      </div>
+
+      <button class="btn-primary" id="fat-confirm-btn" onclick="confirmFat()">確認脂肪 →</button>
+    </div>
+
+    <!-- Step 7: 碳水 -->
+    <div class="section hidden" id="section-carb">
+      <div class="section-title"><span class="step-num">7</span>🌾 碳水（第三步）</div>
+
+      <div class="info-note">
+        碳水由剩餘熱量自動計算：<br>
+        碳水熱量 = 目標熱量 − 蛋白質熱量 − 脂肪熱量<br>
+        碳水克數 = 碳水熱量 ÷ 4　（1g 碳水 = 4 kcal）
+      </div>
+
+      <div class="carb-auto-card">
+        <div class="carb-auto-formula" id="carb-formula"></div>
+        <span class="carb-auto-value" id="carb-value">—</span>
+        <span class="carb-auto-unit">g／天</span>
+        <div style="font-size:12px;color:rgba(255,255,255,.45);margin-top:4px" id="carb-kcal-display"></div>
+      </div>
+
+      <div id="carb-warning" class="hidden" style="background:#fef3c7;border:1px solid #fbbf24;border-radius:var(--radius-sm);padding:12px 14px;font-size:13px;color:#92400e;margin-bottom:14px"></div>
+
+      <button class="btn-primary" onclick="showMacroFinal()">查看完整結果 →</button>
+    </div>
+
+    <!-- Step 8: 三大營養素結果 -->
+    <div class="section hidden" id="section-macro-final">
+      <div class="section-title"><span class="step-num">8</span>三大營養素精算結果</div>
+
+      <div class="final-card" id="macro-result-card">
+        <div class="final-header">
+          <div>
+            <div class="final-title" id="macro-title">三大營養素分配結果</div>
+            <div class="final-name" id="macro-name"></div>
+          </div>
+          <div class="final-date" id="macro-date"></div>
+        </div>
+
+        <!-- summary row -->
+        <div class="row-card dark" style="margin-bottom:14px">
+          <div><div class="lbl">目標熱量</div><div class="note" id="macro-target-note"></div></div>
+          <div style="text-align:right"><span class="val" id="macro-target-val">—</span> <span style="font-size:12px;color:rgba(255,255,255,.5)">kcal／天</span></div>
+        </div>
+
+        <!-- macro table -->
+        <table class="macro-table" id="macro-table">
+          <thead>
+            <tr>
+              <th>營養素</th>
+              <th>克數</th>
+              <th>熱量</th>
+              <th>佔比</th>
+              <th class="macro-bar-cell"></th>
+            </tr>
+          </thead>
+          <tbody id="macro-tbody"></tbody>
+        </table>
+
+        <!-- formula note -->
+        <div class="info-note" id="macro-formula-note"></div>
+      </div>
+
+      <div class="export-row no-print">
+        <button class="btn-export btn-print" onclick="doPDF()">📄 儲存 PDF</button>
+        <button class="btn-export" style="background:var(--slate-700);color:#fff" onclick="doScreenshot()">📷 截圖模式</button>
+        <button class="btn-export btn-reset" onclick="doReset()">↩ 重新計算</button>
+      </div>
+    </div>
+
+  </div><!-- /macro-page -->
+
+</div><!-- /container -->
+
+<!-- Screenshot overlay -->
+<div id="screenshot-overlay">
+  <div class="overlay-hint">📷 截圖此畫面即可儲存結果（手機長截圖 / 電腦 Cmd+Shift+4）</div>
+  <div id="screenshot-card-wrap"></div>
+  <button class="overlay-close" onclick="closeScreenshot()">✕ 關閉截圖模式</button>
+</div>
+
+<script>
+// ── State ──
+var _gender=null,_weight=0,_height=0,_age=0,_name='';
+var _bmr=0,_tdee=0,_target=0;
+var _actCoeff=0,_actName='',_goalCoeff=0,_goalName='',_goalType='';
+var _proteinRatio=0,_proteinG=0,_proteinKcal=0;
+var _fatG=0,_fatKcal=0;
+var _carbG=0,_carbKcal=0;
+var _proteinMin=0,_proteinMax=0;
+
+function selectGender(g){
+  _gender=g;
+  document.getElementById('btn-male').classList.toggle('active',g==='male');
+  document.getElementById('btn-female').classList.toggle('active',g==='female');
+}
+
+function calcBMR(){
+  _name=document.getElementById('inp-name').value.trim();
+  _weight=parseFloat(document.getElementById('inp-weight').value);
+  _height=parseFloat(document.getElementById('inp-height').value);
+  _age=parseFloat(document.getElementById('inp-age').value);
+  if(!_name){alert('請輸入學員姓名');return;}
+  if(!_gender){alert('請選擇性別');return;}
+  if(!_weight||_weight<20){alert('請輸入正確的體重（kg）');return;}
+  if(!_height||_height<100){alert('請輸入正確的身高（cm）');return;}
+  if(!_age||_age<5){alert('請輸入正確的年齡');return;}
+
+  var bmr=_gender==='male'
+    ?(10*_weight)+(6.25*_height)-(5*_age)+5
+    :(10*_weight)+(6.25*_height)-(5*_age)-161;
+  _bmr=Math.round(bmr);
+  var formula;
+  if(_gender==='male')
+    formula='(10×'+_weight.toFixed(1)+') + (6.25×'+_height.toFixed(1)+') − (5×'+_age+') + 5';
+  else
+    formula='(10×'+_weight.toFixed(1)+') + (6.25×'+_height.toFixed(1)+') − (5×'+_age+') − 161';
+
+  document.getElementById('bmr-value').textContent=_bmr.toLocaleString();
+  document.getElementById('bmr-formula').textContent=formula+' = '+_bmr.toLocaleString()+' kcal';
+
+  // reset downstream
+  resetFrom('activity');
+  document.getElementById('section-activity').classList.remove('hidden');
+  document.getElementById('section-activity').scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+function selectActivity(coeff,name,el){
+  _actCoeff=coeff;_actName=name;
+  document.querySelectorAll('.activity-item').forEach(function(e){e.classList.remove('selected');});
+  el.classList.add('selected');
+  _tdee=Math.round(_bmr*coeff);
+  document.getElementById('tdee-value').textContent=_tdee.toLocaleString();
+  document.getElementById('tdee-note').textContent='BMR '+_bmr.toLocaleString()+' × '+coeff+' （'+name+'）';
+  resetFrom('goal');
+  document.getElementById('section-goal').classList.remove('hidden');
+  setTimeout(function(){document.getElementById('section-goal').scrollIntoView({behavior:'smooth',block:'start'});},150);
+}
+
+function selectGoal(coeff,name,type,el){
+  _goalCoeff=coeff;_goalName=name;_goalType=type;
+  document.querySelectorAll('.goal-item').forEach(function(e){e.classList.remove('selected');});
+  el.classList.add('selected');
+  _target=Math.round(_tdee*coeff);
+  renderPage1Final();
+  document.getElementById('section-final').classList.remove('hidden');
+  setTimeout(function(){document.getElementById('section-final').scrollIntoView({behavior:'smooth',block:'start'});},150);
+}
+
+function renderPage1Final(){
+  var gLabel=_gender==='male'?'男性':'女性';
+  document.getElementById('final-name-p1').textContent=_name+'・'+gLabel;
+  document.getElementById('final-date-p1').textContent=new Date().toLocaleDateString('zh-TW',{year:'numeric',month:'long',day:'numeric'});
+  document.getElementById('final-metrics-p1').innerHTML=
+    '<div class="final-metric"><div class="fm-label">體重</div><div class="fm-value">'+_weight+'<span class="fm-unit"> kg</span></div></div>'+
+    '<div class="final-metric"><div class="fm-label">身高</div><div class="fm-value">'+_height+'<span class="fm-unit"> cm</span></div></div>'+
+    '<div class="final-metric"><div class="fm-label">年齡</div><div class="fm-value">'+_age+'<span class="fm-unit"> 歲</span></div></div>';
+  var f;
+  if(_gender==='male') f='(10×'+_weight+')+(6.25×'+_height+')−(5×'+_age+')+5';
+  else f='(10×'+_weight+')+(6.25×'+_height+')−(5×'+_age+')−161';
+  document.getElementById('fp1-bmr-formula').textContent=f;
+  document.getElementById('fp1-bmr').textContent=_bmr.toLocaleString();
+  document.getElementById('fp1-tdee-note').textContent=_bmr.toLocaleString()+' × '+_actCoeff+' （'+_actName+'）';
+  document.getElementById('fp1-tdee').textContent=_tdee.toLocaleString();
+  var gainCls=_goalType==='gain';
+  document.getElementById('fp1-goal-badge').innerHTML=
+    '<div class="goal-badge'+(gainCls?' gain':'')+'">● '+_goalName+' （×'+_goalCoeff+'）</div>';
+  document.getElementById('fp1-target-note').textContent=_tdee.toLocaleString()+' × '+_goalCoeff+' （'+_goalName+'）';
+  document.getElementById('fp1-target').textContent=_target.toLocaleString();
+}
+
+function goMacro(){
+  document.getElementById('macro-page').classList.remove('hidden');
+  document.getElementById('section-next-btn').classList.add('hidden');
+  // init protein section
+  document.getElementById('section-protein').classList.remove('hidden');
+  document.getElementById('section-fat').classList.add('hidden');
+  document.getElementById('section-carb').classList.add('hidden');
+  document.getElementById('section-macro-final').classList.add('hidden');
+  document.querySelectorAll('.protein-cat-item').forEach(function(e){e.classList.remove('selected');});
+  document.getElementById('protein-input-card').classList.add('hidden');
+  document.getElementById('protein-confirm-btn').classList.add('hidden');
+  setTimeout(function(){document.getElementById('macro-page').scrollIntoView({behavior:'smooth',block:'start'});},150);
+}
+
+// ── Protein ──
+function selectProteinCat(min,max,name,el){
+  _proteinMin=min;_proteinMax=max;
+  document.querySelectorAll('.protein-cat-item').forEach(function(e){e.classList.remove('selected');});
+  el.classList.add('selected');
+  var card=document.getElementById('protein-input-card');
+  var slider=document.getElementById('protein-slider');
+  slider.min=(min*10).toFixed(0);
+  slider.max=(max*10).toFixed(0);
+  slider.step=1;
+  slider.value=((min+max)/2*10).toFixed(0);
+  document.getElementById('protein-range-label').textContent=name+'　範圍：'+min+'–'+max+' g／kg';
+  card.classList.remove('hidden');
+  document.getElementById('protein-confirm-btn').classList.remove('hidden');
+  updateProtein();
+}
+
+function updateProtein(){
+  var slider=document.getElementById('protein-slider');
+  var ratio=parseFloat(slider.value)/10;
+  _proteinRatio=ratio;
+  _proteinG=Math.round(_weight*ratio);
+  _proteinKcal=_proteinG*4;
+  document.getElementById('protein-ratio-display').textContent=ratio.toFixed(1)+' g/kg';
+  document.getElementById('protein-calc-display').innerHTML=
+    '<div style="margin-bottom:4px">'+
+    '<strong>'+_weight+'kg × '+ratio.toFixed(1)+'g／kg</strong> = <span class="big">'+_proteinG+'g</span>　（'+_proteinKcal+' kcal）</div>'+
+    '<div style="color:var(--slate-400)">佔目標熱量 '+Math.round(_proteinKcal/_target*100)+'%</div>';
+}
+
+function confirmProtein(){
+  if(!_proteinG){alert('請先選擇族群並設定克數');return;}
+  // build fat ref
+  var minByKg=Math.round(_weight*0.55);
+  var minByPct=Math.round(_target*0.20/9);
+  var maxByPct=Math.round(_target*0.30/9);
+  document.getElementById('fat-ref-grid').innerHTML=
+    '<div class="fat-ref-card">'+
+      '<div class="fat-ref-title">最低下限（體重基準）</div>'+
+      '<div><span class="fat-ref-value">'+minByKg+'</span><span class="fat-ref-unit"> g</span></div>'+
+      '<div class="fat-ref-formula">'+_weight+' kg × 0.55 g／kg</div>'+
+    '</div>'+
+    '<div class="fat-ref-card">'+
+      '<div class="fat-ref-title">建議區間（目標熱量 20–30%）</div>'+
+      '<div><span class="fat-ref-value">'+minByPct+'–'+maxByPct+'</span><span class="fat-ref-unit"> g</span></div>'+
+      '<div class="fat-ref-formula">'+_target+' kcal × 20–30% ÷ 9</div>'+
+    '</div>';
+  var suggested=Math.max(minByKg,minByPct);
+  document.getElementById('inp-fat').value=suggested;
+  updateFatCalc();
+  document.getElementById('section-fat').classList.remove('hidden');
+  setTimeout(function(){document.getElementById('section-fat').scrollIntoView({behavior:'smooth',block:'start'});},150);
+}
+
+// ── Fat ──
+function updateFatCalc(){
+  _fatG=parseFloat(document.getElementById('inp-fat').value)||0;
+  _fatKcal=Math.round(_fatG*9);
+  var pct=_target>0?Math.round(_fatKcal/_target*100):0;
+  var minKg=Math.round(_weight*0.55);
+  var warn='';
+  if(_fatG<minKg) warn='⚠️ 低於體重下限（'+minKg+'g），建議不要再低';
+  else if(pct<20) warn='⚠️ 脂肪佔比低於 20%，可能影響荷爾蒙合成';
+  else if(pct>35) warn='提示：脂肪佔比超過 35%，碳水空間會較少';
+  document.getElementById('fat-calc-display').innerHTML=
+    '<strong>'+_fatG+'g × 9 kcal</strong> = '+_fatKcal+' kcal　佔目標熱量 '+pct+'%'+(warn?'　<span style="color:#b45309">'+warn+'</span>':'');
+}
+
+function confirmFat(){
+  _fatG=parseFloat(document.getElementById('inp-fat').value)||0;
+  if(_fatG<10){alert('請輸入脂肪攝取量（公克）');return;}
+  _fatKcal=Math.round(_fatG*9);
+  var carbKcal=_target-_proteinKcal-_fatKcal;
+  _carbKcal=carbKcal;
+  _carbG=carbKcal>0?Math.round(carbKcal/4):0;
+  document.getElementById('carb-formula').textContent=
+    '目標 '+_target+' kcal − 蛋白質 '+_proteinKcal+' kcal − 脂肪 '+_fatKcal+' kcal = '+carbKcal+' kcal ÷ 4';
+  document.getElementById('carb-value').textContent=_carbG>0?_carbG.toLocaleString():'0';
+  document.getElementById('carb-kcal-display').textContent=carbKcal+' kcal';
+  var warnEl=document.getElementById('carb-warning');
+  if(carbKcal<0){
+    warnEl.classList.remove('hidden');
+    warnEl.textContent='⚠️ 蛋白質與脂肪熱量加總已超過目標熱量，碳水無法分配。建議降低蛋白質或脂肪克數。';
+  } else {
+    warnEl.classList.add('hidden');
+  }
+  document.getElementById('section-carb').classList.remove('hidden');
+  setTimeout(function(){document.getElementById('section-carb').scrollIntoView({behavior:'smooth',block:'start'});},150);
+}
+
+// ── Macro final ──
+function showMacroFinal(){
+  var gLabel=_gender==='male'?'男性':'女性';
+  document.getElementById('macro-name').textContent=_name+'・'+gLabel+' · '+_weight+'kg';
+  document.getElementById('macro-date').textContent=new Date().toLocaleDateString('zh-TW',{year:'numeric',month:'long',day:'numeric'});
+  document.getElementById('macro-target-note').textContent=
+    'TDEE '+_tdee.toLocaleString()+' × '+_goalCoeff+' （'+_goalName+'）';
+  document.getElementById('macro-target-val').textContent=_target.toLocaleString();
+
+  var pP=Math.round(_proteinKcal/_target*100);
+  var pF=Math.round(_fatKcal/_target*100);
+  var pC=Math.round(_carbKcal/_target*100);
+
+  document.getElementById('macro-tbody').innerHTML=
+    '<tr>'+
+      '<td><span class="macro-color-dot" style="background:#334155"></span>蛋白質</td>'+
+      '<td><strong>'+_proteinG+'g</strong></td>'+
+      '<td>'+_proteinKcal+' kcal</td>'+
+      '<td>'+pP+'%</td>'+
+      '<td class="macro-bar-cell"><div class="macro-bar-wrap"><div class="macro-bar-fill" style="width:'+pP+'%;background:#334155"></div></div></td>'+
+    '</tr>'+
+    '<tr>'+
+      '<td><span class="macro-color-dot" style="background:#64748b"></span>脂肪</td>'+
+      '<td><strong>'+_fatG+'g</strong></td>'+
+      '<td>'+_fatKcal+' kcal</td>'+
+      '<td>'+pF+'%</td>'+
+      '<td class="macro-bar-cell"><div class="macro-bar-wrap"><div class="macro-bar-fill" style="width:'+pF+'%;background:#64748b"></div></div></td>'+
+    '</tr>'+
+    '<tr>'+
+      '<td><span class="macro-color-dot" style="background:#94a3b8"></span>碳水</td>'+
+      '<td><strong>'+_carbG+'g</strong></td>'+
+      '<td>'+_carbKcal+' kcal</td>'+
+      '<td>'+pC+'%</td>'+
+      '<td class="macro-bar-cell"><div class="macro-bar-wrap"><div class="macro-bar-fill" style="width:'+pC+'%;background:#94a3b8"></div></div></td>'+
+    '</tr>'+
+    '<tr style="background:var(--slate-50);font-weight:700">'+
+      '<td>合計</td>'+
+      '<td>—</td>'+
+      '<td>'+(+_proteinKcal+ +_fatKcal+ +_carbKcal)+' kcal</td>'+
+      '<td>100%</td><td></td>'+
+    '</tr>';
+
+  document.getElementById('macro-formula-note').innerHTML=
+    '計算順序：<br>'+
+    '① TDEE '+_tdee.toLocaleString()+' × '+_goalCoeff+' = 目標 <strong>'+_target.toLocaleString()+'</strong> kcal<br>'+
+    '② 蛋白質 '+_weight+'kg × '+_proteinRatio.toFixed(1)+'g = <strong>'+_proteinG+'g</strong> × 4 = <strong>'+_proteinKcal+'</strong> kcal<br>'+
+    '③ 脂肪 <strong>'+_fatG+'g</strong> × 9 = <strong>'+_fatKcal+'</strong> kcal<br>'+
+    '④ 碳水 = ('+_target+' − '+_proteinKcal+' − '+_fatKcal+') ÷ 4 = <strong>'+_carbG+'g</strong>';
+
+  document.getElementById('section-macro-final').classList.remove('hidden');
+  setTimeout(function(){document.getElementById('section-macro-final').scrollIntoView({behavior:'smooth',block:'start'});},150);
+}
+
+// ── Utilities ──
+function resetFrom(from){
+  var stages=['activity','goal','final'];
+  var idx=stages.indexOf(from);
+  if(idx<=0){
+    document.getElementById('section-activity').classList.add('hidden');
+    document.querySelectorAll('.activity-item').forEach(function(e){e.classList.remove('selected');});
+  }
+  if(idx<=1){
+    document.getElementById('section-goal').classList.add('hidden');
+    document.querySelectorAll('.goal-item').forEach(function(e){e.classList.remove('selected');});
+  }
+  if(idx<=2){
+    document.getElementById('section-final').classList.add('hidden');
+  }
+  document.getElementById('macro-page').classList.add('hidden');
+  document.getElementById('section-next-btn').classList.remove('hidden');
+}
+
+function doPDF(){window.print();}
+
+function doScreenshot(){
+  var card=document.getElementById('section-macro-final');
+  var wrap=document.getElementById('screenshot-card-wrap');
+  wrap.innerHTML=card.innerHTML;
+  // hide any no-print / interactive buttons inside the clone
+  wrap.querySelectorAll('.export-row,.no-print,.btn-next').forEach(function(el){el.style.display='none';});
+  document.getElementById('screenshot-overlay').classList.add('active');
+  window.scrollTo(0,0);
+}
+
+function closeScreenshot(){
+  document.getElementById('screenshot-overlay').classList.remove('active');
+  document.getElementById('screenshot-card-wrap').innerHTML='';
+}
+
+function doReset(){
+  _gender=null;_weight=0;_height=0;_age=0;_name='';
+  _bmr=0;_tdee=0;_target=0;
+  _actCoeff=0;_actName='';_goalCoeff=0;_goalName='';_goalType='';
+  _proteinRatio=0;_proteinG=0;_proteinKcal=0;
+  _fatG=0;_fatKcal=0;_carbG=0;_carbKcal=0;
+  document.getElementById('inp-name').value='';
+  document.getElementById('inp-weight').value='';
+  document.getElementById('inp-height').value='';
+  document.getElementById('inp-age').value='';
+  document.getElementById('btn-male').classList.remove('active');
+  document.getElementById('btn-female').classList.remove('active');
+  resetFrom('activity');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+</script>
+</body>
+</html>
