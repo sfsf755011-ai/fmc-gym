@@ -470,7 +470,7 @@ html,body{font-family:-apple-system,BlinkMacSystemFont,'PingFang TC','Microsoft 
       <div class="section-title"><span class="step-num">6</span>🥑 脂肪（第二步）</div>
 
       <div class="info-note">
-        設定下限，不能太低。脂肪低於 20% 總熱量會影響荷爾蒙合成與脂溶性維生素吸收。<br>
+        設定下限，不能太低。脂肪低於 25% 總熱量會影響荷爾蒙合成與脂溶性維生素吸收。<br>
         1g 脂肪 = 9 kcal
       </div>
 
@@ -706,7 +706,7 @@ function confirmProtein(){
   if(!_proteinG){alert('請先選擇族群並設定克數');return;}
   // build fat ref
   var minByKg=Math.round(_weight*0.55);
-  var minByPct=Math.round(_target*0.20/9);
+  var minByPct=Math.round(_target*0.25/9);
   var maxByPct=Math.round(_target*0.30/9);
   document.getElementById('fat-ref-grid').innerHTML=
     '<div class="fat-ref-card">'+
@@ -715,9 +715,9 @@ function confirmProtein(){
       '<div class="fat-ref-formula">'+_weight+' kg × 0.55 g／kg</div>'+
     '</div>'+
     '<div class="fat-ref-card">'+
-      '<div class="fat-ref-title">建議區間（目標熱量 20–30%）</div>'+
+      '<div class="fat-ref-title">建議區間（目標熱量 25–30%）</div>'+
       '<div><span class="fat-ref-value">'+minByPct+'–'+maxByPct+'</span><span class="fat-ref-unit"> g</span></div>'+
-      '<div class="fat-ref-formula">'+_target+' kcal × 20–30% ÷ 9</div>'+
+      '<div class="fat-ref-formula">'+_target+' kcal × 25–30% ÷ 9</div>'+
     '</div>';
   var suggested=Math.max(minByKg,minByPct);
   document.getElementById('inp-fat').value=suggested;
@@ -734,7 +734,7 @@ function updateFatCalc(){
   var minKg=Math.round(_weight*0.55);
   var warn='';
   if(_fatG<minKg) warn='⚠️ 低於體重下限（'+minKg+'g），建議不要再低';
-  else if(pct<20) warn='⚠️ 脂肪佔比低於 20%，可能影響荷爾蒙合成';
+  else if(pct<25) warn='⚠️ 脂肪佔比低於 25%，可能影響荷爾蒙合成';
   else if(pct>35) warn='提示：脂肪佔比超過 35%，碳水空間會較少';
   document.getElementById('fat-calc-display').innerHTML=
     '<strong>'+_fatG+'g × 9 kcal</strong> = '+_fatKcal+' kcal　佔目標熱量 '+pct+'%'+(warn?'　<span style="color:#b45309">'+warn+'</span>':'');
