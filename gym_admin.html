@@ -183,6 +183,8 @@ tr:hover td{background:var(--bg2)}
     <div class="nav-item active" onclick="goPage('dashboard',this)"><span class="ni-icon">📊</span> 總覽</div>
     <div class="nav-item" onclick="goPage('students',this)"><span class="ni-icon">👥</span> 學員管理</div>
     <div class="nav-item" onclick="goPage('coaches-mgmt',this)"><span class="ni-icon">🏋️</span> 教練管理</div>
+    <div class="nav-item" onclick="goPage('renewal',this)"><span class="ni-icon">🔄</span> 續課追蹤</div>
+    <div class="nav-item" onclick="goPage('reconcile',this)"><span class="ni-icon">🧾</span> 對帳核對</div>
     <div class="nav-item" onclick="goPage('payment',this)"><span class="ni-icon">💳</span> 付款追蹤</div>
     <div class="nav-item" onclick="goPage('report',this)"><span class="ni-icon">📅</span> 月結報表</div>
     <div class="nav-item" onclick="goPage('settings',this)"><span class="ni-icon">⚙️</span> 設定</div>
@@ -493,6 +495,109 @@ tr:hover td{background:var(--bg2)}
         <div class="card" style="margin-top:14px">
           <div class="card-title">現有教練（點擊編輯）</div>
           <div id="coach-edit-list"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 續課追蹤 -->
+    <div id="page-renewal" class="page">
+      <div class="pg-title">續課追蹤</div>
+
+      <!-- 各教練續課率 -->
+      <div style="margin-bottom:24px">
+        <div style="font-size:13px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.06em;margin-bottom:12px">各教練續課率</div>
+        <div id="renewal-coach-cards" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px"></div>
+      </div>
+
+      <!-- 未續課學員名單 -->
+      <div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px">
+          <div style="font-size:13px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.06em">未續課學員名單</div>
+          <select id="renewal-coach-filter" onchange="renderRenewal()" style="font-size:13px;padding:6px 24px 6px 10px;border-radius:8px;border:1px solid var(--border2);background:var(--bg2);color:var(--text);-webkit-appearance:none">
+            <option value="">全部教練</option>
+          </select>
+        </div>
+        <div style="overflow-x:auto">
+          <table style="width:100%;border-collapse:collapse;font-size:13px">
+            <thead>
+              <tr style="background:var(--bg2);border-bottom:2px solid var(--border2)">
+                <th style="padding:10px 12px;text-align:left;font-weight:700;color:var(--text2)">學員</th>
+                <th style="padding:10px 12px;text-align:left;font-weight:700;color:var(--text2)">教練</th>
+                <th style="padding:10px 12px;text-align:center;font-weight:700;color:var(--text2)">已上／總堂</th>
+                <th style="padding:10px 12px;text-align:left;font-weight:700;color:var(--text2)">最後合約</th>
+                <th style="padding:10px 12px;text-align:center;font-weight:700;color:var(--text2)">合約數</th>
+              </tr>
+            </thead>
+            <tbody id="renewal-list-body"></tbody>
+          </table>
+          <div id="renewal-empty" style="display:none;text-align:center;padding:32px;color:var(--text2);font-size:14px">✓ 目前沒有未續課學員</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 對帳核對 -->
+    <div id="page-reconcile" class="page">
+      <div class="pg-title">對帳核對</div>
+
+      <!-- Step 1: 上傳 CSV -->
+      <div style="background:var(--bg2);border:1.5px dashed var(--border2);border-radius:var(--radius);padding:24px 20px;margin-bottom:20px;text-align:center" id="reconcile-upload-area">
+        <div style="font-size:28px;margin-bottom:8px">📂</div>
+        <div style="font-size:14px;font-weight:700;color:var(--text);margin-bottom:4px">上傳 17fit 匯出的 CSV</div>
+        <div style="font-size:12px;color:var(--text2);margin-bottom:14px">從 17fit 後台匯出結帳報表後上傳</div>
+        <input type="file" id="csv-file-input" accept=".csv" style="display:none" onchange="handleCSVUpload(event)">
+        <button class="btn btn-primary" style="width:auto;padding:10px 24px" onclick="document.getElementById('csv-file-input').click()">選擇 CSV 檔案</button>
+      </div>
+
+      <!-- Step 2: 欄位對應 -->
+      <div id="reconcile-mapper" style="display:none;background:var(--bg2);border:1px solid var(--border2);border-radius:var(--radius);padding:20px;margin-bottom:20px">
+        <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:14px">請對應 CSV 欄位</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+          <div>
+            <div style="font-size:12px;font-weight:600;color:var(--text2);margin-bottom:6px">日期欄位</div>
+            <select id="map-date" class="form-input" style="font-size:13px"></select>
+          </div>
+          <div>
+            <div style="font-size:12px;font-weight:600;color:var(--text2);margin-bottom:6px">金額欄位</div>
+            <select id="map-amount" class="form-input" style="font-size:13px"></select>
+          </div>
+          <div>
+            <div style="font-size:12px;font-weight:600;color:var(--text2);margin-bottom:6px">教練名欄位</div>
+            <select id="map-coach" class="form-input" style="font-size:13px"></select>
+          </div>
+          <div>
+            <div style="font-size:12px;font-weight:600;color:var(--text2);margin-bottom:6px">方案名稱欄位</div>
+            <select id="map-plan" class="form-input" style="font-size:13px"></select>
+          </div>
+        </div>
+        <button class="btn btn-primary" style="margin-top:16px" onclick="runReconcile()">開始比對 →</button>
+      </div>
+
+      <!-- Step 3: 比對結果 -->
+      <div id="reconcile-result" style="display:none">
+        <!-- 統計卡 -->
+        <div id="reconcile-summary" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px;margin-bottom:20px"></div>
+        <!-- 篩選 -->
+        <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap">
+          <button class="pill active" id="rf-all" onclick="filterReconcile('all',this)">全部</button>
+          <button class="pill" id="rf-ok" onclick="filterReconcile('ok',this)">✓ 吻合</button>
+          <button class="pill" id="rf-amount" onclick="filterReconcile('amount',this)">⚠️ 金額不符</button>
+          <button class="pill" id="rf-missing-admin" onclick="filterReconcile('missing-admin',this)">✗ 後台缺少</button>
+          <button class="pill" id="rf-missing-17fit" onclick="filterReconcile('missing-17fit',this)">✗ 17fit 缺少</button>
+        </div>
+        <div style="overflow-x:auto">
+          <table style="width:100%;border-collapse:collapse;font-size:13px">
+            <thead>
+              <tr style="background:var(--bg2);border-bottom:2px solid var(--border2)">
+                <th style="padding:10px 12px;text-align:left;font-weight:700;color:var(--text2)">狀態</th>
+                <th style="padding:10px 12px;text-align:left;font-weight:700;color:var(--text2)">日期</th>
+                <th style="padding:10px 12px;text-align:left;font-weight:700;color:var(--text2)">教練</th>
+                <th style="padding:10px 12px;text-align:left;font-weight:700;color:var(--text2)">方案</th>
+                <th style="padding:10px 12px;text-align:right;font-weight:700;color:var(--text2)">17fit 金額</th>
+                <th style="padding:10px 12px;text-align:right;font-weight:700;color:var(--text2)">後台金額</th>
+              </tr>
+            </thead>
+            <tbody id="reconcile-tbody"></tbody>
+          </table>
         </div>
       </div>
     </div>
@@ -1200,6 +1305,8 @@ function goPage(p,el){
   fbLoadAll(function(){
     if(p==='dashboard')renderDashboard();
     if(p==='students')renderStuList();
+    if(p==='renewal')renderRenewal();
+    if(p==='reconcile')initReconcile();
     if(p==='coaches-mgmt')renderCoachList();
     if(p==='payment')renderPayment();
     if(p==='report')renderReport();
@@ -2408,6 +2515,280 @@ function renderStuList(){
       +'<td>'+payBadge(getPayStatus(s))+'</td>'
       +'</tr>';
   }).join('');
+}
+
+// ══ 續課追蹤 ══
+function renderRenewal(){
+  // 填充教練篩選下拉
+  var cf=document.getElementById('renewal-coach-filter');
+  var cur=cf.value;
+  cf.innerHTML='<option value="">全部教練</option>'+coaches.map(function(c){
+    return '<option value="'+c.name+'"'+(c.name===cur?' selected':'')+'>'+c.name+'</option>';
+  }).join('');
+
+  var now=Date.now();
+  var twoWeeks=14*24*60*60*1000;
+
+  // 結課未續：剩餘堂數=0 且 最後合約建立超過14天前
+  function isNotRenewed(s){
+    var remain=(s.totalSessions||0)-(s.usedSessions||0);
+    if(remain>0) return false;
+    var contracts=s.contracts||[];
+    if(!contracts.length) return false;
+    var lastDate=contracts[contracts.length-1].date||'';
+    var daysSince=lastDate?(now-new Date(lastDate).getTime()):Infinity;
+    return daysSince>twoWeeks;
+  }
+  // 已續課：有多份合約（曾經續購過）
+  function isRenewed(s){return (s.contracts||[]).length>1;}
+
+  var notRenewed=students.filter(isNotRenewed);
+
+  // 各教練續課率卡片
+  // 正確算法：分母只算「已結課需決定是否續課」的學員
+  // = 已續課 + 結課未續（不含還在進行中的學員）
+  var coachCards=document.getElementById('renewal-coach-cards');
+  coachCards.innerHTML=coaches.map(function(c){
+    var myStu=students.filter(function(s){return s.coach===c.name;});
+    if(!myStu.length) return '';
+    var renewed=myStu.filter(isRenewed).length;
+    var done=myStu.filter(isNotRenewed).length;
+    var base=renewed+done; // 已結課需判斷的母體
+    var rate=base>0?Math.round(renewed/base*100):null;
+    var rateStr=rate===null?'—':rate+'%';
+    var rateColor=rate===null?'var(--text2)':rate>=70?'var(--green-text)':rate>=40?'var(--amber)':'var(--red)';
+    var active=myStu.length-renewed-done; // 進行中（不計入）
+    return '<div style="background:var(--bg2);border:1px solid var(--border2);border-radius:var(--radius);padding:16px 18px">'+
+      '<div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:10px">'+c.name+'</div>'+
+      '<div style="font-size:32px;font-weight:800;color:'+rateColor+';line-height:1;margin-bottom:8px">'+rateStr+'</div>'+
+      '<div style="font-size:11px;color:var(--text2);line-height:1.9">'+
+        '已續課：<strong style="color:var(--green-text)">'+renewed+' 人</strong><br>'+
+        '結課未續：<strong style="color:var(--red)">'+done+' 人</strong><br>'+
+        '進行中：'+active+' 人（不計入）'+
+      '</div>'+
+    '</div>';
+  }).join('');
+
+  // 未續課學員表格
+  var filterCoach=document.getElementById('renewal-coach-filter').value;
+  var list=notRenewed.filter(function(s){return !filterCoach||s.coach===filterCoach;});
+  list.sort(function(a,b){return a.coach.localeCompare(b.coach)||a.name.localeCompare(b.name);});
+
+  var tbody=document.getElementById('renewal-list-body');
+  var empty=document.getElementById('renewal-empty');
+  if(!list.length){
+    tbody.innerHTML='';
+    empty.style.display='block';
+    return;
+  }
+  empty.style.display='none';
+  tbody.innerHTML=list.map(function(s,i){
+    var lastContract=(s.contracts&&s.contracts.length)?s.contracts[s.contracts.length-1]:{};
+    var lastDate=lastContract.date||'';
+    var daysSince=lastDate?Math.floor((now-new Date(lastDate).getTime())/(1000*60*60*24)):'?';
+    var bg=i%2===0?'':'background:var(--bg2)';
+    return '<tr style="border-bottom:1px solid var(--border);'+bg+'">'+
+      '<td style="padding:10px 12px;font-weight:600">'+s.name+'</td>'+
+      '<td style="padding:10px 12px"><span style="background:var(--blue-bg);color:var(--blue-text);font-size:11px;font-weight:700;padding:3px 8px;border-radius:99px">'+s.coach+'</span></td>'+
+      '<td style="padding:10px 12px;text-align:center;color:var(--red);font-weight:700">'+s.usedSessions+' ／ '+s.totalSessions+'</td>'+
+      '<td style="padding:10px 12px;font-size:12px;color:var(--text2)">'+(lastContract.planLabel||'—')+(lastDate?' · '+lastDate:'')+'</td>'+
+      '<td style="padding:10px 12px;text-align:center;color:var(--red);font-weight:700">'+daysSince+' 天前</td>'+
+    '</tr>';
+  }).join('');
+}
+
+// ══ 對帳核對 ══
+var _csvRows=[], _reconcileRows=[], _currentFilter='all';
+
+function initReconcile(){
+  // 每次進頁面重置狀態
+  _csvRows=[];_reconcileRows=[];_currentFilter='all';
+  document.getElementById('reconcile-mapper').style.display='none';
+  document.getElementById('reconcile-result').style.display='none';
+  document.getElementById('csv-file-input').value='';
+}
+
+function parseCSV(text){
+  var lines=text.split(/\r?\n/).filter(function(l){return l.trim();});
+  if(!lines.length) return [];
+  // 偵測分隔符
+  var delim=lines[0].indexOf('\t')>-1?'\t':',';
+  var headers=lines[0].split(delim).map(function(h){return h.replace(/^"|"$/g,'').trim();});
+  return lines.slice(1).map(function(line){
+    var vals=line.split(delim).map(function(v){return v.replace(/^"|"$/g,'').trim();});
+    var obj={};
+    headers.forEach(function(h,i){obj[h]=vals[i]||'';});
+    return obj;
+  }).filter(function(r){return Object.values(r).some(function(v){return v;});});
+}
+
+function handleCSVUpload(e){
+  var file=e.target.files[0];
+  if(!file) return;
+  var reader=new FileReader();
+  reader.onload=function(ev){
+    var text=ev.target.result;
+    _csvRows=parseCSV(text);
+    if(!_csvRows.length){toast('CSV 解析失敗，請確認格式');return;}
+    // 填充欄位下拉
+    var headers=Object.keys(_csvRows[0]);
+    var opts=headers.map(function(h){return '<option value="'+h+'">'+h+'</option>';}).join('');
+    ['map-date','map-amount','map-coach','map-plan'].forEach(function(id){
+      document.getElementById(id).innerHTML=opts;
+    });
+    // 猜測欄位對應
+    var guess=function(keywords){
+      return headers.find(function(h){return keywords.some(function(k){return h.toLowerCase().indexOf(k)>-1;});}) || headers[0];
+    };
+    document.getElementById('map-date').value=guess(['date','日期','時間','交易']);
+    document.getElementById('map-amount').value=guess(['amount','金額','price','費用','付款']);
+    document.getElementById('map-coach').value=guess(['coach','教練','staff','員工','老師']);
+    document.getElementById('map-plan').value=guess(['plan','方案','課程','product','商品','項目']);
+    document.getElementById('reconcile-mapper').style.display='block';
+    document.getElementById('reconcile-result').style.display='none';
+    toast('✓ 已載入 '+_csvRows.length+' 筆 17fit 資料');
+  };
+  reader.readAsText(file,'UTF-8');
+}
+
+function normalizeCoach(name){
+  // 移除「教練」後綴、轉小寫，方便比對
+  return (name||'').toLowerCase().replace('教練','').replace('coach','').trim();
+}
+function normalizePlan(name){
+  return (name||'').toLowerCase().replace(/\s/g,'').replace(/・/g,'');
+}
+function normalizeAmount(val){
+  return parseInt((val||'0').toString().replace(/[^0-9]/g,''))||0;
+}
+
+function runReconcile(){
+  var colDate=document.getElementById('map-date').value;
+  var colAmt=document.getElementById('map-amount').value;
+  var colCoach=document.getElementById('map-coach').value;
+  var colPlan=document.getElementById('map-plan').value;
+
+  // 整理後台合約資料
+  var adminContracts=[];
+  students.forEach(function(s){
+    (s.contracts||[]).forEach(function(c){
+      adminContracts.push({
+        date:c.date||'',
+        amount:c.price||0,
+        coach:s.coach||'',
+        plan:c.planLabel||'',
+        studentName:s.name,
+        _matched:false
+      });
+    });
+  });
+
+  // 整理 17fit 資料
+  var fitRows=_csvRows.map(function(r){
+    return {
+      date:(r[colDate]||'').slice(0,10),
+      amount:normalizeAmount(r[colAmt]),
+      coach:r[colCoach]||'',
+      plan:r[colPlan]||'',
+      _raw:r,
+      _matched:false
+    };
+  });
+
+  _reconcileRows=[];
+
+  // 比對：以 17fit 每筆為基準，找後台對應
+  fitRows.forEach(function(fr){
+    var match=adminContracts.find(function(ac){
+      return !ac._matched
+        && ac.date===fr.date
+        && normalizeCoach(ac.coach)===normalizeCoach(fr.coach)
+        && normalizePlan(ac.plan)===normalizePlan(fr.plan);
+    });
+    if(match){
+      match._matched=true;
+      var amountOk=Math.abs(match.amount-fr.amount)<=1;
+      _reconcileRows.push({
+        status: amountOk?'ok':'amount',
+        date:fr.date, coach:fr.coach, plan:fr.plan,
+        fitAmount:fr.amount, adminAmount:match.amount,
+        studentName:match.studentName
+      });
+    } else {
+      _reconcileRows.push({
+        status:'missing-admin',
+        date:fr.date, coach:fr.coach, plan:fr.plan,
+        fitAmount:fr.amount, adminAmount:null,
+        studentName:'—'
+      });
+    }
+  });
+
+  // 後台有但 17fit 沒有的
+  adminContracts.filter(function(ac){return !ac._matched;}).forEach(function(ac){
+    _reconcileRows.push({
+      status:'missing-17fit',
+      date:ac.date, coach:ac.coach, plan:ac.plan,
+      fitAmount:null, adminAmount:ac.amount,
+      studentName:ac.studentName
+    });
+  });
+
+  document.getElementById('reconcile-result').style.display='block';
+  _currentFilter='all';
+  document.querySelectorAll('#page-reconcile .pill').forEach(function(b){b.classList.remove('active');});
+  document.getElementById('rf-all').classList.add('active');
+  renderReconcileTable();
+}
+
+function renderReconcileTable(){
+  var rows=_currentFilter==='all'?_reconcileRows:_reconcileRows.filter(function(r){return r.status===_currentFilter;});
+
+  // 統計
+  var ok=_reconcileRows.filter(function(r){return r.status==='ok';}).length;
+  var amt=_reconcileRows.filter(function(r){return r.status==='amount';}).length;
+  var mA=_reconcileRows.filter(function(r){return r.status==='missing-admin';}).length;
+  var mF=_reconcileRows.filter(function(r){return r.status==='missing-17fit';}).length;
+  document.getElementById('reconcile-summary').innerHTML=[
+    {label:'✓ 吻合',val:ok,color:'var(--green-text)'},
+    {label:'⚠️ 金額不符',val:amt,color:'var(--amber)'},
+    {label:'✗ 後台缺少',val:mA,color:'var(--red)'},
+    {label:'✗ 17fit 缺少',val:mF,color:'var(--red)'},
+  ].map(function(s){
+    return '<div style="background:var(--bg2);border:1px solid var(--border2);border-radius:var(--radius-sm);padding:14px 16px">'+
+      '<div style="font-size:11px;color:var(--text2);margin-bottom:4px">'+s.label+'</div>'+
+      '<div style="font-size:28px;font-weight:800;color:'+s.color+'">'+s.val+'</div>'+
+    '</div>';
+  }).join('');
+
+  var statusMap={
+    ok:['var(--green-text)','✓ 吻合'],
+    amount:['var(--amber)','⚠️ 金額不符'],
+    'missing-admin':['var(--red)','✗ 後台缺少'],
+    'missing-17fit':['var(--red)','✗ 17fit 缺少']
+  };
+  document.getElementById('reconcile-tbody').innerHTML=rows.map(function(r,i){
+    var sc=statusMap[r.status]||['var(--text2)','—'];
+    var bg=i%2===0?'':'background:var(--bg2)';
+    var fitAmt=r.fitAmount!=null?'NT$'+r.fitAmount.toLocaleString():'—';
+    var adminAmt=r.adminAmount!=null?'NT$'+r.adminAmount.toLocaleString():'—';
+    var amtStyle=r.status==='amount'?'color:var(--amber);font-weight:700':'';
+    return '<tr style="border-bottom:1px solid var(--border);'+bg+'">'+
+      '<td style="padding:10px 12px"><span style="color:'+sc[0]+';font-weight:700;font-size:12px">'+sc[1]+'</span></td>'+
+      '<td style="padding:10px 12px;color:var(--text2);font-size:12px">'+r.date+'</td>'+
+      '<td style="padding:10px 12px">'+r.coach+'</td>'+
+      '<td style="padding:10px 12px;font-size:12px">'+r.plan+'</td>'+
+      '<td style="padding:10px 12px;text-align:right;'+amtStyle+'">'+fitAmt+'</td>'+
+      '<td style="padding:10px 12px;text-align:right;'+amtStyle+'">'+adminAmt+'</td>'+
+    '</tr>';
+  }).join('') || '<tr><td colspan="6" style="padding:24px;text-align:center;color:var(--text2)">沒有符合的資料</td></tr>';
+}
+
+function filterReconcile(type,btn){
+  _currentFilter=type;
+  document.querySelectorAll('#page-reconcile .pill').forEach(function(b){b.classList.remove('active');});
+  btn.classList.add('active');
+  renderReconcileTable();
 }
 
 // ══ 付款追蹤 ══
