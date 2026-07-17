@@ -592,6 +592,7 @@ tr:hover td{background:var(--bg2)}
                 <th style="padding:10px 12px;text-align:left;font-weight:700;color:var(--text2)">日期</th>
                 <th style="padding:10px 12px;text-align:left;font-weight:700;color:var(--text2)">教練</th>
                 <th style="padding:10px 12px;text-align:left;font-weight:700;color:var(--text2)">方案</th>
+                <th style="padding:10px 12px;text-align:left;font-weight:700;color:var(--text2)">交易方式</th>
                 <th style="padding:10px 12px;text-align:right;font-weight:700;color:var(--text2)">17fit 金額</th>
                 <th style="padding:10px 12px;text-align:right;font-weight:700;color:var(--text2)">後台金額</th>
               </tr>
@@ -2601,7 +2602,6 @@ function renderRenewal(){
 var _csvRows=[], _reconcileRows=[], _currentFilter='all';
 
 function initReconcile(){
-  // 每次進頁面重置狀態
   _csvRows=[];_reconcileRows=[];_currentFilter='all';
   document.getElementById('reconcile-mapper').style.display='none';
   document.getElementById('reconcile-result').style.display='none';
@@ -2609,17 +2609,59 @@ function initReconcile(){
 }
 
 function parseCSV(text){
-  var lines=text.split(/\r?\n/).filter(function(l){return l.trim();});
+  // 處理 CSV 含引號欄位（如 "8,999"）
+  var lines=[];
+  var cur='',inQ=false;
+  for(var i=0;i<text.length;i++){
+    var ch=text[i];
+    if(ch==='"'){inQ=!inQ;}
+    else if((ch==='\n'||ch==='\r')&&!inQ){if(cur)lines.push(cur);cur='';if(ch==='\r'&&text[i+1]==='\n')i++;}
+    else cur+=ch;
+  }
+  if(cur) lines.push(cur);
   if(!lines.length) return [];
-  // 偵測分隔符
-  var delim=lines[0].indexOf('\t')>-1?'\t':',';
-  var headers=lines[0].split(delim).map(function(h){return h.replace(/^"|"$/g,'').trim();});
+  function splitLine(line){
+    var fields=[],f='',q=false;
+    for(var i=0;i<line.length;i++){
+      var c=line[i];
+      if(c==='"'){q=!q;}
+      else if(c===','&&!q){fields.push(f.trim());f='';}
+      else f+=c;
+    }
+    fields.push(f.trim());
+    return fields;
+  }
+  var headers=splitLine(lines[0]);
   return lines.slice(1).map(function(line){
-    var vals=line.split(delim).map(function(v){return v.replace(/^"|"$/g,'').trim();});
+    var vals=splitLine(line);
     var obj={};
     headers.forEach(function(h,i){obj[h]=vals[i]||'';});
     return obj;
-  }).filter(function(r){return Object.values(r).some(function(v){return v;});});
+  }).filter(function(r){return r['訂單編號'];});
+}
+
+function normalizeCoach(name){
+  return (name||'').toLowerCase().replace(/教練|coach/g,'').trim();
+}
+
+// 從 17fit 項目欄位抽出 1v1/1v2 + 堂數，作為比對 key
+function extractPlanKey(str){
+  var s=str||'';
+  var type=/1v2/i.test(s)?'1v2':/1v1/i.test(s)?'1v1':'';
+  var sessions=(s.match(/(\d+)\s*堂/)||[])[1]||'';
+  return type&&sessions?type+'-'+sessions:'';
+}
+
+// 從後台 planLabel 抽出相同 key（例："1v1・10堂" → "1v1-10"）
+function extractAdminPlanKey(str){
+  var s=str||'';
+  var type=/1v2/i.test(s)?'1v2':/1v1/i.test(s)?'1v1':'';
+  var sessions=(s.match(/(\d+)\s*堂/)||[])[1]||'';
+  return type&&sessions?type+'-'+sessions:'';
+}
+
+function normalizeAmount(val){
+  return parseInt((val||'0').toString().replace(/[^0-9]/g,''))||0;
 }
 
 function handleCSVUpload(e){
@@ -2627,48 +2669,42 @@ function handleCSVUpload(e){
   if(!file) return;
   var reader=new FileReader();
   reader.onload=function(ev){
-    var text=ev.target.result;
-    _csvRows=parseCSV(text);
+    _csvRows=parseCSV(ev.target.result);
     if(!_csvRows.length){toast('CSV 解析失敗，請確認格式');return;}
-    // 填充欄位下拉
-    var headers=Object.keys(_csvRows[0]);
-    var opts=headers.map(function(h){return '<option value="'+h+'">'+h+'</option>';}).join('');
-    ['map-date','map-amount','map-coach','map-plan'].forEach(function(id){
-      document.getElementById(id).innerHTML=opts;
-    });
-    // 猜測欄位對應
-    var guess=function(keywords){
-      return headers.find(function(h){return keywords.some(function(k){return h.toLowerCase().indexOf(k)>-1;});}) || headers[0];
-    };
-    document.getElementById('map-date').value=guess(['date','日期','時間','交易']);
-    document.getElementById('map-amount').value=guess(['amount','金額','price','費用','付款']);
-    document.getElementById('map-coach').value=guess(['coach','教練','staff','員工','老師']);
-    document.getElementById('map-plan').value=guess(['plan','方案','課程','product','商品','項目']);
     document.getElementById('reconcile-mapper').style.display='block';
     document.getElementById('reconcile-result').style.display='none';
+    // 隱藏欄位對應（已固定欄位名）
+    document.getElementById('reconcile-mapper').innerHTML=
+      '<div style="font-size:13px;color:var(--text2);margin-bottom:14px">'+
+      '已偵測 <strong>'+_csvRows.length+' 筆</strong>原始資料，'+
+      '將依訂單編號合併分期付款後進行比對。</div>'+
+      '<button class="btn btn-primary" onclick="runReconcile()">開始比對 →</button>';
     toast('✓ 已載入 '+_csvRows.length+' 筆 17fit 資料');
   };
   reader.readAsText(file,'UTF-8');
 }
 
-function normalizeCoach(name){
-  // 移除「教練」後綴、轉小寫，方便比對
-  return (name||'').toLowerCase().replace('教練','').replace('coach','').trim();
-}
-function normalizePlan(name){
-  return (name||'').toLowerCase().replace(/\s/g,'').replace(/・/g,'');
-}
-function normalizeAmount(val){
-  return parseInt((val||'0').toString().replace(/[^0-9]/g,''))||0;
-}
-
 function runReconcile(){
-  var colDate=document.getElementById('map-date').value;
-  var colAmt=document.getElementById('map-amount').value;
-  var colCoach=document.getElementById('map-coach').value;
-  var colPlan=document.getElementById('map-plan').value;
+  // 以訂單編號合併分期，取第一筆的日期/教練/項目，金額加總
+  var orderMap={};
+  _csvRows.forEach(function(r){
+    var id=r['訂單編號'];
+    if(!id) return;
+    if(!orderMap[id]){
+      orderMap[id]={
+        date:(r['交易日期']||'').slice(0,10),
+        coach:r['業務代表1']||'',
+        planRaw:r['項目']||'',
+        payMethod:r['交易方式']||'',
+        amount:0,
+        planKey:extractPlanKey(r['項目']||'')
+      };
+    }
+    orderMap[id].amount+=normalizeAmount(r['金額']);
+  });
+  var fitOrders=Object.values(orderMap);
 
-  // 整理後台合約資料
+  // 整理後台合約
   var adminContracts=[];
   students.forEach(function(s){
     (s.contracts||[]).forEach(function(c){
@@ -2676,61 +2712,49 @@ function runReconcile(){
         date:c.date||'',
         amount:c.price||0,
         coach:s.coach||'',
-        plan:c.planLabel||'',
+        planLabel:c.planLabel||'',
+        planKey:extractAdminPlanKey(c.planLabel||''),
         studentName:s.name,
         _matched:false
       });
     });
   });
 
-  // 整理 17fit 資料
-  var fitRows=_csvRows.map(function(r){
-    return {
-      date:(r[colDate]||'').slice(0,10),
-      amount:normalizeAmount(r[colAmt]),
-      coach:r[colCoach]||'',
-      plan:r[colPlan]||'',
-      _raw:r,
-      _matched:false
-    };
-  });
-
   _reconcileRows=[];
 
-  // 比對：以 17fit 每筆為基準，找後台對應
-  fitRows.forEach(function(fr){
+  fitOrders.forEach(function(fo){
     var match=adminContracts.find(function(ac){
       return !ac._matched
-        && ac.date===fr.date
-        && normalizeCoach(ac.coach)===normalizeCoach(fr.coach)
-        && normalizePlan(ac.plan)===normalizePlan(fr.plan);
+        && ac.date===fo.date
+        && normalizeCoach(ac.coach)===normalizeCoach(fo.coach)
+        && fo.planKey&&ac.planKey&&fo.planKey===ac.planKey;
     });
     if(match){
       match._matched=true;
-      var amountOk=Math.abs(match.amount-fr.amount)<=1;
+      var amountOk=Math.abs(match.amount-fo.amount)<=1;
       _reconcileRows.push({
-        status: amountOk?'ok':'amount',
-        date:fr.date, coach:fr.coach, plan:fr.plan,
-        fitAmount:fr.amount, adminAmount:match.amount,
+        status:amountOk?'ok':'amount',
+        date:fo.date,coach:fo.coach,planRaw:fo.planRaw,planKey:fo.planKey,
+        payMethod:fo.payMethod,
+        fitAmount:fo.amount,adminAmount:match.amount,
         studentName:match.studentName
       });
     } else {
       _reconcileRows.push({
         status:'missing-admin',
-        date:fr.date, coach:fr.coach, plan:fr.plan,
-        fitAmount:fr.amount, adminAmount:null,
-        studentName:'—'
+        date:fo.date,coach:fo.coach,planRaw:fo.planRaw,planKey:fo.planKey,
+        payMethod:fo.payMethod,
+        fitAmount:fo.amount,adminAmount:null,studentName:'—'
       });
     }
   });
 
-  // 後台有但 17fit 沒有的
   adminContracts.filter(function(ac){return !ac._matched;}).forEach(function(ac){
     _reconcileRows.push({
       status:'missing-17fit',
-      date:ac.date, coach:ac.coach, plan:ac.plan,
-      fitAmount:null, adminAmount:ac.amount,
-      studentName:ac.studentName
+      date:ac.date,coach:ac.coach,planRaw:ac.planLabel,planKey:ac.planKey,
+      payMethod:'—',
+      fitAmount:null,adminAmount:ac.amount,studentName:ac.studentName
     });
   });
 
@@ -2743,8 +2767,6 @@ function runReconcile(){
 
 function renderReconcileTable(){
   var rows=_currentFilter==='all'?_reconcileRows:_reconcileRows.filter(function(r){return r.status===_currentFilter;});
-
-  // 統計
   var ok=_reconcileRows.filter(function(r){return r.status==='ok';}).length;
   var amt=_reconcileRows.filter(function(r){return r.status==='amount';}).length;
   var mA=_reconcileRows.filter(function(r){return r.status==='missing-admin';}).length;
@@ -2761,27 +2783,24 @@ function renderReconcileTable(){
     '</div>';
   }).join('');
 
-  var statusMap={
-    ok:['var(--green-text)','✓ 吻合'],
-    amount:['var(--amber)','⚠️ 金額不符'],
-    'missing-admin':['var(--red)','✗ 後台缺少'],
-    'missing-17fit':['var(--red)','✗ 17fit 缺少']
-  };
+  var statusMap={ok:['var(--green-text)','✓ 吻合'],amount:['var(--amber)','⚠️ 金額不符'],'missing-admin':['var(--red)','✗ 後台缺少'],'missing-17fit':['var(--red)','✗ 17fit 缺少']};
   document.getElementById('reconcile-tbody').innerHTML=rows.map(function(r,i){
     var sc=statusMap[r.status]||['var(--text2)','—'];
     var bg=i%2===0?'':'background:var(--bg2)';
     var fitAmt=r.fitAmount!=null?'NT$'+r.fitAmount.toLocaleString():'—';
     var adminAmt=r.adminAmount!=null?'NT$'+r.adminAmount.toLocaleString():'—';
     var amtStyle=r.status==='amount'?'color:var(--amber);font-weight:700':'';
+    var planDisp=r.planKey||r.planRaw||'—';
     return '<tr style="border-bottom:1px solid var(--border);'+bg+'">'+
       '<td style="padding:10px 12px"><span style="color:'+sc[0]+';font-weight:700;font-size:12px">'+sc[1]+'</span></td>'+
-      '<td style="padding:10px 12px;color:var(--text2);font-size:12px">'+r.date+'</td>'+
+      '<td style="padding:10px 12px;color:var(--text2);font-size:12px;white-space:nowrap">'+r.date+'</td>'+
       '<td style="padding:10px 12px">'+r.coach+'</td>'+
-      '<td style="padding:10px 12px;font-size:12px">'+r.plan+'</td>'+
+      '<td style="padding:10px 12px;font-size:12px">'+planDisp+'</td>'+
+      '<td style="padding:10px 12px;font-size:12px;color:var(--text2)">'+r.payMethod+'</td>'+
       '<td style="padding:10px 12px;text-align:right;'+amtStyle+'">'+fitAmt+'</td>'+
       '<td style="padding:10px 12px;text-align:right;'+amtStyle+'">'+adminAmt+'</td>'+
     '</tr>';
-  }).join('') || '<tr><td colspan="6" style="padding:24px;text-align:center;color:var(--text2)">沒有符合的資料</td></tr>';
+  }).join('')||'<tr><td colspan="7" style="padding:24px;text-align:center;color:var(--text2)">沒有符合的資料</td></tr>';
 }
 
 function filterReconcile(type,btn){
