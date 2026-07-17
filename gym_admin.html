@@ -988,10 +988,17 @@ function fbSaveStudents() {
 }
 function fbSaveSingleStudent(stu) {
   if (!stu) return;
-  // Firebase stores students as array, so rewrite whole array
-  fbdb.ref('data/students').set(students, function(err) {
-    if (err) console.error('Save student error:', err);
-  });
+  // 只寫入這一位學員的索引位置，避免覆蓋簽到頁面的並行 usedSessions 更新
+  var idx = students.findIndex(function(s){ return String(s.id) === String(stu.id); });
+  if (idx >= 0) {
+    fbdb.ref('data/students/' + idx).set(stu, function(err) {
+      if (err) console.error('Save student error:', err);
+    });
+  } else {
+    fbdb.ref('data/students').set(students, function(err) {
+      if (err) console.error('Save student error (fallback):', err);
+    });
+  }
 }
 function fbDeleteStudent(stuId) {
   fbdb.ref('data/students/' + stuId).remove(function(err) {

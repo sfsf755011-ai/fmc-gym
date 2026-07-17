@@ -971,48 +971,48 @@ function submitCheckin() {
   if (!stu || stu.totalSessions - stu.usedSessions <= 0) {
     fail('堂數已用完，請洽詢前台'); return;
   }
-  // Step 1.5: 同步從Firebase讀最新堂數（確保資料最新）
+  // Step 1.5: 從 Firebase 讀最新資料並取得陣列索引
   db.ref('data/students').once('value', function(snap) {
     var rawStu = snap.val() || [];
     var arr = Array.isArray(rawStu) ? rawStu : Object.values(rawStu);
+    var stuIndex = -1;
     for (var j = 0; j < arr.length; j++) {
-      if (arr[j] && String(arr[j].id) === String(selStudent.id)) { stu = arr[j]; break; }
+      if (arr[j] && String(arr[j].id) === String(selStudent.id)) { stu = arr[j]; stuIndex = j; break; }
     }
-    if (!stu || stu.totalSessions - stu.usedSessions <= 0) {
+    if (!stu || stuIndex < 0 || stu.totalSessions - stu.usedSessions <= 0) {
       fail('堂數已用完，請洽詢前台'); return;
     }
-    stu.usedSessions++;
-    var nr = stu.totalSessions - stu.usedSessions;
-    var rec = {date:todayStr(), time:nowStr(), student:stu.name, coach:selCoach.name, remainAfter:nr};
-    var _sigData = getCompressedSig();
-    var _sigDate = rec.date, _sigTime = rec.time, _sigStuId = stu.id;
 
-    // Step 2: 先寫簽到紀錄 - 讀取現有陣列後 unshift，整個寫回（避免 push() 產生混合 key）
-    db.ref('data/records').once('value', function(recSnap) {
-      var recArr = recSnap.val() || [];
-      if (!Array.isArray(recArr)) recArr = Object.values(recArr);
-      recArr.unshift(rec);
-      db.ref('data/records').set(recArr, function(err1) {
-      if (err1) { fail('簽到紀錄儲存失敗，請重試'); return; }
-
-      // Step 3: 紀錄成功後才扣堂數，寫回整個陣列
-      // 先更新記憶體
+    // Step 2: 用 transaction 原子性扣堂數，不覆寫其他學員資料
+    db.ref('data/students/' + stuIndex + '/usedSessions').transaction(function(current) {
+      return (current || 0) + 1;
+    }, function(txErr, committed, snapshot) {
+      if (txErr || !committed) { fail('堂數更新失敗，請重試'); return; }
+      var newUsed = snapshot.val();
+      var nr = stu.totalSessions - newUsed;
+      stu.usedSessions = newUsed;
       for (var k = 0; k < students.length; k++) {
         if (String(students[k].id) === String(stu.id)) { students[k] = stu; break; }
       }
-      db.ref('data/students').set(students, function(err2) {
-        if (err2) {
-          // 紀錄已寫入但堂數沒扣 - 極少見，提示教練處理
-          fail('堂數更新失敗，請告知教練手動確認（簽到紀錄已存入）'); return;
-        }
-        // 兩者都成功，顯示簽到完成
-        if (_sigData) saveSignature(_sigStuId, _sigData, _sigDate, _sigTime);
-        showSuccess(stu, nr);
-      });
-      });
-    }, function(err) {
-      fail('讀取資料失敗，請重試');
+
+      var rec = {date:todayStr(), time:nowStr(), student:stu.name, coach:selCoach.name, remainAfter:nr};
+      var _sigData = getCompressedSig();
+      var _sigDate = rec.date, _sigTime = rec.time, _sigStuId = stu.id;
+
+      // Step 3: 寫簽到紀錄（堂數已確保原子扣除）
+      db.ref('data/records').once('value', function(recSnap) {
+        var recArr = recSnap.val() || [];
+        if (!Array.isArray(recArr)) recArr = Object.values(recArr);
+        recArr.unshift(rec);
+        db.ref('data/records').set(recArr, function(err1) {
+          if (err1) { fail('堂數已扣除，但簽到紀錄儲存失敗，請告知教練'); return; }
+          if (_sigData) saveSignature(_sigStuId, _sigData, _sigDate, _sigTime);
+          showSuccess(stu, nr);
+        });
+      }, function(err) { fail('讀取資料失敗，請重試'); });
     });
+  }, function(err) {
+    fail('讀取資料失敗，請重試');
   });
 }
 
