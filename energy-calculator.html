@@ -525,12 +525,28 @@ html,body{font-family:-apple-system,BlinkMacSystemFont,'PingFang TC','Microsoft 
           <div style="text-align:right"><span class="val" id="macro-target-val">—</span> <span style="font-size:12px;color:rgba(255,255,255,.5)">kcal／天</span></div>
         </div>
 
+        <!-- display toggle -->
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+          <span style="font-size:12px;color:var(--slate-400)">顯示方式：</span>
+          <button id="toggle-gram" onclick="switchMacroDisplay('gram')"
+            style="padding:4px 14px;border-radius:99px;border:1.5px solid var(--slate-300);font-size:12px;font-weight:700;cursor:pointer;background:var(--slate-800);color:#fff;transition:.2s">
+            克數
+          </button>
+          <button id="toggle-serving" onclick="switchMacroDisplay('serving')"
+            style="padding:4px 14px;border-radius:99px;border:1.5px solid var(--slate-300);font-size:12px;font-weight:700;cursor:pointer;background:transparent;color:var(--slate-400);transition:.2s">
+            份數
+          </button>
+          <span id="serving-hint" style="font-size:11px;color:var(--slate-400);display:none">
+            蛋白質1份=7g｜脂肪1份=5g｜碳水1份=15g
+          </span>
+        </div>
+
         <!-- macro table -->
         <table class="macro-table" id="macro-table">
           <thead>
             <tr>
               <th>營養素</th>
-              <th>克數</th>
+              <th id="macro-unit-header">克數</th>
               <th>熱量</th>
               <th>佔比</th>
               <th class="macro-bar-cell"></th>
@@ -772,38 +788,9 @@ function showMacroFinal(){
       '<span>🎯 目標</span><span style="font-weight:400">'+_goalName+'</span><span style="opacity:.7">×'+_goalCoeff+'</span>'+
     '</div>';
 
-  var pP=Math.round(_proteinKcal/_target*100);
-  var pF=Math.round(_fatKcal/_target*100);
-  var pC=Math.round(_carbKcal/_target*100);
-
-  document.getElementById('macro-tbody').innerHTML=
-    '<tr>'+
-      '<td><span class="macro-color-dot" style="background:#334155"></span>蛋白質</td>'+
-      '<td><strong>'+_proteinG+'g</strong></td>'+
-      '<td>'+_proteinKcal+' kcal</td>'+
-      '<td>'+pP+'%</td>'+
-      '<td class="macro-bar-cell"><div class="macro-bar-wrap"><div class="macro-bar-fill" style="width:'+pP+'%;background:#334155"></div></div></td>'+
-    '</tr>'+
-    '<tr>'+
-      '<td><span class="macro-color-dot" style="background:#64748b"></span>脂肪</td>'+
-      '<td><strong>'+_fatG+'g</strong></td>'+
-      '<td>'+_fatKcal+' kcal</td>'+
-      '<td>'+pF+'%</td>'+
-      '<td class="macro-bar-cell"><div class="macro-bar-wrap"><div class="macro-bar-fill" style="width:'+pF+'%;background:#64748b"></div></div></td>'+
-    '</tr>'+
-    '<tr>'+
-      '<td><span class="macro-color-dot" style="background:#94a3b8"></span>碳水</td>'+
-      '<td><strong>'+_carbG+'g</strong></td>'+
-      '<td>'+_carbKcal+' kcal</td>'+
-      '<td>'+pC+'%</td>'+
-      '<td class="macro-bar-cell"><div class="macro-bar-wrap"><div class="macro-bar-fill" style="width:'+pC+'%;background:#94a3b8"></div></div></td>'+
-    '</tr>'+
-    '<tr style="background:var(--slate-50);font-weight:700">'+
-      '<td>合計</td>'+
-      '<td>—</td>'+
-      '<td>'+(+_proteinKcal+ +_fatKcal+ +_carbKcal)+' kcal</td>'+
-      '<td>100%</td><td></td>'+
-    '</tr>';
+  _displayMode='gram';
+  renderMacroTable();
+  switchMacroDisplay('gram');
 
   document.getElementById('macro-formula-note').innerHTML=
     '<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;flex-wrap:wrap">'+
@@ -826,6 +813,63 @@ function showMacroFinal(){
 
   document.getElementById('section-macro-final').classList.remove('hidden');
   setTimeout(function(){document.getElementById('section-macro-final').scrollIntoView({behavior:'smooth',block:'start'});},150);
+}
+
+// ── Macro table rendering ──
+var _displayMode='gram';
+
+function renderMacroTable(){
+  var pP=Math.round(_proteinKcal/_target*100);
+  var pF=Math.round(_fatKcal/_target*100);
+  var pC=Math.round(_carbKcal/_target*100);
+  var isServing=_displayMode==='serving';
+
+  var pVal = isServing ? Math.round(_proteinG/7)+'份' : '<strong>'+_proteinG+'g</strong>';
+  var fVal = isServing ? Math.round(_fatG/5)+'份'     : '<strong>'+_fatG+'g</strong>';
+  var cVal = isServing ? Math.round(_carbG/15)+'份'   : '<strong>'+_carbG+'g</strong>';
+
+  document.getElementById('macro-unit-header').textContent=isServing?'份數':'克數';
+  document.getElementById('macro-tbody').innerHTML=
+    '<tr>'+
+      '<td><span class="macro-color-dot" style="background:#334155"></span>蛋白質</td>'+
+      '<td>'+pVal+'</td>'+
+      '<td>'+_proteinKcal+' kcal</td>'+
+      '<td>'+pP+'%</td>'+
+      '<td class="macro-bar-cell"><div class="macro-bar-wrap"><div class="macro-bar-fill" style="width:'+pP+'%;background:#334155"></div></div></td>'+
+    '</tr>'+
+    '<tr>'+
+      '<td><span class="macro-color-dot" style="background:#64748b"></span>脂肪</td>'+
+      '<td>'+fVal+'</td>'+
+      '<td>'+_fatKcal+' kcal</td>'+
+      '<td>'+pF+'%</td>'+
+      '<td class="macro-bar-cell"><div class="macro-bar-wrap"><div class="macro-bar-fill" style="width:'+pF+'%;background:#64748b"></div></div></td>'+
+    '</tr>'+
+    '<tr>'+
+      '<td><span class="macro-color-dot" style="background:#94a3b8"></span>碳水</td>'+
+      '<td>'+cVal+'</td>'+
+      '<td>'+_carbKcal+' kcal</td>'+
+      '<td>'+pC+'%</td>'+
+      '<td class="macro-bar-cell"><div class="macro-bar-wrap"><div class="macro-bar-fill" style="width:'+pC+'%;background:#94a3b8"></div></div></td>'+
+    '</tr>'+
+    '<tr style="background:var(--slate-50);font-weight:700">'+
+      '<td>合計</td><td>—</td>'+
+      '<td>'+(+_proteinKcal+ +_fatKcal+ +_carbKcal)+' kcal</td>'+
+      '<td>100%</td><td></td>'+
+    '</tr>';
+}
+
+function switchMacroDisplay(mode){
+  _displayMode=mode;
+  var gBtn=document.getElementById('toggle-gram');
+  var sBtn=document.getElementById('toggle-serving');
+  var hint=document.getElementById('serving-hint');
+  var isServing=mode==='serving';
+  gBtn.style.background=isServing?'transparent':'var(--slate-800)';
+  gBtn.style.color=isServing?'var(--slate-400)':'#fff';
+  sBtn.style.background=isServing?'var(--slate-800)':'transparent';
+  sBtn.style.color=isServing?'#fff':'var(--slate-400)';
+  hint.style.display=isServing?'inline':'none';
+  renderMacroTable();
 }
 
 // ── Utilities ──
