@@ -50,6 +50,7 @@ body{display:flex;flex-direction:column;align-items:center;padding:0 0 60px}
 .chip input{position:absolute;opacity:0;width:0;height:0}
 .chip label{display:flex;align-items:center;justify-content:center;padding:10px 16px;border-radius:var(--radius-sm);border:1.5px solid var(--slate-300);background:var(--slate-50);color:var(--slate-600);font-size:14px;font-weight:600;cursor:pointer;user-select:none;white-space:nowrap;transition:all .15s}
 .chip input:checked + label{border-color:var(--slate-700);background:var(--slate-800);color:#fff}
+.chip input:disabled + label{opacity:.4;cursor:not-allowed;text-decoration:line-through}
 
 .timechip{display:block;margin-bottom:10px}
 .timechip:last-child{margin-bottom:0}
@@ -223,6 +224,11 @@ body{display:flex;flex-direction:column;align-items:center;padding:0 0 60px}
         <textarea name="目標排序" id="goalHidden" style="display:none"></textarea>
       </div>
 
+      <div class="field" id="discomfortField" style="display:none">
+        <label class="flbl">稍微詳加描述一下您目前的不適狀況？</label>
+        <textarea class="ftextarea" name="不適狀況描述" id="fDiscomfort" placeholder="請簡述目前的痠痛或疼痛狀況（選填）"></textarea>
+      </div>
+
       <div class="field">
         <label class="flbl">您過往有對於這個目標嘗試過什麼方法嗎？</label>
         <div class="chiprow" id="methodGroup">
@@ -246,6 +252,19 @@ body{display:flex;flex-direction:column;align-items:center;padding:0 0 60px}
       </div>
 
       <div class="field">
+        <label class="flbl">是否指定教練？</label>
+        <div class="chiprow" id="assignGroup">
+          <div class="chip"><input type="radio" name="是否指定教練" value="是" id="as1"><label for="as1">是</label></div>
+          <div class="chip"><input type="radio" name="是否指定教練" value="否" id="as2"><label for="as2">否</label></div>
+        </div>
+      </div>
+
+      <div class="field" id="coachNameField" style="display:none">
+        <label class="flbl">指定教練姓名</label>
+        <input class="finput" type="text" name="指定教練姓名" id="fCoachName" placeholder="請輸入教練姓名">
+      </div>
+
+      <div class="field">
         <label class="flbl">希望教練性別</label>
         <div class="chiprow" id="genderGroup">
           <div class="chip"><input type="radio" name="教練性別" value="女" id="gd1"><label for="gd1">女</label></div>
@@ -253,6 +272,7 @@ body{display:flex;flex-direction:column;align-items:center;padding:0 0 60px}
           <div class="chip"><input type="radio" name="教練性別" value="皆可" id="gd3"><label for="gd3">皆可</label></div>
         </div>
         <div class="fhint">＊可能因專業領域或是時段因素導致無法選取特定性別，小編會提前與您確認喔！</div>
+        <div class="fhint" id="genderLockHint" style="display:none">已指定教練，此欄位無需選擇</div>
       </div>
 
       <button type="submit" class="submitbar" id="submitBtn">送出預約</button>
@@ -358,6 +378,9 @@ function updateGoalOrder(){
   goalHidden.value = selectedGoals.map(function(v, i){ return (i + 1) + '. ' + v; }).join('\n');
 }
 
+var discomfortField = document.getElementById('discomfortField');
+var discomfortTriggers = ['日常痠痛減少', '疼痛康復改善'];
+
 goalGroup.addEventListener('change', function(e){
   var input = e.target;
   if (input.name !== '目標') return;
@@ -369,6 +392,28 @@ goalGroup.addEventListener('change', function(e){
     selectedGoals.splice(pos, 1);
   }
   updateGoalOrder();
+
+  var showDiscomfort = selectedGoals.some(function(v){ return discomfortTriggers.indexOf(v) !== -1; });
+  discomfortField.style.display = showDiscomfort ? 'block' : 'none';
+});
+
+// 是否指定教練：選「是」才顯示教練姓名欄位，並鎖住教練性別（已指定教練就不需要選性別）
+var assignGroup = document.getElementById('assignGroup');
+var coachNameField = document.getElementById('coachNameField');
+var fCoachName = document.getElementById('fCoachName');
+var genderGroup = document.getElementById('genderGroup');
+var genderLockHint = document.getElementById('genderLockHint');
+assignGroup.addEventListener('change', function(e){
+  if (e.target.name !== '是否指定教練') return;
+  var show = e.target.value === '是';
+  coachNameField.style.display = show ? 'block' : 'none';
+  if (!show) fCoachName.value = '';
+
+  genderGroup.querySelectorAll('input[name="教練性別"]').forEach(function(i){
+    i.disabled = show;
+    if (show) i.checked = false;
+  });
+  genderLockHint.style.display = show ? 'block' : 'none';
 });
 
 // 過往嘗試方法：選「初次嘗試」會清空其他選項，反之亦然
