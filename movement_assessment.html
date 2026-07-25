@@ -43,7 +43,7 @@
   .key-badge{font-size:10px;padding:2px 7px;border-radius:20px;background:var(--key-bg);color:var(--key-text);font-weight:500}
   .sag-badge{font-size:10px;padding:2px 7px;border-radius:20px;background:var(--sag-bg);color:var(--sag-text);font-weight:500}
 
-  .col-grid{display:grid;grid-template-columns:1fr 58px 58px 72px 58px 58px 1fr;gap:5px;align-items:center}
+  .col-grid{display:grid;grid-template-columns:1fr 58px 58px 72px 58px 58px 72px 1fr;gap:5px;align-items:center}
   .tb{padding:4px 14px 10px}
   .group-hdr{font-size:9px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;text-align:center;padding-bottom:3px;color:var(--text-ter)}
   .group-hdr.pre{border-bottom:1.5px solid var(--aL)}
@@ -106,6 +106,8 @@
   .verdict-select.sel-none{background:var(--aN-bg);color:var(--aN);border-color:var(--aN)}
   .verdict-select.sel-sway{background:var(--sag-bg);color:var(--sag-text);border-color:#AFA9EC}
   .verdict-select.sel-apt{background:var(--key-bg);color:var(--key-text);border-color:#FAC775}
+  .verdict-select.sel-chaos-L{background:var(--aL-bg);color:var(--aL);border:2px dashed var(--aL)}
+  .verdict-select.sel-chaos-R{background:var(--aR-bg);color:var(--aR);border:2px dashed var(--aR)}
 
   /* notes */
   .eval-notes-box{background:var(--surface);border-radius:var(--r);border:1px solid var(--border);margin-top:14px;overflow:hidden}
@@ -154,6 +156,7 @@
     <div class="group-hdr pre" style="grid-column:span 2">前測 PRE</div>
     <div class="group-hdr pre" style="border-bottom-color:var(--aL)">判讀</div>
     <div class="group-hdr post" style="grid-column:span 2">後測 POST</div>
+    <div class="group-hdr post" style="border-bottom-color:var(--aN)">判讀</div>
     <div class="group-hdr diff">備註</div>
   </div>
   <div class="col-grid" style="padding:2px 14px 6px">
@@ -161,6 +164,7 @@
     <div class="ch">左 (°)</div><div class="ch">右 (°)</div>
     <div class="ch"></div>
     <div class="ch">左 (°)</div><div class="ch">右 (°)</div>
+    <div class="ch"></div>
     <div class="ch"></div>
   </div>
 
@@ -179,6 +183,7 @@
         <div><span class="badge b0" id="pre-slr">–</span></div>
         <div class="iw"><input type="number" min="0" max="120" placeholder="–" oninput="calc(this)"><span class="iu">°</span></div>
         <div class="iw"><input type="number" min="0" max="120" placeholder="–" oninput="calc(this)"><span class="iu">°</span></div>
+        <div><span class="badge b0" id="post-slr">–</span></div>
         <div><textarea class="note-input" placeholder="備註…"></textarea></div>
       </div>
 
@@ -189,6 +194,7 @@
         <div><span class="badge b0" id="pre-pelvis-rot">–</span></div>
         <div class="iw"><input type="number" min="0" max="180" placeholder="–" oninput="calc(this)"><span class="iu">°</span></div>
         <div class="iw"><input type="number" min="0" max="180" placeholder="–" oninput="calc(this)"><span class="iu">°</span></div>
+        <div><span class="badge b0" id="post-pelvis-rot">–</span></div>
         <div><textarea class="note-input" placeholder="備註…"></textarea></div>
       </div>
 
@@ -199,6 +205,7 @@
         <div><span class="badge b0" id="pre-shoulder-abd">–</span></div>
         <div class="iw"><input type="number" min="0" max="180" placeholder="–" oninput="calc(this)"><span class="iu">°</span></div>
         <div class="iw"><input type="number" min="0" max="180" placeholder="–" oninput="calc(this)"><span class="iu">°</span></div>
+        <div><span class="badge b0" id="post-shoulder-abd">–</span></div>
         <div><textarea class="note-input" placeholder="備註…"></textarea></div>
       </div>
 
@@ -209,6 +216,7 @@
         <div><span class="badge b0" id="pre-hip-ext">–</span></div>
         <div class="iw"><input type="number" min="-30" max="60" placeholder="–" oninput="calc(this)"><span class="iu">°</span></div>
         <div class="iw"><input type="number" min="-30" max="60" placeholder="–" oninput="calc(this)"><span class="iu">°</span></div>
+        <div><span class="badge b0" id="post-hip-ext">–</span></div>
         <div><textarea class="note-input" placeholder="備註…"></textarea></div>
       </div>
 
@@ -219,6 +227,7 @@
         <div><span class="badge b0" id="pre-shoulder-ir">–</span></div>
         <div class="iw"><input type="number" min="0" max="180" placeholder="–" oninput="calc(this)"><span class="iu">°</span></div>
         <div class="iw"><input type="number" min="0" max="180" placeholder="–" oninput="calc(this)"><span class="iu">°</span></div>
+        <div><span class="badge b0" id="post-shoulder-ir">–</span></div>
         <div><textarea class="note-input" placeholder="備註…"></textarea></div>
       </div>
 
@@ -229,6 +238,7 @@
         <div><span class="badge b0" id="pre-cervical-rot">–</span></div>
         <div class="iw"><input type="number" min="0" max="90" placeholder="–" oninput="calc(this)"><span class="iu">°</span></div>
         <div class="iw"><input type="number" min="0" max="90" placeholder="–" oninput="calc(this)"><span class="iu">°</span></div>
+        <div><span class="badge b0" id="post-cervical-rot">–</span></div>
         <div><textarea class="note-input" placeholder="備註…"></textarea></div>
       </div>
 
@@ -250,6 +260,7 @@
         <div><span class="badge b0" id="pre-shoulder-er">–</span></div>
         <div class="iw"><input type="number" min="0" max="180" placeholder="–" oninput="calc(this)"><span class="iu">°</span></div>
         <div class="iw"><input type="number" min="0" max="180" placeholder="–" oninput="calc(this)"><span class="iu">°</span></div>
+        <div><span class="badge b0" id="post-shoulder-er">–</span></div>
         <div><textarea class="note-input" placeholder="備註…"></textarea></div>
       </div>
 
@@ -260,6 +271,7 @@
         <div><span class="badge b0" id="pre-femoral-ir">–</span></div>
         <div class="iw"><input type="number" min="0" max="90" placeholder="–" oninput="calc(this)"><span class="iu">°</span></div>
         <div class="iw"><input type="number" min="0" max="90" placeholder="–" oninput="calc(this)"><span class="iu">°</span></div>
+        <div><span class="badge b0" id="post-femoral-ir">–</span></div>
         <div><textarea class="note-input" placeholder="備註…"></textarea></div>
       </div>
 
@@ -270,6 +282,7 @@
         <div><span class="badge b0" id="pre-femoral-er">–</span></div>
         <div class="iw"><input type="number" min="0" max="90" placeholder="–" oninput="calc(this)"><span class="iu">°</span></div>
         <div class="iw"><input type="number" min="0" max="90" placeholder="–" oninput="calc(this)"><span class="iu">°</span></div>
+        <div><span class="badge b0" id="post-femoral-er">–</span></div>
         <div><textarea class="note-input" placeholder="備註…"></textarea></div>
       </div>
 
@@ -280,6 +293,7 @@
         <div><span class="badge b0" id="pre-cervical-lat">–</span></div>
         <div class="iw"><input type="number" min="0" max="90" placeholder="–" oninput="calc(this)"><span class="iu">°</span></div>
         <div class="iw"><input type="number" min="0" max="90" placeholder="–" oninput="calc(this)"><span class="iu">°</span></div>
+        <div><span class="badge b0" id="post-cervical-lat">–</span></div>
         <div><textarea class="note-input" placeholder="備註…"></textarea></div>
       </div>
 
@@ -343,10 +357,12 @@
       <div class="verdict-grid">
         <div class="verdict-field">
           <label class="verdict-label">偏側化方向</label>
-          <select class="verdict-select" id="sel-lat" onchange="styleSelect(this,{'L':'sel-L','R':'sel-R'})">
+          <select class="verdict-select" id="sel-lat" onchange="styleSelect(this,{'L':'sel-L','R':'sel-R','CL':'sel-chaos-L','CR':'sel-chaos-R'})">
             <option value="">— 選擇 —</option>
             <option value="L">左側　Left</option>
             <option value="R">右側　Right</option>
+            <option value="CL">混亂左側化</option>
+            <option value="CR">混亂右側化</option>
           </select>
         </div>
         <div class="verdict-field">
@@ -415,8 +431,8 @@ function calc(input){
   const postL=parseFloat(inputs[2].value),postR=parseFloat(inputs[3].value);
   if(!isNaN(preL)&&!isNaN(preR)){preResults[id]=getLat(id,preL,preR);setBadge('pre-'+id,preResults[id]);}
   else{delete preResults[id];setBadge('pre-'+id,null);}
-  if(!isNaN(postL)&&!isNaN(postR)){postResults[id]=getLat(id,postL,postR);}
-  else{delete postResults[id];}
+  if(!isNaN(postL)&&!isNaN(postR)){postResults[id]=getLat(id,postL,postR);setBadge('post-'+id,postResults[id]);}
+  else{delete postResults[id];setBadge('post-'+id,null);}
 
 }
 
