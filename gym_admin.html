@@ -1631,6 +1631,29 @@ function loadSalarySettings(month){
   if(!month) return;
   fbdb.ref('data/salary_settings/'+month).once('value', function(snap){
     var d = snap.val();
+    // Always reset displays first so switching months never shows stale data
+    window._savedCoachResult = null;
+    window._savedTrialSessions = {};
+    var _storeEl=document.getElementById('store-revenue');
+    if(_storeEl) _storeEl.value='';
+    var _adminStoreEl=document.getElementById('admin-store-rev');
+    if(_adminStoreEl) _adminStoreEl.value='';
+    var _storeDisp=document.getElementById('store-revenue-display');
+    if(_storeDisp) _storeDisp.textContent='—';
+    var _multPrev=document.getElementById('store-mult-preview');
+    if(_multPrev){_multPrev.textContent='';_multPrev.style.color='';}
+    var _trialDisp=document.getElementById('trial-display');
+    if(_trialDisp) _trialDisp.textContent='0';
+    var _gbDisp=document.getElementById('group-bonus-display');
+    if(_gbDisp) _gbDisp.textContent='—';
+    var _gbEl=document.getElementById('group-bonus');
+    if(_gbEl) _gbEl.value='0';
+    if(_salaryAdmin && typeof ADMIN_COACHES!=='undefined'){
+      ADMIN_COACHES.forEach(function(c){
+        var agb=document.getElementById('agb-'+c);if(agb) agb.value='';
+        var atr=document.getElementById('atr-'+c);if(atr) atr.value='';
+      });
+    }
     if(d){
       // Store trial sessions globally for renderSalary
       window._savedTrialSessions = {};
