@@ -3268,6 +3268,28 @@ function applyPeriodChange(stuId,ci){
   fbSaveSingleStudent(s);try{save('gym_students',students);}catch(e){}
   renderEditContracts(s);toast('✓ 已調整為分 '+newPeriods+' 期');
 }
+function applyContractMeta(stuId,ci){
+  var s=students.find(function(st){return String(st.id)===String(stuId);});
+  if(!s)return;
+  var c=s.contracts[ci];if(!c)return;
+  var newGift=parseInt(document.getElementById('ec-gift-'+ci).value)||0;
+  var newPrice=parseInt(document.getElementById('ec-price-'+ci).value);
+  var oldGift=c.giftSessions||0;
+  var delta=newGift-oldGift;
+  c.giftSessions=newGift;
+  s.totalSessions+=delta;
+  var baseLabel=(c.planLabel||'').replace(/＋贈\d+堂$/,'');
+  c.planLabel=baseLabel+(newGift>0?'＋贈'+newGift+'堂':'');
+  if(!isNaN(newPrice)&&newPrice>=0){
+    c.price=newPrice;
+    if(c.sessions)c.pricePerSession=Math.round(newPrice/c.sessions);
+  }
+  var totalEl=document.getElementById('edit-total-sessions');
+  if(totalEl)totalEl.value=s.totalSessions;
+  logAction('編輯合約',s.name,s.coach,(c.planLabel||c.sessions+'堂合約')+'，贈'+newGift+'堂，總金額 NT$'+(c.price||0).toLocaleString());
+  fbSaveSingleStudent(s);try{save('gym_students',students);}catch(e){}
+  renderEditContracts(s);toast('✓ 合約資訊已更新');
+}
 function editConfirmPay(stuId,ci,ii){
   var s=students.find(function(st){return String(st.id)===String(stuId);});
   if(!s||!s.contracts[ci]||!s.contracts[ci].installments[ii])return;
@@ -3335,6 +3357,13 @@ function renderEditContracts(s){
     h2+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;flex-wrap:wrap;gap:8px">';
     h2+='<span style="font-size:13px;font-weight:600">'+(c.planLabel||c.sessions+'堂合約')+'・分 '+c.periods+' 期</span>';
     h2+='<span style="font-size:13px;color:var(--text2)">已付 NT$'+paidAmt.toLocaleString()+' ／ 總計 <span id="ec-total-'+ci+'" style="font-weight:700;color:var(--text)">NT$'+totalAmt.toLocaleString()+'</span></span>';
+    h2+='</div>';
+    h2+='<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;padding:10px;background:var(--bg2);border-radius:8px;flex-wrap:wrap">';
+    h2+='<label style="font-size:12px;color:var(--text2);white-space:nowrap">贈送堂數：</label>';
+    h2+='<input type="number" id="ec-gift-'+ci+'" value="'+(c.giftSessions||0)+'" min="0" style="width:60px;font-size:13px;padding:5px 8px;border-radius:6px;border:1px solid var(--border2);background:var(--bg);color:var(--text)">';
+    h2+='<label style="font-size:12px;color:var(--text2);white-space:nowrap;margin-left:6px">合約總金額：NT$</label>';
+    h2+='<input type="number" id="ec-price-'+ci+'" value="'+(c.price||0)+'" min="0" style="width:96px;font-size:13px;padding:5px 8px;border-radius:6px;border:1px solid var(--border2);background:var(--bg);color:var(--text)">';
+    h2+='<button onclick="applyContractMeta('+s.id+','+ci+')" style="padding:5px 12px;border-radius:6px;background:var(--blue);color:#fff;border:none;font-size:12px;font-weight:600;cursor:pointer;margin-left:auto">套用</button>';
     h2+='</div>';
     if(unpaidCount>0){
       h2+='<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;padding:10px;background:var(--bg2);border-radius:8px;flex-wrap:wrap">';
