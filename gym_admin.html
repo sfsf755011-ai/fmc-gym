@@ -1902,14 +1902,18 @@ function renderSalary(){
     });
     _rvDetails.sort(function(a,b){return a.paidDate>b.paidDate?-1:1;});
     var _rvLiveTotal=_rvDetails.reduce(function(s,d){return s+d.amount;},0);
-    // Update 當月業績 in metrics card to show live total (matching the list below)
+    // Compute live session counts to match history query
+    var _rvMonthRecs=records.filter(function(r){return r.date&&r.date.startsWith(month)&&r.coach===_rvCoachDisp;});
+    var _rvLiveSessions=_rvMonthRecs.length;
+    var _rvLiveV2=_rvMonthRecs.filter(function(r){var stu=students.find(function(s){return s.name===r.student;});return stu&&(stu.contracts||[]).some(function(c){return c.planLabel&&c.planLabel.indexOf('1v2')!==-1;});}).length;
+    // Update metrics card: 總堂數/1v2/當月業績 always live; 計薪堂數 keeps frozen value (matches salary calculation)
     if(!cr.isShian){
       var _metricsEl=document.getElementById('salary-metrics');
       if(_metricsEl){
         _metricsEl.innerHTML=
-          '<div style="background:rgba(255,255,255,.12);border-radius:10px;padding:12px"><div style="font-size:11px;color:rgba(255,255,255,.6);margin-bottom:4px">總堂數</div><div style="font-size:22px;font-weight:700">'+(cr.totalSessions||0)+' 堂</div></div>'
+          '<div style="background:rgba(255,255,255,.12);border-radius:10px;padding:12px"><div style="font-size:11px;color:rgba(255,255,255,.6);margin-bottom:4px">總堂數</div><div style="font-size:22px;font-weight:700">'+_rvLiveSessions+' 堂</div></div>'
           +'<div style="background:rgba(255,255,255,.12);border-radius:10px;padding:12px"><div style="font-size:11px;color:rgba(255,255,255,.6);margin-bottom:4px">計薪堂數</div><div style="font-size:22px;font-weight:700">'+(cr.paidSessions||0)+' 堂</div></div>'
-          +'<div style="background:rgba(255,255,255,.12);border-radius:10px;padding:12px"><div style="font-size:11px;color:rgba(255,255,255,.6);margin-bottom:4px">1v2 堂數</div><div style="font-size:22px;font-weight:700">'+(cr.v2Sessions||0)+' 堂</div></div>'
+          +'<div style="background:rgba(255,255,255,.12);border-radius:10px;padding:12px"><div style="font-size:11px;color:rgba(255,255,255,.6);margin-bottom:4px">1v2 堂數</div><div style="font-size:22px;font-weight:700">'+_rvLiveV2+' 堂</div></div>'
           +'<div style="background:rgba(255,255,255,.12);border-radius:10px;padding:12px"><div style="font-size:11px;color:rgba(255,255,255,.6);margin-bottom:4px">當月業績</div><div style="font-size:22px;font-weight:700">'+fmtMoney(_rvLiveTotal)+'</div></div>';
       }
     }
