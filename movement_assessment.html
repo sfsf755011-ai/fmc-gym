@@ -134,8 +134,7 @@
   body.sc-mode .screenshot-btn,
   body.sc-mode .rbtn,
   body.sc-mode .footer{display:none!important}
-  body.sc-mode .col-grid{grid-template-columns:1fr 58px 58px 72px 58px 58px 72px}
-  body.sc-mode .col-grid>div:last-child{display:none!important}
+  body.sc-mode .col-grid{grid-template-columns:0.6fr 58px 58px 72px 58px 58px 72px 1fr}
   body.sc-mode .name-bar{margin-top:6px}
   body.sc-mode .tr{padding:2px 0}
   body.sc-mode .section{margin-bottom:6px}
@@ -422,7 +421,7 @@
 
   <!-- Screenshot mode confirm bar -->
   <div id="sc-bar">
-    <span style="font-size:12px;color:rgba(255,255,255,.5)">截圖預覽・已隱藏備註／接地／總結</span>
+    <span style="font-size:12px;color:rgba(255,255,255,.5)">截圖預覽・已隱藏圖例／Phase標籤</span>
     <div style="display:flex;gap:8px">
       <button onclick="exitScMode()" style="padding:7px 14px;border-radius:8px;border:1px solid rgba(255,255,255,.25);background:transparent;color:rgba(255,255,255,.85);font-size:13px;cursor:pointer;font-family:'DM Sans',sans-serif">← 返回編輯</button>
       <button id="sc-confirm-btn" onclick="doScreenshot()" style="padding:7px 18px;border-radius:8px;border:none;background:#F7F6F3;color:#1A1917;font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif">📸 儲存截圖</button>
