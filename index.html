@@ -261,6 +261,60 @@ select.finput{-webkit-appearance:none;appearance:none;background-image:url("data
   </div>
 </div>
 
+<!-- TYPE SELECTION -->
+<div class="screen" id="s-type">
+  <div id="type-bg" style="position:absolute;inset:0;background-size:cover;background-position:center;filter:brightness(.35) blur(3px);transition:background .4s"></div>
+  <div id="type-fg" style="position:relative;z-index:2;display:flex;flex-direction:column;height:100%;padding:0">
+    <div class="coach-topbar">
+      <img id="topbar-logo2" src="" alt="FMC">
+      <div class="coach-topbar-title">選擇簽到類型</div>
+    </div>
+    <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px 20px;gap:20px">
+      <div style="font-size:15px;color:rgba(255,255,255,.7);margin-bottom:8px;letter-spacing:.04em">教練：<span id="type-coach-name" style="color:#fff;font-weight:700"></span></div>
+      <button onclick="selectRegular()" style="width:100%;max-width:340px;padding:28px 20px;background:rgba(255,255,255,.12);border:2px solid rgba(255,255,255,.3);border-radius:18px;color:#fff;font-size:20px;font-weight:700;cursor:pointer;backdrop-filter:blur(6px);letter-spacing:.04em">
+        ✏️ 一般簽到
+        <div style="font-size:13px;font-weight:400;color:rgba(255,255,255,.6);margin-top:6px">學員扣堂簽到</div>
+      </button>
+      <button onclick="selectTrial()" style="width:100%;max-width:340px;padding:28px 20px;background:rgba(59,130,246,.25);border:2px solid rgba(59,130,246,.6);border-radius:18px;color:#fff;font-size:20px;font-weight:700;cursor:pointer;backdrop-filter:blur(6px);letter-spacing:.04em">
+        🆕 體驗課程
+        <div style="font-size:13px;font-weight:400;color:rgba(255,255,255,.6);margin-top:6px">體驗客，不扣堂數</div>
+      </button>
+    </div>
+    <div class="dark-bottom">
+      <button class="btn-back-d" onclick="goScreen('s-coach')">返回</button>
+    </div>
+  </div>
+</div>
+
+<!-- TRIAL NAME -->
+<div class="screen" id="s-trial">
+  <div class="lhead">
+    <div class="lhead-row"><img class="lhead-logo" id="trial-logo" src="" alt="FMC"><span style="font-size:13px;font-weight:600;color:#333">FMC</span></div>
+    <h2>體驗課程簽到</h2>
+    <p>請輸入體驗者姓名</p>
+  </div>
+  <div class="lstep-bar">
+    <div class="lsdot done">✓</div><span class="lslbl">選教練</span>
+    <div class="lsline"></div>
+    <div class="lsdot active">2</div><span class="lslbl">輸入姓名</span>
+    <div class="lsline"></div>
+    <div class="lsdot idle">3</div><span class="lslbl">簽名</span>
+  </div>
+  <div class="pbody">
+    <div class="alertbox alerterr" id="trial-alert" style="display:none">請輸入體驗者姓名</div>
+    <div style="background:linear-gradient(135deg,#1a3a6e,#0d1f40);border-radius:14px;padding:16px 18px;margin-bottom:14px;text-align:center">
+      <div style="font-size:18px;font-weight:800;color:#fff;letter-spacing:.04em;margin-bottom:4px">體驗課程</div>
+      <div style="font-size:13px;color:rgba(255,255,255,.6)">此次不扣堂數，後台可標記是否成交</div>
+    </div>
+    <label class="flbl">體驗者姓名</label>
+    <input class="finput" id="trial-name-input" type="text" placeholder="請輸入姓名" autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false" oninput="document.getElementById('trial-alert').style.display='none'">
+  </div>
+  <div class="lbottom">
+    <button class="lbtn-back" onclick="goScreen('s-type')">返回</button>
+    <button class="lbtn-next" onclick="submitTrialName()">下一步 →</button>
+  </div>
+</div>
+
 <!-- NAME -->
 <div class="screen" id="s-name">
   <div class="lhead">
@@ -493,6 +547,8 @@ var students = [];
 var records = [];
 var selCoach = null;
 var selStudent = null;
+var sessionType = 'regular'; // 'regular' or 'trial'
+var trialName = '';
 var sigCtx = null;
 var sigCanvas = null;
 var sigDrawing = false;
@@ -681,6 +737,26 @@ function goScreen(id) {
       buildCoachGrid();
       updateCoachBg(selCoach ? selCoach.name : null);
     });
+  } else if (id === 's-type') {
+    var tl = document.getElementById('topbar-logo2');
+    var logos = document.querySelectorAll('.lhead-logo, #topbar-logo');
+    var logoSrc = logos.length ? logos[0].src : '';
+    if (tl && logoSrc) tl.src = logoSrc;
+    var tn = document.getElementById('type-coach-name');
+    if (tn) tn.textContent = selCoach ? selCoach.name : '';
+    var tbg = document.getElementById('type-bg');
+    if (tbg && selCoach) {
+      var key = getKey(selCoach.name);
+      var photo = COACH_PHOTOS[key] || null;
+      if (photo) { tbg.style.backgroundImage = 'url(' + photo + ')'; tbg.style.background = ''; }
+      else { tbg.style.backgroundImage = 'none'; tbg.style.background = 'linear-gradient(145deg,#1a1a2e,#111)'; }
+    }
+  } else if (id === 's-trial') {
+    var trialLogo = document.getElementById('trial-logo');
+    var logoRef = document.getElementById('topbar-logo') || document.querySelector('.lhead-logo');
+    if (trialLogo && logoRef) trialLogo.src = logoRef.src;
+    var ti = document.getElementById('trial-name-input');
+    if (ti) { ti.value = ''; setTimeout(function(){ ti.focus(); }, 100); }
   } else if (id === 's-query') {
     showLoading('載入資料...');
     reloadData(function() {
@@ -692,7 +768,11 @@ function goScreen(id) {
     var en = document.getElementById('c-name');
     var ec = document.getElementById('c-coach');
     var ed = document.getElementById('c-dt');
-    if (en) en.textContent = selStudent ? selStudent.name : '—';
+    if (sessionType === 'trial') {
+      if (en) en.textContent = trialName + '（體驗）';
+    } else {
+      if (en) en.textContent = selStudent ? selStudent.name : '—';
+    }
     if (ec) ec.textContent = selCoach ? selCoach.name : '—';
     if (ed) ed.textContent = now.toLocaleDateString('zh-TW',{month:'2-digit',day:'2-digit'}) + '  ' + now.toLocaleTimeString('zh-TW',{hour:'2-digit',minute:'2-digit'});
     initSig();
@@ -754,9 +834,15 @@ function updateCoachBg(name) {
 
 function goToName() {
   if (!selCoach) { document.getElementById('coach-alert').style.display = 'block'; return; }
+  goScreen('s-type');
+}
+
+function selectRegular() {
+  sessionType = 'regular';
+  trialName = '';
   // Reset name screen
   var h = document.getElementById('name-hint');
-  if (h) h.textContent = '教練：' + selCoach.name + '・資料載入中...';
+  if (h) h.textContent = '教練：' + selCoach.name + '・請輸入您的姓名';
   var inp = document.getElementById('name-input');
   if (inp) { inp.value = ''; inp.disabled = false; }
   selStudent = null;
@@ -767,11 +853,33 @@ function goToName() {
   var b = document.getElementById('btn-to-sig');
   if (b) b.disabled = true;
   goScreen('s-name');
-  // Data is kept fresh by realtime listener - just enable input
-  if (h) h.textContent = '教練：' + selCoach.name + '・請輸入您的姓名';
-  var e = document.getElementById('name-input');
-  if (e) { e.disabled = false; }
   showKb();
+}
+
+function selectTrial() {
+  sessionType = 'trial';
+  trialName = '';
+  var inp = document.getElementById('trial-name-input');
+  if (inp) inp.value = '';
+  document.getElementById('trial-alert').style.display = 'none';
+  goScreen('s-trial');
+}
+
+function submitTrialName() {
+  var inp = document.getElementById('trial-name-input');
+  var val = inp ? inp.value.trim() : '';
+  if (!val) {
+    document.getElementById('trial-alert').style.display = 'block';
+    return;
+  }
+  trialName = val;
+  var cn = document.getElementById('c-name');
+  var cc = document.getElementById('c-coach');
+  var cdt = document.getElementById('c-dt');
+  if (cn) cn.textContent = trialName + '（體驗）';
+  if (cc) cc.textContent = selCoach.name;
+  if (cdt) cdt.textContent = todayStr() + ' ' + nowStr();
+  goScreen('s-sig');
 }
 
 // ══ Student search ══
@@ -963,6 +1071,35 @@ function submitCheckin() {
     goScreen('s-success');
   }
 
+  // ── 體驗課程分支 ──
+  if (sessionType === 'trial') {
+    var trialRec = {date:todayStr(), time:nowStr(), name:trialName, coach:selCoach.name, converted:false};
+    var _sigData2 = getCompressedSig();
+    db.ref('data/trialCheckins').once('value', function(snap) {
+      var arr = snap.val() || [];
+      if (!Array.isArray(arr)) arr = Object.values(arr);
+      arr.unshift(trialRec);
+      db.ref('data/trialCheckins').set(arr, function(err) {
+        if (err) { fail('體驗紀錄儲存失敗，請重試'); return; }
+        if (_done) return;
+        _done = true;
+        _submitting = false;
+        clearTimeout(_timeout);
+        hideLoading();
+        var cb = document.querySelector('.lbtn-next');
+        if (cb) { cb.disabled = false; cb.textContent = '確認簽到 ✓'; }
+        var si = document.getElementById('suc-info');
+        var sr = document.getElementById('suc-remain');
+        if (si) si.textContent = trialName + '（體驗）・' + selCoach.name;
+        if (sr) sr.innerHTML = '<span class="rbadge" style="background:#e3f2fd;color:#1565c0">體驗課程已記錄，請教練後台確認是否成交</span>';
+        var body = document.getElementById('suc-body');
+        if (body) body.innerHTML = '';
+        goScreen('s-success');
+      });
+    }, function() { fail('讀取資料失敗，請重試'); });
+    return;
+  }
+
   // Step 1: 從記憶體找學員（Firebase是陣列格式，不能用ID當路徑）
   var stu = null;
   for (var i = 0; i < students.length; i++) {
@@ -1064,7 +1201,7 @@ function buildSuccessDetail(stu) {
     + '<div class="dcard"><div class="dtitle">🕐 所有簽到紀錄</div>' + histHTML + '</div>';
 }
 
-function resetAll() { selCoach=null; selStudent=null; hideKb(); hideQKb(); goScreen('s-welcome'); }
+function resetAll() { selCoach=null; selStudent=null; sessionType='regular'; trialName=''; hideKb(); hideQKb(); goScreen('s-welcome'); }
 
 // ══ Query ══
 function initQuery() {

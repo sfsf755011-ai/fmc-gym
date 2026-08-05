@@ -477,11 +477,32 @@ tr:hover td{background:var(--bg2)}
       <div class="pg-sub">新增教練、修改名稱專項、查看業績</div>
       <div class="tab-row">
         <button class="tab active" onclick="coachTab('list',this)">教練列表 / 業績</button>
+        <button class="tab" onclick="coachTab('trial',this)">體驗課程</button>
         <button class="tab" onclick="coachTab('add',this)">新增教練</button>
       </div>
       <div id="cp-list">
         <div class="metric-grid" id="co-overall"></div>
         <div id="co-cards"></div>
+      </div>
+      <div id="cp-trial" style="display:none">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;flex-wrap:wrap">
+          <select id="trial-month-filter" onchange="renderTrialCheckins()" style="font-size:13px;padding:6px 10px;border-radius:8px;border:1px solid var(--border2);background:var(--bg2);color:var(--text)"></select>
+          <select id="trial-coach-filter" onchange="renderTrialCheckins()" style="font-size:13px;padding:6px 10px;border-radius:8px;border:1px solid var(--border2);background:var(--bg2);color:var(--text)"><option value="">全部教練</option></select>
+          <select id="trial-status-filter" onchange="renderTrialCheckins()" style="font-size:13px;padding:6px 10px;border-radius:8px;border:1px solid var(--border2);background:var(--bg2);color:var(--text)">
+            <option value="">全部狀態</option><option value="pending">待確認</option><option value="converted">已成交</option><option value="not_converted">未成交</option>
+          </select>
+        </div>
+        <div class="metric-grid" id="trial-metrics" style="margin-bottom:16px"></div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr>
+              <th style="width:72px">日期</th><th style="width:52px">時間</th>
+              <th>姓名</th><th style="width:80px">教練</th>
+              <th style="width:100px">狀態</th>
+            </tr></thead>
+            <tbody id="trial-tbody"></tbody>
+          </table>
+        </div>
       </div>
       <div id="cp-add" style="display:none">
         <div class="card">
@@ -1064,6 +1085,7 @@ function fbLoadAll(cb) {
       return da > db ? -1 : da < db ? 1 : 0;
     });
     auditLog = toArr(val.auditlog);
+    trialCheckins = toArr(val.trialCheckins).filter(function(r){return r&&r.date;}).sort(function(a,b){return (a.date+(a.time||''))>(b.date+(b.time||''))?-1:1;});
     _adminPw = val.admin_pw || '1234';
     if (cb) cb();
   }, function(err) {
@@ -1085,7 +1107,7 @@ function save(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}}
 function today(){var d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
 function coachColor(name){var i=coaches.findIndex(function(c){return c.name===name;});return COLORS[i%COLORS.length]||COLORS[0];}
 
-let coaches=[],students=[],records=[],auditLog=[];
+let coaches=[],students=[],records=[],auditLog=[],trialCheckins=[];
 let addPeriods=1,tuPeriods=1;
 
 function reloadData(){ /* data loaded from Firebase via fbLoadAll */ }
@@ -3050,15 +3072,20 @@ function renderCoachList(){
   if(!list)return;
   var maxC=Math.max.apply(null,coaches.map(function(c){return records.filter(function(r){return r.coach===c.name;}).length;}).concat([1]));
   var maxR=Math.max.apply(null,coaches.map(function(c){return records.filter(function(r){return r.coach===c.name;}).reduce(function(s2,r){var st=students.find(function(st){return st.name===r.student;});return s2+(st?st.pricePerSession:0);},0);}).concat([1]));
+  var curM=new Date().getFullYear()+'-'+String(new Date().getMonth()+1).padStart(2,'0');
   list.innerHTML=coaches.map(function(c,ci){
     var col=coachColor(c.name);
     var cls=records.filter(function(r){return r.coach===c.name;}).length;
     var stuCount=students.filter(function(s){return s.coach===c.name;}).length;
     var rev=records.filter(function(r){return r.coach===c.name;}).reduce(function(s2,r){var st=students.find(function(st){return st.name===r.student;});return s2+(st?st.pricePerSession:0);},0);
+    var trialThis=trialCheckins.filter(function(r){return r.coach===c.name&&r.date&&r.date.startsWith(curM);});
+    var trialTotal=trialThis.length;
+    var trialConv=trialThis.filter(function(r){return r.converted;}).length;
+    var trialBadge=trialTotal>0?('<span style="font-size:12px;background:#dbeafe;color:#1d4ed8;border-radius:99px;padding:2px 9px;margin-left:6px;font-weight:600">體驗 '+trialTotal+' 筆 / 成交 '+trialConv+'</span>'):'';
     return '<div class="card" style="margin-bottom:12px">'
       +'<div style="display:flex;align-items:center;gap:14px;margin-bottom:14px">'
       +'<div style="width:44px;height:44px;border-radius:50%;background:'+col.bg+';color:'+col.fg+';display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:700;flex-shrink:0">'+c.name[0]+'</div>'
-      +'<div><div style="font-size:16px;font-weight:700">'+c.name+'</div><div style="font-size:13px;color:var(--text2)">在籍 '+stuCount+' 位學員</div></div>'
+      +'<div><div style="font-size:16px;font-weight:700">'+c.name+trialBadge+'</div><div style="font-size:13px;color:var(--text2)">在籍 '+stuCount+' 位學員</div></div>'
       +'<div style="margin-left:auto;text-align:right"><div style="font-size:20px;font-weight:700">'+cls+' 堂</div><div style="font-size:13px;color:var(--text2)">NT$'+rev.toLocaleString()+'</div></div></div>'
       +'<div class="bar-row"><span class="bar-lbl">堂數</span><div class="bar-bg"><div class="bar-fill" style="width:'+Math.round(cls/maxC*100)+'%;background:var(--blue)"></div></div><span class="bar-val" style="color:var(--blue)">'+cls+' 堂</span></div>'
       +'<div class="bar-row"><span class="bar-lbl">業績</span><div class="bar-bg"><div class="bar-fill" style="width:'+Math.round(rev/maxR*100)+'%;background:var(--green)"></div></div><span class="bar-val" style="color:var(--green)">$'+rev.toLocaleString()+'</span></div>'
@@ -3631,12 +3658,91 @@ function doTopup(){
   tuStuChanged();
 }
 
+function renderTrialCheckins(){
+  var monthSel=document.getElementById('trial-month-filter');
+  var coachSel=document.getElementById('trial-coach-filter');
+  var statusSel=document.getElementById('trial-status-filter');
+  // Populate month options
+  var months={};
+  trialCheckins.forEach(function(r){if(r.date)months[r.date.substring(0,7)]=1;});
+  var now=new Date();
+  var curM=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0');
+  months[curM]=1;
+  var sortedM=Object.keys(months).sort().reverse();
+  var curVal=monthSel.value||curM;
+  monthSel.innerHTML=sortedM.map(function(m){return '<option value="'+m+'"'+(m===curVal?' selected':'')+'>'+m+'</option>';}).join('');
+  // Populate coach options
+  var curCoach=coachSel.value||'';
+  coachSel.innerHTML='<option value="">全部教練</option>'+coaches.map(function(c){return '<option value="'+c.name+'"'+(c.name===curCoach?' selected':'')+'>'+c.name+'</option>';}).join('');
+  var filterM=monthSel.value||curM;
+  var filterC=coachSel.value||'';
+  var filterS=statusSel?statusSel.value:'';
+  var list=trialCheckins.filter(function(r){
+    if(!r.date||!r.date.startsWith(filterM))return false;
+    if(filterC&&r.coach!==filterC)return false;
+    if(filterS==='pending'&&(r.converted!==false||r.notConverted))return false;
+    if(filterS==='converted'&&!r.converted)return false;
+    if(filterS==='not_converted'&&!r.notConverted)return false;
+    return true;
+  });
+  // Metrics
+  var total=list.length;
+  var converted=list.filter(function(r){return r.converted;}).length;
+  var notConv=list.filter(function(r){return r.notConverted;}).length;
+  var pending=total-converted-notConv;
+  var mEl=document.getElementById('trial-metrics');
+  if(mEl)mEl.innerHTML='<div class="metric"><div class="m-label">體驗總數</div><div class="m-value">'+total+'</div><div class="m-sub">筆</div></div>'
+    +'<div class="metric"><div class="m-label">已成交</div><div class="m-value" style="color:var(--green-text)">'+converted+'</div><div class="m-sub">筆</div></div>'
+    +'<div class="metric"><div class="m-label">未成交</div><div class="m-value" style="color:var(--red-text)">'+notConv+'</div><div class="m-sub">筆</div></div>'
+    +'<div class="metric"><div class="m-label">待確認</div><div class="m-value" style="color:var(--amber,#b45309)">'+pending+'</div><div class="m-sub">筆</div></div>';
+  // Table
+  var tbody=document.getElementById('trial-tbody');
+  if(!tbody)return;
+  if(!list.length){tbody.innerHTML='<tr><td colspan="5" style="text-align:center;color:var(--text2);padding:20px">本月尚無體驗記錄</td></tr>';return;}
+  tbody.innerHTML=list.map(function(r,i){
+    var globalIdx=trialCheckins.indexOf(r);
+    var badge='';
+    if(r.converted)badge='<span style="background:#d1fae5;color:#065f46;border-radius:99px;padding:3px 10px;font-size:12px;font-weight:600">✓ 成交</span>';
+    else if(r.notConverted)badge='<span style="background:#fee2e2;color:#991b1b;border-radius:99px;padding:3px 10px;font-size:12px;font-weight:600">✗ 未成交</span>';
+    else badge='<span style="background:#fef3c7;color:#92400e;border-radius:99px;padding:3px 8px;font-size:12px;font-weight:600">待確認</span>';
+    var btns='';
+    if(!r.converted&&!r.notConverted){
+      btns='<button class="btn btn-sm" style="background:var(--green-bg,#d1fae5);color:var(--green-text,#065f46);border:1px solid var(--green,#10b981);margin-right:4px" onclick="toggleTrialStatus('+globalIdx+',\'converted\')">成交</button>'
+        +'<button class="btn btn-sm" style="background:var(--red-bg,#fee2e2);color:var(--red-text,#991b1b);border:1px solid var(--red,#ef4444)" onclick="toggleTrialStatus('+globalIdx+',\'not_converted\')">未成交</button>';
+    } else {
+      btns='<button class="btn btn-sm" style="opacity:.6" onclick="toggleTrialStatus('+globalIdx+',\'reset\')">重設</button>';
+    }
+    return '<tr>'
+      +'<td>'+r.date+'</td>'
+      +'<td>'+(r.time||'—')+'</td>'
+      +'<td style="font-weight:600">'+r.name+'</td>'
+      +'<td>'+r.coach+'</td>'
+      +'<td>'+badge+' '+btns+'</td>'
+      +'</tr>';
+  }).join('');
+}
+
+function toggleTrialStatus(idx,status){
+  if(!trialCheckins[idx])return;
+  var r=trialCheckins[idx];
+  if(status==='converted'){r.converted=true;r.notConverted=false;}
+  else if(status==='not_converted'){r.converted=false;r.notConverted=true;}
+  else{r.converted=false;r.notConverted=false;}
+  fbdb.ref('data/trialCheckins').set(trialCheckins,function(err){
+    if(err){toast('儲存失敗，請重試');return;}
+    toast('✓ 已更新體驗狀態');
+    renderTrialCheckins();
+  });
+}
+
 function coachTab(tab,btn){
   document.querySelectorAll('#page-coaches-mgmt .tab').forEach(b=>b.classList.remove('active'));
   btn.classList.add('active');
   document.getElementById('cp-list').style.display=tab==='list'?'block':'none';
+  document.getElementById('cp-trial').style.display=tab==='trial'?'block':'none';
   document.getElementById('cp-add').style.display=tab==='add'?'block':'none';
   if(tab==='list')renderCoachList();
+  if(tab==='trial')renderTrialCheckins();
   if(tab==='add')renderCoachEditList();
 }
 
