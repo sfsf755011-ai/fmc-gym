@@ -3725,13 +3725,29 @@ function renderTrialCheckins(){
 function toggleTrialStatus(idx,status){
   if(!trialCheckins[idx])return;
   var r=trialCheckins[idx];
+  var wasConverted=r.converted;
   if(status==='converted'){r.converted=true;r.notConverted=false;}
   else if(status==='not_converted'){r.converted=false;r.notConverted=true;}
   else{r.converted=false;r.notConverted=false;}
   fbdb.ref('data/trialCheckins').set(trialCheckins,function(err){
     if(err){toast('儲存失敗，請重試');return;}
-    toast('✓ 已更新體驗狀態');
-    renderTrialCheckins();
+    if(status==='converted'&&!wasConverted){
+      // 寫進 records 讓薪資計算納入
+      var newRec={date:r.date,time:r.time||'',student:r.name,coach:r.coach,remainAfter:0,isTrial:true};
+      fbdb.ref('data/records').once('value',function(snap){
+        var arr=snap.val()||[];
+        if(!Array.isArray(arr))arr=Object.values(arr);
+        arr.unshift(newRec);
+        fbdb.ref('data/records').set(arr,function(e2){
+          if(e2){toast('體驗已成交，但寫入紀錄失敗，請重試');}
+          else{records.unshift(newRec);toast('✓ 成交！已計入堂數與薪資');}
+          renderTrialCheckins();
+        });
+      });
+    } else {
+      toast('✓ 已更新體驗狀態');
+      renderTrialCheckins();
+    }
   });
 }
 

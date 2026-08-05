@@ -281,6 +281,37 @@ select.finput{-webkit-appearance:none;appearance:none;background-image:url("data
   </div>
 </div>
 
+<!-- TRIAL NAME INPUT -->
+<div class="screen" id="s-trial-name">
+  <div class="lhead">
+    <div class="lhead-row"><img class="lhead-logo" id="trial-name-logo" src="" alt="FMC"><span style="font-size:13px;font-weight:600;color:#333">FMC</span></div>
+    <h2>體驗課程</h2>
+    <p id="trial-name-hint">請輸入體驗者姓名</p>
+  </div>
+  <div class="lstep-bar">
+    <div class="lsdot done">✓</div><span class="lslbl">選教練</span>
+    <div class="lsline"></div>
+    <div class="lsdot active">2</div><span class="lslbl">輸入姓名</span>
+    <div class="lsline"></div>
+    <div class="lsdot idle">3</div><span class="lslbl">簽名</span>
+  </div>
+  <div class="pbody">
+    <div class="alertbox alerterr" id="trial-name-alert" style="display:none">請輸入體驗者姓名</div>
+    <div style="background:linear-gradient(135deg,#1a3a6e,#0d1f40);border-radius:14px;padding:16px 18px;margin-bottom:18px;text-align:center">
+      <div style="font-size:18px;font-weight:800;color:#fff;margin-bottom:4px">體驗課程</div>
+      <div style="font-size:13px;color:rgba(255,255,255,.6)" id="trial-name-coach-label">教練：—</div>
+    </div>
+    <label class="flbl">體驗者姓名</label>
+    <input class="finput" id="trial-name-input" type="text" placeholder="請輸入體驗者姓名"
+      autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false"
+      oninput="document.getElementById('trial-name-alert').style.display='none'">
+  </div>
+  <div class="lbottom">
+    <button class="lbtn-back" onclick="goScreen('s-trial-coach')">返回</button>
+    <button class="lbtn-next" onclick="submitTrialName()">下一步 →</button>
+  </div>
+</div>
+
 <!-- NAME -->
 <div class="screen" id="s-name">
   <div class="lhead">
@@ -712,6 +743,15 @@ function goScreen(id) {
       hideLoading();
       buildTrialCoachGrid();
     });
+  } else if (id === 's-trial-name') {
+    var tnl = document.getElementById('trial-name-logo');
+    var logoRef2 = document.getElementById('topbar-logo') || document.querySelector('.lhead-logo');
+    if (tnl && logoRef2) tnl.src = logoRef2.src;
+    var cl = document.getElementById('trial-name-coach-label');
+    if (cl) cl.textContent = '教練：' + (selCoach ? selCoach.name : '—');
+    var ti = document.getElementById('trial-name-input');
+    if (ti) { ti.value = ''; setTimeout(function(){ ti.focus(); }, 100); }
+    document.getElementById('trial-name-alert').style.display = 'none';
   } else if (id === 's-query') {
     showLoading('載入資料...');
     reloadData(function() {
@@ -851,7 +891,17 @@ function pickTrialCoach(id) {
 
 function goTrialToSig() {
   if (!selCoach) { document.getElementById('trial-coach-alert').style.display = 'block'; return; }
-  trialName = '體驗課程';
+  goScreen('s-trial-name');
+}
+
+function submitTrialName() {
+  var inp = document.getElementById('trial-name-input');
+  var val = inp ? inp.value.trim() : '';
+  if (!val) {
+    document.getElementById('trial-name-alert').style.display = 'block';
+    return;
+  }
+  trialName = val;
   goScreen('s-sig');
 }
 
