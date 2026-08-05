@@ -172,6 +172,15 @@ select.finput{-webkit-appearance:none;appearance:none;background-image:url("data
 .kb-key.kb-del{background:#adb0be;color:#fff;font-size:20px;max-width:80px}
 .kb-key.kb-space{background:#fff;max-width:200px;font-size:14px;color:#666}
 .kb-input-wrap{position:relative}
+.bpmf-row{display:flex;gap:5px;margin-bottom:5px}
+.bpmf-key{flex:1;padding:0;height:46px;background:#fff;border:none;border-radius:8px;font-size:17px;cursor:pointer;box-shadow:0 2px 3px rgba(0,0,0,.18);color:#1a1a2e;font-weight:600;display:flex;align-items:center;justify-content:center;min-width:0;-webkit-tap-highlight-color:transparent}
+.bpmf-key:active{background:#c7d8f8;transform:scale(.93)}
+.bpmf-wide{flex:2.2}
+.bpmf-del{background:#f87171;color:#fff}
+.bpmf-del:active{background:#dc2626}
+.cand-btn{min-width:46px;height:46px;border-radius:8px;border:1.5px solid #c7d8f8;background:#eef4ff;color:#1a1a2e;font-size:21px;font-weight:700;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;-webkit-tap-highlight-color:transparent}
+.cand-btn:active{background:#3b82f6;color:#fff}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
 </style>
 </head>
 <body>
@@ -282,34 +291,61 @@ select.finput{-webkit-appearance:none;appearance:none;background-image:url("data
 </div>
 
 <!-- TRIAL NAME INPUT -->
-<div class="screen" id="s-trial-name">
-  <div class="lhead">
-    <div class="lhead-row"><img class="lhead-logo" id="trial-name-logo" src="" alt="FMC"><span style="font-size:13px;font-weight:600;color:#333">FMC</span></div>
-    <h2>體驗課程</h2>
-    <p id="trial-name-hint">請輸入體驗者姓名</p>
-  </div>
-  <div class="lstep-bar">
-    <div class="lsdot done">✓</div><span class="lslbl">選教練</span>
-    <div class="lsline"></div>
-    <div class="lsdot active">2</div><span class="lslbl">輸入姓名</span>
-    <div class="lsline"></div>
-    <div class="lsdot idle">3</div><span class="lslbl">簽名</span>
-  </div>
-  <div class="pbody">
-    <div class="alertbox alerterr" id="trial-name-alert" style="display:none">請輸入體驗者姓名</div>
-    <div style="background:linear-gradient(135deg,#1a3a6e,#0d1f40);border-radius:14px;padding:16px 18px;margin-bottom:18px;text-align:center">
-      <div style="font-size:18px;font-weight:800;color:#fff;margin-bottom:4px">體驗課程</div>
-      <div style="font-size:13px;color:rgba(255,255,255,.6)" id="trial-name-coach-label">教練：—</div>
+<div class="screen" id="s-trial-name" style="display:flex;flex-direction:column;background:#f0f2f7">
+  <!-- Header -->
+  <div style="background:#fff;padding:12px 16px 8px;border-bottom:1px solid #e0e0e0;flex-shrink:0">
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+      <img id="trial-name-logo" src="" alt="FMC" style="width:26px;height:26px;border-radius:50%;object-fit:cover">
+      <span style="font-size:13px;font-weight:700;color:#333">FMC・體驗課程</span>
+      <span id="trial-name-coach-label" style="font-size:12px;color:#888;margin-left:4px"></span>
     </div>
-    <label class="flbl">體驗者姓名</label>
-    <input class="finput" id="trial-name-input" type="text" placeholder="請輸入體驗者姓名"
-      autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false"
-      oninput="document.getElementById('trial-name-alert').style.display='none'">
+    <div class="lstep-bar" style="margin:0 0 4px">
+      <div class="lsdot done">✓</div><span class="lslbl">選教練</span>
+      <div class="lsline"></div>
+      <div class="lsdot active">2</div><span class="lslbl">輸入姓名</span>
+      <div class="lsline"></div>
+      <div class="lsdot idle">3</div><span class="lslbl">簽名</span>
+    </div>
   </div>
-  <div class="lbottom">
+  <!-- Name display -->
+  <div style="padding:10px 14px 6px;background:#fff;flex-shrink:0">
+    <div id="trial-name-alert" style="display:none;color:#e53935;font-size:13px;margin-bottom:6px">⚠️ 請先輸入姓名再繼續</div>
+    <div style="display:flex;align-items:center;gap:8px">
+      <div style="flex:1;min-height:52px;background:#f8f9fc;border:2px solid #3b82f6;border-radius:10px;padding:10px 14px;font-size:24px;font-weight:700;color:#1a1a2e;letter-spacing:.1em;display:flex;align-items:center">
+        <span id="trial-name-text" style="flex:1"></span><span style="animation:blink 1s infinite;color:#3b82f6">|</span>
+      </div>
+      <button onclick="zhuyinBackspace()" class="bpmf-key bpmf-del" style="width:52px;height:52px;flex:none;font-size:20px;border-radius:10px">⌫</button>
+    </div>
+  </div>
+  <!-- Candidates -->
+  <div style="background:#e8eef7;padding:4px 10px;flex-shrink:0;display:flex;align-items:center;gap:4px;min-height:30px">
+    <span style="font-size:12px;color:#888;flex-shrink:0">注音：</span>
+    <span id="zhuyin-compose-text" style="font-size:14px;font-weight:700;color:#1d2c3e;min-width:20px"></span>
+  </div>
+  <div id="zhuyin-candidates" style="display:flex;flex-wrap:nowrap;overflow-x:auto;gap:6px;padding:7px 10px;background:#fff;border-bottom:1px solid #dde;min-height:60px;align-items:center;flex-shrink:0">
+    <span style="color:#bbb;font-size:13px">輸入注音後點選文字</span>
+  </div>
+  <!-- Keyboard -->
+  <div style="flex:1;padding:8px 8px 4px;background:#cbd5e1;display:flex;flex-direction:column;justify-content:center">
+    <div class="bpmf-row">
+      <button class="bpmf-key" onclick="zhuyinPress('ㄅ')">ㄅ</button><button class="bpmf-key" onclick="zhuyinPress('ㄆ')">ㄆ</button><button class="bpmf-key" onclick="zhuyinPress('ㄇ')">ㄇ</button><button class="bpmf-key" onclick="zhuyinPress('ㄈ')">ㄈ</button><button class="bpmf-key" onclick="zhuyinPress('ㄉ')">ㄉ</button><button class="bpmf-key" onclick="zhuyinPress('ㄊ')">ㄊ</button><button class="bpmf-key" onclick="zhuyinPress('ㄋ')">ㄋ</button><button class="bpmf-key" onclick="zhuyinPress('ㄌ')">ㄌ</button><button class="bpmf-key" onclick="zhuyinPress('ㄍ')">ㄍ</button><button class="bpmf-key" onclick="zhuyinPress('ㄎ')">ㄎ</button><button class="bpmf-key" onclick="zhuyinPress('ㄏ')">ㄏ</button>
+    </div>
+    <div class="bpmf-row">
+      <button class="bpmf-key" onclick="zhuyinPress('ㄐ')">ㄐ</button><button class="bpmf-key" onclick="zhuyinPress('ㄑ')">ㄑ</button><button class="bpmf-key" onclick="zhuyinPress('ㄒ')">ㄒ</button><button class="bpmf-key" onclick="zhuyinPress('ㄓ')">ㄓ</button><button class="bpmf-key" onclick="zhuyinPress('ㄔ')">ㄔ</button><button class="bpmf-key" onclick="zhuyinPress('ㄕ')">ㄕ</button><button class="bpmf-key" onclick="zhuyinPress('ㄖ')">ㄖ</button><button class="bpmf-key" onclick="zhuyinPress('ㄗ')">ㄗ</button><button class="bpmf-key" onclick="zhuyinPress('ㄘ')">ㄘ</button><button class="bpmf-key" onclick="zhuyinPress('ㄙ')">ㄙ</button>
+    </div>
+    <div class="bpmf-row">
+      <button class="bpmf-key" onclick="zhuyinPress('ㄧ')">ㄧ</button><button class="bpmf-key" onclick="zhuyinPress('ㄨ')">ㄨ</button><button class="bpmf-key" onclick="zhuyinPress('ㄩ')">ㄩ</button><button class="bpmf-key" onclick="zhuyinPress('ㄚ')">ㄚ</button><button class="bpmf-key" onclick="zhuyinPress('ㄛ')">ㄛ</button><button class="bpmf-key" onclick="zhuyinPress('ㄜ')">ㄜ</button><button class="bpmf-key" onclick="zhuyinPress('ㄝ')">ㄝ</button><button class="bpmf-key" onclick="zhuyinPress('ㄞ')">ㄞ</button><button class="bpmf-key" onclick="zhuyinPress('ㄟ')">ㄟ</button><button class="bpmf-key" onclick="zhuyinPress('ㄠ')">ㄠ</button><button class="bpmf-key" onclick="zhuyinPress('ㄡ')">ㄡ</button>
+    </div>
+    <div class="bpmf-row">
+      <button class="bpmf-key" onclick="zhuyinPress('ㄢ')">ㄢ</button><button class="bpmf-key" onclick="zhuyinPress('ㄣ')">ㄣ</button><button class="bpmf-key" onclick="zhuyinPress('ㄤ')">ㄤ</button><button class="bpmf-key" onclick="zhuyinPress('ㄥ')">ㄥ</button><button class="bpmf-key" onclick="zhuyinPress('ㄦ')">ㄦ</button><button class="bpmf-key bpmf-wide" onclick="zhuyinCommit()" style="background:#e0e7ff;color:#1d4ed8">確認</button><button class="bpmf-key bpmf-del bpmf-wide" onclick="zhuyinBackspace()">⌫</button>
+    </div>
+  </div>
+  <!-- Bottom -->
+  <div class="lbottom" style="flex-shrink:0">
     <button class="lbtn-back" onclick="goScreen('s-trial-coach')">返回</button>
     <button class="lbtn-next" onclick="submitTrialName()">下一步 →</button>
   </div>
+  <input type="hidden" id="trial-name-input">
 </div>
 
 <!-- NAME -->
@@ -749,9 +785,7 @@ function goScreen(id) {
     if (tnl && logoRef2) tnl.src = logoRef2.src;
     var cl = document.getElementById('trial-name-coach-label');
     if (cl) cl.textContent = '教練：' + (selCoach ? selCoach.name : '—');
-    var ti = document.getElementById('trial-name-input');
-    if (ti) { ti.value = ''; setTimeout(function(){ ti.focus(); }, 100); }
-    document.getElementById('trial-name-alert').style.display = 'none';
+    resetZhuyinIME();
   } else if (id === 's-query') {
     showLoading('載入資料...');
     reloadData(function() {
@@ -894,9 +928,128 @@ function goTrialToSig() {
   goScreen('s-trial-name');
 }
 
+// ══ 注音 IME ══
+var zhuyinBuffer = '';
+var zhuyinText = '';
+var BPMF_I = ['ㄅ','ㄆ','ㄇ','ㄈ','ㄉ','ㄊ','ㄋ','ㄌ','ㄍ','ㄎ','ㄏ','ㄐ','ㄑ','ㄒ','ㄓ','ㄔ','ㄕ','ㄖ','ㄗ','ㄘ','ㄙ'];
+var BPMF_M = ['ㄧ','ㄨ','ㄩ'];
+var BPMF_F = ['ㄚ','ㄛ','ㄜ','ㄝ','ㄞ','ㄟ','ㄠ','ㄡ','ㄢ','ㄣ','ㄤ','ㄥ','ㄦ'];
+var BPMF_DICT = {
+  'ㄅ':['伯','博','柏'],'ㄅㄛ':['博','柏','伯','波'],'ㄅㄞ':['百','白','拜'],'ㄅㄟ':['北','貝','倍'],
+  'ㄅㄢ':['班','般','伴'],'ㄅㄤ':['邦','榜'],'ㄅㄧ':['碧','璧','必','彼'],'ㄅㄧㄢ':['卞','便'],
+  'ㄅㄧㄣ':['彬','斌','賓'],'ㄅㄧㄥ':['冰','丙','炳','秉'],'ㄅㄨ':['步','布'],
+  'ㄆㄟ':['珮','佩','沛','培'],'ㄆㄥ':['鵬','彭','朋'],'ㄆㄧㄥ':['平','萍'],'ㄆㄨ':['普','溥'],
+  'ㄆㄧ':['琵'],'ㄆㄧㄣ':['品'],
+  'ㄇㄟ':['美','妹','梅'],'ㄇㄥ':['孟','夢','蒙'],'ㄇㄧ':['米','蜜'],'ㄇㄧㄣ':['敏','閔','民'],
+  'ㄇㄧㄥ':['明','銘','鳴'],'ㄇㄨ':['穆','木','牧'],
+  'ㄈㄟ':['飛','菲','妃','霏'],'ㄈㄣ':['芬','分','汾'],'ㄈㄥ':['豐','鳳','楓','峰','馮','烽'],
+  'ㄈㄨ':['富','福','輔','芙'],
+  'ㄉㄚ':['大','達'],'ㄉㄞ':['戴','黛'],'ㄉㄢ':['丹','旦'],'ㄉㄜ':['德'],
+  'ㄉㄧ':['弟','娣'],'ㄉㄧㄢ':['典','殿'],'ㄉㄧㄥ':['丁','頂','鼎'],
+  'ㄉㄨ':['都','度','杜'],'ㄉㄨㄣ':['敦'],
+  'ㄊㄞ':['泰','台'],'ㄊㄤ':['唐','棠','堂'],'ㄊㄧㄢ':['天','田','甜'],
+  'ㄊㄧㄥ':['亭','婷','廷','庭','霆'],'ㄊㄨ':['突'],
+  'ㄋㄚ':['娜'],'ㄋㄧㄥ':['寧','凝'],'ㄋㄧ':['倪'],
+  'ㄌㄟ':['蕾'],'ㄌㄧ':['麗','李','立','力','栗','莉'],'ㄌㄧㄢ':['蓮','連','廉'],
+  'ㄌㄧㄣ':['林','琳','霖','臨'],'ㄌㄧㄥ':['靈','鈴','玲','菱'],
+  'ㄌㄨ':['陸','路','露','綠','璐'],'ㄌㄨㄣ':['倫'],'ㄌㄨㄥ':['龍','隆'],
+  'ㄌㄚ':['拉'],'ㄌㄛ':['羅'],'ㄌㄞ':['來'],
+  'ㄍㄜ':['格','葛'],'ㄍㄨ':['谷','顧','古'],'ㄍㄨㄟ':['桂','貴','瑰'],
+  'ㄍㄨㄛ':['國','郭','果'],'ㄍㄤ':['剛'],
+  'ㄎㄜ':['可','柯','克'],'ㄎㄞ':['凱','愷'],'ㄎㄨㄣ':['坤','昆'],
+  'ㄏㄠ':['浩','豪'],'ㄏㄜ':['和','河','賀','何'],'ㄏㄨ':['虎','湖'],
+  'ㄏㄨㄟ':['惠','慧','蕙'],'ㄏㄤ':['航'],'ㄏㄤ':['杭'],
+  'ㄐㄧ':['記','季','姬','機','吉','際'],'ㄐㄧㄚ':['佳','嘉','家'],
+  'ㄐㄧㄢ':['建','健','堅'],'ㄐㄧㄣ':['金','錦','進','晉'],
+  'ㄐㄧㄥ':['靜','晶','敬','璟','鏡','晴'],'ㄐㄩ':['菊','居'],
+  'ㄐㄩㄣ':['君','俊','峻','均','鈞'],
+  'ㄑㄧ':['琦','琪','棋','奇','其'],'ㄑㄧㄢ':['謙','倩','茜'],
+  'ㄑㄧㄣ':['琴','勤','欽','芹','秦'],'ㄑㄧㄥ':['清','青','晴','慶'],
+  'ㄑㄩ':['曲'],'ㄑㄩㄢ':['泉','全'],'ㄑㄩㄣ':['群'],
+  'ㄒㄧ':['希','喜','曦','熙','席'],'ㄒㄧㄚ':['夏','霞'],
+  'ㄒㄧㄢ':['賢','仙','先','顯'],'ㄒㄧㄣ':['心','欣','新','信','馨','鑫'],
+  'ㄒㄧㄥ':['星','興','幸'],'ㄒㄩ':['旭','緒','許'],
+  'ㄒㄩㄝ':['雪','薛'],'ㄒㄩㄣ':['薰','勛'],
+  'ㄓㄜ':['哲'],'ㄓㄣ':['真','珍','振','貞','禎'],
+  'ㄓㄥ':['正','政','鄭'],'ㄓㄤ':['章','彰','張'],
+  'ㄓㄨ':['朱','珠','竹','祝'],'ㄓㄨㄛ':['卓','琢'],
+  'ㄓㄨㄥ':['中','忠','仲','鐘'],
+  'ㄔㄣ':['陳','宸','晨','辰'],'ㄔㄥ':['成','誠','程','呈','澄'],
+  'ㄔㄤ':['昌','常','暢'],'ㄔㄨ':['初','楚','儲'],
+  'ㄕㄣ':['沈','深','慎'],'ㄕㄥ':['聖','勝','盛'],
+  'ㄕㄠ':['邵','韶'],'ㄕㄨ':['書','淑','舒'],
+  'ㄖㄨ':['如','汝','儒','茹'],
+  'ㄗㄜ':['澤'],'ㄗㄨ':['祖'],
+  'ㄘㄞ':['蔡','彩','采'],'ㄘㄥ':['曾'],
+  'ㄙㄨ':['蘇','素'],'ㄙㄨㄥ':['松','宋'],
+  'ㄧ':['一','義','易','宜','儀','怡','伊','依'],'ㄧㄚ':['雅','亞'],
+  'ㄧㄢ':['燕','嫣','晏','彥','硯','顏'],'ㄧㄣ':['音','銀','殷','尹'],
+  'ㄧㄥ':['英','穎','映','瑩','瑛'],'ㄧㄡ':['友','幽','悠'],
+  'ㄨ':['武','吳','悟'],'ㄨㄟ':['威','薇','偉','維'],
+  'ㄨㄣ':['文','雯','聞'],'ㄨㄥ':['翁'],
+  'ㄩ':['玉','育','宇','予','羽','裕'],'ㄩㄝ':['月','悅','岳'],
+  'ㄩㄣ':['雲','允','芸','鋆'],'ㄢ':['安'],
+};
+function bpmfHas(arr,k){for(var i=0;i<arr.length;i++)if(arr[i]===k)return true;return false;}
+function lookupZhuyin(buf){
+  if(!buf)return[];
+  var ex=BPMF_DICT[buf];
+  if(ex&&ex.length)return ex;
+  var res=[],seen={};
+  var ks=Object.keys(BPMF_DICT);
+  for(var i=0;i<ks.length;i++){
+    if(ks[i].indexOf(buf)===0){
+      var chars=BPMF_DICT[ks[i]];
+      for(var j=0;j<chars.length;j++){if(!seen[chars[j]]){seen[chars[j]]=1;res.push(chars[j]);}}
+    }
+  }
+  return res;
+}
+function bufHasType(arr){
+  for(var i=0;i<zhuyinBuffer.length;i++)if(bpmfHas(arr,zhuyinBuffer[i]))return true;
+  return false;
+}
+function zhuyinPress(key){
+  var isI=bpmfHas(BPMF_I,key),isM=bpmfHas(BPMF_M,key),isF=bpmfHas(BPMF_F,key);
+  var reset=(isI&&zhuyinBuffer.length>0)||(isM&&bufHasType(BPMF_M))||(isF&&bufHasType(BPMF_F));
+  if(reset){
+    var c=lookupZhuyin(zhuyinBuffer);
+    if(c.length)zhuyinText+=c[0];
+    zhuyinBuffer='';
+  }
+  zhuyinBuffer+=key;
+  updateZhuyinUI();
+}
+function zhuyinSelect(ch){
+  zhuyinText+=ch;zhuyinBuffer='';
+  document.getElementById('trial-name-alert').style.display='none';
+  updateZhuyinUI();
+}
+function zhuyinCommit(){var c=lookupZhuyin(zhuyinBuffer);if(c.length)zhuyinSelect(c[0]);}
+function zhuyinBackspace(){
+  if(zhuyinBuffer.length>0){zhuyinBuffer=zhuyinBuffer.slice(0,-1);}
+  else if(zhuyinText.length>0){zhuyinText=Array.from(zhuyinText).slice(0,-1).join('');}
+  updateZhuyinUI();
+}
+function updateZhuyinUI(){
+  document.getElementById('trial-name-input').value=zhuyinText;
+  document.getElementById('trial-name-text').textContent=zhuyinText;
+  document.getElementById('zhuyin-compose-text').textContent=zhuyinBuffer;
+  var cands=lookupZhuyin(zhuyinBuffer);
+  var el=document.getElementById('zhuyin-candidates');
+  if(!el)return;
+  if(!cands.length){
+    el.innerHTML='<span style="color:#bbb;font-size:13px">'+(zhuyinBuffer?'查無對應字':'輸入注音後點選文字')+'</span>';
+    return;
+  }
+  el.innerHTML=cands.slice(0,18).map(function(c){
+    return '<button class="cand-btn" onclick="zhuyinSelect(\''+c+'\')">'+c+'</button>';
+  }).join('');
+}
+function resetZhuyinIME(){zhuyinBuffer='';zhuyinText='';updateZhuyinUI();}
+
 function submitTrialName() {
-  var inp = document.getElementById('trial-name-input');
-  var val = inp ? inp.value.trim() : '';
+  var val = zhuyinText.trim();
   if (!val) {
     document.getElementById('trial-name-alert').style.display = 'block';
     return;
