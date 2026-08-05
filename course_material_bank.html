@@ -1,0 +1,760 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>課程素材庫</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap');
+  :root{
+    --bg:#F7F6F3;--surface:#FFF;--surface2:#F0EEE9;
+    --border:rgba(0,0,0,.10);--border-med:rgba(0,0,0,.16);
+    --text-pri:#1A1917;--text-sec:#6B6960;--text-ter:#9B9890;
+    --p1-bg:#CECBF6;--p1-text:#3C3489;
+    --p2-bg:#9FE1CB;--p2-text:#085041;
+    --p3-bg:#FAC775;--p3-text:#633806;
+    --why-bg:#E6F1FB;--why-text:#185FA5;
+    --warn-bg:#FAECE7;--warn-text:#712B13;
+    --eval-bg:#D4EEE2;--eval-text:#085041;
+    --pass-bg:#EAF3DE;--pass-border:#C0DD97;--pass-text:#1A5C2A;--pass-label:#3B6D11;
+    --key-bg:#FEF0D6;--key-border:#FAC775;--key-text:#633806;--key-label:#7A4A0A;
+    --sci-bg:#E6F1FB;--sci-border:#B5D4F4;--sci-text:#0C447C;
+    --apt-bg:#FAECE7;--apt-text:#712B13;
+    --sway-bg:#E6F1FB;--sway-text:#185FA5;
+    --r:10px;--rs:6px;--rm:8px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text-pri);min-height:100vh;padding:32px 16px 80px}
+  .container{max-width:800px;margin:0 auto}
+
+  /* PAGE HEADER */
+  .page-header{margin-bottom:28px;padding-bottom:20px;border-bottom:1px solid var(--border)}
+  .page-header h1{font-size:22px;font-weight:600;letter-spacing:-.02em;margin-bottom:4px}
+  .page-header p{font-size:13px;color:var(--text-sec)}
+
+  /* SECTION DIVIDER */
+  .section-divider{border:none;border-top:1.5px dashed var(--border-med);margin:28px 0}
+  .section-heading{font-size:15px;font-weight:500;color:var(--text-pri);margin-bottom:4px;padding-left:2px}
+  .section-sub{font-size:12px;color:var(--text-ter);margin-bottom:14px;padding-left:2px;font-style:italic}
+
+  /* CATEGORY */
+  .cat{margin-bottom:14px;border-radius:var(--r);border:1px solid var(--border);overflow:hidden}
+  .cat-head{padding:9px 14px;background:var(--surface2);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px}
+  .cat-tag{font-size:10px;font-weight:500;padding:2px 8px;border-radius:20px;flex-shrink:0}
+  .cat-title{font-size:13px;font-weight:500}
+  .cat-count{font-size:11px;color:var(--text-ter);margin-left:auto;font-family:'DM Mono',monospace}
+  .cat-body{padding:10px 14px;background:var(--surface)}
+
+  /* ITEM */
+  .item{padding:9px 11px;border-radius:var(--rs);border:1px solid var(--border);margin-bottom:6px;background:var(--surface)}
+  .item:last-child{margin-bottom:0}
+  .item-header{display:flex;align-items:center;gap:6px;margin-bottom:4px;flex-wrap:wrap}
+  .item-title{font-size:12px;font-weight:500;line-height:1.35}
+
+  /* BADGES */
+  .badge{font-size:10px;font-weight:500;padding:1px 7px;border-radius:20px}
+  .b-p1{background:var(--p1-bg);color:var(--p1-text)}
+  .b-p2{background:var(--p2-bg);color:var(--p2-text)}
+  .b-p3{background:var(--p3-bg);color:var(--p3-text)}
+  .b-theory{background:#EEEDFE;color:#534AB7}
+  .b-why{background:var(--why-bg);color:var(--why-text)}
+  .b-warn{background:var(--warn-bg);color:var(--warn-text)}
+  .b-eval{background:var(--eval-bg);color:var(--eval-text)}
+  .b-source{background:#F1EFE8;color:#5F5E5A}
+  .b-gold{background:#FEF0D6;color:#7A4A0A}
+
+  .t-theory{background:#EEEDFE;color:#534AB7}
+  .t-eval{background:var(--eval-bg);color:var(--eval-text)}
+  .t-case{background:#FAEEDA;color:#854F0B}
+  .t-visual{background:var(--why-bg);color:var(--why-text)}
+  .t-misc{background:#F1EFE8;color:#5F5E5A}
+
+  /* PASS GRID */
+  .pass-note{font-size:11px;color:var(--text-sec);margin-bottom:8px;line-height:1.5;padding:6px 8px;background:var(--surface2);border-radius:var(--rs)}
+  .pass-note strong{color:var(--text-pri);font-weight:500}
+  .pass-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:10px}
+  .pass-cell{border-radius:var(--rs);border:1px solid var(--pass-border);background:var(--pass-bg);padding:8px 10px;text-align:center}
+  .pass-cell.key{border-color:var(--key-border);background:var(--key-bg)}
+  .pass-test{font-size:10px;color:var(--pass-label);margin-bottom:3px}
+  .pass-cell.key .pass-test{color:var(--key-label)}
+  .pass-val{font-size:15px;font-weight:600;color:var(--pass-text);font-family:'DM Mono',monospace}
+  .pass-cell.key .pass-val{color:var(--key-text)}
+
+  /* EVAL CARD */
+  .eval-card{border-radius:var(--rm);border:1px solid var(--border);overflow:hidden;margin-bottom:8px}
+  .eval-card:last-child{margin-bottom:0}
+  .eval-head{padding:8px 12px;background:var(--surface2);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .eval-name{font-size:12px;font-weight:500}
+  .eval-target{font-size:11px;font-family:'DM Mono',monospace;background:var(--pass-bg);color:var(--pass-label);padding:2px 8px;border-radius:20px;margin-left:auto;flex-shrink:0}
+  .eval-key-tag{font-size:10px;font-weight:500;padding:1px 7px;border-radius:20px;background:var(--key-bg);color:var(--key-text);flex-shrink:0}
+  .eval-body{padding:10px 12px;background:var(--surface)}
+  .eval-purpose{font-size:12px;font-weight:500;margin-bottom:6px;line-height:1.4}
+  .eval-pending{padding:10px 12px;font-size:12px;color:var(--text-ter);font-style:italic;background:var(--surface)}
+
+  /* SCIENCE BOX */
+  .sci-box{margin-top:8px;background:var(--sci-bg);border-radius:var(--rs);padding:8px 10px;border:1px solid var(--sci-border)}
+  .sci-title{font-size:10px;font-weight:600;color:var(--why-text);letter-spacing:.04em;text-transform:uppercase;margin-bottom:6px}
+  .sci-pts{display:flex;flex-direction:column;gap:4px;margin-bottom:6px}
+  .sci-pt{font-size:11px;color:var(--sci-text);line-height:1.5;display:flex;gap:6px}
+  .sci-dot{width:5px;height:5px;border-radius:50%;background:var(--why-text);flex-shrink:0;margin-top:4px}
+  .sci-chain{font-size:11px;color:var(--sci-text);line-height:1.65;padding:6px 8px;background:rgba(255,255,255,.5);border-radius:5px;border:1px solid var(--sci-border)}
+
+  /* WARN BOX */
+  .warn-box{margin-top:6px;background:#FAEEDA;border-radius:var(--rs);padding:6px 10px;font-size:11px;color:#633806;line-height:1.5;border-left:2px solid #FAC775}
+  .warn-box strong{font-weight:500;display:block;margin-bottom:2px}
+
+  /* COMPARE BOX */
+  .compare-box{margin-top:10px;border-radius:var(--rs);overflow:hidden;border:1px solid var(--border-med)}
+  .compare-head{padding:7px 12px;background:var(--surface2);border-bottom:1px solid var(--border);font-size:10px;font-weight:600;color:var(--text-ter);letter-spacing:.04em;text-transform:uppercase}
+  .compare-grid{display:grid;grid-template-columns:1fr 1fr}
+  .compare-col{padding:10px 12px;background:var(--surface)}
+  .compare-col:first-child{border-right:1px solid var(--border)}
+  .compare-col-title{font-size:11px;font-weight:600;margin-bottom:3px}
+  .compare-col-en{font-size:10px;font-family:'DM Mono',monospace;color:var(--text-ter);margin-bottom:5px}
+  .compare-meta{font-size:10px;font-weight:500;padding:1px 7px;border-radius:20px;display:inline-block;margin-bottom:6px}
+  .meta-apt{background:var(--apt-bg);color:var(--apt-text)}
+  .meta-sway{background:var(--sway-bg);color:var(--sway-text)}
+  .compare-col-body{font-size:11px;color:var(--text-sec);line-height:1.5}
+  .compare-col-metaphor{margin-top:5px;font-size:11px;color:var(--text-ter);font-style:italic;padding-left:8px;border-left:2px solid var(--border-med)}
+  .compare-foot{padding:7px 12px;background:var(--surface2);border-top:1px solid var(--border);font-size:11px;color:var(--text-sec)}
+  .compare-foot strong{color:var(--text-pri);font-weight:500}
+
+  /* WHY BOX */
+  .why-box{margin-top:8px;background:var(--surface2);border-radius:var(--rs);padding:8px 10px;border:1px solid var(--border)}
+  .why-pending{font-size:12px;color:var(--text-ter);font-style:italic}
+
+  /* PATH LIST */
+  .path-list{margin-top:10px;display:flex;flex-direction:column;gap:6px}
+  .path-item{border-radius:var(--rs);border:1px solid var(--border);overflow:hidden}
+  .path-head{padding:6px 10px;display:flex;align-items:center;gap:7px;background:var(--surface2);border-bottom:1px solid var(--border)}
+  .path-num{font-size:10px;font-weight:600;color:var(--text-ter);min-width:18px}
+  .path-label{font-size:11px;font-weight:500}
+  .path-tag{font-size:10px;padding:1px 6px;border-radius:20px;font-weight:500;margin-left:auto;flex-shrink:0}
+  .pt-gravity{background:var(--why-bg);color:var(--why-text)}
+  .pt-neuro{background:var(--warn-bg);color:var(--warn-text)}
+  .pt-asymm{background:#EEEDFE;color:#534AB7}
+  .pt-injury{background:#FAEEDA;color:#854F0B}
+  .pt-open{background:#F1EFE8;color:#5F5E5A}
+  .path-body{padding:7px 10px;font-size:11px;color:var(--text-sec);line-height:1.6;background:var(--surface)}
+  .path-key{font-size:10px;color:var(--text-ter);margin-top:4px;padding-top:4px;border-top:1px solid var(--border)}
+  .path-key strong{color:var(--text-pri);font-weight:500}
+
+  /* ITEM POINTS */
+  .item-pts{margin-top:6px;padding-left:10px;border-left:2px solid var(--border-med);display:flex;flex-direction:column;gap:3px}
+  .item-pt{font-size:11px;color:var(--text-sec);line-height:1.5}
+  .item-pt strong{color:var(--text-pri);font-weight:500;display:block}
+
+  /* PHASE GRID */
+  .phase-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px}
+  .phase-card{border-radius:var(--r);border:1px solid var(--border);overflow:hidden}
+  .phase-card-head{padding:10px 12px;border-bottom:1px solid var(--border);background:var(--surface2)}
+  .phase-card-tag{font-size:10px;font-weight:500;padding:2px 8px;border-radius:20px;display:inline-block;margin-bottom:5px}
+  .phase-card-title{font-size:13px;font-weight:500;margin-bottom:2px}
+  .phase-card-sub{font-size:11px;color:var(--text-sec)}
+  .phase-card-body{padding:10px 12px;background:var(--surface)}
+  .move-section{margin-bottom:8px}
+  .move-section:last-child{margin-bottom:0}
+  .move-section-label{font-size:10px;font-weight:500;color:var(--text-ter);letter-spacing:.04em;text-transform:uppercase;margin-bottom:4px}
+  .move-list{list-style:none;padding:0;margin:0}
+  .move-item{font-size:11px;color:var(--text-sec);padding:4px 0;border-bottom:1px solid var(--border);display:flex;align-items:flex-start;gap:6px;line-height:1.4}
+  .move-item:last-child{border-bottom:none}
+  .move-dot{width:5px;height:5px;border-radius:50%;flex-shrink:0;margin-top:4px}
+  .move-sub{font-size:10px;color:var(--text-ter);margin-top:1px}
+
+  /* DICT */
+  .dict-warning{background:#FAEEDA;border-radius:var(--rs);padding:8px 12px;font-size:11px;color:#633806;line-height:1.5;margin-bottom:10px;border-left:3px solid #FAC775}
+  .dict-warning strong{font-weight:500;display:block;margin-bottom:2px}
+  .dict-entry{border-radius:var(--rs);border:1px solid var(--border);margin-bottom:6px;overflow:hidden;background:var(--surface)}
+  .dict-entry:last-child{margin-bottom:0}
+  .dict-term{padding:8px 12px 0;display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
+  .dict-zh{font-size:13px;font-weight:500}
+  .dict-en{font-size:11px;font-family:'DM Mono',monospace;color:var(--text-ter);background:var(--surface2);padding:1px 6px;border-radius:4px}
+  .dict-def{font-size:11px;color:var(--text-sec);padding:4px 12px 10px;line-height:1.6}
+  .dict-note{font-size:11px;color:#633806;background:#FAEEDA;padding:5px 10px;border-top:1px solid var(--border);line-height:1.5}
+  .dict-pair{border-radius:var(--rs);border:1.5px solid var(--border-med);margin-bottom:6px;overflow:hidden;background:var(--surface)}
+  .dict-pair-head{padding:7px 12px;background:var(--surface2);border-bottom:1px solid var(--border);font-size:10px;font-weight:600;color:var(--text-ter);letter-spacing:.05em;text-transform:uppercase;display:flex;align-items:center;gap:6px}
+  .dict-pair-grid{display:grid;grid-template-columns:1fr 1fr}
+  .dict-pair-col{padding:8px 12px}
+  .dict-pair-col:first-child{border-right:1px solid var(--border)}
+  .dict-pair-label{font-size:12px;font-weight:500;margin-bottom:2px}
+  .dict-pair-en{font-size:10px;font-family:'DM Mono',monospace;color:var(--text-ter);margin-bottom:5px}
+  .dict-pair-def{font-size:11px;color:var(--text-sec);line-height:1.5}
+  .dict-pair-note{padding:7px 12px;background:var(--surface2);border-top:1px solid var(--border);font-size:11px;color:var(--text-sec);line-height:1.5}
+  .dict-pair-note strong{color:var(--text-pri);font-weight:500}
+  .dict-tag{font-size:10px;font-weight:500;padding:1px 6px;border-radius:20px;margin-right:2px}
+  .tag-struct{background:var(--eval-bg);color:var(--eval-text)}
+  .tag-neuro{background:var(--why-bg);color:var(--why-text)}
+  .tag-test{background:#EEEDFE;color:#534AB7}
+  .tag-phase{background:var(--key-bg);color:var(--key-label)}
+  .tag-posture{background:var(--warn-bg);color:var(--warn-text)}
+  .tag-neutral{font-size:10px;padding:1px 6px;border-radius:20px;background:var(--why-bg);color:var(--why-text);font-weight:500}
+
+  .empty{font-size:12px;color:var(--text-ter);font-style:italic;padding:4px 0}
+  .footer{margin-top:32px;text-align:center;font-size:11px;color:var(--text-ter)}
+</style>
+</head>
+<body>
+<div class="container">
+
+<div class="page-header">
+  <h1>課程素材庫</h1>
+  <p>與五週大綱獨立分開　｜　收集尚未排序的 PPT 素材、概念說明、案例片段</p>
+</div>
+
+<!-- ───── 理論概念 ───── -->
+<div class="cat">
+  <div class="cat-head"><span class="cat-tag t-theory">理論概念</span><span class="cat-title">系統理念 ＆ 生物力學</span><span class="cat-count">5 則</span></div>
+  <div class="cat-body">
+
+    <!-- 階段一定義 -->
+    <div class="item">
+      <div class="item-header"><span class="badge b-p1">階段一定義</span><span class="badge b-theory">理論</span></div>
+      <div class="item-title">階段一：首要目標與代償路徑</div>
+      <div class="item-pts">
+        <div class="item-pt"><strong>首要目標</strong>解決矢狀面代償與整體代償下的相對運動缺失</div>
+        <div class="item-pt"><strong>次要目標</strong>盡可能對齊功能測試與結構測試（通常不可能全部對齊）</div>
+        <div class="item-pt"><strong>動作特性</strong>低張力、被動為主</div>
+      </div>
+      <div class="path-list">
+        <div class="path-item">
+          <div class="path-head"><span class="path-num">1</span><span class="path-label">重力 ＆ 效率代償</span><span class="path-tag pt-gravity">重力</span></div>
+          <div class="path-body">人是向前走的生物，在地心引力影響下，身體不斷尋找最省力的站姿。整體向前卡住自己比透過肌肉結構堆疊更有效率，矢狀面代償因此產生——不再透過相對運動產生旋轉，因為全部一起往前更有效率。<div class="path-key"><strong>關鍵機制：</strong>放棄相對運動 → 以整體前移替代旋轉</div></div>
+        </div>
+        <div class="path-item">
+          <div class="path-head"><span class="path-num">2</span><span class="path-label">交感神經 ＆ 戰鬥狀態</span><span class="path-tag pt-neuro">神經</span></div>
+          <div class="path-body">移動需要左右交替產生旋轉。但交感神經影響下身體進入戰鬥狀態，被鎖在伸張姿勢——而伸張狀態無法產生相對旋轉。惡性閉環：伸張影響旋轉 → 失去旋轉功能 → 身體只能繼續選擇伸張。<div class="path-key"><strong>關鍵機制：</strong>交感神經 → 伸張鎖定 → 旋轉缺失 → 更深的伸張</div></div>
+        </div>
+        <div class="path-item">
+          <div class="path-head"><span class="path-num">3</span><span class="path-label">先天不對稱 ＆ 錯誤學習</span><span class="path-tag pt-asymm">結構</span></div>
+          <div class="path-body">人天生不對稱，結構偏向導致右側優勢較大（多數人）。成長中左右被要求做一樣的事，卻在不同基礎上出發。在尚未學好相對運動之前，產生了過度整體代償——右手拉著左手一起動。<div class="path-key"><strong>關鍵機制：</strong>先天不對稱 → 被要求對稱 → 整體代償替代個別旋轉</div></div>
+        </div>
+        <div class="path-item">
+          <div class="path-head"><span class="path-num">4</span><span class="path-label">舊傷</span><span class="path-tag pt-injury">傷害</span></div>
+          <div class="path-body" style="color:var(--text-ter);font-style:italic">路徑待補充……</div>
+        </div>
+        <div class="path-item">
+          <div class="path-head"><span class="path-num">∞</span><span class="path-label">其他無限多條可能路徑</span><span class="path-tag pt-open">開放</span></div>
+          <div class="path-body">社會期待、過度控制、上班上課坐姿生活、運動偏好……每個人來到這裡的路徑都不同，但最終結果都一樣——相對運動缺失。<div class="path-key"><strong>關鍵洞見：</strong>原因無限多，但解法是同一個</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 階段一為什麼 -->
+    <div class="item">
+      <div class="item-header"><span class="badge b-p1">階段一</span><span class="badge b-why">為什麼</span></div>
+      <div class="item-title">為什麼首要目標是矢狀面代償？「倒著解回來」邏輯</div>
+      <div class="item-pts">
+        <div class="item-pt"><strong>核心邏輯</strong>起點是單邊問題，但終點是雙邊整體代償；整體代償是殼，相對運動缺失是裡面的核</div>
+        <div class="item-pt"><strong>比喻一</strong>修機器——打開逐層拆解，不拆外殼看不到內部問題</div>
+        <div class="item-pt"><strong>比喻二</strong>投球動作——看一次投球知道球沒投好，拆開才知道是哪個環節</div>
+        <div class="item-pt"><strong>比喻三</strong>比賽失誤——一回合知道失誤了，重播慢動作才知道在哪一步出錯</div>
+      </div>
+    </div>
+
+    <!-- 階段二定義 -->
+    <div class="item">
+      <div class="item-header"><span class="badge b-p2">階段二定義</span><span class="badge b-theory">理論</span></div>
+      <div class="item-title">階段二：首要目標與承重偏態轉移</div>
+      <div class="item-pts">
+        <div class="item-pt"><strong>首要目標</strong>將本來的承重偏態帶往另外一邊</div>
+        <div class="item-pt"><strong>核心概念</strong>接在階段一恢復前後整體後，進一步恢復左右承重偏態代償</div>
+        <div class="item-pt"><strong>動作思考邏輯</strong>誰需要更多內旋？誰需要相對外旋？誰需要承重？誰需要推進？</div>
+      </div>
+    </div>
+
+    <!-- 階段二為什麼 -->
+    <div class="item">
+      <div class="item-header"><span class="badge b-p2">階段二</span><span class="badge b-why">為什麼</span></div>
+      <div class="item-title">為什麼階段二目標是帶去弱側？</div>
+      <div class="why-box"><div class="why-pending">內容待補充……</div></div>
+    </div>
+
+    <!-- Conor Harris -->
+    <div class="item">
+      <div class="item-header"><span class="badge b-p2">階段二佐證</span><span class="badge b-source">Conor Harris</span></div>
+      <div class="item-title">生物力學模式：骨骼位置決定肌肉功能</div>
+      <div class="item-pts">
+        <div class="item-pt"><strong>核心原則</strong>大腦優先感知骨骼位置，骨頭位置不對，無法強迫肌肉工作</div>
+        <div class="item-pt"><strong>偏態側（如右側）</strong>向心鎖定內旋（IR）與內收，外側／後側肌群被拉長「無感」</div>
+        <div class="item-pt"><strong>推進側（如左側）</strong>向心鎖定外旋（ER）、外展與髖伸，內側肌群被拉長失去槓桿力</div>
+        <div class="item-pt"><strong>與本課程對應</strong>呼應階段二動作選擇邏輯——偏態側練外旋外展，推進側練內旋內收</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ───── 評估與判讀 ───── -->
+<div class="cat">
+  <div class="cat-head"><span class="cat-tag t-eval">評估與判讀</span><span class="cat-title">測試操作 ＆ 決策邏輯</span><span class="cat-count">2 則</span></div>
+  <div class="cat-body">
+
+    <!-- 階段一 -->
+    <div class="item">
+      <div class="item-header"><span class="badge b-p1">階段一</span><span class="badge b-eval">結構測試目標</span></div>
+      <div class="item-title" style="margin-bottom:10px">階段一結構測試：目標角度 ＆ 判讀邏輯</div>
+      <div class="pass-grid">
+        <div class="pass-cell"><div class="pass-test">直腿抬高 SLR</div><div class="pass-val">&gt; 60–70°</div></div>
+        <div class="pass-cell"><div class="pass-test">肩內旋 SH. IR</div><div class="pass-val">&gt; 50–60°</div></div>
+        <div class="pass-cell"><div class="pass-test">髖伸 HP. Exten</div><div class="pass-val">−5 ~ 0°</div></div>
+      </div>
+      <div class="eval-card">
+        <div class="eval-head"><span class="eval-name">直腿抬高　SLR</span><span class="eval-target">&gt; 60–70°</span></div>
+        <div class="eval-body">
+          <div class="eval-purpose">利用腿後側肌肉推斷坐骨骨盆整體狀態（起止點距離）</div>
+          <div class="item-pts" style="margin-top:5px">
+            <div class="item-pt"><strong>骨盆外翻的影響</strong>附著起點比中立狀態更遠，腿後提早接受到緊繃訊號，角度偏低</div>
+          </div>
+          <div class="warn-box" style="margin-top:8px"><strong>⚠️ 雙邊 90° 皆「無感覺」</strong>骨盆前傾代償——肌肉離心受器失去功能，數字好看但感覺喪失，日常腿後失能。</div>
+        </div>
+      </div>
+      <div class="eval-card">
+        <div class="eval-head"><span class="eval-name">肩內旋　SH. IR</span><span class="eval-target">&gt; 50–60°</span></div>
+        <div class="eval-body">
+          <div class="eval-purpose">測試胸腔前側空間與胸骨柄矢狀面狀態</div>
+          <div class="sci-box">
+            <div class="sci-title">肩內旋的運動學事實</div>
+            <div class="sci-pts">
+              <div class="sci-pt"><div class="sci-dot"></div>骨骼滾動：肱骨向前方滾動（Rolls Anteriorly）</div>
+              <div class="sci-pt"><div class="sci-dot"></div>微觀滑動：肱骨頭必須同時向後方滑動（Slides Posteriorly）</div>
+            </div>
+            <div class="sci-chain">前側胸腔壓迫 → 肩胛骨前引內翻 → 肱骨頭後滑空間消耗 → 後方關節囊與轉肩肌群縮短保護 → 體感「轉肩緊繃」→ 肩膀相對內旋喪失</div>
+          </div>
+        </div>
+      </div>
+      <div class="eval-card">
+        <div class="eval-head"><span class="eval-name">髖伸　HP. Exten</span><span class="eval-target">−5 ~ 0°</span></div>
+        <div class="eval-body">
+          <div class="eval-purpose">測試髖關節前側空間是否足夠讓股骨完成伸展運動</div>
+          <div class="sci-box">
+            <div class="sci-title">髖伸的運動學事實</div>
+            <div class="sci-pts">
+              <div class="sci-pt"><div class="sci-dot"></div>骨骼滾動：股骨向後滾動（Rolls Posteriorly）</div>
+              <div class="sci-pt"><div class="sci-dot"></div>微觀滑動：股骨頭必須同時向前滑動（Slides Anteriorly）</div>
+            </div>
+            <div class="sci-chain">骨盆前傾或前移 → 股骨預先卡在前方壓迫狀態 → 髖伸所需的向後滾動、向前滑動空間受限</div>
+          </div>
+          <div class="compare-box">
+            <div class="compare-head">💡 兩種體態壓縮前側空間的物理機制對比</div>
+            <div class="compare-grid">
+              <div class="compare-col">
+                <div class="compare-col-title">骨盆前傾型</div>
+                <div class="compare-col-en">Anterior Pelvic Tilt</div>
+                <span class="compare-meta meta-apt">結構排列借調</span>
+                <div class="compare-col-body">用髖臼前緣往下砸，直接把大腿骨卡在屈曲位</div>
+                <div class="compare-col-metaphor">「水桶往前倒」</div>
+              </div>
+              <div class="compare-col">
+                <div class="compare-col-title">骨盆前移型</div>
+                <div class="compare-col-en">Swayback / Anterior Shift</div>
+                <span class="compare-meta meta-sway">重力槓桿壓迫</span>
+                <div class="compare-col-body">體重與重力把股骨頭塞進前方關節囊與韌帶</div>
+                <div class="compare-col-metaphor">「整個人往前頂」</div>
+              </div>
+            </div>
+            <div class="compare-foot"><strong>共同結果：</strong>前方塞車，髖伸空間喪失，但介入方向不同</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 階段二 -->
+    <div class="item">
+      <div class="item-header"><span class="badge b-p2">階段二</span><span class="badge b-eval">結構測試目標</span></div>
+      <div class="item-title" style="margin-bottom:10px">階段二結構測試：目標角度 ＆ 判讀邏輯</div>
+      <div class="pass-note"><strong>判讀邏輯</strong>此階段目標是恢復弱邊承重——讓角度很差的那側跟上好的那側。★ 為旋轉偏向關鍵測試，疊加在階段一基礎上。</div>
+      <div class="pass-grid">
+        <div class="pass-cell key"><div class="pass-test">★ 頸椎旋轉 CV. Rota</div><div class="pass-val">&gt; 30°</div></div>
+        <div class="pass-cell"><div class="pass-test">肩內旋 SH. IR</div><div class="pass-val">&gt; 70°</div></div>
+        <div class="pass-cell key"><div class="pass-test">★ 肩水平外展</div><div class="pass-val">&gt; 45°</div></div>
+        <div class="pass-cell"><div class="pass-test">髖伸 HP. Exten</div><div class="pass-val">= 0°</div></div>
+        <div class="pass-cell key"><div class="pass-test">★ 骨盆旋轉 PV. Rota</div><div class="pass-val">&gt; 70°</div></div>
+      </div>
+      <div class="eval-card">
+        <div class="eval-head"><span class="eval-name">★ 頸椎旋轉　CV. Rota</span><span class="eval-key-tag">旋轉關鍵</span><span class="eval-target">&gt; 30°</span></div>
+        <div class="eval-pending">內容待補充……</div>
+      </div>
+      <div class="eval-card">
+        <div class="eval-head"><span class="eval-name">肩內旋　SH. IR</span><span class="eval-target">&gt; 70°（階段二目標）</span></div>
+        <div class="eval-pending">內容待補充……</div>
+      </div>
+      <div class="eval-card">
+        <div class="eval-head"><span class="eval-name">★ 肩水平外展　SH. Horizontal Abd</span><span class="eval-key-tag">旋轉關鍵</span><span class="eval-target">&gt; 45°</span></div>
+        <div class="eval-pending">內容待補充……</div>
+      </div>
+      <div class="eval-card">
+        <div class="eval-head"><span class="eval-name">髖伸　HP. Exten</span><span class="eval-target">= 0°（階段二目標）</span></div>
+        <div class="eval-pending">內容待補充……</div>
+      </div>
+      <div class="eval-card">
+        <div class="eval-head"><span class="eval-name">★ 骨盆旋轉　PV. Rota</span><span class="eval-key-tag">旋轉關鍵</span><span class="eval-target">&gt; 70°</span></div>
+        <div class="eval-pending">內容待補充……</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ───── 案例與實操 ───── -->
+<div class="cat">
+  <div class="cat-head"><span class="cat-tag t-case">案例 ＆ 實操</span><span class="cat-title">個案示範 ＆ 介入流程</span><span class="cat-count">1 則</span></div>
+  <div class="cat-body">
+    <div class="item">
+      <div class="item-header"><span class="badge b-gold">黃金流程 Step 1</span><span class="badge b-p1">階段一</span></div>
+      <div class="item-title">側臥位呼吸</div>
+      <div class="item-pts">
+        <div class="item-pt"><strong>核心目的</strong>解除神經的戰或逃反應</div>
+        <div class="item-pt"><strong>目標</strong>連結足底、側腹神經與大腦；非肌肉肥大</div>
+        <div class="item-pt"><strong>操作原則</strong>低張力，重在神經連結過程</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ───── 視覺化素材 ───── -->
+<div class="cat">
+  <div class="cat-head"><span class="cat-tag t-visual">視覺化素材</span><span class="cat-title">圖表 ＆ 示意圖概念</span><span class="cat-count">0 則</span></div>
+  <div class="cat-body"><div class="empty">尚無內容，隨時丟進來</div></div>
+</div>
+
+<!-- ───── 其他 ───── -->
+<div class="cat">
+  <div class="cat-head"><span class="cat-tag t-misc">其他</span><span class="cat-title">未分類內容</span><span class="cat-count">0 則</span></div>
+  <div class="cat-body"><div class="empty">尚無內容，隨時丟進來</div></div>
+</div>
+
+<!-- ───── 動作庫 ───── -->
+<hr class="section-divider">
+<div class="section-heading">各階段主訓練邏輯 ＆ 動作庫</div>
+<div class="phase-grid">
+  <div class="phase-card">
+    <div class="phase-card-head"><span class="phase-card-tag b-p1">階段一</span><div class="phase-card-title">恢復前後代償</div><div class="phase-card-sub">低張力 ＆ 被動為主</div></div>
+    <div class="phase-card-body">
+      <ul class="move-list">
+        <li class="move-item"><div class="move-dot" style="background:#534AB7"></div><div>側臥位呼吸</div></li>
+        <li class="move-item"><div class="move-dot" style="background:#534AB7"></div><div>單邊仰躺 Hami Bridge</div></li>
+      </ul>
+    </div>
+  </div>
+  <div class="phase-card">
+    <div class="phase-card-head"><span class="phase-card-tag b-p2">階段二</span><div class="phase-card-title">恢復左右承重</div><div class="phase-card-sub">SOP 偏向為主要依據</div></div>
+    <div class="phase-card-body">
+      <div class="move-section"><div class="move-section-label">下肢策略</div><ul class="move-list"><li class="move-item"><div class="move-dot" style="background:#0F6E56"></div><div>內外旋策略<div class="move-sub">前後站、斜板、負重位置、高低差</div></div></li></ul></div>
+      <div class="move-section"><div class="move-section-label">上肢策略</div><ul class="move-list"><li class="move-item"><div class="move-dot" style="background:#0F6E56"></div><div>內外旋策略<div class="move-sub">胸骨朝向、支撐位置</div></div></li></ul></div>
+    </div>
+  </div>
+  <div class="phase-card">
+    <div class="phase-card-head"><span class="phase-card-tag b-p3">階段三</span><div class="phase-card-title">整體交替恢復</div><div class="phase-card-sub">動態整合 ＆ 功能表現</div></div>
+    <div class="phase-card-body">
+      <div class="move-section"><div class="move-section-label">多角度系列</div><ul class="move-list"><li class="move-item"><div class="move-dot" style="background:#854F0B"></div><div>旋轉蹲</div></li><li class="move-item"><div class="move-dot" style="background:#854F0B"></div><div>旋轉弓箭步</div></li><li class="move-item"><div class="move-dot" style="background:#854F0B"></div><div>旋轉肩推</div></li></ul></div>
+      <div class="move-section"><div class="move-section-label">衝量爆發力</div><ul class="move-list"><li class="move-item"><div class="move-dot" style="background:#854F0B"></div><div>內旋偏向弓箭步</div></li></ul></div>
+      <div class="move-section"><div class="move-section-label">螺旋肌力</div><ul class="move-list"><li class="move-item" style="opacity:.4;font-style:italic"><div class="move-dot" style="background:#C0BDB6"></div><div>動作待補充…</div></li></ul></div>
+    </div>
+  </div>
+</div>
+
+<!-- ───── 字典 ───── -->
+<hr class="section-divider">
+<div class="section-heading">系統語言字典</div>
+<div class="section-sub">⚠️ 使用本系統前，請先理解以下詞彙的定義</div>
+<div class="dict-warning"><strong>閱讀前注意</strong>混淆詞彙（尤其承重側 vs 接地側、SOP vs GPT）會導致評估與介入方向完全錯誤。</div>
+
+<div class="dict-pair">
+  <div class="dict-pair-head"><span class="tag-neutral">中性詞</span>整體運動 vs 相對運動</div>
+  <div class="dict-pair-grid">
+    <div class="dict-pair-col"><div class="dict-pair-label">整體運動</div><div class="dict-pair-en">Bone Motion</div><div class="dict-pair-def">這個部位相對於整個空間去了哪裡。肉眼可見的動作。</div></div>
+    <div class="dict-pair-col"><div class="dict-pair-label">相對運動</div><div class="dict-pair-en">Joint Motion / Relative Motion</div><div class="dict-pair-def">這個部位相對於隔壁鄰居去了哪裡。兩段之間的運動。</div></div>
+  </div>
+  <div class="dict-pair-note"><span class="tag-neutral">中性詞</span> <strong>討論表現</strong>→ 大量整體運動。<strong>討論恢復修復</strong>→ 關注相對運動的產生。</div>
+</div>
+<div class="dict-entry"><div class="dict-term"><span class="dict-zh">承重側</span><span class="dict-en">Lateralize</span><span class="dict-tag tag-struct">結構</span></div><div class="dict-def">肌肉骨骼結構偏好承重的那一側。不代表好壞，描述「離不開」的情境。</div></div>
+<div class="dict-entry"><div class="dict-term"><span class="dict-zh">接地側</span><span class="dict-en">Grounding</span><span class="dict-tag tag-neuro">神經</span></div><div class="dict-def">神經系統偏好且感到安心的一側。9 成以上的情況從這一側開始切入訓練。</div></div>
+<div class="dict-entry"><div class="dict-term"><span class="dict-zh">SOP 測試</span><span class="dict-en">SOP Test</span><span class="dict-tag tag-test">測試</span></div><div class="dict-def">被動活動度測試。以結構視角偵測身體偏向承重的方向。</div></div>
+<div class="dict-entry"><div class="dict-term"><span class="dict-zh">GPT 測試</span><span class="dict-en">GPT Test</span><span class="dict-tag tag-test">測試</span></div><div class="dict-def">功能與表現測試。以大腦神經視角偵測身體偏向承重的方向。</div><div class="dict-note">⚠️ SOP 與 GPT 彼此獨立。透過 Phase 1 讓兩者對齊，可促進整體功能表現。</div></div>
+<div class="dict-entry"><div class="dict-term"><span class="dict-zh">搖擺背</span><span class="dict-en">Swayback</span><span class="dict-tag tag-posture">姿勢</span></div><div class="dict-def">骨盆整體前移。可不嚴謹地理解為骨盆後傾。</div></div>
+<div class="dict-entry"><div class="dict-term"><span class="dict-zh">骨盆前傾</span><span class="dict-en">APT</span><span class="dict-tag tag-posture">姿勢</span></div><div class="dict-def">骨盆髂前上脊（ASIS）往前掉。APT 是骨盆旋轉角度問題，搖擺背是整體位移問題。</div></div>
+<div class="dict-entry"><div class="dict-term"><span class="dict-zh">Phase 1</span><span class="dict-en">Phase 1</span><span class="dict-tag tag-phase">階段</span></div><div class="dict-def">主要目標：解決矢狀面代償與整體代償下的相對運動缺失。次要目標：讓 SOP 與 GPT 盡量對齊。</div></div>
+<div class="dict-entry"><div class="dict-term"><span class="dict-zh">Phase 2</span><span class="dict-en">Phase 2</span><span class="dict-tag tag-phase">階段</span></div><div class="dict-def">帶他去結構偏向的另一邊，讓他也能佔領弱邊。必須在 Phase 1 完成後才能進入。</div></div>
+<div class="dict-entry"><div class="dict-term"><span class="dict-zh">Phase 3</span><span class="dict-en">Phase 3</span><span class="dict-tag tag-phase">階段</span></div><div class="dict-def">交替交互兩邊均衡發展。加入多元角度與整體旋轉能力，促進功能整合。</div></div>
+
+
+<hr class="section-divider">
+<div class="section-heading">個案範例</div>
+<div class="section-sub">介入流程示範，可直接作為教學案例</div>
+
+<div style="margin-bottom:14px;padding:14px 16px;border-radius:10px;background:#1A1917;color:#F7F6F3">
+  <div style="font-size:16px;font-weight:600;letter-spacing:-.01em;margin-bottom:8px">個案範例　Swayback ＋ 右承重</div>
+  <div style="display:flex;gap:6px;flex-wrap:wrap">
+    <span style="font-size:10px;font-weight:500;padding:2px 8px;border-radius:20px;background:#FAEDE9;color:#712B13">搖擺背　Swayback</span>
+    <span style="font-size:10px;font-weight:500;padding:2px 8px;border-radius:20px;background:#FAECE7;color:#993C1D">Right Lateralization</span>
+    <span style="font-size:10px;font-weight:500;padding:2px 8px;border-radius:20px;background:#FEF0D6;color:#7A4A0A">從 Phase 1 開始</span>
+  </div>
+</div>
+
+<!-- Phase 1 -->
+<div class="cat" style="margin-bottom:12px">
+  <div class="cat-head">
+    <span class="cat-tag" style="background:#CECBF6;color:#3C3489">Phase 1</span>
+    <span class="cat-title">恢復矢狀面代償 ＆ 相對運動</span>
+    <span class="cat-count">目標：解除整體代償，建立前後對齊</span>
+  </div>
+  <div class="cat-body">
+    <div style="margin-bottom:12px">
+      <div style="font-size:10px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--text-ter);margin-bottom:7px;padding-bottom:4px;border-bottom:1px solid var(--border)">恢復動作</div>
+      <div style="display:flex;flex-direction:column;gap:5px">
+        <div class="item" style="margin-bottom:0;display:flex;align-items:flex-start;gap:10px;padding:7px 10px">
+          <div style="font-size:10px;font-weight:600;color:var(--text-ter);min-width:16px;padding-top:2px;font-family:monospace">1</div>
+          <div style="flex:1">
+            <div style="font-size:12px;font-weight:500">仰臥 90/90</div>
+            <div style="font-size:11px;color:var(--text-sec);margin-top:2px">前側擴張為目標，創造胸腔前側空間，解除矢狀面鎖定</div>
+            <span style="font-size:10px;font-weight:500;padding:1px 6px;border-radius:20px;background:#EEEDFE;color:#534AB7;display:inline-block;margin-top:3px">恢復</span>
+          </div>
+        </div>
+        <div class="item" style="margin-bottom:0;display:flex;align-items:flex-start;gap:10px;padding:7px 10px">
+          <div style="font-size:10px;font-weight:600;color:var(--text-ter);min-width:16px;padding-top:2px;font-family:monospace">2</div>
+          <div style="flex:1">
+            <div style="font-size:12px;font-weight:500">左側臥</div>
+            <div style="font-size:11px;color:var(--text-sec);margin-top:2px">利用重力與側臥位促進神經連結，解除戰或逃鎖定</div>
+            <span style="font-size:10px;font-weight:500;padding:1px 6px;border-radius:20px;background:#EEEDFE;color:#534AB7;display:inline-block;margin-top:3px">恢復</span>
+          </div>
+        </div>
+        <div class="item" style="margin-bottom:0;display:flex;align-items:flex-start;gap:10px;padding:7px 10px">
+          <div style="font-size:10px;font-weight:600;color:var(--text-ter);min-width:16px;padding-top:2px;font-family:monospace">3</div>
+          <div style="flex:1">
+            <div style="font-size:12px;font-weight:500">仰臥右胸擴張</div>
+            <div style="font-size:11px;color:var(--text-sec);margin-top:2px">針對右側胸腔前側壓迫，恢復右側相對運動空間</div>
+            <span style="font-size:10px;font-weight:500;padding:1px 6px;border-radius:20px;background:#EEEDFE;color:#534AB7;display:inline-block;margin-top:3px">恢復</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div style="margin-bottom:10px">
+      <div style="font-size:10px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--text-ter);margin-bottom:7px;padding-bottom:4px;border-bottom:1px solid var(--border)">對稱訓練</div>
+      <div style="display:flex;flex-direction:column;gap:5px">
+        <div class="item" style="margin-bottom:0;display:flex;align-items:flex-start;gap:10px;padding:7px 10px">
+          <div style="font-size:10px;font-weight:600;color:var(--text-ter);min-width:16px;padding-top:2px;font-family:monospace">1</div>
+          <div style="flex:1">
+            <div style="font-size:12px;font-weight:500">找到腳跟的深蹲</div>
+            <div style="font-size:11px;color:var(--text-sec);margin-top:2px">強調後側重心，對抗 Swayback 的前移代償模式</div>
+            <span style="font-size:10px;font-weight:500;padding:1px 6px;border-radius:20px;background:#E1F5EE;color:#0F6E56;display:inline-block;margin-top:3px">對稱</span>
+          </div>
+        </div>
+        <div class="item" style="margin-bottom:0;display:flex;align-items:flex-start;gap:10px;padding:7px 10px">
+          <div style="font-size:10px;font-weight:600;color:var(--text-ter);min-width:16px;padding-top:2px;font-family:monospace">2</div>
+          <div style="flex:1">
+            <div style="font-size:12px;font-weight:500">找到腳跟的垂直弓箭步</div>
+            <div style="font-size:11px;color:var(--text-sec);margin-top:2px">建立雙邊矢狀面穩定，不帶入左右偏向</div>
+            <span style="font-size:10px;font-weight:500;padding:1px 6px;border-radius:20px;background:#E1F5EE;color:#0F6E56;display:inline-block;margin-top:3px">對稱</span>
+          </div>
+        </div>
+        <div class="item" style="margin-bottom:0;display:flex;align-items:flex-start;gap:10px;padding:7px 10px">
+          <div style="font-size:10px;font-weight:600;color:var(--text-ter);min-width:16px;padding-top:2px;font-family:monospace">3</div>
+          <div style="flex:1">
+            <div style="font-size:12px;font-weight:500">交替胸推</div>
+            <div style="font-size:11px;color:var(--text-sec);margin-top:2px">上肢交替促進胸椎相對旋轉，解除整體鎖定</div>
+            <span style="font-size:10px;font-weight:500;padding:1px 6px;border-radius:20px;background:#E1F5EE;color:#0F6E56;display:inline-block;margin-top:3px">對稱</span>
+          </div>
+        </div>
+        <div class="item" style="margin-bottom:0;display:flex;align-items:flex-start;gap:10px;padding:7px 10px">
+          <div style="font-size:10px;font-weight:600;color:var(--text-ter);min-width:16px;padding-top:2px;font-family:monospace">4</div>
+          <div style="flex:1">
+            <div style="font-size:12px;font-weight:500">交替下拉</div>
+            <div style="font-size:11px;color:var(--text-sec);margin-top:2px">上肢交替促進肩胛相對運動，與胸椎搭配建立整體對稱</div>
+            <span style="font-size:10px;font-weight:500;padding:1px 6px;border-radius:20px;background:#E1F5EE;color:#0F6E56;display:inline-block;margin-top:3px">對稱</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div style="background:var(--surface2);border-radius:6px;padding:8px 10px;font-size:11px;color:var(--text-sec);line-height:1.6">
+      <strong style="color:var(--text-pri);font-weight:500">Phase 1 注意事項：</strong>此階段不考慮左右偏向，專注整體矢狀面代償的解除。「找到腳跟」是對抗 Swayback 前移代償的核心提示。
+    </div>
+  </div>
+</div>
+
+<!-- Phase 2 -->
+<div class="cat">
+  <div class="cat-head">
+    <span class="cat-tag" style="background:#9FE1CB;color:#085041">Phase 2</span>
+    <span class="cat-title">帶往左側承重　恢復弱邊</span>
+    <span class="cat-count">目標：讓左側也能佔領承重位</span>
+  </div>
+  <div class="cat-body">
+    <div style="margin-bottom:12px">
+      <div style="font-size:10px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--text-ter);margin-bottom:7px;padding-bottom:4px;border-bottom:1px solid var(--border)">延續恢復動作（銜接 Phase 1）</div>
+      <div style="display:flex;flex-direction:column;gap:5px">
+        <div class="item" style="margin-bottom:0;display:flex;align-items:flex-start;gap:10px;padding:7px 10px">
+          <div style="font-size:10px;font-weight:600;color:var(--text-ter);min-width:16px;padding-top:2px;font-family:monospace">1</div>
+          <div style="flex:1">
+            <div style="font-size:12px;font-weight:500">仰臥 90/90</div>
+            <div style="font-size:11px;color:var(--text-sec);margin-top:2px">維持前側擴張，確保 Phase 1 基礎穩固</div>
+            <span style="font-size:10px;font-weight:500;padding:1px 6px;border-radius:20px;background:#EEEDFE;color:#534AB7;display:inline-block;margin-top:3px">延續</span>
+          </div>
+        </div>
+        <div class="item" style="margin-bottom:0;display:flex;align-items:flex-start;gap:10px;padding:7px 10px">
+          <div style="font-size:10px;font-weight:600;color:var(--text-ter);min-width:16px;padding-top:2px;font-family:monospace">2</div>
+          <div style="flex:1">
+            <div style="font-size:12px;font-weight:500">左側臥（加入方向性）</div>
+            <div style="font-size:11px;color:var(--text-sec);margin-top:2px">左內收肌拉回 → 促進左側承重感；右臀大肌推進 → 把重心推往左側</div>
+            <span style="font-size:10px;font-weight:500;padding:1px 6px;border-radius:20px;background:#D4EEE2;color:#085041;display:inline-block;margin-top:3px">延續＋強化</span>
+          </div>
+        </div>
+        <div class="item" style="margin-bottom:0;display:flex;align-items:flex-start;gap:10px;padding:7px 10px">
+          <div style="font-size:10px;font-weight:600;color:var(--text-ter);min-width:16px;padding-top:2px;font-family:monospace">3</div>
+          <div style="flex:1">
+            <div style="font-size:12px;font-weight:500">仰臥右胸擴張</div>
+            <div style="font-size:11px;color:var(--text-sec);margin-top:2px">維持右側胸腔空間，配合左側承重的旋轉需求</div>
+            <span style="font-size:10px;font-weight:500;padding:1px 6px;border-radius:20px;background:#EEEDFE;color:#534AB7;display:inline-block;margin-top:3px">延續</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div style="margin-bottom:10px">
+      <div style="font-size:10px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--text-ter);margin-bottom:7px;padding-bottom:4px;border-bottom:1px solid var(--border)">左承重偏向訓練</div>
+      <div style="display:flex;flex-direction:column;gap:5px">
+        <div class="item" style="margin-bottom:0;display:flex;align-items:flex-start;gap:10px;padding:7px 10px">
+          <div style="font-size:10px;font-weight:600;color:var(--text-ter);min-width:16px;padding-top:2px;font-family:monospace">1</div>
+          <div style="flex:1">
+            <div style="font-size:12px;font-weight:500">垂直深蹲</div>
+            <div style="font-size:11px;color:var(--text-sec);margin-top:2px">建立左側承重基礎，確認左腳能穩定接受重量再進入動態動作</div>
+            <span style="font-size:10px;font-weight:500;padding:1px 6px;border-radius:20px;background:#D4EEE2;color:#085041;display:inline-block;margin-top:3px">左承重</span>
+          </div>
+        </div>
+        <div class="item" style="margin-bottom:0;display:flex;align-items:flex-start;gap:10px;padding:7px 10px">
+          <div style="font-size:10px;font-weight:600;color:var(--text-ter);min-width:16px;padding-top:2px;font-family:monospace">2</div>
+          <div style="flex:1">
+            <div style="font-size:12px;font-weight:500">水平位移弓箭步</div>
+            <div style="font-size:11px;color:var(--text-sec);margin-top:2px">強調左腳承重；左腳在後時找到拇指球支撐，促進左髖內旋與推進</div>
+            <span style="font-size:10px;font-weight:500;padding:1px 6px;border-radius:20px;background:#D4EEE2;color:#085041;display:inline-block;margin-top:3px">左承重</span>
+          </div>
+        </div>
+        <div class="item" style="margin-bottom:0;display:flex;align-items:flex-start;gap:10px;padding:7px 10px">
+          <div style="font-size:10px;font-weight:600;color:var(--text-ter);min-width:16px;padding-top:2px;font-family:monospace">3</div>
+          <div style="flex:1">
+            <div style="font-size:12px;font-weight:500">足底訓練</div>
+            <div style="font-size:11px;color:var(--text-sec);margin-top:2px">強化左側足底神經連結與接地感，支撐左側承重的神經基礎</div>
+            <span style="font-size:10px;font-weight:500;padding:1px 6px;border-radius:20px;background:#E6F1FB;color:#185FA5;display:inline-block;margin-top:3px">足底</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div style="background:var(--surface2);border-radius:6px;padding:8px 10px;font-size:11px;color:var(--text-sec);line-height:1.6">
+      <strong style="color:var(--text-pri);font-weight:500">Phase 2 注意事項：</strong>左側臥在 Phase 2 加入方向性指令（左內收拉回 + 右臀大推進），從 Phase 1「感受」升級為「方向性激活」的關鍵銜接點。水平位移弓箭步比垂直弓箭步更能創造左側承重需求，難度遞進需確認個案 Phase 1 基礎已穩固。
+    </div>
+  </div>
+</div>
+
+<div class="footer">課程素材庫　｜　隨時新增，持續整理</div>
+</div>
+</body>
+</html>
+
+<!-- inject case example before footer -->
+
+<!-- APPEND: 個案範例區 -->
+<style>
+.case-section-heading{font-size:15px;font-weight:500;color:var(--text-pri);margin-bottom:14px;padding-left:2px}
+.case-card{margin-bottom:14px}
+.case-header{margin-bottom:14px;padding:14px 16px;border-radius:var(--r);background:#1A1917;color:#F7F6F3}
+.case-title{font-size:16px;font-weight:600;letter-spacing:-.01em;margin-bottom:6px}
+.case-tags{display:flex;gap:6px;flex-wrap:wrap}
+.ct{font-size:10px;font-weight:500;padding:2px 8px;border-radius:20px}
+.ct-posture{background:#FAEDE9;color:#712B13}
+.ct-lat{background:#FAECE7;color:#993C1D}
+.ct-start{background:#FEF0D6;color:#7A4A0A}
+.phase-block{margin-bottom:10px;border-radius:var(--r);border:1px solid var(--border);overflow:hidden}
+.phase-block:last-child{margin-bottom:0}
+.phase-head{padding:10px 14px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--border);background:var(--surface2)}
+.ph-tag{font-size:11px;font-weight:500;padding:3px 10px;border-radius:20px;flex-shrink:0}
+.ph-p1{background:#CECBF6;color:#3C3489}
+.ph-p2{background:#9FE1CB;color:#085041}
+.phase-title{font-size:13px;font-weight:500}
+.phase-sub-label{font-size:11px;color:var(--text-sec);margin-left:auto}
+.phase-body{padding:12px 14px;background:var(--surface)}
+.move-group{margin-bottom:12px}
+.move-group:last-child{margin-bottom:0}
+.mg-label{font-size:10px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--text-ter);margin-bottom:7px;padding-bottom:4px;border-bottom:1px solid var(--border)}
+.move-rows{display:flex;flex-direction:column;gap:5px}
+.move-row{display:flex;align-items:flex-start;gap:10px;padding:7px 10px;border-radius:var(--rs);border:1px solid var(--border);background:var(--surface)}
+.move-num{font-size:10px;font-weight:600;color:var(--text-ter);min-width:16px;padding-top:2px;font-family:'DM Mono',monospace}
+.move-body{flex:1}
+.move-name{font-size:12px;font-weight:500;line-height:1.35}
+.move-note{font-size:11px;color:var(--text-sec);margin-top:2px;line-height:1.4}
+.move-tag{font-size:10px;font-weight:500;padding:1px 6px;border-radius:20px;display:inline-block;margin-top:3px}
+.mt-restore{background:#EEEDFE;color:#534AB7}
+.mt-sym{background:#E1F5EE;color:#0F6E56}
+.mt-lat{background:#D4EEE2;color:#085041}
+.mt-foot{background:#E6F1FB;color:#185FA5}
+.phase-note{margin-top:10px;background:var(--surface2);border-radius:var(--rs);padding:8px 10px;font-size:11px;color:var(--text-sec);line-height:1.6}
+.phase-note strong{color:var(--text-pri);font-weight:500}
+</style>
+
+<hr class="section-divider">
+<div class="case-section-heading">個案範例庫</div>
+
+<div class="case-card">
+  <div class="case-header">
+    <div class="case-title">個案範例　Swayback ＋ 右承重</div>
+    <div class="case-tags">
+      <span class="ct ct-posture">搖擺背　Swayback</span>
+      <span class="ct ct-lat">Right Lateralization</span>
+      <span class="ct ct-start">從 Phase 1 開始</span>
+    </div>
+  </div>
+
+  <div class="phase-block">
+    <div class="phase-head">
+      <span class="ph-tag ph-p1">Phase 1</span>
+      <span class="phase-title">恢復矢狀面代償 ＆ 相對運動</span>
+      <span class="phase-sub-label">目標：解除整體代償，建立前後對齊</span>
+    </div>
+    <div class="phase-body">
+      <div class="move-group">
+        <div class="mg-label">恢復動作</div>
+        <div class="move-rows">
+          <div class="move-row"><div class="move-num">1</div><div class="move-body"><div class="move-name">仰臥 90/90</div><div class="move-note">前側擴張為目標，創造胸腔前側空間，解除矢狀面鎖定</div><span class="move-tag mt-restore">恢復</span></div></div>
+          <div class="move-row"><div class="move-num">2</div><div class="move-body"><div class="move-name">左側臥</div><div class="move-note">利用重力與側臥位促進神經連結，解除戰或逃鎖定</div><span class="move-tag mt-restore">恢復</span></div></div>
+          <div class="move-row"><div class="move-num">3</div><div class="move-body"><div class="move-name">仰臥右胸擴張</div><div class="move-note">針對右側胸腔前側壓迫，恢復右側相對運動空間</div><span class="move-tag mt-restore">恢復</span></div></div>
+        </div>
+      </div>
+      <div class="move-group">
+        <div class="mg-label">對稱訓練</div>
+        <div class="move-rows">
+          <div class="move-row"><div class="move-num">1</div><div class="move-body"><div class="move-name">找到腳跟的深蹲</div><div class="move-note">強調後側重心，對抗 Swayback 的前移代償模式</div><span class="move-tag mt-sym">對稱</span></div></div>
+          <div class="move-row"><div class="move-num">2</div><div class="move-body"><div class="move-name">找到腳跟的垂直弓箭步</div><div class="move-note">建立雙邊矢狀面穩定，不帶入左右偏向</div><span class="move-tag mt-sym">對稱</span></div></div>
+          <div class="move-row"><div class="move-num">3</div><div class="move-body"><div class="move-name">交替胸推</div><div class="move-note">上肢交替促進胸椎相對旋轉，解除整體鎖定</div><span class="move-tag mt-sym">對稱</span></div></div>
+          <div class="move-row"><div class="move-num">4</div><div class="move-body"><div class="move-name">交替下拉</div><div class="move-note">上肢交替促進肩胛相對運動，與胸椎搭配建立整體對稱</div><span class="move-tag mt-sym">對稱</span></div></div>
+        </div>
+      </div>
+      <div class="phase-note"><strong>Phase 1 注意事項：</strong>此階段不考慮左右偏向（SOP 測試方向），專注整體矢狀面代償的解除與前後對齊。對稱訓練強調「找到腳跟」是因為 Swayback 個案重心易前移，需先建立後側承重感。</div>
+    </div>
+  </div>
+
+  <div class="phase-block">
+    <div class="phase-head">
+      <span class="ph-tag ph-p2">Phase 2</span>
+      <span class="phase-title">帶往左側承重　恢復弱邊</span>
+      <span class="phase-sub-label">目標：讓左側也能佔領承重位</span>
+    </div>
+    <div class="phase-body">
+      <div class="move-group">
+        <div class="mg-label">延續恢復動作（銜接 Phase 1）</div>
+        <div class="move-rows">
+          <div class="move-row"><div class="move-num">1</div><div class="move-body"><div class="move-name">仰臥 90/90</div><div class="move-note">維持前側擴張，確保 Phase 1 基礎穩固</div><span class="move-tag mt-restore">延續</span></div></div>
+          <div class="move-row"><div class="move-num">2</div><div class="move-body"><div class="move-name">左側臥（加入方向性）</div><div class="move-note">左內收肌拉回 → 促進左側承重感；右臀大肌推進 → 把重心推往左側</div><span class="move-tag mt-restore">延續＋強化</span></div></div>
+          <div class="move-row"><div class="move-num">3</div><div class="move-body"><div class="move-name">仰臥右胸擴張</div><div class="move-note">維持右側胸腔空間，配合左側承重的旋轉需求</div><span class="move-tag mt-restore">延續</span></div></div>
+        </div>
+      </div>
+      <div class="move-group">
+        <div class="mg-label">左承重偏向訓練</div>
+        <div class="move-rows">
+          <div class="move-row"><div class="move-num">1</div><div class="move-body"><div class="move-name">垂直深蹲</div><div class="move-note">建立左側承重基礎，確認左腳能穩定接受重量再進入動態動作</div><span class="move-tag mt-lat">左承重</span></div></div>
+          <div class="move-row"><div class="move-num">2</div><div class="move-body"><div class="move-name">水平位移弓箭步</div><div class="move-note">強調左腳承重；左腳在後時找到拇指球支撐，促進左髖內旋與推進</div><span class="move-tag mt-lat">左承重</span></div></div>
+          <div class="move-row"><div class="move-num">3</div><div class="move-body"><div class="move-name">足底訓練</div><div class="move-note">強化左側足底神經連結與接地感，支撐左側承重的神經基礎</div><span class="move-tag mt-foot">足底</span></div></div>
+        </div>
+      </div>
+      <div class="phase-note"><strong>Phase 2 注意事項：</strong>左側臥在 Phase 2 加入方向性指令（左內收拉回 + 右臀大推進），這是從 Phase 1 的「感受」升級為「方向性激活」的關鍵銜接點。水平位移弓箭步比垂直弓箭步更能創造左側承重的空間需求，難度遞進要注意個案是否已具備足夠的 Phase 1 基礎。</div>
+    </div>
+  </div>
+</div>
+
+<div class="footer">課程素材庫　｜　隨時新增，持續整理</div>
