@@ -186,6 +186,7 @@ select.finput{-webkit-appearance:none;appearance:none;background-image:url("data
     <div class="welcome-tagline">FUNCTIONAL MOVEMENT CENTER</div>
     <div id="sync-status" style="font-size:12px;color:rgba(255,255,255,.4);margin-bottom:12px;min-height:18px">⟳ 資料同步中...</div>
     <button class="welcome-btn-p" onclick="goScreen('s-coach')">✏️ 開始今日簽到</button>
+    <button class="welcome-btn-s" onclick="startTrialFlow()" style="margin-top:6px;background:rgba(59,130,246,.18);border:1.5px solid rgba(99,160,255,.5);color:rgba(180,210,255,.95)">🆕 體驗課程簽到</button>
     <button class="welcome-btn-s" onclick="goScreen('s-query')">🔍 查詢堂數 / 付款狀態</button>
     <button class="welcome-btn-s" onclick="goScreen('s-daily')" style="margin-top:8px;opacity:.7;font-size:13px;padding:10px 24px">📋 今日簽到總覽</button>
   </div>
@@ -261,57 +262,22 @@ select.finput{-webkit-appearance:none;appearance:none;background-image:url("data
   </div>
 </div>
 
-<!-- TYPE SELECTION -->
-<div class="screen" id="s-type">
-  <div id="type-bg" style="position:absolute;inset:0;background-size:cover;background-position:center;filter:brightness(.35) blur(3px);transition:background .4s"></div>
-  <div id="type-fg" style="position:relative;z-index:2;display:flex;flex-direction:column;height:100%;padding:0">
+<!-- TRIAL COACH -->
+<div class="screen" id="s-trial-coach">
+  <div id="trial-coach-bg" style="position:absolute;inset:0;background-size:cover;background-position:center;filter:brightness(.35) blur(3px);transition:background .4s;background:linear-gradient(145deg,#1a1a2e,#111)"></div>
+  <div style="position:relative;z-index:2;display:flex;flex-direction:column;height:100%">
     <div class="coach-topbar">
-      <img id="topbar-logo2" src="" alt="FMC">
-      <div class="coach-topbar-title">選擇簽到類型</div>
+      <img id="trial-topbar-logo" src="" alt="FMC">
+      <div class="coach-topbar-title">體驗課程 ・ 選擇教練</div>
     </div>
-    <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px 20px;gap:20px">
-      <div style="font-size:15px;color:rgba(255,255,255,.7);margin-bottom:8px;letter-spacing:.04em">教練：<span id="type-coach-name" style="color:#fff;font-weight:700"></span></div>
-      <button onclick="selectRegular()" style="width:100%;max-width:340px;padding:28px 20px;background:rgba(255,255,255,.12);border:2px solid rgba(255,255,255,.3);border-radius:18px;color:#fff;font-size:20px;font-weight:700;cursor:pointer;backdrop-filter:blur(6px);letter-spacing:.04em">
-        ✏️ 一般簽到
-        <div style="font-size:13px;font-weight:400;color:rgba(255,255,255,.6);margin-top:6px">學員扣堂簽到</div>
-      </button>
-      <button onclick="selectTrial()" style="width:100%;max-width:340px;padding:28px 20px;background:rgba(59,130,246,.25);border:2px solid rgba(59,130,246,.6);border-radius:18px;color:#fff;font-size:20px;font-weight:700;cursor:pointer;backdrop-filter:blur(6px);letter-spacing:.04em">
-        🆕 體驗課程
-        <div style="font-size:13px;font-weight:400;color:rgba(255,255,255,.6);margin-top:6px">體驗客，不扣堂數</div>
-      </button>
+    <div class="coach-scroll">
+      <div class="coach-alert" id="trial-coach-alert">請先選擇教練</div>
+      <div class="coach-grid" id="trial-coach-grid"></div>
     </div>
     <div class="dark-bottom">
-      <button class="btn-back-d" onclick="goScreen('s-coach')">返回</button>
+      <button class="btn-back-d" onclick="goScreen('s-welcome')">返回</button>
+      <button class="btn-next-d" onclick="goTrialToSig()">下一步 →</button>
     </div>
-  </div>
-</div>
-
-<!-- TRIAL NAME -->
-<div class="screen" id="s-trial">
-  <div class="lhead">
-    <div class="lhead-row"><img class="lhead-logo" id="trial-logo" src="" alt="FMC"><span style="font-size:13px;font-weight:600;color:#333">FMC</span></div>
-    <h2>體驗課程簽到</h2>
-    <p>請輸入體驗者姓名</p>
-  </div>
-  <div class="lstep-bar">
-    <div class="lsdot done">✓</div><span class="lslbl">選教練</span>
-    <div class="lsline"></div>
-    <div class="lsdot active">2</div><span class="lslbl">輸入姓名</span>
-    <div class="lsline"></div>
-    <div class="lsdot idle">3</div><span class="lslbl">簽名</span>
-  </div>
-  <div class="pbody">
-    <div class="alertbox alerterr" id="trial-alert" style="display:none">請輸入體驗者姓名</div>
-    <div style="background:linear-gradient(135deg,#1a3a6e,#0d1f40);border-radius:14px;padding:16px 18px;margin-bottom:14px;text-align:center">
-      <div style="font-size:18px;font-weight:800;color:#fff;letter-spacing:.04em;margin-bottom:4px">體驗課程</div>
-      <div style="font-size:13px;color:rgba(255,255,255,.6)">此次不扣堂數，後台可標記是否成交</div>
-    </div>
-    <label class="flbl">體驗者姓名</label>
-    <input class="finput" id="trial-name-input" type="text" placeholder="請輸入姓名" autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false" oninput="document.getElementById('trial-alert').style.display='none'">
-  </div>
-  <div class="lbottom">
-    <button class="lbtn-back" onclick="goScreen('s-type')">返回</button>
-    <button class="lbtn-next" onclick="submitTrialName()">下一步 →</button>
   </div>
 </div>
 
@@ -737,26 +703,15 @@ function goScreen(id) {
       buildCoachGrid();
       updateCoachBg(selCoach ? selCoach.name : null);
     });
-  } else if (id === 's-type') {
-    var tl = document.getElementById('topbar-logo2');
-    var logos = document.querySelectorAll('.lhead-logo, #topbar-logo');
-    var logoSrc = logos.length ? logos[0].src : '';
-    if (tl && logoSrc) tl.src = logoSrc;
-    var tn = document.getElementById('type-coach-name');
-    if (tn) tn.textContent = selCoach ? selCoach.name : '';
-    var tbg = document.getElementById('type-bg');
-    if (tbg && selCoach) {
-      var key = getKey(selCoach.name);
-      var photo = COACH_PHOTOS[key] || null;
-      if (photo) { tbg.style.backgroundImage = 'url(' + photo + ')'; tbg.style.background = ''; }
-      else { tbg.style.backgroundImage = 'none'; tbg.style.background = 'linear-gradient(145deg,#1a1a2e,#111)'; }
-    }
-  } else if (id === 's-trial') {
-    var trialLogo = document.getElementById('trial-logo');
+  } else if (id === 's-trial-coach') {
+    var tl = document.getElementById('trial-topbar-logo');
     var logoRef = document.getElementById('topbar-logo') || document.querySelector('.lhead-logo');
-    if (trialLogo && logoRef) trialLogo.src = logoRef.src;
-    var ti = document.getElementById('trial-name-input');
-    if (ti) { ti.value = ''; setTimeout(function(){ ti.focus(); }, 100); }
+    if (tl && logoRef) tl.src = logoRef.src;
+    showLoading('載入教練資料...');
+    reloadData(function() {
+      hideLoading();
+      buildTrialCoachGrid();
+    });
   } else if (id === 's-query') {
     showLoading('載入資料...');
     reloadData(function() {
@@ -834,13 +789,7 @@ function updateCoachBg(name) {
 
 function goToName() {
   if (!selCoach) { document.getElementById('coach-alert').style.display = 'block'; return; }
-  goScreen('s-type');
-}
-
-function selectRegular() {
   sessionType = 'regular';
-  trialName = '';
-  // Reset name screen
   var h = document.getElementById('name-hint');
   if (h) h.textContent = '教練：' + selCoach.name + '・請輸入您的姓名';
   var inp = document.getElementById('name-input');
@@ -856,29 +805,53 @@ function selectRegular() {
   showKb();
 }
 
-function selectTrial() {
+function startTrialFlow() {
   sessionType = 'trial';
-  trialName = '';
-  var inp = document.getElementById('trial-name-input');
-  if (inp) inp.value = '';
-  document.getElementById('trial-alert').style.display = 'none';
-  goScreen('s-trial');
+  selCoach = null;
+  goScreen('s-trial-coach');
 }
 
-function submitTrialName() {
-  var inp = document.getElementById('trial-name-input');
-  var val = inp ? inp.value.trim() : '';
-  if (!val) {
-    document.getElementById('trial-alert').style.display = 'block';
-    return;
+function buildTrialCoachGrid() {
+  var grid = document.getElementById('trial-coach-grid');
+  if (!grid) return;
+  var html = '';
+  for (var i = 0; i < coaches.length; i++) {
+    var c = coaches[i];
+    var key = getKey(c.name);
+    var photo = COACH_PHOTOS[key] || null;
+    var sc = (selCoach && selCoach.id === c.id) ? ' selected' : '';
+    var ps = photo ? 'background-image:url(' + photo + ')' : 'background:#1a1a2e';
+    var ph = photo ? '' : '<div class="card-placeholder">' + c.name[0] + '</div>';
+    html += '<div class="coach-card' + sc + '" id="tcc-' + c.id + '" onclick="pickTrialCoach(' + c.id + ')">';
+    html += '<div class="card-photo" style="' + ps + '">' + ph + '</div>';
+    html += '<div class="card-info"><div class="card-name">' + c.name + '</div></div>';
+    html += '</div>';
   }
-  trialName = val;
-  var cn = document.getElementById('c-name');
-  var cc = document.getElementById('c-coach');
-  var cdt = document.getElementById('c-dt');
-  if (cn) cn.textContent = trialName + '（體驗）';
-  if (cc) cc.textContent = selCoach.name;
-  if (cdt) cdt.textContent = todayStr() + ' ' + nowStr();
+  grid.innerHTML = html;
+}
+
+function pickTrialCoach(id) {
+  selCoach = null;
+  for (var i = 0; i < coaches.length; i++) {
+    if (coaches[i].id === id) { selCoach = coaches[i]; break; }
+  }
+  var cards = document.querySelectorAll('#trial-coach-grid .coach-card');
+  for (var i = 0; i < cards.length; i++) cards[i].classList.remove('selected');
+  var card = document.getElementById('tcc-' + id);
+  if (card) card.classList.add('selected');
+  document.getElementById('trial-coach-alert').style.display = 'none';
+  var tbg = document.getElementById('trial-coach-bg');
+  if (tbg && selCoach) {
+    var key = getKey(selCoach.name);
+    var photo = COACH_PHOTOS[key] || null;
+    if (photo) { tbg.style.backgroundImage = 'url(' + photo + ')'; tbg.style.background = ''; }
+    else { tbg.style.backgroundImage = 'none'; tbg.style.background = 'linear-gradient(145deg,#1a1a2e,#111)'; }
+  }
+}
+
+function goTrialToSig() {
+  if (!selCoach) { document.getElementById('trial-coach-alert').style.display = 'block'; return; }
+  trialName = '體驗課程';
   goScreen('s-sig');
 }
 
