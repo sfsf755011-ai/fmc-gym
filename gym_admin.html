@@ -1087,6 +1087,12 @@ function fbLoadAll(cb) {
       if (rawStu[i] && rawStu[i].id) stuMap[rawStu[i].id] = rawStu[i];
     }
     students = Object.values(stuMap);
+    // 正規化學員的 coach 名稱，對齊 Firebase 教練大小寫
+    students.forEach(function(s) {
+      if (!s.coach) return;
+      var matched = coaches.find(function(c){ return c.name.toLowerCase() === s.coach.toLowerCase(); });
+      if (matched && matched.name !== s.coach) s.coach = matched.name;
+    });
     var rawRec = toArr(val.records);
     // Sort records by date+time desc (newest first)
     records = rawRec.filter(function(r){ return r && r.date; }).sort(function(a,b){
