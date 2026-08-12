@@ -824,7 +824,7 @@ function buildCoachGrid() {
   for (var i = 0; i < coaches.length; i++) {
     var c = coaches[i];
     var key = getKey(c.name);
-    var photo = COACH_PHOTOS[key] || null;
+    var photo = c.photo || COACH_PHOTOS[key] || null;
     var sc = (selCoach && selCoach.id === c.id) ? ' selected' : '';
     var ps = photo ? 'background-image:url(' + photo + ')' : 'background:#1a1a2e';
     var ph = photo ? '' : '<div class="card-placeholder">' + c.name[0] + '</div>';
@@ -853,7 +853,8 @@ function updateCoachBg(name) {
   var bg = document.getElementById('coach-bg');
   if (!bg) return;
   var key = name ? getKey(name) : null;
-  var photo = key && COACH_PHOTOS[key] ? COACH_PHOTOS[key] : null;
+  var coachObj = name ? coaches.find(function(co){ return co.name === name; }) : null;
+  var photo = (coachObj && coachObj.photo) || (key && COACH_PHOTOS[key] ? COACH_PHOTOS[key] : null);
   if (photo) {
     bg.style.backgroundImage = 'url(' + photo + ')';
     bg.style.background = '';
@@ -894,7 +895,7 @@ function buildTrialCoachGrid() {
   for (var i = 0; i < coaches.length; i++) {
     var c = coaches[i];
     var key = getKey(c.name);
-    var photo = COACH_PHOTOS[key] || null;
+    var photo = c.photo || COACH_PHOTOS[key] || null;
     var sc = (selCoach && selCoach.id === c.id) ? ' selected' : '';
     var ps = photo ? 'background-image:url(' + photo + ')' : 'background:#1a1a2e';
     var ph = photo ? '' : '<div class="card-placeholder">' + c.name[0] + '</div>';
@@ -919,7 +920,7 @@ function pickTrialCoach(id) {
   var tbg = document.getElementById('trial-coach-bg');
   if (tbg && selCoach) {
     var key = getKey(selCoach.name);
-    var photo = COACH_PHOTOS[key] || null;
+    var photo = selCoach.photo || COACH_PHOTOS[key] || null;
     if (photo) { tbg.style.backgroundImage = 'url(' + photo + ')'; tbg.style.background = ''; }
     else { tbg.style.backgroundImage = 'none'; tbg.style.background = 'linear-gradient(145deg,#1a1a2e,#111)'; }
   }

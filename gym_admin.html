@@ -152,6 +152,14 @@ tr:hover td{background:var(--bg2)}
 .plan-label{font-size:13px;font-weight:600;color:var(--text);margin-bottom:4px}
 .plan-price{font-size:16px;font-weight:700;color:var(--blue)}
 .plan-btn.plan-senior .plan-price{color:var(--amber)}
+/* Photo Crop Modal */
+#photo-crop-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.82);z-index:9999;align-items:center;justify-content:center}
+.crop-wrap{background:var(--bg);border-radius:18px;padding:24px;width:340px;max-width:95vw}
+.crop-circle{position:relative;width:260px;height:260px;overflow:hidden;border-radius:50%;border:3px solid var(--blue);margin:0 auto 18px;cursor:grab;background:#111;touch-action:none}
+.crop-circle.grabbing{cursor:grabbing}
+#crop-img-el{position:absolute;transform-origin:top left;user-select:none;-webkit-user-drag:none;pointer-events:none;max-width:none}
+.crop-photo-thumb{width:44px;height:44px;border-radius:50%;object-fit:cover;border:2px solid var(--border2);flex-shrink:0;margin-right:8px}
+.crop-photo-placeholder{width:44px;height:44px;border-radius:50%;background:var(--bg2);border:2px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;color:var(--text2);flex-shrink:0;margin-right:8px}
 </style>
 </head>
 <body>
@@ -3105,9 +3113,15 @@ function renderCoachList(){
 }
 function renderCoachEditList(){
   document.getElementById('coach-edit-list').innerHTML=coaches.map(function(c){
-    return '<div class="edit-row"><div style="flex:1">'
-      +'<input value="'+c.name+'" id="ce-name-'+c.id+'" style="font-size:14px;padding:4px 8px;border:1px solid var(--border2);border-radius:6px;background:var(--bg2);color:var(--text);font-family:inherit;width:110px;margin-right:6px">'
-      +'<input value="'+c.specialty+'" id="ce-spec-'+c.id+'" style="font-size:14px;padding:4px 8px;border:1px solid var(--border2);border-radius:6px;background:var(--bg2);color:var(--text);font-family:inherit;width:80px">'
+    var thumb = c.photo
+      ? '<img src="'+c.photo+'" class="crop-photo-thumb">'
+      : '<div class="crop-photo-placeholder">'+c.name[0]+'</div>';
+    return '<div class="edit-row" style="align-items:center;gap:6px;flex-wrap:wrap">'
+      + thumb
+      +'<button onclick="openCropModal('+c.id+')" title="上傳大頭貼" style="font-size:15px;background:none;border:1px solid var(--border2);border-radius:8px;padding:4px 8px;cursor:pointer;flex-shrink:0">📷</button>'
+      +'<div style="flex:1;display:flex;gap:6px;min-width:0">'
+      +'<input value="'+c.name+'" id="ce-name-'+c.id+'" style="font-size:14px;padding:4px 8px;border:1px solid var(--border2);border-radius:6px;background:var(--bg2);color:var(--text);font-family:inherit;width:90px">'
+      +'<input value="'+(c.specialty||'')+'" id="ce-spec-'+c.id+'" style="font-size:14px;padding:4px 8px;border:1px solid var(--border2);border-radius:6px;background:var(--bg2);color:var(--text);font-family:inherit;width:70px">'
       +'</div><div style="display:flex;gap:6px">'
       +'<button class="btn btn-sm btn-warning" onclick="saveCoach('+c.id+')">儲存</button>'
       +'<button class="btn btn-sm btn-danger" onclick="removeCoach('+c.id+')">移除</button>'
@@ -3833,6 +3847,159 @@ function coachTab(tab,btn){
 // ══ Init ══
 reloadData();
 
+</script>
+
+<!-- Photo Crop Modal -->
+<input type="file" id="photo-file-input" accept="image/*" style="display:none" onchange="onPhotoFileSelected(this)">
+<div id="photo-crop-modal">
+  <div class="crop-wrap">
+    <div style="font-weight:700;font-size:15px;margin-bottom:14px">📷 上傳大頭貼</div>
+    <div class="crop-circle" id="crop-circle">
+      <img id="crop-img-el" draggable="false" alt="">
+    </div>
+    <div style="margin-bottom:16px">
+      <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--text2);margin-bottom:6px"><span>縮放</span><span id="crop-zoom-val">1.0×</span></div>
+      <input type="range" id="crop-zoom" style="width:100%;accent-color:var(--blue)" oninput="onCropZoom(this.value)">
+    </div>
+    <div style="display:flex;gap:10px">
+      <button class="btn btn-primary" style="flex:1" onclick="confirmCrop()">✓ 確認儲存</button>
+      <button class="btn" style="flex:1" onclick="closeCropModal()">取消</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ══ Photo Crop ══
+var _cropCoachId = null;
+var _cropX = 0, _cropY = 0, _cropScale = 1, _cropMinScale = 1;
+var _cropDragging = false, _cropDragSX, _cropDragSY, _cropDragIX, _cropDragIY;
+var CROP_SZ = 260;
+var CROP_OUT = 500;
+
+function openCropModal(coachId) {
+  _cropCoachId = coachId;
+  document.getElementById('photo-file-input').value = '';
+  document.getElementById('photo-file-input').click();
+}
+
+function onPhotoFileSelected(input) {
+  var file = input.files && input.files[0];
+  if (!file) return;
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    var tmp = new Image();
+    tmp.onload = function() {
+      var el = document.getElementById('crop-img-el');
+      el.src = e.target.result;
+      el._origW = tmp.width;
+      el._origH = tmp.height;
+      _cropMinScale = Math.max(CROP_SZ / tmp.width, CROP_SZ / tmp.height);
+      _cropScale = _cropMinScale;
+      _cropX = (CROP_SZ - tmp.width * _cropScale) / 2;
+      _cropY = (CROP_SZ - tmp.height * _cropScale) / 2;
+      var zEl = document.getElementById('crop-zoom');
+      zEl.min = _cropMinScale; zEl.max = _cropMinScale * 4;
+      zEl.step = 0.001; zEl.value = _cropScale;
+      document.getElementById('crop-zoom-val').textContent = _cropScale.toFixed(1) + '×';
+      _applyCropTransform();
+      document.getElementById('photo-crop-modal').style.display = 'flex';
+    };
+    tmp.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+function _applyCropTransform() {
+  var el = document.getElementById('crop-img-el');
+  if (!el) return;
+  el.style.width = (el._origW || 0) + 'px';
+  el.style.height = (el._origH || 0) + 'px';
+  el.style.transform = 'translate(' + _cropX + 'px,' + _cropY + 'px) scale(' + _cropScale + ')';
+  el.style.transformOrigin = '0 0';
+}
+
+function _clampCrop() {
+  var el = document.getElementById('crop-img-el');
+  if (!el) return;
+  var iw = (el._origW || 0) * _cropScale;
+  var ih = (el._origH || 0) * _cropScale;
+  if (_cropX > 0) _cropX = 0;
+  if (_cropY > 0) _cropY = 0;
+  if (_cropX + iw < CROP_SZ) _cropX = CROP_SZ - iw;
+  if (_cropY + ih < CROP_SZ) _cropY = CROP_SZ - ih;
+}
+
+function onCropZoom(val) {
+  var ns = parseFloat(val);
+  var cx = CROP_SZ / 2, cy = CROP_SZ / 2;
+  var r = ns / _cropScale;
+  _cropX = cx - (cx - _cropX) * r;
+  _cropY = cy - (cy - _cropY) * r;
+  _cropScale = ns;
+  _clampCrop();
+  _applyCropTransform();
+  document.getElementById('crop-zoom-val').textContent = ns.toFixed(1) + '×';
+}
+
+// Drag — mouse
+var _cc = document.getElementById('crop-circle');
+_cc.addEventListener('mousedown', function(e) {
+  _cropDragging = true; _cropDragSX = e.clientX; _cropDragSY = e.clientY;
+  _cropDragIX = _cropX; _cropDragIY = _cropY;
+  _cc.classList.add('grabbing'); e.preventDefault();
+});
+document.addEventListener('mousemove', function(e) {
+  if (!_cropDragging) return;
+  _cropX = _cropDragIX + (e.clientX - _cropDragSX);
+  _cropY = _cropDragIY + (e.clientY - _cropDragSY);
+  _clampCrop(); _applyCropTransform();
+});
+document.addEventListener('mouseup', function() {
+  _cropDragging = false; _cc.classList.remove('grabbing');
+});
+
+// Drag — touch
+_cc.addEventListener('touchstart', function(e) {
+  if (e.touches.length !== 1) return;
+  _cropDragging = true; _cropDragSX = e.touches[0].clientX; _cropDragSY = e.touches[0].clientY;
+  _cropDragIX = _cropX; _cropDragIY = _cropY; e.preventDefault();
+}, {passive:false});
+_cc.addEventListener('touchmove', function(e) {
+  if (!_cropDragging || e.touches.length !== 1) return;
+  _cropX = _cropDragIX + (e.touches[0].clientX - _cropDragSX);
+  _cropY = _cropDragIY + (e.touches[0].clientY - _cropDragSY);
+  _clampCrop(); _applyCropTransform(); e.preventDefault();
+}, {passive:false});
+_cc.addEventListener('touchend', function() { _cropDragging = false; });
+
+function confirmCrop() {
+  var el = document.getElementById('crop-img-el');
+  if (!el || !el.src) return;
+  var canvas = document.createElement('canvas');
+  canvas.width = CROP_OUT; canvas.height = CROP_OUT;
+  var ctx = canvas.getContext('2d');
+  ctx.beginPath();
+  ctx.arc(CROP_OUT/2, CROP_OUT/2, CROP_OUT/2, 0, Math.PI*2);
+  ctx.clip();
+  var ratio = CROP_OUT / CROP_SZ;
+  ctx.drawImage(el, _cropX*ratio, _cropY*ratio,
+    (el._origW||0)*_cropScale*ratio, (el._origH||0)*_cropScale*ratio);
+  var dataUrl = canvas.toDataURL('image/jpeg', 0.85);
+  var c = coaches.find(function(c){ return c.id === _cropCoachId; });
+  if (c) {
+    c.photo = dataUrl;
+    fbSaveCoaches();
+    toast('✓ ' + c.name + ' 大頭貼已更新');
+    renderCoachEditList();
+    renderCoachList();
+  }
+  closeCropModal();
+}
+
+function closeCropModal() {
+  document.getElementById('photo-crop-modal').style.display = 'none';
+  _cropCoachId = null;
+}
 </script>
 </body>
 </html>
