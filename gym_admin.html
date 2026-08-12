@@ -1014,10 +1014,10 @@ var DEFAULT_COACHES = [
 
 // ── Safe save: only update the specific field, never overwrite everything ──
 function fbSaveStudents() {
-  // Write each student by their id - safe for concurrent writes
+  // 用 array index (0-based) 當 key，對應 Firebase 實際結構
   var updates = {};
   for (var i = 0; i < students.length; i++) {
-    updates['data/students/' + students[i].id] = students[i];
+    updates['data/students/' + i] = students[i];
   }
   fbdb.ref().update(updates, function(err) {
     if (err) console.error('Save students error:', err);
@@ -1025,10 +1025,13 @@ function fbSaveStudents() {
 }
 function fbSaveSingleStudent(stu) {
   if (!stu) return;
-  // 用 stu.id 當 Firebase key，與 fbSaveStudents 一致
-  fbdb.ref('data/students/' + stu.id).set(stu, function(err) {
-    if (err) console.error('Save student error:', err);
-  });
+  // 找出此學員在 students array 中的 index，對應 Firebase key
+  var idx = students.findIndex(function(s){ return String(s.id) === String(stu.id); });
+  if (idx >= 0) {
+    fbdb.ref('data/students/' + idx).set(stu, function(err) {
+      if (err) console.error('Save student error:', err);
+    });
+  }
 }
 function fbDeleteStudent(stuId) {
   fbdb.ref('data/students/' + stuId).remove(function(err) {
