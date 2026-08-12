@@ -1286,20 +1286,29 @@ function submitCheckin() {
   if (!stu || stu.totalSessions - stu.usedSessions <= 0) {
     fail('堂數已用完，請洽詢前台'); return;
   }
-  // Step 1.5: 從 Firebase 讀最新資料並取得陣列索引
+  // Step 1.5: 從 Firebase 讀最新資料（用 student.id 當 Firebase key）
   db.ref('data/students').once('value', function(snap) {
-    var rawStu = snap.val() || [];
-    var arr = Array.isArray(rawStu) ? rawStu : Object.values(rawStu);
-    var stuIndex = -1;
-    for (var j = 0; j < arr.length; j++) {
-      if (arr[j] && String(arr[j].id) === String(selStudent.id)) { stu = arr[j]; stuIndex = j; break; }
+    var rawStu = snap.val() || {};
+    var stuKey = null;
+    if (Array.isArray(rawStu)) {
+      // 舊格式：array，找 index
+      for (var j = 0; j < rawStu.length; j++) {
+        if (rawStu[j] && String(rawStu[j].id) === String(selStudent.id)) { stu = rawStu[j]; stuKey = String(j); break; }
+      }
+    } else {
+      // 新格式：object，key 就是 student.id
+      var keys = Object.keys(rawStu);
+      for (var j = 0; j < keys.length; j++) {
+        var s = rawStu[keys[j]];
+        if (s && String(s.id) === String(selStudent.id)) { stu = s; stuKey = keys[j]; break; }
+      }
     }
-    if (!stu || stuIndex < 0 || stu.totalSessions - stu.usedSessions <= 0) {
+    if (!stu || stuKey === null || stu.totalSessions - stu.usedSessions <= 0) {
       fail('堂數已用完，請洽詢前台'); return;
     }
 
-    // Step 2: 用 transaction 原子性扣堂數，不覆寫其他學員資料
-    db.ref('data/students/' + stuIndex + '/usedSessions').transaction(function(current) {
+    // Step 2: 用 transaction 原子性扣堂數（用正確的 Firebase key）
+    db.ref('data/students/' + stuKey + '/usedSessions').transaction(function(current) {
       return (current || 0) + 1;
     }, function(txErr, committed, snapshot) {
       if (txErr || !committed) { fail('堂數更新失敗，請重試'); return; }
