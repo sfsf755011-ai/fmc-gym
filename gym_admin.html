@@ -973,6 +973,7 @@ tr:hover td{background:var(--bg2)}
 <div class="toast" id="toast"></div>
 
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-check-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 <script>
 function gv(id){ var el=document.getElementById(id); return el?el.value:null; }
@@ -990,6 +991,7 @@ var firebaseConfig = {
   appId: "1:17890543331:web:a714475fc7a584286a27d6"
 };
 firebase.initializeApp(firebaseConfig);
+firebase.appCheck().activate('6LfWsIItAAAAAIT5N7B1gzrC1P2GMHp06VCIiZ7S', true);
 var fbdb = firebase.database();
 var _adminPw = '1234';
 
