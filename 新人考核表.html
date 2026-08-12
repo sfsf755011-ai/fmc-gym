@@ -137,7 +137,7 @@
     <h1>新人教練考核表</h1>
     <p>教練帶主管體驗一堂完整課程，由主管依以下項目評分</p>
     <div class="info-grid">
-      <div class="info-field"><label>受評教練姓名</label><input id="coachName" placeholder="請填寫姓名" /></div>
+      <div class="info-field"><label>受評教練姓名</label><select id="coachName" style="background:transparent;border:none;color:#fff;font-size:15px;font-weight:600;width:100%;outline:none;-webkit-appearance:none"><option value="" style="color:#333">載入中…</option></select></div>
       <div class="info-field"><label>評核主管</label><input id="managerName" placeholder="請填寫姓名" /></div>
       <div class="info-field"><label>考核日期</label><input id="evalDate" type="date" style="color-scheme:dark" /></div>
       <div class="info-field"><label>體驗課程時間</label><input id="evalTime" placeholder="例：10:00 – 11:00" /></div>
@@ -442,7 +442,7 @@
 
   function saveAssessment() {
     var coachName = document.getElementById('coachName').value.trim();
-    if (!coachName) { showToast('請填寫受評教練姓名', 'error'); return; }
+    if (!coachName) { showToast('請先選擇受評教練', 'error'); return; }
 
     // Collect scores
     var scores = {};
@@ -493,6 +493,17 @@
       });
     });
   }
+
+  // Load coaches from Firebase
+  db.ref('data/coaches').once('value', function(snap) {
+    var val = snap.val() || [];
+    var coaches = Array.isArray(val) ? val : Object.values(val);
+    var sel = document.getElementById('coachName');
+    sel.innerHTML = '<option value="" style="color:#333">請選擇教練</option>' +
+      coaches.filter(function(c){ return c && c.name; }).map(function(c){
+        return '<option value="' + c.name + '" style="color:#333">' + c.name + '</option>';
+      }).join('');
+  });
 
   // Set today's date
   document.getElementById('evalDate').valueAsDate = new Date();
