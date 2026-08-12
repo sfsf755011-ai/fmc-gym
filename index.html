@@ -1075,7 +1075,7 @@ function searchStu(val) {
   if (!val || !selCoach) return;
   var matches = [];
   for (var i = 0; i < students.length; i++) {
-    if (students[i].name.indexOf(val) !== -1 && students[i].coach === selCoach.name) matches.push(students[i]);
+    if (students[i].name.indexOf(val) !== -1 && (students[i].coach||'').toLowerCase() === (selCoach.name||'').toLowerCase()) matches.push(students[i]);
   }
   if (matches.length === 1) {
     confirmStu(matches[0]);
@@ -1412,7 +1412,7 @@ function qSearch() {
   if (!coach||!val) return;
   var matches = [];
   for (var i=0;i<students.length;i++) {
-    if (students[i].name.indexOf(val)!==-1 && students[i].coach===coach) matches.push(students[i]);
+    if (students[i].name.indexOf(val)!==-1 && (students[i].coach||'').toLowerCase()===(coach||'').toLowerCase()) matches.push(students[i]);
   }
   if (matches.length===1) { hideQKb(); showQResult(matches[0]); }
   else if (matches.length>1) {
