@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FMC 鏈結體能 ｜ 新人教練考核表</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Noto Sans TC', -apple-system, sans-serif; background: #f4f6fa; color: #1a2035; min-height: 100vh; }
+
+  .page { max-width: 820px; margin: 0 auto; padding: 24px 16px 60px; }
+
+  /* Header */
+  .header { background: linear-gradient(135deg, #1a2035, #2d3a5e); color: #fff; border-radius: 16px; padding: 28px 28px 22px; margin-bottom: 20px; position: relative; overflow: hidden; }
+  .header::before { content: ''; position: absolute; right: -30px; top: -30px; width: 160px; height: 160px; border-radius: 50%; background: rgba(99,160,255,.12); }
+  .header::after { content: ''; position: absolute; right: 40px; top: 40px; width: 80px; height: 80px; border-radius: 50%; background: rgba(99,160,255,.08); }
+  .header h1 { font-size: 22px; font-weight: 800; letter-spacing: 2px; margin-bottom: 4px; }
+  .header p { font-size: 12px; color: rgba(255,255,255,.6); letter-spacing: 1px; }
+
+  /* Info Grid */
+  .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 18px; }
+  .info-field { background: rgba(255,255,255,.08); border: 1.5px solid rgba(255,255,255,.18); border-radius: 10px; padding: 10px 14px; }
+  .info-field label { font-size: 10px; color: rgba(255,255,255,.55); display: block; margin-bottom: 5px; letter-spacing: 1px; }
+  .info-field input { background: transparent; border: none; color: #fff; font-size: 15px; font-weight: 600; width: 100%; outline: none; }
+  .info-field input::placeholder { color: rgba(255,255,255,.3); font-weight: 400; font-size: 13px; }
+  @media(max-width:480px){ .info-grid{ grid-template-columns:1fr; } }
+
+  /* Section Card */
+  .section { background: #fff; border-radius: 14px; margin-bottom: 16px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,.06); }
+  .sec-header { padding: 14px 20px; display: flex; align-items: center; gap: 10px; }
+  .sec-num { width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 800; flex-shrink: 0; }
+  .sec-title { font-size: 15px; font-weight: 700; }
+  .sec-sub { font-size: 11px; color: #8896b3; margin-top: 1px; }
+  .sec-body { padding: 0 16px 16px; }
+
+  /* Colors per section */
+  .s1 .sec-header { background: #f0f4ff; } .s1 .sec-num { background: #3b82f6; color: #fff; }
+  .s2 .sec-header { background: #f0faf4; } .s2 .sec-num { background: #10b981; color: #fff; }
+  .s3 .sec-header { background: #fff8f0; } .s3 .sec-num { background: #f59e0b; color: #fff; }
+  .s4 .sec-header { background: #fdf0f8; } .s4 .sec-num { background: #ec4899; color: #fff; }
+
+  /* Item Row */
+  .item-row { display: flex; align-items: center; padding: 10px 4px; border-bottom: 1px solid #f0f2f7; gap: 8px; }
+  .item-row:last-child { border-bottom: none; }
+  .item-label { font-size: 14px; color: #2d3a5e; flex: 1; min-width: 0; }
+  .item-label small { display: block; font-size: 11px; color: #aab; margin-top: 1px; }
+
+  /* ABCDE Buttons */
+  .grade-group { display: flex; gap: 4px; flex-shrink: 0; }
+  .grade-group input[type=radio] { display: none; }
+  .grade-group label {
+    width: 34px; height: 34px; border-radius: 8px; display: flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 700; cursor: pointer; border: 1.5px solid #e0e4ef;
+    color: #8896b3; background: #f6f7fb; transition: all .15s; user-select: none;
+  }
+  .grade-group input[value="A"]:checked + label { background: #22c55e; border-color: #22c55e; color: #fff; }
+  .grade-group input[value="B"]:checked + label { background: #3b82f6; border-color: #3b82f6; color: #fff; }
+  .grade-group input[value="C"]:checked + label { background: #f59e0b; border-color: #f59e0b; color: #fff; }
+  .grade-group input[value="D"]:checked + label { background: #ef4444; border-color: #ef4444; color: #fff; }
+  .grade-group input[value="E"]:checked + label { background: #7c3aed; border-color: #7c3aed; color: #fff; }
+  .grade-group label:hover { border-color: #3b82f6; color: #3b82f6; }
+  @media(max-width:400px){ .grade-group label { width:28px; height:28px; font-size:11px; } }
+
+  /* Sub section divider */
+  .sub-sec { margin-top: 10px; }
+  .sub-sec-title { font-size: 11px; font-weight: 700; color: #8896b3; letter-spacing: 1.5px; text-transform: uppercase; padding: 8px 4px 4px; border-bottom: 1.5px solid #f0f2f7; margin-bottom: 2px; }
+
+  /* Note Textarea */
+  .note-wrap { margin-top: 8px; }
+  .note-wrap label { font-size: 11px; color: #aab; display: block; margin-bottom: 5px; }
+  .note-wrap textarea { width: 100%; border: 1.5px solid #e8eaf2; border-radius: 9px; padding: 9px 12px; font-size: 13px; color: #2d3a5e; resize: none; outline: none; background: #f9fafc; font-family: inherit; transition: border .2s; }
+  .note-wrap textarea:focus { border-color: #3b82f6; background: #fff; }
+
+  /* Legend */
+  .legend { display: flex; gap: 10px; flex-wrap: wrap; padding: 10px 4px 0; }
+  .legend-item { display: flex; align-items: center; gap: 4px; font-size: 11px; color: #8896b3; }
+  .legend-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+
+  /* Summary */
+  .summary-card { background: linear-gradient(135deg, #1a2035, #2d3a5e); color: #fff; border-radius: 14px; padding: 24px; margin-bottom: 16px; box-shadow: 0 4px 20px rgba(26,32,53,.25); }
+  .summary-card h3 { font-size: 14px; letter-spacing: 1px; color: rgba(255,255,255,.6); margin-bottom: 16px; }
+  .summary-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 20px; }
+  .sum-item { background: rgba(255,255,255,.08); border-radius: 10px; padding: 10px; text-align: center; }
+  .sum-item .sum-label { font-size: 10px; color: rgba(255,255,255,.5); margin-bottom: 4px; }
+  .sum-item .sum-val { font-size: 22px; font-weight: 800; }
+  .sum-item .sum-val.A { color: #4ade80; }
+  .sum-item .sum-val.B { color: #60a5fa; }
+  .sum-item .sum-val.C { color: #fbbf24; }
+  .sum-item .sum-val.D { color: #f87171; }
+  .sum-item .sum-val.E { color: #c084fc; }
+  .sum-item .sum-val.none { color: rgba(255,255,255,.3); font-size: 14px; }
+  @media(max-width:480px){ .summary-grid{ grid-template-columns: repeat(2,1fr); } }
+
+  /* Overall comment */
+  .overall-comment { background: rgba(255,255,255,.08); border: 1.5px solid rgba(255,255,255,.18); border-radius: 10px; padding: 10px 14px; }
+  .overall-comment label { font-size: 10px; color: rgba(255,255,255,.5); display: block; margin-bottom: 6px; }
+  .overall-comment textarea { background: transparent; border: none; color: #fff; font-size: 13px; width: 100%; outline: none; resize: none; font-family: inherit; }
+  .overall-comment textarea::placeholder { color: rgba(255,255,255,.25); }
+
+  /* Print Button */
+  .print-btn { width: 100%; padding: 14px; border-radius: 12px; background: linear-gradient(135deg, #3b82f6, #1d4ed8); color: #fff; font-size: 15px; font-weight: 700; border: none; cursor: pointer; letter-spacing: 1px; box-shadow: 0 4px 14px rgba(59,130,246,.35); transition: all .2s; }
+  .print-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(59,130,246,.45); }
+  .print-btn:active { transform: translateY(0); }
+
+  /* Print Styles */
+  @media print {
+    body { background: #fff; }
+    .page { padding: 10px; }
+    .print-btn { display: none; }
+    .header { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .sec-num { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .grade-group input:checked + label { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .summary-card { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+.section { break-inside: avoid; }
+  }
+  /* Save Button */
+  .save-btn { width: 100%; padding: 14px; border-radius: 12px; background: linear-gradient(135deg, #10b981, #059669); color: #fff; font-size: 15px; font-weight: 700; border: none; cursor: pointer; letter-spacing: 1px; box-shadow: 0 4px 14px rgba(16,185,129,.35); transition: all .2s; margin-bottom: 10px; }
+  .save-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(16,185,129,.45); }
+  .save-btn:active { transform: translateY(0); }
+  .save-btn:disabled { opacity: .6; cursor: default; transform: none; }
+
+  /* Toast */
+  .toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); padding: 12px 24px; border-radius: 12px; font-size: 14px; font-weight: 600; color: #fff; z-index: 999; opacity: 0; transition: opacity .3s; pointer-events: none; white-space: nowrap; }
+  .toast.show { opacity: 1; }
+  .toast.success { background: #10b981; box-shadow: 0 4px 20px rgba(16,185,129,.4); }
+  .toast.error { background: #ef4444; box-shadow: 0 4px 20px rgba(239,68,68,.4); }
+</style>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+</head>
+<body>
+<div class="page">
+
+  <!-- Header -->
+  <div class="header">
+    <div style="font-size:11px;color:rgba(255,255,255,.45);letter-spacing:2px;margin-bottom:6px;">FMC 鏈結體能</div>
+    <h1>新人教練考核表</h1>
+    <p>教練帶主管體驗一堂完整課程，由主管依以下項目評分</p>
+    <div class="info-grid">
+      <div class="info-field"><label>受評教練姓名</label><input id="coachName" placeholder="請填寫姓名" /></div>
+      <div class="info-field"><label>評核主管</label><input id="managerName" placeholder="請填寫姓名" /></div>
+      <div class="info-field"><label>考核日期</label><input id="evalDate" type="date" style="color-scheme:dark" /></div>
+      <div class="info-field"><label>體驗課程時間</label><input id="evalTime" placeholder="例：10:00 – 11:00" /></div>
+    </div>
+  </div>
+
+  <!-- Legend -->
+  <div class="legend" style="margin-bottom:14px;">
+    <div class="legend-item"><div class="legend-dot" style="background:#22c55e"></div>A＝優秀</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#3b82f6"></div>B＝良好</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#f59e0b"></div>C＝達標</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#ef4444"></div>D＝需改進</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#7c3aed"></div>E＝不合格</div>
+  </div>
+
+  <!-- Section 1: 進場環境介紹 -->
+  <div class="section s1">
+    <div class="sec-header">
+      <div class="sec-num">1</div>
+      <div><div class="sec-title">進場環境介紹</div><div class="sec-sub">引導學員認識場館環境</div></div>
+    </div>
+    <div class="sec-body">
+      <div class="item-row">
+        <div class="item-label">整體表現<small>環境介紹流暢度、場館熟悉度、態度親切度</small></div>
+        <div class="grade-group" data-section="s1">
+          <input type="radio" name="s1_env" id="s1_env_A" value="A"><label for="s1_env_A">A</label>
+          <input type="radio" name="s1_env" id="s1_env_B" value="B"><label for="s1_env_B">B</label>
+          <input type="radio" name="s1_env" id="s1_env_C" value="C"><label for="s1_env_C">C</label>
+          <input type="radio" name="s1_env" id="s1_env_D" value="D"><label for="s1_env_D">D</label>
+          <input type="radio" name="s1_env" id="s1_env_E" value="E"><label for="s1_env_E">E</label>
+        </div>
+      </div>
+      <div class="note-wrap"><label>備註</label><textarea rows="2" placeholder="針對此項目補充說明..."></textarea></div>
+    </div>
+  </div>
+
+  <!-- Section 2: InBody 測量 -->
+  <div class="section s2">
+    <div class="sec-header">
+      <div class="sec-num">2</div>
+      <div><div class="sec-title">InBody 測量</div><div class="sec-sub">數據解讀 · 飲食建議 · 問題解答</div></div>
+    </div>
+    <div class="sec-body">
+      <div class="item-row">
+        <div class="item-label">解讀報表<small>是否能清楚說明各項數據意義</small></div>
+        <div class="grade-group" data-section="s2">
+          <input type="radio" name="s2_read" id="s2_read_A" value="A"><label for="s2_read_A">A</label>
+          <input type="radio" name="s2_read" id="s2_read_B" value="B"><label for="s2_read_B">B</label>
+          <input type="radio" name="s2_read" id="s2_read_C" value="C"><label for="s2_read_C">C</label>
+          <input type="radio" name="s2_read" id="s2_read_D" value="D"><label for="s2_read_D">D</label>
+          <input type="radio" name="s2_read" id="s2_read_E" value="E"><label for="s2_read_E">E</label>
+        </div>
+      </div>
+      <div class="item-row">
+        <div class="item-label">飲食目標建議介紹<small>依學員目標提供適當的飲食方向</small></div>
+        <div class="grade-group" data-section="s2">
+          <input type="radio" name="s2_diet" id="s2_diet_A" value="A"><label for="s2_diet_A">A</label>
+          <input type="radio" name="s2_diet" id="s2_diet_B" value="B"><label for="s2_diet_B">B</label>
+          <input type="radio" name="s2_diet" id="s2_diet_C" value="C"><label for="s2_diet_C">C</label>
+          <input type="radio" name="s2_diet" id="s2_diet_D" value="D"><label for="s2_diet_D">D</label>
+          <input type="radio" name="s2_diet" id="s2_diet_E" value="E"><label for="s2_diet_E">E</label>
+        </div>
+      </div>
+      <div class="item-row">
+        <div class="item-label">學員問題解答<small>回應學員問題的專業度與應對能力</small></div>
+        <div class="grade-group" data-section="s2">
+          <input type="radio" name="s2_qa" id="s2_qa_A" value="A"><label for="s2_qa_A">A</label>
+          <input type="radio" name="s2_qa" id="s2_qa_B" value="B"><label for="s2_qa_B">B</label>
+          <input type="radio" name="s2_qa" id="s2_qa_C" value="C"><label for="s2_qa_C">C</label>
+          <input type="radio" name="s2_qa" id="s2_qa_D" value="D"><label for="s2_qa_D">D</label>
+          <input type="radio" name="s2_qa" id="s2_qa_E" value="E"><label for="s2_qa_E">E</label>
+        </div>
+      </div>
+      <div class="note-wrap"><label>備註</label><textarea rows="2" placeholder="針對此項目補充說明..."></textarea></div>
+    </div>
+  </div>
+
+  <!-- Section 3: 訓練課程 -->
+  <div class="section s3">
+    <div class="sec-header">
+      <div class="sec-num">3</div>
+      <div><div class="sec-title">訓練課程</div><div class="sec-sub">依學員目標客製化訓練 ・ 熱身 → 主運動 → 收尾</div></div>
+    </div>
+    <div class="sec-body">
+
+      <!-- 熱身 -->
+      <div class="sub-sec">
+        <div class="sub-sec-title">熱身（共 2 項）</div>
+        <div class="item-row">
+          <div class="item-label">教學示範<small>動作示範清楚、到位</small></div>
+          <div class="grade-group" data-section="s3">
+            <input type="radio" name="s3_w_demo" id="s3_w_demo_A" value="A"><label for="s3_w_demo_A">A</label>
+            <input type="radio" name="s3_w_demo" id="s3_w_demo_B" value="B"><label for="s3_w_demo_B">B</label>
+            <input type="radio" name="s3_w_demo" id="s3_w_demo_C" value="C"><label for="s3_w_demo_C">C</label>
+            <input type="radio" name="s3_w_demo" id="s3_w_demo_D" value="D"><label for="s3_w_demo_D">D</label>
+            <input type="radio" name="s3_w_demo" id="s3_w_demo_E" value="E"><label for="s3_w_demo_E">E</label>
+          </div>
+        </div>
+        <div class="item-row">
+          <div class="item-label">口頭指令<small>指令清晰、適時給予引導</small></div>
+          <div class="grade-group" data-section="s3">
+            <input type="radio" name="s3_w_cue" id="s3_w_cue_A" value="A"><label for="s3_w_cue_A">A</label>
+            <input type="radio" name="s3_w_cue" id="s3_w_cue_B" value="B"><label for="s3_w_cue_B">B</label>
+            <input type="radio" name="s3_w_cue" id="s3_w_cue_C" value="C"><label for="s3_w_cue_C">C</label>
+            <input type="radio" name="s3_w_cue" id="s3_w_cue_D" value="D"><label for="s3_w_cue_D">D</label>
+            <input type="radio" name="s3_w_cue" id="s3_w_cue_E" value="E"><label for="s3_w_cue_E">E</label>
+          </div>
+        </div>
+        <div class="item-row">
+          <div class="item-label">糾錯<small>發現並即時修正學員動作錯誤</small></div>
+          <div class="grade-group" data-section="s3">
+            <input type="radio" name="s3_w_cor" id="s3_w_cor_A" value="A"><label for="s3_w_cor_A">A</label>
+            <input type="radio" name="s3_w_cor" id="s3_w_cor_B" value="B"><label for="s3_w_cor_B">B</label>
+            <input type="radio" name="s3_w_cor" id="s3_w_cor_C" value="C"><label for="s3_w_cor_C">C</label>
+            <input type="radio" name="s3_w_cor" id="s3_w_cor_D" value="D"><label for="s3_w_cor_D">D</label>
+            <input type="radio" name="s3_w_cor" id="s3_w_cor_E" value="E"><label for="s3_w_cor_E">E</label>
+          </div>
+        </div>
+      </div>
+
+      <!-- 主運動 -->
+      <div class="sub-sec">
+        <div class="sub-sec-title">主運動（共 2 項）</div>
+        <div class="item-row">
+          <div class="item-label">教學示範<small>動作示範清楚、符合學員目標</small></div>
+          <div class="grade-group" data-section="s3">
+            <input type="radio" name="s3_m_demo" id="s3_m_demo_A" value="A"><label for="s3_m_demo_A">A</label>
+            <input type="radio" name="s3_m_demo" id="s3_m_demo_B" value="B"><label for="s3_m_demo_B">B</label>
+            <input type="radio" name="s3_m_demo" id="s3_m_demo_C" value="C"><label for="s3_m_demo_C">C</label>
+            <input type="radio" name="s3_m_demo" id="s3_m_demo_D" value="D"><label for="s3_m_demo_D">D</label>
+            <input type="radio" name="s3_m_demo" id="s3_m_demo_E" value="E"><label for="s3_m_demo_E">E</label>
+          </div>
+        </div>
+        <div class="item-row">
+          <div class="item-label">口頭指令<small>指令準確、節奏掌控得宜</small></div>
+          <div class="grade-group" data-section="s3">
+            <input type="radio" name="s3_m_cue" id="s3_m_cue_A" value="A"><label for="s3_m_cue_A">A</label>
+            <input type="radio" name="s3_m_cue" id="s3_m_cue_B" value="B"><label for="s3_m_cue_B">B</label>
+            <input type="radio" name="s3_m_cue" id="s3_m_cue_C" value="C"><label for="s3_m_cue_C">C</label>
+            <input type="radio" name="s3_m_cue" id="s3_m_cue_D" value="D"><label for="s3_m_cue_D">D</label>
+            <input type="radio" name="s3_m_cue" id="s3_m_cue_E" value="E"><label for="s3_m_cue_E">E</label>
+          </div>
+        </div>
+        <div class="item-row">
+          <div class="item-label">糾錯<small>準確觀察並修正學員姿勢</small></div>
+          <div class="grade-group" data-section="s3">
+            <input type="radio" name="s3_m_cor" id="s3_m_cor_A" value="A"><label for="s3_m_cor_A">A</label>
+            <input type="radio" name="s3_m_cor" id="s3_m_cor_B" value="B"><label for="s3_m_cor_B">B</label>
+            <input type="radio" name="s3_m_cor" id="s3_m_cor_C" value="C"><label for="s3_m_cor_C">C</label>
+            <input type="radio" name="s3_m_cor" id="s3_m_cor_D" value="D"><label for="s3_m_cor_D">D</label>
+            <input type="radio" name="s3_m_cor" id="s3_m_cor_E" value="E"><label for="s3_m_cor_E">E</label>
+          </div>
+        </div>
+        <div class="item-row">
+          <div class="item-label">突發狀況應對<small>面對意外狀況的處置與冷靜程度</small></div>
+          <div class="grade-group" data-section="s3">
+            <input type="radio" name="s3_m_emer" id="s3_m_emer_A" value="A"><label for="s3_m_emer_A">A</label>
+            <input type="radio" name="s3_m_emer" id="s3_m_emer_B" value="B"><label for="s3_m_emer_B">B</label>
+            <input type="radio" name="s3_m_emer" id="s3_m_emer_C" value="C"><label for="s3_m_emer_C">C</label>
+            <input type="radio" name="s3_m_emer" id="s3_m_emer_D" value="D"><label for="s3_m_emer_D">D</label>
+            <input type="radio" name="s3_m_emer" id="s3_m_emer_E" value="E"><label for="s3_m_emer_E">E</label>
+          </div>
+        </div>
+      </div>
+
+      <!-- 收尾 -->
+      <div class="sub-sec">
+        <div class="sub-sec-title">收尾</div>
+        <div class="item-row">
+          <div class="item-label">教學示範<small>收尾動作的選擇與示範品質</small></div>
+          <div class="grade-group" data-section="s3">
+            <input type="radio" name="s3_e_demo" id="s3_e_demo_A" value="A"><label for="s3_e_demo_A">A</label>
+            <input type="radio" name="s3_e_demo" id="s3_e_demo_B" value="B"><label for="s3_e_demo_B">B</label>
+            <input type="radio" name="s3_e_demo" id="s3_e_demo_C" value="C"><label for="s3_e_demo_C">C</label>
+            <input type="radio" name="s3_e_demo" id="s3_e_demo_D" value="D"><label for="s3_e_demo_D">D</label>
+            <input type="radio" name="s3_e_demo" id="s3_e_demo_E" value="E"><label for="s3_e_demo_E">E</label>
+          </div>
+        </div>
+        <div class="item-row">
+          <div class="item-label">口頭指令<small>收尾引導語的專業性</small></div>
+          <div class="grade-group" data-section="s3">
+            <input type="radio" name="s3_e_cue" id="s3_e_cue_A" value="A"><label for="s3_e_cue_A">A</label>
+            <input type="radio" name="s3_e_cue" id="s3_e_cue_B" value="B"><label for="s3_e_cue_B">B</label>
+            <input type="radio" name="s3_e_cue" id="s3_e_cue_C" value="C"><label for="s3_e_cue_C">C</label>
+            <input type="radio" name="s3_e_cue" id="s3_e_cue_D" value="D"><label for="s3_e_cue_D">D</label>
+            <input type="radio" name="s3_e_cue" id="s3_e_cue_E" value="E"><label for="s3_e_cue_E">E</label>
+          </div>
+        </div>
+        <div class="item-row">
+          <div class="item-label">糾錯<small>收尾階段的動作觀察與修正</small></div>
+          <div class="grade-group" data-section="s3">
+            <input type="radio" name="s3_e_cor" id="s3_e_cor_A" value="A"><label for="s3_e_cor_A">A</label>
+            <input type="radio" name="s3_e_cor" id="s3_e_cor_B" value="B"><label for="s3_e_cor_B">B</label>
+            <input type="radio" name="s3_e_cor" id="s3_e_cor_C" value="C"><label for="s3_e_cor_C">C</label>
+            <input type="radio" name="s3_e_cor" id="s3_e_cor_D" value="D"><label for="s3_e_cor_D">D</label>
+            <input type="radio" name="s3_e_cor" id="s3_e_cor_E" value="E"><label for="s3_e_cor_E">E</label>
+          </div>
+        </div>
+      </div>
+
+      <div class="note-wrap"><label>備註</label><textarea rows="2" placeholder="針對訓練課程補充說明..."></textarea></div>
+    </div>
+  </div>
+
+  <!-- Section 4: 課程結束 -->
+  <div class="section s4">
+    <div class="sec-header">
+      <div class="sec-num">4</div>
+      <div><div class="sec-title">課程結束</div><div class="sec-sub">時間管理 · 方案介紹 · 談單</div></div>
+    </div>
+    <div class="sec-body">
+      <div class="item-row">
+        <div class="item-label">時間掌控<small>整堂課程時間分配是否得宜</small></div>
+        <div class="grade-group" data-section="s4">
+          <input type="radio" name="s4_time" id="s4_time_A" value="A"><label for="s4_time_A">A</label>
+          <input type="radio" name="s4_time" id="s4_time_B" value="B"><label for="s4_time_B">B</label>
+          <input type="radio" name="s4_time" id="s4_time_C" value="C"><label for="s4_time_C">C</label>
+          <input type="radio" name="s4_time" id="s4_time_D" value="D"><label for="s4_time_D">D</label>
+          <input type="radio" name="s4_time" id="s4_time_E" value="E"><label for="s4_time_E">E</label>
+        </div>
+      </div>
+      <div class="item-row">
+        <div class="item-label">方案介紹<small>能清楚說明課程方案內容與優惠</small></div>
+        <div class="grade-group" data-section="s4">
+          <input type="radio" name="s4_plan" id="s4_plan_A" value="A"><label for="s4_plan_A">A</label>
+          <input type="radio" name="s4_plan" id="s4_plan_B" value="B"><label for="s4_plan_B">B</label>
+          <input type="radio" name="s4_plan" id="s4_plan_C" value="C"><label for="s4_plan_C">C</label>
+          <input type="radio" name="s4_plan" id="s4_plan_D" value="D"><label for="s4_plan_D">D</label>
+          <input type="radio" name="s4_plan" id="s4_plan_E" value="E"><label for="s4_plan_E">E</label>
+        </div>
+      </div>
+      <div class="item-row">
+        <div class="item-label">談單<small>成交意願引導技巧、自信與親和力</small></div>
+        <div class="grade-group" data-section="s4">
+          <input type="radio" name="s4_close" id="s4_close_A" value="A"><label for="s4_close_A">A</label>
+          <input type="radio" name="s4_close" id="s4_close_B" value="B"><label for="s4_close_B">B</label>
+          <input type="radio" name="s4_close" id="s4_close_C" value="C"><label for="s4_close_C">C</label>
+          <input type="radio" name="s4_close" id="s4_close_D" value="D"><label for="s4_close_D">D</label>
+          <input type="radio" name="s4_close" id="s4_close_E" value="E"><label for="s4_close_E">E</label>
+        </div>
+      </div>
+      <div class="note-wrap"><label>備註</label><textarea rows="2" placeholder="針對此項目補充說明..."></textarea></div>
+    </div>
+  </div>
+
+  <!-- Summary Card -->
+  <div class="summary-card">
+    <h3>▪ 評分統計</h3>
+    <div class="summary-grid">
+      <div class="sum-item"><div class="sum-label">A（優秀）</div><div class="sum-val A" id="cnt-A">0</div></div>
+      <div class="sum-item"><div class="sum-label">B（良好）</div><div class="sum-val B" id="cnt-B">0</div></div>
+      <div class="sum-item"><div class="sum-label">C（達標）</div><div class="sum-val C" id="cnt-C">0</div></div>
+      <div class="sum-item"><div class="sum-label">D（需改進）</div><div class="sum-val D" id="cnt-D">0</div></div>
+    </div>
+    <div style="margin-bottom:16px;">
+      <div style="font-size:10px;color:rgba(255,255,255,.5);margin-bottom:6px;letter-spacing:1px;">E（不合格）</div>
+      <div class="sum-val E" id="cnt-E" style="font-size:20px;">0</div>
+    </div>
+
+    <!-- Overall Comment -->
+    <div class="overall-comment">
+      <label>主管總評 / 回饋建議</label>
+      <textarea rows="4" id="overall-comment" placeholder="請填寫整體評語、具體改善建議..."></textarea>
+    </div>
+  </div>
+
+  <!-- Save -->
+  <button class="save-btn" id="save-btn" onclick="saveAssessment()">💾 儲存考核記錄</button>
+  <!-- Print -->
+  <button class="print-btn" onclick="window.print()">🖨 列印 / 儲存 PDF</button>
+  <div class="toast" id="toast"></div>
+
+</div>
+
+<script>
+  // Firebase
+  firebase.initializeApp({
+    apiKey: "AIzaSyDucRW7PkE3yQUqq3k9a2qG3c47dMY9Dio",
+    authDomain: "fmc-gym.firebaseapp.com",
+    databaseURL: "https://fmc-gym-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "fmc-gym",
+    storageBucket: "fmc-gym.firebasestorage.app",
+    messagingSenderId: "17890543331",
+    appId: "1:17890543331:web:a714475fc7a584286a27d6"
+  });
+  var db = firebase.database();
+
+  var SCORE_FIELDS = [
+    'S1_env','s2_read','s2_diet','s2_qa',
+    's3_w_demo','s3_w_cue','s3_w_cor',
+    's3_m_demo','s3_m_cue','s3_m_cor','s3_m_emer',
+    's3_e_demo','s3_e_cue','s3_e_cor',
+    's4_time','s4_plan','s4_close'
+  ];
+
+  function showToast(msg, type) {
+    var t = document.getElementById('toast');
+    t.textContent = msg;
+    t.className = 'toast ' + type + ' show';
+    setTimeout(function() { t.classList.remove('show'); }, 3000);
+  }
+
+  function saveAssessment() {
+    var coachName = document.getElementById('coachName').value.trim();
+    if (!coachName) { showToast('請填寫受評教練姓名', 'error'); return; }
+
+    // Collect scores
+    var scores = {};
+    var counts = { A:0, B:0, C:0, D:0, E:0 };
+    document.querySelectorAll('.grade-group').forEach(function(grp) {
+      var checked = grp.querySelector('input[type=radio]:checked');
+      if (checked) {
+        scores[checked.name] = checked.value;
+        counts[checked.value] = (counts[checked.value] || 0) + 1;
+      }
+    });
+
+    // Collect notes (4 textareas in order: s1, s2, s3, s4)
+    var notes = {};
+    var tas = document.querySelectorAll('.note-wrap textarea');
+    var keys = ['s1','s2','s3','s4'];
+    tas.forEach(function(ta, i) { if (keys[i]) notes[keys[i]] = ta.value.trim(); });
+
+    var now = new Date();
+    var rec = {
+      savedAt: now.toLocaleDateString('zh-TW') + ' ' + now.toLocaleTimeString('zh-TW', {hour:'2-digit',minute:'2-digit'}),
+      coachName: coachName,
+      managerName: document.getElementById('managerName').value.trim(),
+      evalDate: document.getElementById('evalDate').value,
+      evalTime: document.getElementById('evalTime').value.trim(),
+      scores: scores,
+      notes: notes,
+      overallComment: (document.getElementById('overall-comment').value || '').trim(),
+      counts: counts
+    };
+
+    var btn = document.getElementById('save-btn');
+    btn.disabled = true;
+    btn.textContent = '儲存中…';
+
+    db.ref('data/assessments').once('value', function(snap) {
+      var arr = snap.val() || [];
+      if (!Array.isArray(arr)) arr = Object.values(arr);
+      arr.unshift(rec);
+      db.ref('data/assessments').set(arr, function(err) {
+        btn.disabled = false;
+        btn.textContent = '💾 儲存考核記錄';
+        if (err) {
+          showToast('儲存失敗，請確認網路連線', 'error');
+        } else {
+          showToast('✅ 考核記錄已儲存！', 'success');
+        }
+      });
+    });
+  }
+
+  // Set today's date
+  document.getElementById('evalDate').valueAsDate = new Date();
+
+  // Grade counter
+  var gradeScore = { A: 5, B: 4, C: 3, D: 2, E: 1 };
+
+  function updateSummary() {
+    var counts = { A: 0, B: 0, C: 0, D: 0, E: 0 };
+    var all = document.querySelectorAll('.grade-group input[type=radio]:checked');
+    all.forEach(function(r) { counts[r.value]++; });
+    ['A','B','C','D','E'].forEach(function(g) {
+      document.getElementById('cnt-' + g).textContent = counts[g];
+    });
+  }
+
+  document.querySelectorAll('.grade-group input[type=radio]').forEach(function(r) {
+    r.addEventListener('change', updateSummary);
+  });
+
+</script>
+</body>
+</html>
