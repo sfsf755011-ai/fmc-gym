@@ -32,7 +32,9 @@
 
   /* legend compact */
   .legend{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px;padding:6px 10px;background:var(--surface);border-radius:var(--r);border:1px solid var(--border)}
-  .legend-item{display:flex;align-items:center;gap:5px;font-size:10px;color:var(--text-sec)}
+  .legend-item{display:flex;align-items:center;gap:5px;font-size:10px;color:var(--text-sec);padding:3px 8px;border-radius:20px}
+  .legend-item.lk{border:1.5px solid #FAC775;background:#FEF8EC;color:#7A4A0A}
+  .legend-item.ls{border:1.5px solid #AFA9EC;background:#F2F1FE;color:#534AB7}
 
   /* section */
   .section{background:var(--surface);border-radius:var(--r);border:1px solid var(--border);margin-bottom:8px;overflow:hidden}
@@ -129,8 +131,8 @@
   </div>
 
   <div class="legend">
-    <div class="legend-item"><span class="key-badge">判斷偏側化</span><span>左右承重主要依據</span></div>
-    <div class="legend-item" style="margin-left:4px"><span class="sag-badge">判斷矢狀面代償</span><span>前後代償狀態</span></div>
+    <div class="legend-item lk">判斷偏側化　左右承重主要依據</div>
+    <div class="legend-item ls">判斷矢狀面代償　骨盆整體代償狀態</div>
     <div class="legend-item" style="margin-left:4px">
       <svg viewBox="0 0 12 12" width="10" height="10"><polygon points="6,1 11,11 1,11" fill="#8B5E0A"/></svg>
       <span>輔助判斷與區域判斷</span>
