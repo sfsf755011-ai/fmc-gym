@@ -41,8 +41,10 @@
   .phase-label{font-size:9px;font-weight:600;padding:1px 7px;border-radius:20px}
   .pl-1{background:#CECBF6;color:#3C3489}
   .pl-2{background:#9FE1CB;color:#085041}
-  .key-badge{font-size:9px;padding:1px 5px;border-radius:20px;background:var(--key-bg);color:var(--key-text);font-weight:500;white-space:nowrap}
-  .sag-badge{font-size:9px;padding:1px 5px;border-radius:20px;background:var(--sag-bg);color:var(--sag-text);font-weight:500;white-space:nowrap}
+  .key-badge{display:none}
+  .sag-badge{display:none}
+  .tr.is-key{border-left:3px solid #FAC775;background:linear-gradient(to right,#FEF8EC 0%,transparent 60%)}
+  .tr.is-sag{border-left:3px solid #AFA9EC;background:linear-gradient(to right,#F2F1FE 0%,transparent 60%)}
   .aux-badge{font-size:9px;padding:1px 5px;border-radius:20px;background:#F1EFE8;color:#5F5E5A;font-weight:500;white-space:nowrap}
   .star{font-size:11px;color:#8B5E0A;margin-right:2px}
   .tref{font-size:9px;color:var(--text-ter);font-family:'DM Mono',monospace;margin-left:2px}
@@ -159,7 +161,7 @@
     </div>
     <div class="tb">
 
-      <div class="col-grid tr" data-test="cervical-rot">
+      <div class="col-grid tr is-key" data-test="cervical-rot">
         <div class="tn">CV. Rota　頸旋轉 <span class="key-badge">判斷偏側化</span><span class="tref"> &gt;30°</span></div>
         <div class="iw"><input type="number" min="0" max="90" placeholder="–" oninput="calc(this)"><span class="iu">°</span></div>
         <div class="iw"><input type="number" min="0" max="90" placeholder="–" oninput="calc(this)"><span class="iu">°</span></div>
@@ -169,7 +171,7 @@
         <div><input class="note-input" type="text" placeholder="備註…"></div>
       </div>
 
-      <div class="col-grid tr" data-test="pelvis-rot">
+      <div class="col-grid tr is-key" data-test="pelvis-rot">
         <div class="tn">PV. Rota　骨盆旋轉 <span class="key-badge">判斷偏側化</span><span class="tref"> &gt;70°</span></div>
         <div class="iw"><input type="number" min="0" max="180" placeholder="–" oninput="calc(this)"><span class="iu">°</span></div>
         <div class="iw"><input type="number" min="0" max="180" placeholder="–" oninput="calc(this)"><span class="iu">°</span></div>
@@ -179,7 +181,7 @@
         <div><input class="note-input" type="text" placeholder="備註…"></div>
       </div>
 
-      <div class="col-grid tr" data-test="shoulder-abd">
+      <div class="col-grid tr is-key" data-test="shoulder-abd">
         <div class="tn">SH. Abd　肩外展 <span class="key-badge">判斷偏側化</span><span class="tref"> &gt;45°</span></div>
         <div class="iw"><input type="number" min="0" max="180" placeholder="–" oninput="calc(this)"><span class="iu">°</span></div>
         <div class="iw"><input type="number" min="0" max="180" placeholder="–" oninput="calc(this)"><span class="iu">°</span></div>
@@ -200,7 +202,7 @@
         <div><input class="note-input" type="text" placeholder="備註…"></div>
       </div>
 
-      <div class="col-grid tr" data-test="hip-ext">
+      <div class="col-grid tr is-sag" data-test="hip-ext">
         <div class="tn"><span class="star">★</span>HP. Exten　髖伸 <span class="sag-badge">判斷矢狀面代償</span><span class="tref"> −5~0°</span></div>
         <div class="iw"><input type="number" min="-30" max="60" placeholder="–" oninput="calc(this)"><span class="iu">°</span></div>
         <div class="iw"><input type="number" min="-30" max="60" placeholder="–" oninput="calc(this)"><span class="iu">°</span></div>
@@ -221,7 +223,7 @@
         <div><input class="note-input" type="text" placeholder="備註…"></div>
       </div>
 
-      <div class="col-grid tr" data-test="shoulder-ir">
+      <div class="col-grid tr is-sag" data-test="shoulder-ir">
         <div class="tn"><span class="star">★</span>SH. IR　肩內旋 <span class="sag-badge">判斷矢狀面代償</span><span class="tref"> &gt;70°</span></div>
         <div class="iw"><input type="number" min="0" max="180" placeholder="–" oninput="calc(this)"><span class="iu">°</span></div>
         <div class="iw"><input type="number" min="0" max="180" placeholder="–" oninput="calc(this)"><span class="iu">°</span></div>
