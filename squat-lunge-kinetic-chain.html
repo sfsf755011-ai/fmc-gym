@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>動力鏈評估流程 — 弓箭步 / 深蹲</title>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Noto+Sans+TC:wght@300;400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --bg: #0d1117;
+  --panel: #151b23;
+  --line: #2a3340;
+  --grid: rgba(255,255,255,0.025);
+  --accent: #ffd60a;
+  --text: #e6edf3;
+  --text-dim: #8b98a5;
+  --text-mute: #4a5568;
+  --c1: #ff6b6b;
+  --c2: #4ecdc4;
+  --c3: #ffd60a;
+  --c4: #95e1d3;
+  --c5: #c39bd3;
+  --c6: #5dade2;
+  --c7: #f4a261;
+  --c8: #a3e635;
+}
+
+body {
+  background: var(--bg);
+  background-image:
+    repeating-linear-gradient(0deg, var(--grid) 0px, var(--grid) 1px, transparent 1px, transparent 32px),
+    repeating-linear-gradient(90deg, var(--grid) 0px, var(--grid) 1px, transparent 1px, transparent 32px);
+  color: var(--text);
+  font-family: 'Noto Sans TC', sans-serif;
+  min-height: 100vh;
+  padding: 44px 20px 70px;
+}
+
+.header {
+  max-width: 880px;
+  margin: 0 auto 48px;
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 24px;
+}
+
+.header-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.header-tag {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--accent);
+  border: 1px solid rgba(255,214,10,0.3);
+  border-radius: 4px;
+  padding: 4px 10px;
+}
+
+.header-meta {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  color: var(--text-mute);
+  text-align: right;
+}
+
+.header h1 {
+  font-family: 'Oswald', sans-serif;
+  font-size: clamp(28px, 5vw, 44px);
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  margin-top: 18px;
+  color: var(--text);
+  text-transform: uppercase;
+}
+
+.header h1 .hl { color: var(--accent); }
+
+.header-sub {
+  margin-top: 10px;
+  font-size: 14px;
+  color: var(--text-dim);
+  font-weight: 300;
+}
+
+.trigger {
+  max-width: 880px;
+  margin: 0 auto 36px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: rgba(255,107,107,0.06);
+  border: 1px solid rgba(255,107,107,0.25);
+  border-radius: 10px;
+  padding: 16px 22px;
+}
+
+.trigger-icon { font-size: 22px; flex-shrink: 0; }
+
+.trigger-label {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--c1);
+  margin-bottom: 4px;
+}
+
+.trigger-text { font-size: 15px; font-weight: 500; color: var(--text); }
+
+/* Tab switcher */
+.tab-switcher {
+  max-width: 880px;
+  margin: 0 auto 28px;
+  display: flex;
+  gap: 10px;
+}
+
+.tab-btn {
+  flex: 1;
+  font-family: 'Oswald', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 14px 20px;
+  border-radius: 10px;
+  border: 1px solid var(--line);
+  background: var(--panel);
+  color: var(--text-mute);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: center;
+}
+
+.tab-btn:hover {
+  color: var(--text-dim);
+  border-color: rgba(255,214,10,0.2);
+}
+
+.tab-btn.active {
+  color: var(--accent);
+  border-color: rgba(255,214,10,0.4);
+  background: rgba(255,214,10,0.06);
+}
+
+.tab-btn .tab-sub {
+  display: block;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.2em;
+  font-weight: 400;
+  margin-top: 3px;
+  opacity: 0.7;
+  text-transform: uppercase;
+}
+
+.view { display: none; }
+.view.active { display: block; }
+
+/* chain gradient variants by length */
+.chain.len-6::before {
+  background: linear-gradient(to bottom,
+    var(--c1) 0%, var(--c1) 16%,
+    var(--c2) 16%, var(--c2) 33%,
+    var(--c3) 33%, var(--c3) 50%,
+    var(--c4) 50%, var(--c4) 66%,
+    var(--c5) 66%, var(--c5) 83%,
+    var(--c6) 83%, var(--c6) 100%);
+  opacity: 0.35;
+}
+
+.chain.len-8::before {
+  background: linear-gradient(to bottom,
+    var(--c1) 0%, var(--c1) 12.5%,
+    var(--c2) 12.5%, var(--c2) 25%,
+    var(--c3) 25%, var(--c3) 37.5%,
+    var(--c4) 37.5%, var(--c4) 50%,
+    var(--c5) 50%, var(--c5) 62.5%,
+    var(--c6) 62.5%, var(--c6) 75%,
+    var(--c7) 75%, var(--c7) 87.5%,
+    var(--c8) 87.5%, var(--c8) 100%);
+  opacity: 0.35;
+}
+
+/* foot pivot illustration for squat step 2 */
+.pivot-visual {
+  margin-top: 16px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.pivot-foot {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.pivot-foot-icon {
+  font-size: 28px;
+  transform: rotate(30deg);
+}
+
+.pivot-foot-label {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  color: var(--text-dim);
+  letter-spacing: 0.05em;
+}
+
+.pivot-result {
+  flex: 1;
+  min-width: 200px;
+  font-size: 13px;
+  color: var(--text-dim);
+  line-height: 1.7;
+}
+
+.pivot-result strong { color: var(--accent); font-weight: 700; }
+
+.node {
+  position: relative;
+  display: flex;
+  gap: 24px;
+  padding-bottom: 36px;
+  animation: slideIn 0.5s ease both;
+}
+
+.node:nth-child(1) { animation-delay: 0.05s; }
+.node:nth-child(2) { animation-delay: 0.15s; }
+.node:nth-child(3) { animation-delay: 0.25s; }
+.node:nth-child(4) { animation-delay: 0.35s; }
+.node:nth-child(5) { animation-delay: 0.45s; }
+.node:nth-child(6) { animation-delay: 0.55s; }
+
+.node-marker {
+  flex-shrink: 0;
+  width: 56px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+}
+
+.node-num {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: var(--panel);
+  border: 2px solid var(--c);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Oswald', sans-serif;
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--c);
+  z-index: 2;
+  flex-shrink: 0;
+}
+
+.node.c1 .node-num { --c: var(--c1); }
+.node.c2 .node-num { --c: var(--c2); }
+.node.c3 .node-num { --c: var(--c3); }
+.node.c4 .node-num { --c: var(--c4); }
+.node.c5 .node-num { --c: var(--c5); }
+.node.c6 .node-num { --c: var(--c6); }
+.node.c7 .node-num { --c: var(--c7); }
+.node.c8 .node-num { --c: var(--c8); }
+
+.node-body {
+  flex: 1;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 20px 24px;
+}
+
+.node-label {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+.node.c1 .node-label { color: var(--c1); }
+.node.c2 .node-label { color: var(--c2); }
+.node.c3 .node-label { color: var(--c3); }
+.node.c4 .node-label { color: var(--c4); }
+.node.c5 .node-label { color: var(--c5); }
+.node.c6 .node-label { color: var(--c6); }
+.node.c7 .node-label { color: var(--c7); }
+.node.c8 .node-label { color: var(--c8); }
+
+.node-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 10px;
+  letter-spacing: -0.01em;
+}
+
+.node-body p {
+  font-size: 13.5px;
+  color: var(--text-dim);
+  line-height: 1.7;
+  font-weight: 300;
+}
+
+.node-body p strong { color: var(--text); font-weight: 600; }
+
+.kchain-visual {
+  margin-top: 16px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.kchain-link { display: flex; align-items: center; gap: 6px; }
+
+.kchain-pill {
+  font-size: 13px;
+  font-weight: 500;
+  padding: 7px 14px;
+  border-radius: 8px;
+  background: rgba(255,107,107,0.08);
+  border: 1px solid rgba(255,107,107,0.25);
+  color: var(--text);
+  white-space: nowrap;
+}
+
+.kchain-arrow { color: var(--text-mute); font-size: 14px; }
+
+.kchain-note {
+  margin-top: 10px;
+  font-size: 12px;
+  color: var(--text-mute);
+  font-family: 'IBM Plex Mono', monospace;
+  letter-spacing: 0.04em;
+}
+
+.gate-row { margin-top: 14px; display: flex; gap: 10px; flex-wrap: wrap; }
+
+.gate-chip { font-size: 12.5px; font-weight: 500; padding: 6px 14px; border-radius: 20px; }
+
+.gate-chip.pos {
+  background: rgba(149,225,211,0.1);
+  color: var(--c4);
+  border: 1px solid rgba(149,225,211,0.3);
+}
+
+.gate-chip.target {
+  background: rgba(255,214,10,0.1);
+  color: var(--c3);
+  border: 1px solid rgba(255,214,10,0.3);
+}
+
+.compare-pair {
+  margin-top: 14px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.compare-box {
+  border-radius: 10px;
+  padding: 14px 16px;
+  border: 1px solid var(--line);
+  background: rgba(255,255,255,0.015);
+}
+
+.compare-box .tag {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+
+.node.c5 .compare-box .tag, .node.c7 .compare-box .tag { color: var(--c5); }
+.node.c6 .compare-box .tag, .node.c8 .compare-box .tag { color: var(--c6); }
+
+.compare-box .title { font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 6px; }
+.compare-box .desc { font-size: 12.5px; color: var(--text-dim); line-height: 1.6; }
+
+.final-box {
+  margin-top: 14px;
+  background: rgba(93,173,226,0.06);
+  border: 1px solid rgba(93,173,226,0.25);
+  border-radius: 10px;
+  padding: 14px 18px;
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.final-icon { font-size: 18px; flex-shrink: 0; }
+.final-text { font-size: 13px; color: var(--text-dim); line-height: 1.7; }
+.final-text strong { color: var(--accent); font-weight: 700; }
+
+.footer-summary {
+  max-width: 880px;
+  margin: 30px auto 0;
+  padding: 22px 26px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+}
+
+.footer-summary-label {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 14px;
+}
+
+.footer-flow { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+
+.ff-item {
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--text);
+  padding: 6px 13px;
+  border-radius: 6px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid var(--line);
+}
+
+.ff-arrow { color: var(--text-mute); font-size: 14px; }
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translateX(-12px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+@media (max-width: 600px) {
+  .node { gap: 14px; }
+  .node-marker, .node-num { width: 42px; height: 42px; font-size: 17px; }
+  .chain::before { left: 20px; }
+  .node-body { padding: 16px 18px; }
+  .compare-pair { grid-template-columns: 1fr; }
+  .tab-btn { font-size: 12px; padding: 12px 10px; }
+  .header-top { flex-direction: column; }
+  .header-meta { text-align: left; }
+  .pivot-visual { flex-direction: column; align-items: flex-start; }
+}
+</style>
+</head>
+<body>
+
+
+<div class="tab-switcher">
+  <div class="tab-btn active" data-target="view-lunge">
+    弓箭步
+    <span class="tab-sub">Lunge · 6 Steps</span>
+  </div>
+  <div class="tab-btn" data-target="view-squat">
+    深蹲
+    <span class="tab-sub">Squat · 8 Steps</span>
+  </div>
+</div>
+
+<div id="view-lunge" class="view active">
+
+<div class="header">
+  <div class="header-top">
+    <span class="header-tag">Kinetic Chain Protocol</span>
+    <span class="header-meta">LUNGE · 弓箭步評估<br>VERSION B</span>
+  </div>
+  <h1>弓箭步<span class="hl">動力鏈</span>評估流程</h1>
+  <p class="header-sub">由遠端代償觀察 → 連鎖反應檢測 → 關節定位 → 絕對／相對動作鑑別</p>
+</div>
+
+<div class="trigger">
+  <div class="trigger-icon">⚠️</div>
+  <div>
+    <div class="trigger-label">Observation Trigger</div>
+    <div class="trigger-text">看到弓箭步呈現歪斜 → 啟動連鎖反應檢查</div>
+  </div>
+</div>
+
+<div class="chain len-6">
+
+  <div class="node c1">
+    <div class="node-marker"><div class="node-num">1</div></div>
+    <div class="node-body">
+      <div class="node-label">Step 01 · Kinetic Chain Check</div>
+      <div class="node-title">連鎖反應檢查 — 從足底往上看</div>
+      <p>觀察弓箭步歪斜時，從<strong>足底開始往上</strong>檢查整條連鎖反應路徑，記錄每個節段的代償方向。</p>
+      <div class="kchain-visual">
+        <div class="kchain-link"><span class="kchain-pill">跟骨外翻</span><span class="kchain-arrow">→</span></div>
+        <div class="kchain-link"><span class="kchain-pill">小腿內旋</span><span class="kchain-arrow">→</span></div>
+        <div class="kchain-link"><span class="kchain-pill">大腿內旋</span><span class="kchain-arrow">→</span></div>
+        <div class="kchain-link"><span class="kchain-pill">髖內旋</span></div>
+      </div>
+      <div class="kchain-note">// 由遠端（足部）向近端（髖）逐節段檢視，建立連鎖反應地圖</div>
+    </div>
+  </div>
+
+  <div class="node c2">
+    <div class="node-marker"><div class="node-num">2</div></div>
+    <div class="node-body">
+      <div class="node-label">Step 02 · Strength Baseline</div>
+      <div class="node-title">肌力測試 — 確認弱項</div>
+      <p>針對弓箭步姿勢下相關肌群進行<strong>肌力測試</strong>，找出明顯較弱的項目，作為後續回測的基準指標。</p>
+    </div>
+  </div>
+
+  <div class="node c3">
+    <div class="node-marker"><div class="node-num">3</div></div>
+    <div class="node-body">
+      <div class="node-label">Step 03 · Acute Reset</div>
+      <div class="node-title">跪姿 FMR — 連鎖反應缺失復位</div>
+      <p>當下以<strong>跪姿 FMR</strong>，針對 Step 01 觀察到的連鎖反應缺失節段進行復位／引導，完成後立即回測 Step 02 的肌力測試。</p>
+    </div>
+  </div>
+
+  <div class="node c4">
+    <div class="node-marker"><div class="node-num">4</div></div>
+    <div class="node-body">
+      <div class="node-label">Step 04 · Confirm Key Joint</div>
+      <div class="node-title">確認關鍵影響關節</div>
+      <p>回測結果若<strong>肌力提升</strong>，代表 Step 03 介入的節段／關節，是這條連鎖反應中<strong>影響最大的關鍵關節</strong>，鎖定此關節進入下一步細化。</p>
+      <div class="gate-row">
+        <span class="gate-chip pos">✓ 肌力進步</span>
+        <span class="gate-chip target">→ 鎖定該關節為介入目標</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="node c5">
+    <div class="node-marker"><div class="node-num">5</div></div>
+    <div class="node-body">
+      <div class="node-label">Step 05 · Rotational Squat Test</div>
+      <div class="node-title">旋轉蹲測試 — 絕對 vs 相對動作</div>
+      <p>確認該關節缺乏的是<strong>絕對動作</strong>還是<strong>相對動作</strong>，透過旋轉蹲測試分別呈現兩種動作模式。</p>
+      <div class="compare-pair">
+        <div class="compare-box">
+          <div class="tag">Absolute</div>
+          <div class="title">絕對動作</div>
+          <div class="desc">該關節本身在空間中的旋轉，不依賴其他節段的相對配合</div>
+        </div>
+        <div class="compare-box">
+          <div class="tag">Relative</div>
+          <div class="title">相對動作</div>
+          <div class="desc">透過鄰近節段反向旋轉所帶出的相對動作效果</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="node c6">
+    <div class="node-marker"><div class="node-num">6</div></div>
+    <div class="node-body">
+      <div class="node-label">Step 06 · Final Verification</div>
+      <div class="node-title">找出缺乏動作 — 回測肌力確認</div>
+      <p>分別帶出絕對動作與相對動作後，<strong>回測 Step 02 的肌力測試</strong>，哪一個帶來肌力進步，即代表該關節缺乏的是這個動作模式。</p>
+      <div class="final-box">
+        <div class="final-icon">✅</div>
+        <div class="final-text">
+          確認缺乏的動作模式（絕對／相對）後，即可<strong>納入後續整合作業</strong>，作為此關節的訓練處方方向。
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="footer-summary">
+  <div class="footer-summary-label">流程總覽</div>
+  <div class="footer-flow">
+    <span class="ff-item">觀察弓箭步歪斜</span>
+    <span class="ff-arrow">→</span>
+    <span class="ff-item">足底連鎖反應檢查</span>
+    <span class="ff-arrow">→</span>
+    <span class="ff-item">肌力測試找弱項</span>
+    <span class="ff-arrow">→</span>
+    <span class="ff-item">跪姿FMR復位</span>
+    <span class="ff-arrow">→</span>
+    <span class="ff-item">回測確認關鍵關節</span>
+    <span class="ff-arrow">→</span>
+    <span class="ff-item">旋轉蹲：絕對vs相對</span>
+    <span class="ff-arrow">→</span>
+    <span class="ff-item">回測確認 → 訂定處方</span>
+  </div>
+</div>
+
+</div>
+
+<div id="view-squat" class="view">
+
+<div class="header">
+  <div class="header-top">
+    <span class="header-tag">Kinetic Chain Protocol</span>
+    <span class="header-meta">SQUAT · 深蹲評估<br>VERSION B</span>
+  </div>
+  <h1>深蹲<span class="hl">動力鏈</span>評估流程</h1>
+  <p class="header-sub">單側篩選 → 連鎖反應檢測 → 關節定位 → 絕對／相對動作鑑別</p>
+</div>
+
+<div class="trigger">
+  <div class="trigger-icon">⚠️</div>
+  <div>
+    <div class="trigger-label">Observation Trigger</div>
+    <div class="trigger-text">看到深蹲呈現歪斜 → 啟動單側篩選與連鎖反應檢查</div>
+  </div>
+</div>
+
+<div class="chain len-8">
+
+  <div class="node c1">
+    <div class="node-marker"><div class="node-num">1</div></div>
+    <div class="node-body">
+      <div class="node-label">Step 01 · Observation</div>
+      <div class="node-title">觀察 — 深蹲歪斜</div>
+      <p>下蹲過程中觀察到<strong>骨盆或軀幹歪斜</strong>，啟動後續單側篩選與連鎖反應檢查流程。</p>
+    </div>
+  </div>
+
+  <div class="node c2">
+    <div class="node-marker"><div class="node-num">2</div></div>
+    <div class="node-body">
+      <div class="node-label">Step 02 · Foot Pivot Screen</div>
+      <div class="node-title">單腳外轉 30° 篩選</div>
+      <p>先將<strong>某一腳外轉 30°</strong> 後再下蹲，觀察骨盆是否回正。若回正，代表問題主要來自<strong>這一側</strong>，鎖定為後續介入腳。</p>
+      <div class="pivot-visual">
+        <div class="pivot-foot">
+          <div class="pivot-foot-icon">🦶</div>
+          <div class="pivot-foot-label">外轉 30°</div>
+        </div>
+        <div class="pivot-result">
+          蹲下回測骨盆排列 → <strong>骨盆回正</strong> → 此側為優先處理腳，進入 Step 03 連鎖反應檢查
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="node c3">
+    <div class="node-marker"><div class="node-num">3</div></div>
+    <div class="node-body">
+      <div class="node-label">Step 03 · Kinetic Chain Check</div>
+      <div class="node-title">連鎖反應檢查 — 從足底往上看</div>
+      <p>針對 Step 02 鎖定的腳，從<strong>足底開始往上</strong>檢查整條連鎖反應路徑，記錄每個節段的代償方向。</p>
+      <div class="kchain-visual">
+        <div class="kchain-link"><span class="kchain-pill">跟骨外翻</span><span class="kchain-arrow">→</span></div>
+        <div class="kchain-link"><span class="kchain-pill">小腿內旋</span><span class="kchain-arrow">→</span></div>
+        <div class="kchain-link"><span class="kchain-pill">大腿內旋</span><span class="kchain-arrow">→</span></div>
+        <div class="kchain-link"><span class="kchain-pill">髖內旋</span></div>
+      </div>
+      <div class="kchain-note">// 由遠端（足部）向近端（髖）逐節段檢視，建立連鎖反應地圖</div>
+    </div>
+  </div>
+
+  <div class="node c4">
+    <div class="node-marker"><div class="node-num">4</div></div>
+    <div class="node-body">
+      <div class="node-label">Step 04 · Strength Baseline</div>
+      <div class="node-title">跪姿肌力測試 — 確認弱項</div>
+      <p>於<strong>跪姿</strong>下對相關肌群進行肌力測試，找出明顯較弱的項目，作為後續回測的基準指標。</p>
+    </div>
+  </div>
+
+  <div class="node c5">
+    <div class="node-marker"><div class="node-num">5</div></div>
+    <div class="node-body">
+      <div class="node-label">Step 05 · Acute Reset</div>
+      <div class="node-title">跪姿 FMR — 連鎖反應缺失復位</div>
+      <p>當下以<strong>跪姿 FMR</strong>，針對 Step 03 觀察到的連鎖反應缺失節段進行復位／引導，完成後立即回測 Step 04 的肌力測試。</p>
+    </div>
+  </div>
+
+  <div class="node c6">
+    <div class="node-marker"><div class="node-num">6</div></div>
+    <div class="node-body">
+      <div class="node-label">Step 06 · Confirm Key Joint</div>
+      <div class="node-title">確認關鍵影響關節</div>
+      <p>回測結果若<strong>肌力提升</strong>，代表 Step 05 介入的節段／關節，是這條連鎖反應中<strong>影響最大的關鍵關節</strong>，鎖定此關節進入下一步細化。</p>
+      <div class="gate-row">
+        <span class="gate-chip pos">✓ 肌力進步</span>
+        <span class="gate-chip target">→ 鎖定該關節為介入目標</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="node c7">
+    <div class="node-marker"><div class="node-num">7</div></div>
+    <div class="node-body">
+      <div class="node-label">Step 07 · Rotational Squat Test</div>
+      <div class="node-title">旋轉蹲測試 — 絕對 vs 相對動作</div>
+      <p>確認該關節缺乏的是<strong>絕對動作</strong>還是<strong>相對動作</strong>，透過旋轉蹲測試分別呈現兩種動作模式。</p>
+      <div class="compare-pair">
+        <div class="compare-box">
+          <div class="tag">Absolute</div>
+          <div class="title">絕對動作</div>
+          <div class="desc">該關節本身在空間中的旋轉，不依賴其他節段的相對配合</div>
+        </div>
+        <div class="compare-box">
+          <div class="tag">Relative</div>
+          <div class="title">相對動作</div>
+          <div class="desc">透過鄰近節段反向旋轉所帶出的相對動作效果</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="node c8">
+    <div class="node-marker"><div class="node-num">8</div></div>
+    <div class="node-body">
+      <div class="node-label">Step 08 · Final Verification</div>
+      <div class="node-title">找出缺乏動作 — 回測肌力確認</div>
+      <p>分別帶出絕對動作與相對動作後，<strong>回測 Step 04 的肌力測試</strong>，哪一個帶來肌力進步，即代表該關節缺乏的是這個動作模式。</p>
+      <div class="final-box">
+        <div class="final-icon">✅</div>
+        <div class="final-text">
+          確認缺乏的動作模式（絕對／相對）後，即可<strong>納入後續整合作業</strong>，作為此關節的訓練處方方向。
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="footer-summary">
+  <div class="footer-summary-label">流程總覽</div>
+  <div class="footer-flow">
+    <span class="ff-item">觀察深蹲歪斜</span>
+    <span class="ff-arrow">→</span>
+    <span class="ff-item">單腳外轉30°篩選</span>
+    <span class="ff-arrow">→</span>
+    <span class="ff-item">足底連鎖反應檢查</span>
+    <span class="ff-arrow">→</span>
+    <span class="ff-item">跪姿肌力測試找弱項</span>
+    <span class="ff-arrow">→</span>
+    <span class="ff-item">跪姿FMR復位</span>
+    <span class="ff-arrow">→</span>
+    <span class="ff-item">回測確認關鍵關節</span>
+    <span class="ff-arrow">→</span>
+    <span class="ff-item">旋轉蹲：絕對vs相對</span>
+    <span class="ff-arrow">→</span>
+    <span class="ff-item">回測確認 → 訂定處方</span>
+  </div>
+</div>
+
+</div>
+
+<script>
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById(btn.dataset.target).classList.add('active');
+    });
+  });
+</script>
+
+</body>
+</html>
