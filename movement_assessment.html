@@ -447,9 +447,9 @@ function takeScreenshot(){
   btn.disabled=true;btn.textContent='截圖中…';
   btn.style.visibility='hidden';
   html2canvas(document.querySelector('.container'),{
-    scale:2.5,backgroundColor:'#F7F6F3',useCORS:true,
+    scale:window.devicePixelRatio||2,backgroundColor:'#F7F6F3',useCORS:true,
     scrollX:0,scrollY:-window.scrollY,
-    windowWidth:600,windowHeight:document.documentElement.scrollHeight
+    windowWidth:document.documentElement.clientWidth,windowHeight:document.documentElement.scrollHeight
   }).then(canvas=>{
     btn.style.visibility='';
     btn.disabled=false;
