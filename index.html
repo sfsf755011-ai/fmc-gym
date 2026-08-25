@@ -307,45 +307,21 @@ select.finput{-webkit-appearance:none;appearance:none;background-image:url("data
       <div class="lsdot idle">3</div><span class="lslbl">簽名</span>
     </div>
   </div>
-  <!-- Name display -->
-  <div style="padding:10px 14px 6px;background:#fff;flex-shrink:0">
-    <div id="trial-name-alert" style="display:none;color:#e53935;font-size:13px;margin-bottom:6px">⚠️ 請先輸入姓名再繼續</div>
-    <div style="display:flex;align-items:center;gap:8px">
-      <div style="flex:1;min-height:52px;background:#f8f9fc;border:2px solid #3b82f6;border-radius:10px;padding:10px 14px;font-size:24px;font-weight:700;color:#1a1a2e;letter-spacing:.1em;display:flex;align-items:center">
-        <span id="trial-name-text" style="flex:1"></span><span style="animation:blink 1s infinite;color:#3b82f6">|</span>
-      </div>
-      <button onclick="zhuyinBackspace()" class="bpmf-key bpmf-del" style="width:52px;height:52px;flex:none;font-size:20px;border-radius:10px">⌫</button>
-    </div>
-  </div>
-  <!-- Candidates -->
-  <div style="background:#e8eef7;padding:4px 10px;flex-shrink:0;display:flex;align-items:center;gap:4px;min-height:30px">
-    <span style="font-size:12px;color:#888;flex-shrink:0">注音：</span>
-    <span id="zhuyin-compose-text" style="font-size:14px;font-weight:700;color:#1d2c3e;min-width:20px"></span>
-  </div>
-  <div id="zhuyin-candidates" style="display:flex;flex-wrap:nowrap;overflow-x:auto;gap:6px;padding:7px 10px;background:#fff;border-bottom:1px solid #dde;min-height:60px;align-items:center;flex-shrink:0">
-    <span style="color:#bbb;font-size:13px">輸入注音後點選文字</span>
-  </div>
-  <!-- Keyboard -->
-  <div style="flex:1;padding:8px 8px 4px;background:#cbd5e1;display:flex;flex-direction:column;justify-content:center">
-    <div class="bpmf-row">
-      <button class="bpmf-key" onclick="zhuyinPress('ㄅ')">ㄅ</button><button class="bpmf-key" onclick="zhuyinPress('ㄆ')">ㄆ</button><button class="bpmf-key" onclick="zhuyinPress('ㄇ')">ㄇ</button><button class="bpmf-key" onclick="zhuyinPress('ㄈ')">ㄈ</button><button class="bpmf-key" onclick="zhuyinPress('ㄉ')">ㄉ</button><button class="bpmf-key" onclick="zhuyinPress('ㄊ')">ㄊ</button><button class="bpmf-key" onclick="zhuyinPress('ㄋ')">ㄋ</button><button class="bpmf-key" onclick="zhuyinPress('ㄌ')">ㄌ</button><button class="bpmf-key" onclick="zhuyinPress('ㄍ')">ㄍ</button><button class="bpmf-key" onclick="zhuyinPress('ㄎ')">ㄎ</button><button class="bpmf-key" onclick="zhuyinPress('ㄏ')">ㄏ</button>
-    </div>
-    <div class="bpmf-row">
-      <button class="bpmf-key" onclick="zhuyinPress('ㄐ')">ㄐ</button><button class="bpmf-key" onclick="zhuyinPress('ㄑ')">ㄑ</button><button class="bpmf-key" onclick="zhuyinPress('ㄒ')">ㄒ</button><button class="bpmf-key" onclick="zhuyinPress('ㄓ')">ㄓ</button><button class="bpmf-key" onclick="zhuyinPress('ㄔ')">ㄔ</button><button class="bpmf-key" onclick="zhuyinPress('ㄕ')">ㄕ</button><button class="bpmf-key" onclick="zhuyinPress('ㄖ')">ㄖ</button><button class="bpmf-key" onclick="zhuyinPress('ㄗ')">ㄗ</button><button class="bpmf-key" onclick="zhuyinPress('ㄘ')">ㄘ</button><button class="bpmf-key" onclick="zhuyinPress('ㄙ')">ㄙ</button>
-    </div>
-    <div class="bpmf-row">
-      <button class="bpmf-key" onclick="zhuyinPress('ㄧ')">ㄧ</button><button class="bpmf-key" onclick="zhuyinPress('ㄨ')">ㄨ</button><button class="bpmf-key" onclick="zhuyinPress('ㄩ')">ㄩ</button><button class="bpmf-key" onclick="zhuyinPress('ㄚ')">ㄚ</button><button class="bpmf-key" onclick="zhuyinPress('ㄛ')">ㄛ</button><button class="bpmf-key" onclick="zhuyinPress('ㄜ')">ㄜ</button><button class="bpmf-key" onclick="zhuyinPress('ㄝ')">ㄝ</button><button class="bpmf-key" onclick="zhuyinPress('ㄞ')">ㄞ</button><button class="bpmf-key" onclick="zhuyinPress('ㄟ')">ㄟ</button><button class="bpmf-key" onclick="zhuyinPress('ㄠ')">ㄠ</button><button class="bpmf-key" onclick="zhuyinPress('ㄡ')">ㄡ</button>
-    </div>
-    <div class="bpmf-row">
-      <button class="bpmf-key" onclick="zhuyinPress('ㄢ')">ㄢ</button><button class="bpmf-key" onclick="zhuyinPress('ㄣ')">ㄣ</button><button class="bpmf-key" onclick="zhuyinPress('ㄤ')">ㄤ</button><button class="bpmf-key" onclick="zhuyinPress('ㄥ')">ㄥ</button><button class="bpmf-key" onclick="zhuyinPress('ㄦ')">ㄦ</button><button class="bpmf-key bpmf-wide" onclick="zhuyinCommit()" style="background:#e0e7ff;color:#1d4ed8">確認</button><button class="bpmf-key bpmf-del bpmf-wide" onclick="zhuyinBackspace()">⌫</button>
-    </div>
+  <!-- Name input -->
+  <div style="flex:1;padding:24px 20px;background:#f0f2f7;display:flex;flex-direction:column;gap:12px">
+    <div id="trial-name-alert" style="display:none;color:#e53935;font-size:13px">⚠️ 請先輸入姓名再繼續</div>
+    <label style="font-size:13px;font-weight:600;color:#555">請輸入您的姓名</label>
+    <input id="trial-name-input" type="text" inputmode="text" lang="en" autocomplete="off" autocorrect="off" autocapitalize="words" spellcheck="false"
+      placeholder="Name..."
+      style="font-size:22px;font-weight:700;color:#1a1a2e;letter-spacing:.05em;border:2px solid #3b82f6;border-radius:10px;padding:12px 16px;background:#fff;outline:none;width:100%;box-sizing:border-box"
+      oninput="document.getElementById('trial-name-alert').style.display='none'"
+      onkeydown="if(event.key==='Enter'){submitTrialName();}">
   </div>
   <!-- Bottom -->
   <div class="lbottom" style="flex-shrink:0">
     <button class="lbtn-back" onclick="goScreen('s-trial-coach')">返回</button>
     <button class="lbtn-next" onclick="submitTrialName()">下一步 →</button>
   </div>
-  <input type="hidden" id="trial-name-input">
 </div>
 
 <!-- NAME -->
@@ -786,7 +762,8 @@ function goScreen(id) {
     if (tnl && logoRef2) tnl.src = logoRef2.src;
     var cl = document.getElementById('trial-name-coach-label');
     if (cl) cl.textContent = '教練：' + (selCoach ? selCoach.name : '—');
-    resetZhuyinIME();
+    document.getElementById('trial-name-input').value = '';
+    setTimeout(function(){ document.getElementById('trial-name-input').focus(); }, 300);
   } else if (id === 's-query') {
     showLoading('載入資料...');
     reloadData(function() {
@@ -1051,7 +1028,7 @@ function updateZhuyinUI(){
 function resetZhuyinIME(){zhuyinBuffer='';zhuyinText='';updateZhuyinUI();}
 
 function submitTrialName() {
-  var val = zhuyinText.trim();
+  var val = document.getElementById('trial-name-input').value.trim();
   if (!val) {
     document.getElementById('trial-name-alert').style.display = 'block';
     return;
