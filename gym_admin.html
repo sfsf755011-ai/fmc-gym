@@ -1163,6 +1163,7 @@ function logAction(action,stuName,coachName,detail){
   auditLog.unshift({ts,action,student:stuName||'—',coach:coachName||'—',detail:detail||''});
   if(auditLog.length>500)auditLog=auditLog.slice(0,500);
   save('gym_auditlog',auditLog);
+  fbSaveAuditLog();
 }
 function renderAuditLog(){
   reloadData();
