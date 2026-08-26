@@ -468,6 +468,10 @@ tr:hover td{background:var(--bg2)}
             <div id="edit-contracts-list"></div>
           </div>
           <div class="card">
+            <div class="card-title">合約簽章</div>
+            <div id="edit-contract-sig"></div>
+          </div>
+          <div class="card">
             <div class="card-title">最近簽到記錄（含簽名）</div>
             <div id="edit-checkin-history"></div>
           </div>
@@ -3231,6 +3235,7 @@ function loadEditStu(){
   document.getElementById('edit-used-sessions').value=s.usedSessions;
   updateEditRemain();
   renderEditContracts(s);
+  renderContractSig(s);
   renderEditCheckinHistory(s);
   form.style.display='block';
 }
@@ -3378,6 +3383,78 @@ function updateContractTotal(stuId,ci){
   var el2=document.getElementById('ec-total-'+ci);
   if(el2)el2.textContent='NT$'+total.toLocaleString();
 }
+function renderContractSig(s){
+  var el=document.getElementById('edit-contract-sig');if(!el)return;
+  el.innerHTML='<div style="font-size:13px;color:var(--text3)">載入中...</div>';
+  fbdb.ref('data/contractSignatures/'+String(s.id)).once('value',function(snap){
+    var data=snap.val();
+    if(data&&data.sig){
+      el.innerHTML='<div style="margin-bottom:12px">'
+        +'<img src="'+data.sig+'" style="max-width:100%;border:1px solid var(--border2);border-radius:8px;background:#fff">'
+        +'<div style="font-size:12px;color:var(--text2);margin-top:6px">簽署日期：'+(data.date||'—')+' '+(data.time||'')+'</div>'
+        +'</div>'
+        +'<button class="btn" onclick="openContractSigModal()">重新簽章</button>';
+    } else {
+      el.innerHTML='<div style="font-size:13px;color:var(--text3);padding:6px 0;margin-bottom:10px">尚未簽章</div>'
+        +'<button class="btn btn-primary" onclick="openContractSigModal()">新增合約簽章</button>';
+    }
+  },function(){el.innerHTML='<div style="font-size:13px;color:var(--text3)">無法載入</div>';});
+}
+function openContractSigModal(){
+  var modal=document.getElementById('contract-sig-modal');
+  modal.style.display='flex';
+  var canvas=document.getElementById('contract-sig-canvas');
+  var dpr=window.devicePixelRatio||1;
+  var w=canvas.offsetWidth,h=canvas.offsetHeight;
+  canvas.width=w*dpr;canvas.height=h*dpr;
+  var ctx=canvas.getContext('2d');
+  ctx.scale(dpr,dpr);
+  ctx.strokeStyle='#1a1a2e';ctx.lineWidth=2;ctx.lineCap='round';ctx.lineJoin='round';
+  var drawing=false,lx=0,ly=0;
+  function getPos(e){var r=canvas.getBoundingClientRect();var src=e.touches?e.touches[0]:e;return[src.clientX-r.left,src.clientY-r.top];}
+  function start(e){e.preventDefault();drawing=true;var p=getPos(e);lx=p[0];ly=p[1];}
+  function move(e){e.preventDefault();if(!drawing)return;var p=getPos(e);ctx.beginPath();ctx.moveTo(lx,ly);ctx.lineTo(p[0],p[1]);ctx.stroke();lx=p[0];ly=p[1];}
+  function end(){drawing=false;}
+  if(canvas._csHandlers){
+    canvas.removeEventListener('mousedown',canvas._csHandlers.start);
+    canvas.removeEventListener('mousemove',canvas._csHandlers.move);
+    canvas.removeEventListener('mouseup',canvas._csHandlers.end);
+    canvas.removeEventListener('touchstart',canvas._csHandlers.start);
+    canvas.removeEventListener('touchmove',canvas._csHandlers.move);
+    canvas.removeEventListener('touchend',canvas._csHandlers.end);
+  }
+  canvas._csHandlers={start:start,move:move,end:end};
+  canvas.addEventListener('mousedown',start);
+  canvas.addEventListener('mousemove',move);
+  canvas.addEventListener('mouseup',end);
+  canvas.addEventListener('touchstart',start,{passive:false});
+  canvas.addEventListener('touchmove',move,{passive:false});
+  canvas.addEventListener('touchend',end);
+}
+function clearContractSig(){
+  var canvas=document.getElementById('contract-sig-canvas');
+  canvas.getContext('2d').clearRect(0,0,canvas.width,canvas.height);
+}
+function closeContractSigModal(){
+  document.getElementById('contract-sig-modal').style.display='none';
+}
+function saveContractSig(){
+  var id=parseInt(document.getElementById('edit-stu-sel').value);
+  var s=students.find(function(st){return String(st.id)===String(id);});
+  if(!s){toast('找不到學員');return;}
+  var canvas=document.getElementById('contract-sig-canvas');
+  var dataUrl=canvas.toDataURL('image/png');
+  var now=new Date();
+  var date=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0')+'-'+String(now.getDate()).padStart(2,'0');
+  var time=String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0');
+  fbdb.ref('data/contractSignatures/'+String(s.id)).set({sig:dataUrl,date:date,time:time},function(err){
+    if(err){toast('儲存失敗：'+err.message);return;}
+    toast('✓ 合約簽章已儲存');
+    closeContractSigModal();
+    renderContractSig(s);
+  });
+}
+
 function renderEditCheckinHistory(s){
   var el=document.getElementById('edit-checkin-history');if(!el)return;
   el.innerHTML='<div style="font-size:13px;color:var(--text3);padding:6px 0">載入中...</div>';
@@ -3852,6 +3929,19 @@ reloadData();
 
 <!-- Photo Crop Modal -->
 <input type="file" id="photo-file-input" accept="image/*" style="display:none" onchange="onPhotoFileSelected(this)">
+<div id="contract-sig-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.82);z-index:9998;align-items:center;justify-content:center;padding:20px;box-sizing:border-box">
+  <div style="background:var(--bg);border-radius:16px;padding:20px;width:100%;max-width:480px">
+    <div style="font-size:15px;font-weight:700;margin-bottom:4px">合約簽章</div>
+    <div style="font-size:12px;color:var(--text2);margin-bottom:14px">請在下方空白區域簽名</div>
+    <canvas id="contract-sig-canvas" style="width:100%;height:180px;border:1.5px solid var(--border2);border-radius:10px;background:#fff;display:block;touch-action:none"></canvas>
+    <div style="display:flex;gap:8px;margin-top:12px">
+      <button class="btn" onclick="clearContractSig()" style="flex:1">清除</button>
+      <button class="btn btn-primary" onclick="saveContractSig()" style="flex:1">確認儲存</button>
+      <button class="btn" onclick="closeContractSigModal()">取消</button>
+    </div>
+  </div>
+</div>
+
 <div id="photo-crop-modal">
   <div class="crop-wrap">
     <div style="font-weight:700;font-size:15px;margin-bottom:14px">📷 上傳大頭貼</div>
