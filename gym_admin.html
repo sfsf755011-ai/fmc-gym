@@ -468,8 +468,9 @@ tr:hover td{background:var(--bg2)}
             <div id="edit-contracts-list"></div>
           </div>
           <div class="card">
-            <div class="card-title">合約簽章</div>
-            <div id="edit-contract-sig"></div>
+            <div class="card-title">合約</div>
+            <div id="edit-contract-sig" style="margin-bottom:10px"></div>
+            <button class="btn btn-primary" id="open-contract-btn" onclick="openContract()" style="width:100%">開啟合約（填寫 / 簽名 / PDF）</button>
           </div>
           <div class="card">
             <div class="card-title">最近簽到記錄（含簽名）</div>
@@ -3383,6 +3384,11 @@ function updateContractTotal(stuId,ci){
   });
   var el2=document.getElementById('ec-total-'+ci);
   if(el2)el2.textContent='NT$'+total.toLocaleString();
+}
+function openContract(){
+  var id=document.getElementById('edit-stu-sel').value;
+  if(!id){toast('請先選擇學員');return;}
+  window.open('contract.html?id='+id,'_blank');
 }
 function renderContractSig(s){
   var el=document.getElementById('edit-contract-sig');if(!el)return;

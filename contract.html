@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>健身教練服務定型化契約 – FMC</title>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Noto Serif TC','Times New Roman',serif;font-size:14px;color:#1a1a1a;background:#f5f5f5;padding:20px}
+.page-wrap{max-width:780px;margin:0 auto;background:#fff;padding:40px 48px;box-shadow:0 2px 12px rgba(0,0,0,.12);border-radius:4px}
+h1{font-size:20px;text-align:center;letter-spacing:.2em;margin-bottom:6px;font-weight:700}
+.subtitle{text-align:center;font-size:13px;color:#555;margin-bottom:28px}
+.section{margin-bottom:18px;line-height:2}
+.section-title{font-weight:700;font-size:14px;border-bottom:1.5px solid #1a1a1a;padding-bottom:3px;margin-bottom:10px}
+.field{display:inline-block;border-bottom:1px solid #333;min-width:80px;padding:0 4px;font-family:inherit;font-size:14px;color:#1a1a1a;background:transparent;outline:none;vertical-align:baseline;line-height:1.6}
+.field:focus{border-bottom-color:#1a56d6;background:rgba(59,130,246,.05)}
+.field.wide{min-width:160px}
+.field.narrow{min-width:50px}
+.field.year{min-width:50px}
+.field.month{min-width:38px}
+.field.day{min-width:38px}
+.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px 20px;margin:10px 0 14px}
+.info-row{display:flex;align-items:baseline;gap:6px;line-height:2}
+.info-label{white-space:nowrap;color:#444}
+.sig-area{margin-top:28px;display:grid;grid-template-columns:1fr 1fr;gap:24px}
+.sig-box{border:1.5px solid #aaa;border-radius:8px;padding:12px}
+.sig-title{font-size:13px;font-weight:700;margin-bottom:8px;color:#333}
+canvas.sig-canvas{width:100%;height:140px;border:1px solid #ddd;border-radius:4px;background:#fafafa;display:block;touch-action:none;cursor:crosshair}
+.sig-btns{display:flex;gap:6px;margin-top:6px}
+.sig-btn{font-size:11px;padding:3px 10px;border-radius:4px;border:1px solid #bbb;background:#fff;cursor:pointer;font-family:inherit}
+.sig-btn:hover{background:#f0f0f0}
+.sig-saved-img{width:100%;max-height:120px;object-fit:contain;border-radius:4px;border:1px solid #ddd;background:#fff;display:none}
+.sig-date-row{font-size:12px;color:#666;margin-top:4px}
+.action-bar{position:sticky;bottom:0;background:#fff;border-top:1px solid #e0e0e0;padding:12px 0 0;display:flex;gap:10px;margin-top:28px}
+.btn-save{flex:1;padding:11px;background:#1a56d6;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit}
+.btn-save:hover{background:#1340a8}
+.btn-pdf{flex:1;padding:11px;background:#16a34a;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit}
+.btn-pdf:hover{background:#15803d}
+.btn-back{padding:11px 18px;background:#f3f4f6;color:#333;border:1px solid #ddd;border-radius:8px;font-size:13px;cursor:pointer;font-family:inherit}
+.toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#1a1a1a;color:#fff;padding:10px 22px;border-radius:8px;font-size:13px;opacity:0;transition:opacity .3s;pointer-events:none;z-index:9999;white-space:nowrap}
+.toast.show{opacity:1}
+.loading-overlay{position:fixed;inset:0;background:rgba(255,255,255,.85);display:flex;align-items:center;justify-content:center;font-size:15px;color:#555;z-index:999}
+@media print{.action-bar{display:none}.page-wrap{box-shadow:none;padding:20px}}
+@media(max-width:600px){
+  .page-wrap{padding:20px 18px}
+  .sig-area{grid-template-columns:1fr}
+  .info-grid{grid-template-columns:1fr}
+  .action-bar{flex-wrap:wrap}
+}
+</style>
+</head>
+<body>
+<div id="loading-overlay" class="loading-overlay">載入合約資料中…</div>
+<div class="page-wrap" id="contract-body">
+  <h1>健身教練服務定型化契約</h1>
+  <div class="subtitle">FMC 健身空間</div>
+
+  <!-- 壹 -->
+  <div class="section">
+    <div class="section-title">壹、應記載事項</div>
+  </div>
+
+  <!-- 一 -->
+  <div class="section">
+    <div class="section-title">一、審閱期及當事人資料</div>
+    <p>簽約前消費者應有三日以上之契約審閱期。</p>
+    <p>本契約於中華民國
+      <input class="field year" id="f-review-y" type="text" placeholder="年" maxlength="4">年
+      <input class="field month" id="f-review-m" type="text" placeholder="月" maxlength="2">月
+      <input class="field day" id="f-review-d" type="text" placeholder="日" maxlength="2">日交由消費者審閱。
+    </p>
+
+    <div style="margin-top:12px;font-weight:700">業者</div>
+    <div class="info-grid" style="margin-top:6px">
+      <div class="info-row"><span class="info-label">業者名稱：</span>FMC健身空間</div>
+      <div class="info-row"><span class="info-label">負責人：</span>張茜雯</div>
+      <div class="info-row"><span class="info-label">電話：</span>02-2634-1917</div>
+      <div class="info-row"><span class="info-label">電子郵件：</span>fmcfmc360@gmail.com</div>
+      <div class="info-row"><span class="info-label">網址：</span>FMC 健身空間-台北東湖店(facebook)</div>
+      <div class="info-row"><span class="info-label">統一編號：</span>76418478</div>
+      <div class="info-row" style="grid-column:1/-1"><span class="info-label">營業所在地：</span>臺北市內湖區東湖路11號二樓</div>
+    </div>
+
+    <div style="font-weight:700;margin-top:8px">消費者</div>
+    <div class="info-grid" style="margin-top:6px">
+      <div class="info-row">
+        <span class="info-label">姓名：</span>
+        <input class="field wide" id="f-consumer-name" type="text" placeholder="請輸入姓名">
+      </div>
+      <div class="info-row">
+        <span class="info-label">電話：</span>
+        <input class="field wide" id="f-consumer-phone" type="text" placeholder="請輸入電話">
+      </div>
+    </div>
+  </div>
+
+  <!-- 二 -->
+  <div class="section">
+    <div class="section-title">二、揭露營業場所保險事項</div>
+    <p>履約地點：同前</p>
+    <p>業者應為營業場所投保公共意外責任險，相關資料應主動揭露於現場明顯處及公布於業者網站，以供查證。</p>
+  </div>
+
+  <!-- 三 -->
+  <div class="section">
+    <div class="section-title">三、契約種類、比例、總金額、服務堂數、繳費時間</div>
+    <p>簽訂契約總金額後，業者不另收取其他任何費用。前項契約總金額，除以所有約定服務堂數（包括所贈與服務堂數）所得每堂平均價，供辦理退費或計算手續費之依據。</p>
+    <div style="margin-top:10px;line-height:2.2">
+      <div class="info-row">
+        <span class="info-label">上課教練　主：</span>
+        <input class="field wide" id="f-coach-main" type="text" placeholder="主教練姓名">
+        <span style="margin-left:12px">輔：shian</span>
+      </div>
+      <p style="margin-top:6px;font-weight:700">一對一私人教練課程</p>
+      <div class="info-row">
+        <span class="info-label">課程堂數方案：</span>
+        <input class="field wide" id="f-plan" type="text" placeholder="例：30堂">
+      </div>
+      <div class="info-row">
+        <span class="info-label">課程總價：</span>
+        <input class="field wide" id="f-total-price" type="text" placeholder="例：NT$ 60,000">
+      </div>
+    </div>
+    <div style="margin-top:10px">
+      <p>上課時間需事先預約，並且經由雙方同意。課程主要由主教練負責，經由業者與消費者同意下可由輔教練代替完成服務課程。</p>
+      <p style="margin-top:6px">契約繳費時間，應事先約定事項如下：</p>
+      <div class="info-row" style="margin-top:4px">
+        <span class="info-label">按月逐月繳：每月</span>
+        <input class="field narrow" id="f-pay-day" type="text" placeholder="日" maxlength="2">
+        <span class="info-label">日前繳交新臺幣</span>
+        <input class="field" id="f-pay-amount" type="text" placeholder="金額">
+        <span class="info-label">元。</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 四 -->
+  <div class="section">
+    <div class="section-title">四、消費者繳款方式</div>
+    <p>消費者應負擔契約總金額之繳交方式如下：</p>
+    <p>□（一）現金或匯款</p>
+    <p>□（二）信用卡</p>
+    <p style="margin-top:6px">雙方約定以信用卡按月分期授權扣（繳）款者，應於授權書明確揭露「如消費者書面提出解除、終止契約時，業者應於二十四小時內通知信用卡銀行停止扣款。」</p>
+  </div>
+
+  <!-- 五 -->
+  <div class="section">
+    <div class="section-title">五、業者服務之異動通知</div>
+    <p>業者所提供服務內容與時間如有異動，須事先公告於facebook或依消費者所留通訊方式通知，且應與原定開始服務時間相距24個小時以上，若未依前項約定時間方式通知，業者應於7日內提供消費者同意之補課方案。</p>
+  </div>
+
+  <!-- 六 -->
+  <div class="section">
+    <div class="section-title">六、暫停之事由與效果</div>
+    <p>消費者事先提出相關文件證明或釋明下列事由之一者，業者應於七工作日內辦理暫停教練課程服務，於停權期間，免繳課程費用，課程有效期限順延：</p>
+    <p>（一）出國逾一個月。</p>
+    <p>（二）傷害、疾病或身體不適致不宜運動。</p>
+    <p>（三）懷孕、育嬰、侍親之需要。</p>
+    <p>（四）服兵役致難以履約。</p>
+    <p>（五）職務異動或遷居致難以履約。</p>
+    <p>（六）其他事由致難以履約。</p>
+    <p style="margin-top:6px">因前項第二款事由，暫停會籍教練課程六個月後，消費者經醫師開立診斷證明，於六個月之期間內不能運動者，得依第八條終止契約，業者不得收取手續費或任何名目之扣費。第一項第二款事由，消費者未能事先提出，得於事由發生後一個月內補辦。</p>
+    <p style="margin-top:6px">中央流行疫情指揮中心一級開設並發生社區感染時，位於該區域之直轄市、縣（市）之消費者，準用第一項、第三項規定。</p>
+  </div>
+
+  <!-- 七 -->
+  <div class="section">
+    <div class="section-title">七、不可歸責消費者事由之終止與效果</div>
+    <p>（一）累計教練服務契約量（含同一業者不同教練），已達每週平均逾五堂課。</p>
+    <p>（二）雙方指定教練無法依約執行業務。但消費者同意替換其他教練者，不在此限。</p>
+    <p>（三）業者變更履約地點，未經消費者同意。</p>
+    <p>（四）消費者暫停教練課程服務超過一年。</p>
+    <p style="margin-top:6px">因前項第一款至第三款終止契約者，業者不得收取手續費、違約金或任何名目費用。因第一項第四款終止契約者，業者得酌收手續費，其額度不得超過第八條所收取之手續費。</p>
+  </div>
+
+  <!-- 八 -->
+  <div class="section">
+    <div class="section-title">八、可歸責消費者事由之終止與效果</div>
+    <p>消費者於期限屆滿前，得隨時終止。契約期限屆滿後，未使用剩餘堂數，業者得不予退費。</p>
+    <p style="margin-top:6px">消費者依前項規定終止契約時，業者應依下列規定計算費用，不再另行扣費：</p>
+    <p>（一）契約生效七日內且消費者尚未使用服務而終止契約者，業者應全額退還已繳費用。</p>
+    <p>（二）契約生效七日後或消費者已使用服務而終止契約：</p>
+    <p style="margin-left:1.5em">1. 應退餘額之計算：按未完成服務堂數占契約總價額比例退還餘額。</p>
+    <p style="margin-left:1.5em">2. 手續費之計算：應退餘額百分之20%。但以新臺幣九千元為上限。</p>
+  </div>
+
+  <!-- 九 -->
+  <div class="section">
+    <div class="section-title">九、不可歸責雙方事由之終止與效果</div>
+    <p>因天災、戰亂、政府法令之新增或變更等不可抗力或其他不可歸責於雙方當事人之事由，致難以完成本契約之服務時，任何一方得終止契約，業者應依未服務之堂數（含所贈與服務堂數）計算餘額退還予消費者，不得收取手續費用、違約金或任何名目費用。</p>
+  </div>
+
+  <!-- 十 -->
+  <div class="section">
+    <div class="section-title">十、不可歸責業者事由之終止與效果</div>
+    <p>消費者有影響業者營運之不當行為情節重大，經勸告無效者，業者得終止契約，並應依未服務之堂數（含所贈與服務堂數）計算餘額退還予消費者，不得收取手續費、違約金或任何名目費用。</p>
+  </div>
+
+  <!-- 十一 -->
+  <div class="section">
+    <div class="section-title">十一、可歸責業者事由之終止與效果</div>
+    <p>可歸責業者之事由致無法繼續提供約定服務，應依未服務之堂數（含所贈與服務堂數）計算餘額退還予消費者，不得收取手續費、違約金或任何名目之扣費。前項退費，業者應準用第八條手續費所定方式計算違約金支付予消費者。</p>
+  </div>
+
+  <!-- 十二 -->
+  <div class="section">
+    <div class="section-title">十二、消費者受領服務是否需預約</div>
+    <p>消費者受領教練服務，應於事先以電話或通訊軟體預約。</p>
+    <p style="margin-top:6px">消費者如無法依約定時間參加教練服務，須事先通知，且應與原定開始服務時間相距8個營業小時以上。</p>
+    <p style="margin-top:6px">消費者未依前項約定方式通知，補繳教練場地費用新臺幣八百元後得補課。</p>
+  </div>
+
+  <!-- 十三 -->
+  <div class="section">
+    <div class="section-title">十三、終止契約之通知及退款方式</div>
+    <p>消費者依契約規定終止契約時，得以書面或於業者場所填表（應於簽收後出具證明交予消費者收執）方式通知業者，其終止契約即生效力。</p>
+    <p style="margin-top:6px">業者應於終止契約後十五工作日內將應退款項依約定方式退還消費者。</p>
+  </div>
+
+  <!-- 十四 -->
+  <div class="section">
+    <div class="section-title">十四、契約讓與第三人</div>
+    <p>消費者於契約期間屆滿前經業者同意，得讓與契約予第三人，契約之內容不因讓與而受影響。轉讓費用為新台幣五百元。</p>
+  </div>
+
+  <!-- 十五 -->
+  <div class="section">
+    <div class="section-title">十五、消費資訊及廣告</div>
+    <p>業者之廣告，均為契約內容。業者應確保其廣告內容真實，其對消費者所應負義務不得低於前項廣告內容。</p>
+  </div>
+
+  <!-- 十六 -->
+  <div class="section">
+    <div class="section-title">十六、訴訟管轄</div>
+    <p>因本契約發生訴訟時，雙方同意以士林地方法院為第一審管轄法院，但不得排除消費者保護法第四十七條或民事訴訟法第二十八條第二項第四百三十六條之九規定之小額訴訟管轄法院之適用。</p>
+  </div>
+
+  <!-- 簽名區 -->
+  <div style="margin-top:28px">
+    <div style="font-weight:700;font-size:14px;margin-bottom:16px">簽名欄</div>
+    <div class="sig-area">
+      <!-- 業者簽名 -->
+      <div class="sig-box">
+        <div class="sig-title">業者簽名</div>
+        <img class="sig-saved-img" id="coach-sig-img" alt="業者簽名">
+        <canvas class="sig-canvas" id="coach-sig-canvas"></canvas>
+        <div class="sig-btns">
+          <button class="sig-btn" onclick="clearSig('coach')">清除重簽</button>
+        </div>
+        <div class="sig-date-row" id="coach-sig-date"></div>
+      </div>
+      <!-- 消費者簽名 -->
+      <div class="sig-box">
+        <div class="sig-title">消費者簽名</div>
+        <img class="sig-saved-img" id="consumer-sig-img" alt="消費者簽名">
+        <canvas class="sig-canvas" id="consumer-sig-canvas"></canvas>
+        <div class="sig-btns">
+          <button class="sig-btn" onclick="clearSig('consumer')">清除重簽</button>
+        </div>
+        <div class="sig-date-row" id="consumer-sig-date"></div>
+      </div>
+    </div>
+
+    <!-- 日期 -->
+    <div style="margin-top:20px;text-align:center;line-height:2.5;font-size:14px">
+      中華民國
+      <input class="field year" id="f-sign-y" type="text" placeholder="年" maxlength="4">年
+      <input class="field month" id="f-sign-m" type="text" placeholder="月" maxlength="2">月
+      <input class="field day" id="f-sign-d" type="text" placeholder="日" maxlength="2">日
+    </div>
+  </div>
+
+  <!-- 操作列 -->
+  <div class="action-bar" id="action-bar">
+    <button class="btn-back" onclick="history.back()">← 返回</button>
+    <button class="btn-save" onclick="saveContract()">儲存合約</button>
+    <button class="btn-pdf" onclick="exportPDF()">輸出 PDF</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+var firebaseConfig={apiKey:"AIzaSyDucRW7PkE3yQUqq3k9a2qG3c47dMY9Dio",authDomain:"fmc-gym.firebaseapp.com",databaseURL:"https://fmc-gym-default-rtdb.asia-southeast1.firebasedatabase.app",projectId:"fmc-gym",storageBucket:"fmc-gym.firebasestorage.app",messagingSenderId:"17890543331",appId:"1:17890543331:web:a714475fc7a584286a27d6"};
+firebase.initializeApp(firebaseConfig);
+var fbdb=firebase.database();
+
+var studentId=new URLSearchParams(location.search).get('id');
+var contractData={};
+
+function toast(msg){var el=document.getElementById('toast');el.textContent=msg;el.classList.add('show');setTimeout(function(){el.classList.remove('show');},2800);}
+
+// ── Signature pads ──
+var sigs={coach:{canvas:null,ctx:null,drawing:false,lx:0,ly:0,hasDraw:false},consumer:{canvas:null,ctx:null,drawing:false,lx:0,ly:0,hasDraw:false}};
+
+function initSigPad(key){
+  var c=document.getElementById(key+'-sig-canvas');
+  sigs[key].canvas=c;
+  var dpr=window.devicePixelRatio||1;
+  var w=c.offsetWidth,h=c.offsetHeight;
+  c.width=w*dpr;c.height=h*dpr;
+  var ctx=c.getContext('2d');ctx.scale(dpr,dpr);
+  ctx.strokeStyle='#111';ctx.lineWidth=1.8;ctx.lineCap='round';ctx.lineJoin='round';
+  sigs[key].ctx=ctx;
+  function pos(e){var r=c.getBoundingClientRect();var src=e.touches?e.touches[0]:e;return[src.clientX-r.left,src.clientY-r.top];}
+  c.addEventListener('mousedown',function(e){sigs[key].drawing=true;var p=pos(e);sigs[key].lx=p[0];sigs[key].ly=p[1];});
+  c.addEventListener('mousemove',function(e){if(!sigs[key].drawing)return;var p=pos(e);ctx.beginPath();ctx.moveTo(sigs[key].lx,sigs[key].ly);ctx.lineTo(p[0],p[1]);ctx.stroke();sigs[key].lx=p[0];sigs[key].ly=p[1];sigs[key].hasDraw=true;});
+  c.addEventListener('mouseup',function(){sigs[key].drawing=false;});
+  c.addEventListener('touchstart',function(e){e.preventDefault();sigs[key].drawing=true;var p=pos(e);sigs[key].lx=p[0];sigs[key].ly=p[1];},{passive:false});
+  c.addEventListener('touchmove',function(e){e.preventDefault();if(!sigs[key].drawing)return;var p=pos(e);ctx.beginPath();ctx.moveTo(sigs[key].lx,sigs[key].ly);ctx.lineTo(p[0],p[1]);ctx.stroke();sigs[key].lx=p[0];sigs[key].ly=p[1];sigs[key].hasDraw=true;},{passive:false});
+  c.addEventListener('touchend',function(){sigs[key].drawing=false;});
+}
+
+function clearSig(key){
+  var c=sigs[key].canvas;
+  if(c)sigs[key].ctx.clearRect(0,0,c.width,c.height);
+  sigs[key].hasDraw=false;
+  document.getElementById(key+'-sig-img').style.display='none';
+  document.getElementById(key+'-sig-canvas').style.display='block';
+  document.getElementById(key+'-sig-date').textContent='';
+  if(key==='coach')contractData.coachSig=null;
+  else contractData.consumerSig=null;
+}
+
+function getSigDataUrl(key){
+  var c=sigs[key].canvas;
+  if(!c)return null;
+  if(!sigs[key].hasDraw)return null;
+  return c.toDataURL('image/png');
+}
+
+function showSavedSig(key,dataUrl,dateStr){
+  var img=document.getElementById(key+'-sig-img');
+  var canvas=document.getElementById(key+'-sig-canvas');
+  img.src=dataUrl;img.style.display='block';
+  canvas.style.display='none';
+  document.getElementById(key+'-sig-date').textContent='簽署：'+dateStr;
+}
+
+// ── Fields ──
+var FIELDS=['review-y','review-m','review-d','consumer-name','consumer-phone','coach-main','plan','total-price','pay-day','pay-amount','sign-y','sign-m','sign-d'];
+function getFields(){var o={};FIELDS.forEach(function(k){var el=document.getElementById('f-'+k);if(el)o[k]=el.value;});return o;}
+function setFields(o){if(!o)return;FIELDS.forEach(function(k){var el=document.getElementById('f-'+k);if(el&&o[k]!=null)el.value=o[k];});}
+
+// ── Load ──
+function loadContract(){
+  if(!studentId){document.getElementById('loading-overlay').style.display='none';initSigPad('coach');initSigPad('consumer');return;}
+  fbdb.ref('data/students').once('value',function(snap){
+    var arr=snap.val()||[];if(!Array.isArray(arr))arr=Object.values(arr);
+    var stu=arr.find(function(s){return s&&String(s.id)===String(studentId);});
+    if(stu){
+      document.getElementById('f-consumer-name').value=stu.name||'';
+      document.getElementById('f-coach-main').value=(stu.coach||'').replace('教練','');
+    }
+    fbdb.ref('data/contracts/'+studentId).once('value',function(snap2){
+      var d=snap2.val();
+      if(d){
+        contractData=d;
+        setFields(d.fields||{});
+        if(d.coachSig)showSavedSig('coach',d.coachSig,d.coachSigDate||'');
+        if(d.consumerSig)showSavedSig('consumer',d.consumerSig,d.consumerSigDate||'');
+      }
+      document.getElementById('loading-overlay').style.display='none';
+      initSigPad('coach');initSigPad('consumer');
+    });
+  });
+}
+
+// ── Save ──
+function nowStr(){var n=new Date();return n.getFullYear()+'-'+String(n.getMonth()+1).padStart(2,'0')+'-'+String(n.getDate()).padStart(2,'0')+' '+String(n.getHours()).padStart(2,'0')+':'+String(n.getMinutes()).padStart(2,'0');}
+
+function saveContract(){
+  var data={fields:getFields(),savedAt:nowStr()};
+  var newCoachSig=getSigDataUrl('coach');
+  var newConsumerSig=getSigDataUrl('consumer');
+  if(newCoachSig){data.coachSig=newCoachSig;data.coachSigDate=nowStr();}
+  else if(contractData.coachSig){data.coachSig=contractData.coachSig;data.coachSigDate=contractData.coachSigDate;}
+  if(newConsumerSig){data.consumerSig=newConsumerSig;data.consumerSigDate=nowStr();}
+  else if(contractData.consumerSig){data.consumerSig=contractData.consumerSig;data.consumerSigDate=contractData.consumerSigDate;}
+
+  var ref=studentId?fbdb.ref('data/contracts/'+studentId):null;
+  if(ref){
+    ref.set(data,function(err){
+      if(err){toast('儲存失敗：'+err.message);return;}
+      contractData=data;
+      toast('✓ 合約已儲存');
+      if(newCoachSig)showSavedSig('coach',newCoachSig,data.coachSigDate);
+      if(newConsumerSig)showSavedSig('consumer',newConsumerSig,data.consumerSigDate);
+    });
+  } else {
+    toast('⚠️ 未指定學員 ID，無法儲存到 Firebase');
+  }
+}
+
+// ── Export PDF ──
+function exportPDF(){
+  var bar=document.getElementById('action-bar');
+  bar.style.display='none';
+  var name=document.getElementById('f-consumer-name').value.trim()||'合約';
+  html2canvas(document.getElementById('contract-body'),{
+    scale:2,backgroundColor:'#ffffff',useCORS:true,
+    windowWidth:document.getElementById('contract-body').scrollWidth,
+    scrollY:-window.scrollY
+  }).then(function(canvas){
+    bar.style.display='flex';
+    var imgData=canvas.toDataURL('image/png');
+    var pdf=new jspdf.jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
+    var pdfW=pdf.internal.pageSize.getWidth();
+    var pdfH=pdf.internal.pageSize.getHeight();
+    var ratio=canvas.width/canvas.height;
+    var imgH=pdfW/ratio;
+    var pageH=pdfH-20;
+    var y=10;var srcY=0;
+    while(srcY<canvas.height){
+      var sliceH=Math.min(pageH*canvas.width/pdfW,canvas.height-srcY);
+      var sliceCanvas=document.createElement('canvas');
+      sliceCanvas.width=canvas.width;sliceCanvas.height=sliceH;
+      sliceCanvas.getContext('2d').drawImage(canvas,0,srcY,canvas.width,sliceH,0,0,canvas.width,sliceH);
+      var sliceData=sliceCanvas.toDataURL('image/png');
+      if(srcY>0)pdf.addPage();
+      pdf.addImage(sliceData,'PNG',5,y,pdfW-10,sliceH*((pdfW-10)/canvas.width));
+      srcY+=sliceH;
+    }
+    pdf.save('FMC合約_'+name+'_'+new Date().toISOString().slice(0,10)+'.pdf');
+  }).catch(function(){bar.style.display='flex';toast('PDF 輸出失敗，請再試一次');});
+}
+
+window.addEventListener('load',loadContract);
+</script>
+</body>
+</html>
