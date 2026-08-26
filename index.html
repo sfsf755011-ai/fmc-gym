@@ -554,6 +554,15 @@ var FMC_LOGO = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAARgAAAEYCAYAAACHju
 // ══ State ══
 var coaches = [];
 var students = [];
+function getPeriodInfo(s){
+  var used=s.usedSessions||0;
+  var contracts=(s.contracts||[]).filter(function(c){return((c.sessions||0)+(c.giftSessions||0))>0;});
+  if(!contracts.length){var t=s.totalSessions||0;return{period:1,totalPeriods:1,periodTotal:t,usedInPeriod:used,remaining:Math.max(0,t-used)};}
+  var cum=0;
+  for(var i=0;i<contracts.length;i++){var c=contracts[i];var pt=(c.sessions||0)+(c.giftSessions||0);if(used<cum+pt)return{period:i+1,totalPeriods:contracts.length,periodTotal:pt,usedInPeriod:used-cum,remaining:cum+pt-used};cum+=pt;}
+  var lc=contracts[contracts.length-1];var lpt=(lc.sessions||0)+(lc.giftSessions||0);
+  return{period:contracts.length,totalPeriods:contracts.length,periodTotal:lpt,usedInPeriod:lpt,remaining:0};
+}
 var records = [];
 var selCoach = null;
 var selStudent = null;
@@ -1083,12 +1092,13 @@ function confirmStuById(id) {
 
 function confirmStu(s) {
   selStudent = s;
-  var remain = s.totalSessions - s.usedSessions;
+  var pi = getPeriodInfo(s);
+  var periodTag = pi.totalPeriods > 1 ? ' 第' + pi.period + '/' + pi.totalPeriods + '期' : '';
   document.getElementById('stu-fname').textContent = s.name;
-  document.getElementById('stu-fdetail').textContent = selCoach.name + '・剩餘 ' + remain + ' 堂（已上 ' + s.usedSessions + ' / 共 ' + s.totalSessions + ' 堂）';
+  document.getElementById('stu-fdetail').textContent = selCoach.name + '・' + periodTag + ' 剩餘 ' + pi.remaining + ' 堂（已上 ' + pi.usedInPeriod + ' / 共 ' + pi.periodTotal + ' 堂）';
   var dotHTML = '';
-  var max = Math.min(s.totalSessions, 48);
-  for (var i = 0; i < max; i++) dotHTML += '<div class="dot ' + (i < s.usedSessions ? 'dot-u' : 'dot-l') + '"></div>';
+  var max = Math.min(pi.periodTotal, 48);
+  for (var i = 0; i < max; i++) dotHTML += '<div class="dot ' + (i < pi.usedInPeriod ? 'dot-u' : 'dot-l') + '"></div>';
   document.getElementById('stu-dots').innerHTML = dotHTML;
   document.getElementById('notfound').style.display = 'none';
   document.getElementById('multibox').style.display = 'none';
@@ -1217,9 +1227,11 @@ function submitCheckin() {
     var sr = document.getElementById('suc-remain');
     if (si) si.textContent = stu.name + '・' + selCoach.name;
     var tag = '';
-    if (nr <= 0) tag = '<span class="rbadge rout">堂數已全數使用，請向教練續購</span>';
-    else if (nr <= 2) tag = '<span class="rbadge rlow">⚠️ 剩餘 ' + nr + ' 堂，請記得續購</span>';
-    else tag = '<span class="rbadge rok">剩餘堂數：' + nr + ' 堂</span>';
+    var pi2=getPeriodInfo(stu);
+    var pTag=pi2.totalPeriods>1?' 第'+pi2.period+'/'+pi2.totalPeriods+'期':'';
+    if (nr <= 0) tag = '<span class="rbadge rout">'+pTag+'堂數已全數使用，請向教練續購</span>';
+    else if (nr <= 2) tag = '<span class="rbadge rlow">⚠️'+pTag+' 剩餘 ' + nr + ' 堂，請記得續購</span>';
+    else tag = '<span class="rbadge rok">'+pTag+' 剩餘堂數：' + nr + ' 堂</span>';
     if (sr) sr.innerHTML = tag;
     loadRecords();
     buildSuccessDetail(stu);
@@ -1280,7 +1292,7 @@ function submitCheckin() {
         if (s && String(s.id) === String(selStudent.id)) { stu = s; stuKey = keys[j]; break; }
       }
     }
-    if (!stu || stuKey === null || stu.totalSessions - stu.usedSessions <= 0) {
+    if (!stu || stuKey === null || getPeriodInfo(stu).remaining <= 0) {
       fail('堂數已用完，請洽詢前台'); return;
     }
 
@@ -1290,8 +1302,8 @@ function submitCheckin() {
     }, function(txErr, committed, snapshot) {
       if (txErr || !committed) { fail('堂數更新失敗，請重試'); return; }
       var newUsed = snapshot.val();
-      var nr = stu.totalSessions - newUsed;
       stu.usedSessions = newUsed;
+      var nr = getPeriodInfo(stu).remaining;
       for (var k = 0; k < students.length; k++) {
         if (String(students[k].id) === String(stu.id)) { students[k] = stu; break; }
       }
@@ -1422,16 +1434,17 @@ function methodBadge(m) {
 function showQResult(stu) {
   document.getElementById('q-multi').style.display = 'none';
   document.getElementById('q-notfound').style.display = 'none';
-  var remain = stu.totalSessions - stu.usedSessions;
+  var piq = getPeriodInfo(stu);
+  var piqTag = piq.totalPeriods > 1 ? '（第' + piq.period + '/' + piq.totalPeriods + '期）' : '';
   document.getElementById('q-r-name').textContent = stu.name;
   document.getElementById('q-r-coach').textContent = stu.coach;
-  document.getElementById('q-r-total').textContent = stu.totalSessions + ' 堂';
-  document.getElementById('q-r-used').textContent = stu.usedSessions + ' 堂';
-  var rc = remain<=0?'badge-red':remain<=2?'badge-amber':'badge-green';
-  document.getElementById('q-r-remain').innerHTML = '<span class="badge ' + rc + '" style="font-size:14px;padding:5px 14px">' + remain + ' 堂</span>';
+  document.getElementById('q-r-total').textContent = piq.periodTotal + ' 堂 ' + piqTag;
+  document.getElementById('q-r-used').textContent = piq.usedInPeriod + ' 堂';
+  var rc = piq.remaining<=0?'badge-red':piq.remaining<=2?'badge-amber':'badge-green';
+  document.getElementById('q-r-remain').innerHTML = '<span class="badge ' + rc + '" style="font-size:14px;padding:5px 14px">' + piq.remaining + ' 堂</span>';
   var dotHTML = '';
-  var max = Math.min(stu.totalSessions,48);
-  for (var i=0;i<max;i++) dotHTML += '<div class="dot ' + (i<stu.usedSessions?'dot-u':'dot-l') + '"></div>';
+  var max = Math.min(piq.periodTotal,48);
+  for (var i=0;i<max;i++) dotHTML += '<div class="dot ' + (i<piq.usedInPeriod?'dot-u':'dot-l') + '"></div>';
   document.getElementById('q-dots').innerHTML = dotHTML;
   var t = todayStr();
   var contracts = stu.contracts||[];

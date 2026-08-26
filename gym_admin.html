@@ -1213,8 +1213,24 @@ function payBadge(st){
   const arr=m[st]||m.unpaid;
   return '<span class="badge '+arr[0]+'">'+arr[1]+'</span>';
 }
+function getPeriodInfo(s){
+  var used=s.usedSessions||0;
+  var contracts=(s.contracts||[]).filter(function(c){return((c.sessions||0)+(c.giftSessions||0))>0;});
+  if(!contracts.length){
+    var t=s.totalSessions||0;
+    return{period:1,totalPeriods:1,periodTotal:t,usedInPeriod:used,remaining:Math.max(0,t-used)};
+  }
+  var cum=0;
+  for(var i=0;i<contracts.length;i++){
+    var c=contracts[i];var pt=(c.sessions||0)+(c.giftSessions||0);
+    if(used<cum+pt)return{period:i+1,totalPeriods:contracts.length,periodTotal:pt,usedInPeriod:used-cum,remaining:cum+pt-used,label:c.planLabel||(c.sessions+'堂')};
+    cum+=pt;
+  }
+  var lc=contracts[contracts.length-1];var lpt=(lc.sessions||0)+(lc.giftSessions||0);
+  return{period:contracts.length,totalPeriods:contracts.length,periodTotal:lpt,usedInPeriod:lpt,remaining:0,label:lc.planLabel||(lc.sessions+'堂')};
+}
 function sessionBadge(s){
-  const r=s.totalSessions-s.usedSessions;
+  var pi=getPeriodInfo(s);var r=pi.remaining;
   if(r<=0)return '<span class="badge badge-red">已用完</span>';
   if(r<=2)return '<span class="badge badge-amber">即將用完</span>';
   return '<span class="badge badge-green">充足</span>';
@@ -1563,21 +1579,20 @@ function renderShianStudents(){
     +'<thead><tr style="border-bottom:2px solid var(--border2)">'
     +'<th style="padding:6px 8px;text-align:left">姓名</th>'
     +'<th style="padding:6px 8px;text-align:left">類別</th>'
-    +'<th style="padding:6px 8px;text-align:center">總堂</th>'
-    +'<th style="padding:6px 8px;text-align:center">已上</th>'
-    +'<th style="padding:6px 8px;text-align:center">剩餘</th>'
+    +'<th style="padding:6px 8px;text-align:center">期數</th>'
+    +'<th style="padding:6px 8px;text-align:center">當期剩餘</th>'
     +'<th style="padding:6px 8px;text-align:right">付款狀態</th>'
     +'</tr></thead><tbody>'
     +stuList.map(s=>{
-      const remain=s.totalSessions-s.usedSessions;
+      const pi=getPeriodInfo(s);
       const typeLabel=s.shianType==='company'?'<span class="badge badge-blue">公司</span>':'<span class="badge badge-green">舊生</span>';
-      const rc=remain<=0?'badge-red':remain<=2?'badge-amber':'badge-green';
+      const rc=pi.remaining<=0?'badge-red':pi.remaining<=2?'badge-amber':'badge-green';
+      const periodLabel=pi.totalPeriods>1?'第'+pi.period+'/'+pi.totalPeriods+'期':'第1期';
       return '<tr style="border-bottom:1px solid var(--border)">'
         +'<td style="padding:8px">'+s.name+'</td>'
         +'<td style="padding:8px">'+typeLabel+'</td>'
-        +'<td style="padding:8px;text-align:center">'+s.totalSessions+'</td>'
-        +'<td style="padding:8px;text-align:center">'+s.usedSessions+'</td>'
-        +'<td style="padding:8px;text-align:center"><span class="badge '+rc+'">'+remain+'</span></td>'
+        +'<td style="padding:8px;text-align:center;font-size:12px;color:var(--text2)">'+periodLabel+'</td>'
+        +'<td style="padding:8px;text-align:center"><span class="badge '+rc+'">'+pi.remaining+' 堂</span></td>'
         +'<td style="padding:8px;text-align:right">'+payBadge(getPayStatus(s))+'</td>'
         +'</tr>';
     }).join('')+'</tbody></table>';
@@ -2556,7 +2571,7 @@ function renderDashboard(){
       return cs+c.installments.filter(function(i){return i.paid&&i.paidDate&&i.paidDate.startsWith(t.slice(0,7));}).reduce(function(is,i){return is+i.amount;},0);
     },0);
   },0);
-  var lowStus=students.filter(function(s){var r=s.totalSessions-s.usedSessions;return r<=2&&r>=0;});
+  var lowStus=students.filter(function(s){var r=getPeriodInfo(s).remaining;return r<=2&&r>=0;});
   var overdueAll=students.reduce(function(a,s){return a.concat((s.contracts||[]).reduce(function(b,c){return b.concat(c.installments||[]);},[]));},
   []).filter(function(i){return !i.paid&&i.dueDate<t;});
   document.getElementById('dash-metrics').innerHTML=
@@ -2630,8 +2645,11 @@ function renderStuList(){
   if(csel){var cur=csel.value;csel.innerHTML='<option value="">全部教練</option>'+coaches.map(function(c){return '<option value="'+c.name+'"'+(c.name===cur?' selected':'')+'>'+c.name+'</option>';}).join('');}
   var list=students.filter(function(s){return !fc||s.coach===fc;});
   document.getElementById('stu-tbody').innerHTML=list.map(function(s){
+    var pi=getPeriodInfo(s);
+    var rc=pi.remaining<=0?'badge-red':pi.remaining<=2?'badge-amber':'badge-green';
+    var periodLabel=pi.totalPeriods>1?'第'+pi.period+'/'+pi.totalPeriods+'期':'';
     return '<tr>'+'<td>'+s.name+'</td><td>'+s.coach+'</td>'
-      +'<td style="font-weight:600">'+(s.totalSessions-s.usedSessions)+'</td>'
+      +'<td style="font-weight:600"><span class="badge '+rc+'">'+pi.remaining+'</span>'+(periodLabel?'<span style="font-size:11px;color:var(--text2);margin-left:4px">'+periodLabel+'</span>':'')+'</td>'
       +'<td>'+s.totalSessions+'</td><td>'+s.usedSessions+'</td>'
       +'<td>'+payBadge(getPayStatus(s))+'</td>'
       +'</tr>';
@@ -3245,7 +3263,12 @@ function updateEditRemain(){
   var total=parseInt(document.getElementById('edit-total-sessions').value)||0;
   var used=parseInt(document.getElementById('edit-used-sessions').value)||0;
   var el=document.getElementById('edit-remain-display');
-  if(el){el.textContent=(total-used)+' 堂';el.style.background=total-used<=2?'var(--red)':'var(--green)';}
+  var selId=document.getElementById('edit-stu-sel').value;
+  var stu=students.find(function(st){return String(st.id)===String(selId);});
+  var pi=stu?getPeriodInfo(stu):null;
+  var periodRemain=pi?pi.remaining:Math.max(0,total-used);
+  var periodLabel=pi&&pi.totalPeriods>1?' （第'+pi.period+'/'+pi.totalPeriods+'期）':'';
+  if(el){el.textContent=periodRemain+' 堂'+periodLabel;el.style.background=periodRemain<=2?'var(--red)':'var(--green)';}
   var warn=document.getElementById('edit-over-warn');
   if(warn)warn.style.display=used>total?'block':'none';
 }
