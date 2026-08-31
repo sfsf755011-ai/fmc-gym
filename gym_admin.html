@@ -3528,6 +3528,14 @@ function renderEditCheckinHistory(s){
   },function(){el.innerHTML='<div style="font-size:13px;color:var(--text3)">無法載入簽名</div>';});
 }
 
+function toggleContractDetail(ci){
+  var el=document.getElementById('ec-detail-'+ci);
+  var btn=document.getElementById('ec-toggle-btn-'+ci);
+  if(!el)return;
+  var hidden=el.style.display==='none';
+  el.style.display=hidden?'block':'none';
+  if(btn)btn.textContent=hidden?'▲ 收起':'▼ 查看歷史';
+}
 function renderEditContracts(s){
   var contracts=s.contracts||[];
   var el=document.getElementById('edit-contracts-list');
@@ -3540,16 +3548,30 @@ function renderEditContracts(s){
     var totalAmt=c.installments.reduce(function(sum,i){return sum+i.amount;},0);
     var paidAmt=c.installments.filter(function(i){return i.paid;}).reduce(function(sum,i){return sum+i.amount;},0);
     var unpaidCount=c.installments.filter(function(i){return !i.paid;}).length;
-    h2+='<div style="margin-bottom:16px;padding-bottom:16px;border-bottom:1px solid var(--border)">';
-    h2+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;flex-wrap:wrap;gap:8px">';
+    var isOld=unpaidCount===0&&ci<contracts.length-1;
+    var defaultHidden=isOld;
+    h2+='<div style="margin-bottom:12px;border-radius:10px;border:1px solid '+(isOld?'var(--border)':'var(--border2)')+';overflow:hidden">';
+    // Header row (always visible)
+    h2+='<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:'+(isOld?'var(--bg2)':'var(--bg)')+';flex-wrap:wrap;gap:8px;cursor:'+(isOld?'pointer':'default')+'"'+(isOld?' onclick="toggleContractDetail('+ci+')"':'')+' >';
+    h2+='<div style="display:flex;align-items:center;gap:8px">';
+    if(isOld)h2+='<span style="font-size:11px;padding:2px 7px;border-radius:20px;background:var(--green);color:#fff;font-weight:700">✓ 已完成</span>';
+    else h2+='<span style="font-size:11px;padding:2px 7px;border-radius:20px;background:var(--blue);color:#fff;font-weight:700">進行中</span>';
     h2+='<span style="font-size:13px;font-weight:600">'+(c.planLabel||c.sessions+'堂合約')+'・分 '+c.periods+' 期</span>';
-    h2+='<span style="font-size:13px;color:var(--text2);display:flex;align-items:center;gap:6px;flex-wrap:wrap">已付 NT$'+paidAmt.toLocaleString()+' ／ 合約總額 <input type="number" id="ec-contract-total-'+ci+'" value="'+totalAmt+'" min="0" style="width:110px;font-size:14px;font-weight:700;padding:4px 8px;border-radius:6px;border:1.5px solid #e67e22;background:var(--bg);color:var(--text);text-align:right" oninput="redistributeContractTotal('+s.id+','+ci+')"> 元</span>';
     h2+='</div>';
+    h2+='<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">';
+    h2+='<span style="font-size:12px;color:var(--text2)">已收 NT$'+paidAmt.toLocaleString()+' ／ NT$'+totalAmt.toLocaleString()+'</span>';
+    if(isOld)h2+='<button id="ec-toggle-btn-'+ci+'" onclick="event.stopPropagation();toggleContractDetail('+ci+')" style="font-size:12px;padding:3px 10px;border-radius:6px;border:1px solid var(--border2);background:var(--bg);color:var(--text2);cursor:pointer">▼ 查看歷史</button>';
+    h2+='</div>';
+    h2+='</div>';
+    // Detail content (collapsible for old contracts)
+    h2+='<div id="ec-detail-'+ci+'" style="padding:14px;display:'+(defaultHidden?'none':'block')+'">';
     h2+='<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;padding:10px;background:var(--bg2);border-radius:8px;flex-wrap:wrap">';
-    h2+='<label style="font-size:12px;color:var(--text2);white-space:nowrap">贈送堂數：</label>';
-    h2+='<input type="number" id="ec-gift-'+ci+'" value="'+(c.giftSessions||0)+'" min="0" style="width:60px;font-size:13px;padding:5px 8px;border-radius:6px;border:1px solid var(--border2);background:var(--bg);color:var(--text)">';
-    h2+='<span style="font-size:12px;color:var(--text3);margin-left:8px">修改金額後點右側按鈕儲存</span>';
-    h2+='<button onclick="applyContractMeta('+s.id+','+ci+')" style="padding:6px 16px;border-radius:6px;background:#e67e22;color:#fff;border:none;font-size:13px;font-weight:700;cursor:pointer;margin-left:auto;white-space:nowrap">💾 儲存金額修改</button>';
+    h2+='<span style="font-size:12px;color:var(--text2)">合約總額：</span>';
+    h2+='<input type="number" id="ec-contract-total-'+ci+'" value="'+totalAmt+'" min="0" style="width:110px;font-size:14px;font-weight:700;padding:4px 8px;border-radius:6px;border:1.5px solid #e67e22;background:var(--bg);color:var(--text);text-align:right" oninput="redistributeContractTotal('+s.id+','+ci+')">';
+    h2+='<span style="font-size:12px;color:var(--text2)">元</span>';
+    h2+='<span style="font-size:12px;color:var(--text3);margin-left:4px">贈送堂數：</span>';
+    h2+='<input type="number" id="ec-gift-'+ci+'" value="'+(c.giftSessions||0)+'" min="0" style="width:55px;font-size:13px;padding:5px 8px;border-radius:6px;border:1px solid var(--border2);background:var(--bg);color:var(--text)">';
+    h2+='<button onclick="applyContractMeta('+s.id+','+ci+')" style="padding:6px 16px;border-radius:6px;background:#e67e22;color:#fff;border:none;font-size:13px;font-weight:700;cursor:pointer;margin-left:auto;white-space:nowrap">💾 儲存修改</button>';
     h2+='</div>';
     if(unpaidCount>0){
       h2+='<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;padding:10px;background:var(--bg2);border-radius:8px;flex-wrap:wrap">';
@@ -3587,7 +3609,8 @@ function renderEditContracts(s){
       if(ins.paid){h2+='<div style="font-size:12px;color:var(--green-text);margin-top:2px">實際收款日：'+(ins.paidDate||'—')+'</div>';}
       h2+='</div>';
     }
-    h2+='</div>';
+    h2+='</div>';// end detail
+    h2+='</div>';// end card
   }
   el.innerHTML=h2;
 }
