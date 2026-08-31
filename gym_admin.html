@@ -3357,7 +3357,7 @@ function applyContractMeta(stuId,ci){
   // Read current installment amounts from DOM before re-rendering (preserves unsaved edits)
   c.installments.forEach(function(ins,ii){
     var amtEl=document.getElementById('ec-amt-'+ci+'-'+ii);
-    if(amtEl){var v=parseInt(amtEl.value);if(!isNaN(v))ins.amount=v;}
+    if(amtEl&&amtEl.value!==''){var v=parseInt(amtEl.value);if(!isNaN(v)&&v>=0)ins.amount=v;}
     var dueEl=document.getElementById('ec-due-'+ci+'-'+ii);
     if(dueEl&&!ins.paid&&dueEl.value)ins.dueDate=dueEl.value;
   });
@@ -3525,8 +3525,8 @@ function renderEditContracts(s){
     h2+='<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;padding:10px;background:var(--bg2);border-radius:8px;flex-wrap:wrap">';
     h2+='<label style="font-size:12px;color:var(--text2);white-space:nowrap">贈送堂數：</label>';
     h2+='<input type="number" id="ec-gift-'+ci+'" value="'+(c.giftSessions||0)+'" min="0" style="width:60px;font-size:13px;padding:5px 8px;border-radius:6px;border:1px solid var(--border2);background:var(--bg);color:var(--text)">';
-    h2+='<span style="font-size:12px;color:var(--text3);margin-left:8px">（修改分期金額後點套用，總計自動加總）</span>';
-    h2+='<button onclick="applyContractMeta('+s.id+','+ci+')" style="padding:5px 12px;border-radius:6px;background:var(--blue);color:#fff;border:none;font-size:12px;font-weight:600;cursor:pointer;margin-left:auto">套用</button>';
+    h2+='<span style="font-size:12px;color:var(--text3);margin-left:8px">修改金額後點右側按鈕儲存</span>';
+    h2+='<button onclick="applyContractMeta('+s.id+','+ci+')" style="padding:6px 16px;border-radius:6px;background:#e67e22;color:#fff;border:none;font-size:13px;font-weight:700;cursor:pointer;margin-left:auto;white-space:nowrap">💾 儲存金額修改</button>';
     h2+='</div>';
     if(unpaidCount>0){
       h2+='<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;padding:10px;background:var(--bg2);border-radius:8px;flex-wrap:wrap">';
@@ -3551,7 +3551,7 @@ function renderEditContracts(s){
       h2+='</div></div>';
       h2+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:'+(ins.paid?'4':'10')+'px">';
       h2+='<div><label style="font-size:12px;color:var(--text2);display:block;margin-bottom:3px">金額（元）</label>';
-      h2+='<input type="number" id="ec-amt-'+ci+'-'+ii+'" value="'+ins.amount+'" min="0" class="date-input" style="width:100%" oninput="updateContractTotal('+s.id+','+ci+')"></div>';
+      h2+='<input type="number" id="ec-amt-'+ci+'-'+ii+'" value="'+ins.amount+'" min="0" class="date-input" style="width:100%;'+(ins.paid?'border-color:var(--green);':'')+'\" oninput="updateContractTotal('+s.id+','+ci+')"></div>';
       h2+='<div><label style="font-size:12px;color:var(--text2);display:block;margin-bottom:3px">預定付款日</label>';
       h2+='<input type="date" id="ec-due-'+ci+'-'+ii+'" value="'+ins.dueDate+'" class="date-input" style="width:100%"'+(ins.paid?' disabled':'')+'/></div></div>';
       if(!ins.paid){
