@@ -2015,16 +2015,18 @@ function renderSalary(){
 
   // Count sessions from records
   var monthRecs=records.filter(function(r){return r.date&&r.date.startsWith(month)&&r.coach===(coachDisplayNames[coachName]||coachName);});
-  var totalSessions=monthRecs.length;
+  // 一對二：同時間同教練算一堂，用 date|time 去重
+  var _slots2={};
+  monthRecs.forEach(function(r){var k=r.date+'|'+(r.time||'');if(!_slots2[k])_slots2[k]=[];_slots2[k].push(r);});
+  var totalSessions=Object.keys(_slots2).length;
 
-  // Count 1v2 sessions - check student's contracts
-  var v2Sessions=0;
-  monthRecs.forEach(function(r){
-    var stu=students.find(function(s){return s.name===r.student;});
-    if(stu&&(stu.contracts||[]).some(function(c){return c.planLabel&&c.planLabel.indexOf('1v2')!==-1;})){
-      v2Sessions++;
-    }
-  });
+  // Count 1v2 sessions：每個時間槽只算一次（不管槽內有幾位學員）
+  var v2Sessions=Object.values(_slots2).filter(function(recs){
+    return recs.some(function(r){
+      var stu=students.find(function(s){return s.name===r.student;});
+      return stu&&(stu.contracts||[]).some(function(c){return c.planLabel&&c.planLabel.indexOf('1v2')!==-1;});
+    });
+  }).length;
   var v1Sessions=totalSessions-v2Sessions;
   var trialFromSettings=(window._savedTrialSessions&&window._savedTrialSessions[coachName])||0;
   var paidSessions=Math.max(0,totalSessions+trialFromSettings-30);
@@ -2318,11 +2320,14 @@ function calcCoachSalary(coachKey, month, storeRev, groupBonus, trialCount){
   var coachName=COACH_DISPLAY[coachKey];
   var mult=getStoreMultiplier(storeRev);
   var monthRecs=records.filter(function(r){return r.date&&r.date.startsWith(month)&&r.coach===coachName;});
-  var totalSessions=monthRecs.length;
   var trial=trialCount||0;
-  var v2Sessions=monthRecs.filter(function(r){
-    var s=students.find(function(st){return st.name===r.student;});
-    return s&&(s.contracts||[]).some(function(c){return c.planLabel&&c.planLabel.indexOf('1v2')!==-1;});
+  // 一對二：同時間同教練算一堂，用 date|time 去重
+  var _slots={};
+  monthRecs.forEach(function(r){var k=r.date+'|'+(r.time||'');if(!_slots[k])_slots[k]=[];_slots[k].push(r);});
+  var totalSessions=Object.keys(_slots).length;
+  // 1v2 堂數：每個時間槽只算一次
+  var v2Sessions=Object.values(_slots).filter(function(recs){
+    return recs.some(function(r){var s=students.find(function(st){return st.name===r.student;});return s&&(s.contracts||[]).some(function(c){return c.planLabel&&c.planLabel.indexOf('1v2')!==-1;});});
   }).length;
   var paidSessions=Math.max(0,totalSessions+trial-30);
   var coachStudents=students.filter(function(s){return s.coach===coachName;});
