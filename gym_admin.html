@@ -1967,7 +1967,10 @@ function renderSalary(){
     // Compute live session counts to match history query
     var _rvMonthRecs=records.filter(function(r){return r.date&&r.date.startsWith(month)&&r.coach===_rvCoachDisp;});
     var _rvLiveSessions=_rvMonthRecs.length;
-    var _rvLiveV2=_rvMonthRecs.filter(function(r){var stu=students.find(function(s){return s.name===r.student;});return stu&&(stu.contracts||[]).some(function(c){return c.planLabel&&c.planLabel.indexOf('1v2')!==-1;});}).length;
+    var _rvLiveV2=_rvMonthRecs.filter(function(r){
+      var names=(r.student||'').split(/[、,，]/).map(function(n){return n.trim();});
+      return names.some(function(name){var stu=students.find(function(s){return s.name===name;});return stu&&(stu.contracts||[]).some(function(c){return (c.planId&&c.planId.indexOf('1v2')!==-1)||(c.planLabel&&c.planLabel.indexOf('1v2')!==-1);});});
+    }).length;
     // Update metrics card: 總堂數/1v2/當月業績 always live; 計薪堂數 keeps frozen value (matches salary calculation)
     if(!cr.isShian){
       var _metricsEl=document.getElementById('salary-metrics');
