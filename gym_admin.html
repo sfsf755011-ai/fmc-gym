@@ -2018,14 +2018,15 @@ function renderSalary(){
   // Count sessions from records
   var totalSessions=monthRecs.length;
 
-  // Count 1v2 sessions - check student's contracts
-  var v2Sessions=0;
-  monthRecs.forEach(function(r){
-    var stu=students.find(function(s){return s.name===r.student;});
-    if(stu&&(stu.contracts||[]).some(function(c){return (c.planId&&c.planId.indexOf('1v2')!==-1)||(c.planLabel&&c.planLabel.indexOf('1v2')!==-1);})){
-      v2Sessions++;
-    }
-  });
+  // Count 1v2 sessions - 1v2記錄的student欄位可能含多人名（如"張O涵、窩特"），需拆開比對
+  function is1v2Record(r){
+    var names=(r.student||'').split(/[、,，]/).map(function(n){return n.trim();});
+    return names.some(function(name){
+      var stu=students.find(function(s){return s.name===name;});
+      return stu&&(stu.contracts||[]).some(function(c){return (c.planId&&c.planId.indexOf('1v2')!==-1)||(c.planLabel&&c.planLabel.indexOf('1v2')!==-1);});
+    });
+  }
+  var v2Sessions=monthRecs.filter(is1v2Record).length;
   var v1Sessions=totalSessions-v2Sessions;
   var trialFromSettings=(window._savedTrialSessions&&window._savedTrialSessions[coachName])||0;
   var paidSessions=Math.max(0,totalSessions+trialFromSettings-30);
@@ -2322,8 +2323,11 @@ function calcCoachSalary(coachKey, month, storeRev, groupBonus, trialCount){
   var totalSessions=monthRecs.length;
   var trial=trialCount||0;
   var v2Sessions=monthRecs.filter(function(r){
-    var s=students.find(function(st){return st.name===r.student;});
-    return s&&(s.contracts||[]).some(function(c){return (c.planId&&c.planId.indexOf('1v2')!==-1)||(c.planLabel&&c.planLabel.indexOf('1v2')!==-1);});
+    var names=(r.student||'').split(/[、,，]/).map(function(n){return n.trim();});
+    return names.some(function(name){
+      var s=students.find(function(st){return st.name===name;});
+      return s&&(s.contracts||[]).some(function(c){return (c.planId&&c.planId.indexOf('1v2')!==-1)||(c.planLabel&&c.planLabel.indexOf('1v2')!==-1);});
+    });
   }).length;
   var paidSessions=Math.max(0,totalSessions+trial-30);
   var coachStudents=students.filter(function(s){return s.coach===coachName;});
