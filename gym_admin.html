@@ -1967,7 +1967,11 @@ function renderSalary(){
     // Compute live session counts to match history query
     var _rvMonthRecs=records.filter(function(r){return r.date&&r.date.startsWith(month)&&r.coach===_rvCoachDisp;});
     var _rvLiveSessions=_rvMonthRecs.length;
-    var _rvLiveV2=_rvMonthRecs.filter(function(r){return (r.student||'').indexOf('、')!==-1;}).length;
+    var _rvLiveV2=_rvMonthRecs.filter(function(r){
+      if(r.planType)return r.planType==='1v2';
+      var s=students.find(function(st){return st.name===r.student;});
+      return s&&(s.contracts||[]).some(function(c){return (c.planId&&c.planId.indexOf('1v2')!==-1)||(c.planLabel&&c.planLabel.indexOf('1v2')!==-1);});
+    }).length;
     // Update metrics card: 總堂數/1v2/當月業績 always live; 計薪堂數 keeps frozen value (matches salary calculation)
     if(!cr.isShian){
       var _metricsEl=document.getElementById('salary-metrics');
@@ -2018,8 +2022,13 @@ function renderSalary(){
   // Count sessions from records
   var totalSessions=monthRecs.length;
 
-  // 1v2 判斷：student 欄位含有 、 表示一堂帶兩人
-  var v2Sessions=monthRecs.filter(function(r){return (r.student||'').indexOf('、')!==-1;}).length;
+  // 1v2 判斷：優先看 record 的 planType 欄位（新資料）；舊資料 fallback 查學員合約
+  function _is1v2(r){
+    if(r.planType)return r.planType==='1v2';
+    var stu=students.find(function(s){return s.name===r.student;});
+    return stu&&(stu.contracts||[]).some(function(c){return (c.planId&&c.planId.indexOf('1v2')!==-1)||(c.planLabel&&c.planLabel.indexOf('1v2')!==-1);});
+  }
+  var v2Sessions=monthRecs.filter(_is1v2).length;
   var v1Sessions=totalSessions-v2Sessions;
   var trialFromSettings=(window._savedTrialSessions&&window._savedTrialSessions[coachName])||0;
   var paidSessions=Math.max(0,totalSessions+trialFromSettings-30);
@@ -2315,7 +2324,11 @@ function calcCoachSalary(coachKey, month, storeRev, groupBonus, trialCount){
   var monthRecs=records.filter(function(r){return r.date&&r.date.startsWith(month)&&r.coach===coachName;});
   var totalSessions=monthRecs.length;
   var trial=trialCount||0;
-  var v2Sessions=monthRecs.filter(function(r){return (r.student||'').indexOf('、')!==-1;}).length;
+  var v2Sessions=monthRecs.filter(function(r){
+    if(r.planType)return r.planType==='1v2';
+    var s=students.find(function(st){return st.name===r.student;});
+    return s&&(s.contracts||[]).some(function(c){return (c.planId&&c.planId.indexOf('1v2')!==-1)||(c.planLabel&&c.planLabel.indexOf('1v2')!==-1);});
+  }).length;
   var paidSessions=Math.max(0,totalSessions+trial-30);
   var coachStudents=students.filter(function(s){return s.coach===coachName;});
   var revFrom=month+'-01';

@@ -1308,7 +1308,8 @@ function submitCheckin() {
         if (String(students[k].id) === String(stu.id)) { students[k] = stu; break; }
       }
 
-      var rec = {date:todayStr(), time:nowStr(), student:stu.name, coach:selCoach.name, remainAfter:nr};
+      var _planType=(stu.contracts||[]).some(function(c){return (c.planId&&c.planId.indexOf('1v2')!==-1)||(c.planLabel&&c.planLabel.indexOf('1v2')!==-1);})? '1v2':'1v1';
+      var rec = {date:todayStr(), time:nowStr(), student:stu.name, coach:selCoach.name, remainAfter:nr, planType:_planType};
       var _sigData = getCompressedSig();
       var _sigDate = rec.date, _sigTime = rec.time, _sigStuId = stu.id;
 
