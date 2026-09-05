@@ -1884,10 +1884,12 @@ function renderSalary(){
   try{ _renderSalaryInner(); } catch(e){ console.error('[renderSalary ERROR]', e); }
 }
 function _renderSalaryInner(){
-  if(!_salaryCoach)return;
+  console.log('[salary] coach='+_salaryCoach+' admin='+_salaryAdmin+' savedResult='+(!!window._savedCoachResult));
+  if(!_salaryCoach){console.log('[salary] no coach, return');return;}
   var coachName=_salaryAdmin?document.getElementById('salary-coach-sel').value:_salaryCoach;
   var month=document.getElementById('salary-month').value;
-  if(!month)return;
+  if(!month){console.log('[salary] no month, return');return;}
+  console.log('[salary] coachName='+coachName+' month='+month);
 
   // Non-admin: read from saved coachResults instead of recalculating
   if(!_salaryAdmin && window._savedCoachResult){
@@ -2078,6 +2080,7 @@ function _renderSalaryInner(){
   var subtotal, finalSalary;
 
   if(coachName==='shian'){
+    console.log('[salary] shian branch monthRecs='+monthRecs.length);
     // shian 特殊計算：公司學生每堂課程單價 × 60%，無底薪、無業績加成
     // 店長加給：從2026-03起$10000，每年3月+$1000
     var baseYear=2026; var baseMonth=3; var baseAmt=10000;
