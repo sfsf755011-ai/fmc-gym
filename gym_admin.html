@@ -1508,7 +1508,8 @@ function switchShianTab(type, btn){
 }
 
 function getShianStudents(type){
-  const all=students.filter(s=>s.coach.toLowerCase()==='shian教練');
+  console.log('[shian] students coach values:', students.slice(0,5).map(s=>s.coach));
+  const all=students.filter(s=>s.coach&&s.coach.toLowerCase()==='shian教練');
   if(type==='all') return all;
   return all.filter(s=>(s.shianType||'self')===type);
 }
