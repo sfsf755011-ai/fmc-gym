@@ -2019,7 +2019,7 @@ function renderSalary(){
   if(shianEl) shianEl.style.display=(coachName==='shian'?'block':'none');
 
   // Count sessions from records
-  var monthRecs=records.filter(function(r){return r.date&&r.date.startsWith(month)&&r.coach===(coachDisplayNames[coachName]||coachName);});
+  var monthRecs=records.filter(function(r){return r.date&&r.date.startsWith(month)&&(r.coach||'').toLowerCase()===(coachDisplayNames[coachName]||coachName).toLowerCase();});
   // Count sessions from records
   var totalSessions=monthRecs.length;
 
