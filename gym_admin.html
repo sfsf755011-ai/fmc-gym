@@ -1881,6 +1881,9 @@ function calcCommission(paidSessions, template, totalSessions){
 function fmtMoney(n){return 'NT$'+Math.round(n).toLocaleString();}
 
 function renderSalary(){
+  try{ _renderSalaryInner(); } catch(e){ console.error('[renderSalary ERROR]', e); }
+}
+function _renderSalaryInner(){
   if(!_salaryCoach)return;
   var coachName=_salaryAdmin?document.getElementById('salary-coach-sel').value:_salaryCoach;
   var month=document.getElementById('salary-month').value;
