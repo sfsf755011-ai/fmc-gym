@@ -1742,11 +1742,12 @@ function loadSalarySettings(month){
 
       // Load group bonus and trial for this coach (non-admin)
       if(!_salaryAdmin && _salaryCoach){
-        // Save coachResults for this coach globally - renderSalary will use this
-        window._savedCoachResult = (d.coachResults&&d.coachResults[_salaryCoach])||null;
-        // Try to load from saved coachResults first (most reliable)
-        var cr=d.coachResults&&d.coachResults[_salaryCoach];
-        var gbVal=cr?cr.groupBonus:((d.groupBonuses&&d.groupBonuses[_salaryCoach])||0);
+        // shian is the admin-owner: always use live calculation, never cached result
+        var _isShianSelf=(_salaryCoach==='shian');
+        window._savedCoachResult = _isShianSelf ? null : ((d.coachResults&&d.coachResults[_salaryCoach])||null);
+        var cr=_isShianSelf ? null : (d.coachResults&&d.coachResults[_salaryCoach]);
+        // Always read groupBonus from the authoritative settings (not saved result)
+        var gbVal=(d.groupBonuses&&d.groupBonuses[_salaryCoach])||0;
         var trialVal=cr?cr.trial:((d.trialSessions&&d.trialSessions[_salaryCoach])||0);
         // Set hidden inputs
         var gbEl=document.getElementById('group-bonus');
@@ -1898,8 +1899,8 @@ function _renderSalaryInner(){
   if(!month){console.log('[salary] no month, return');return;}
   console.log('[salary] coachName='+coachName+' month='+month);
 
-  // Non-admin: read from saved coachResults instead of recalculating
-  if(!_salaryAdmin && window._savedCoachResult){
+  // Non-admin: read from saved coachResults instead of recalculating (skip for shian who is admin-owner)
+  if(!_salaryAdmin && window._savedCoachResult && coachName!=='shian'){
     var cr=window._savedCoachResult;
     // Update display elements
     var storeDisp=document.getElementById('store-revenue-display');
@@ -2083,8 +2084,9 @@ function _renderSalaryInner(){
   var revenueBonus=revenue>=120001?revenue*bonusRate:0; // float - don't round yet
   var revenuePenalty=revenue>0&&revenue<120000?paidSessions*50:0; // exact integer
   var subsidy=HEALTH_SUBSIDY[coachName]||0; // exact integer
-  var groupBonus=(_salaryAdmin&&document.getElementById('agb-'+coachName))
-    ?parseInt(document.getElementById('agb-'+coachName).value)||0
+  var _agbEl=document.getElementById('agb-'+coachName);
+  var groupBonus=(_salaryAdmin&&_agbEl)
+    ?parseInt(_agbEl.value)||0
     :parseInt(document.getElementById('group-bonus').value)||0;
   var subtotal, finalSalary;
 
