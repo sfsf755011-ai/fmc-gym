@@ -1413,7 +1413,7 @@ function renderHistRecords(){
   if(!month){toast('請選擇月份');return;}
   // Filter records by month and coach
   let list=records.filter(r=>r.date&&r.date.startsWith(month));
-  if(coach)list=list.filter(r=>r.coach===coach);
+  if(coach)list=list.filter(r=>(r.coach||'').toLowerCase()===coach.toLowerCase());
   list=list.slice().sort((a,b)=>a.date>b.date?1:a.date<b.date?-1:0);
   // Summary
   const sumEl=document.getElementById('hist-summary');
@@ -1449,7 +1449,7 @@ function exportHistCSV(){
   const coach=gv('hist-coach')||'';
   if(!month){toast('請先選擇月份並查詢');return;}
   let list=records.filter(r=>r.date&&r.date.startsWith(month));
-  if(coach)list=list.filter(r=>r.coach===coach);
+  if(coach)list=list.filter(r=>(r.coach||'').toLowerCase()===coach.toLowerCase());
   list=list.slice().sort((a,b)=>a.date>b.date?1:a.date<b.date?-1:0);
   if(!list.length){toast('無資料可匯出');return;}
   const rows=[['日期','時間','學員','教練','簽到後剩餘堂數']];
