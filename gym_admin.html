@@ -2083,7 +2083,9 @@ function _renderSalaryInner(){
   var revenueBonus=revenue>=120001?revenue*bonusRate:0; // float - don't round yet
   var revenuePenalty=revenue>0&&revenue<120000?paidSessions*50:0; // exact integer
   var subsidy=HEALTH_SUBSIDY[coachName]||0; // exact integer
-  var groupBonus=parseInt(document.getElementById('group-bonus').value)||0;
+  var groupBonus=(_salaryAdmin&&document.getElementById('agb-'+coachName))
+    ?parseInt(document.getElementById('agb-'+coachName).value)||0
+    :parseInt(document.getElementById('group-bonus').value)||0;
   var subtotal, finalSalary;
 
   if(coachName==='shian'){
