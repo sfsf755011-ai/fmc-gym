@@ -1220,6 +1220,13 @@ function getPeriodInfo(s){
     var t=s.totalSessions||0;
     return{period:1,totalPeriods:1,periodTotal:t,usedInPeriod:used,remaining:Math.max(0,t-used)};
   }
+  // Single contract: trust totalSessions (admin-editable) over contract.sessions
+  // to avoid mismatch when admin updates total without updating the contract record
+  if(contracts.length===1){
+    var t=s.totalSessions||(contracts[0].sessions||0)+(contracts[0].giftSessions||0);
+    var lbl=contracts[0].planLabel||(contracts[0].sessions+'堂');
+    return{period:1,totalPeriods:1,periodTotal:t,usedInPeriod:used,remaining:Math.max(0,t-used),label:lbl};
+  }
   var cum=0;
   for(var i=0;i<contracts.length;i++){
     var c=contracts[i];var pt=(c.sessions||0)+(c.giftSessions||0);
