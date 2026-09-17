@@ -93,6 +93,7 @@
   .neuro-result{border-radius:var(--rs);padding:6px 10px;background:var(--surface2);font-size:11px;color:var(--text-sec);line-height:1.5;margin-top:4px}
   .neuro-result.has-val{background:var(--neuro-active-bg);color:var(--neuro-text)}
   .neuro-result strong{font-weight:600;display:inline}
+  .score-worse{color:var(--aR)!important;font-weight:600!important}
 
   /* summary */
   .sumbox{background:var(--white);border-radius:var(--r);border:1px solid var(--border);box-shadow:var(--shadow);margin-bottom:10px;overflow:hidden}
@@ -405,14 +406,22 @@ function calc(input){
 }
 
 function calcNeuroPhase(objLId,objRId,resultId,label){
-  const objL=parseFloat(document.getElementById(objLId).value);
-  const objR=parseFloat(document.getElementById(objRId).value);
+  const objLEl=document.getElementById(objLId);
+  const objREl=document.getElementById(objRId);
+  const objL=parseFloat(objLEl.value);
+  const objR=parseFloat(objREl.value);
   const box=document.getElementById(resultId);
+  // reset red styling
+  objLEl.classList.remove('score-worse');
+  objREl.classList.remove('score-worse');
   if(isNaN(objL)||isNaN(objR)){
     box.className='neuro-result';
     box.innerHTML='<strong>輸入客觀分數後顯示大腦偏好</strong>　以客觀'+label+'判讀';
     return;
   }
+  // highlight worse (lower) score in red
+  if(objL<objR)objLEl.classList.add('score-worse');
+  else if(objR<objL)objREl.classList.add('score-worse');
   box.className='neuro-result has-val';
   if(objL>objR)box.innerHTML='<strong>大腦更喜歡站在左邊</strong>　客觀：左 '+objL+' 分 ／ 右 '+objR+' 分';
   else if(objR>objL)box.innerHTML='<strong>大腦更喜歡站在右邊</strong>　客觀：左 '+objL+' 分 ／ 右 '+objR+' 分';
@@ -437,7 +446,7 @@ function takeScreenshot(){
     scale:window.devicePixelRatio||2,
     backgroundColor:getComputedStyle(document.body).backgroundColor,
     useCORS:true,scrollX:0,scrollY:-window.scrollY,
-    windowWidth:document.documentElement.clientWidth,
+    windowWidth:Math.max(document.documentElement.clientWidth,660),
     windowHeight:document.documentElement.scrollHeight
   }).then(canvas=>{
     btn.style.visibility='';btn.disabled=false;
