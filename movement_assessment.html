@@ -1,126 +1,131 @@
-<!DOCTYPE html>
-<html lang="zh-TW">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>動作評估系統</title>
+<title>動作評估</title>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap');
   :root{
-    --bg:#F7F6F3;--surface:#FFF;--surface2:#F0EEE9;
-    --border:rgba(0,0,0,.10);--border-med:rgba(0,0,0,.18);
-    --text-pri:#1A1917;--text-sec:#6B6960;--text-ter:#9B9890;
-    --aL:#1A5FA8;--aL-bg:#E8F1FB;--aR:#B03A1E;--aR-bg:#FAEDE9;
-    --aN:#2E6B3A;--aN-bg:#E8F3EB;
-    --key-bg:#FEF0D6;--key-text:#7A4A0A;
-    --sag-bg:#EEEDFE;--sag-text:#534AB7;
-    --neuro-bg:#EAF6F0;--neuro-border:#7EC8A8;--neuro-text:#1A5C3A;--neuro-active-bg:#D4EEE2;
-    --r:8px;--rs:5px;
+    --bg:#f1f5f9;--white:#fff;
+    --slate-50:#f8fafc;--slate-200:#e2e8f0;--slate-300:#cbd5e1;
+    --slate-400:#94a3b8;--slate-500:#64748b;--slate-700:#334155;--slate-800:#1e293b;--slate-900:#0f172a;
+    --green:#16a34a;--green-light:#f0fdf4;--green-mid:#bbf7d0;
+    --surface:var(--white);--surface2:var(--slate-50);
+    --border:var(--slate-200);--border-med:var(--slate-300);
+    --text-pri:var(--slate-900);--text-sec:var(--slate-500);--text-ter:var(--slate-400);
+    --aL:#1d4ed8;--aL-bg:#dbeafe;--aR:#b91c1c;--aR-bg:#fee2e2;
+    --aN:var(--green);--aN-bg:var(--green-light);
+    --key-bg:var(--green-light);--key-text:#166534;
+    --sag-bg:var(--slate-50);--sag-text:var(--slate-700);
+    --neuro-bg:var(--green-light);--neuro-border:var(--green);--neuro-text:#166534;--neuro-active-bg:#dcfce7;
+    --shadow:0 1px 3px rgba(0,0,0,.08),0 1px 2px rgba(0,0,0,.05);
+    --r:16px;--rs:10px;
   }
   *{box-sizing:border-box;margin:0;padding:0}
-  body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text-pri);padding:12px 8px 40px}
-  .container{max-width:600px;margin:0 auto}
+  body{font-family:-apple-system,BlinkMacSystemFont,'PingFang TC','Microsoft JhengHei',sans-serif;background:var(--bg);color:var(--text-pri);padding:12px 16px 40px}
+  .container{max-width:620px;margin:0 auto}
 
-  /* header */
   .page-header{margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
   .page-header h1{font-size:15px;font-weight:600;letter-spacing:-.01em}
   .name-bar{display:flex;align-items:center;gap:8px;flex:1}
   .name-label{font-size:11px;color:var(--text-sec);white-space:nowrap}
-  .name-input{flex:1;border:1px solid var(--border-med);border-radius:var(--rs);padding:4px 8px;font-size:13px;font-family:'DM Sans',sans-serif;color:var(--text-pri);background:var(--bg)}
-  .name-input:focus{outline:none;border-color:#888;background:#fff}
+  .name-input{flex:1;border:1.5px solid var(--border-med);border-radius:var(--rs);padding:4px 8px;font-size:13px;color:var(--text-pri);background:var(--surface2)}
+  .name-input:focus{outline:none;border-color:var(--slate-700);background:var(--white)}
   .name-input::placeholder{color:var(--text-ter)}
 
-  /* legend compact */
-  .legend{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px;padding:6px 10px;background:var(--surface);border-radius:var(--r);border:1px solid var(--border)}
+  .legend{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px;padding:6px 10px;background:var(--white);border-radius:var(--r);border:1px solid var(--border);box-shadow:var(--shadow)}
   .legend-item{display:flex;align-items:center;gap:5px;font-size:10px;color:var(--text-sec);padding:3px 8px;border-radius:20px}
-  .legend-item.lk{border:1.5px solid #FAC775;background:#FEF8EC;color:#7A4A0A}
-  .legend-item.ls{border:1.5px solid #AFA9EC;background:#F2F1FE;color:#534AB7}
+  .legend-item.lk{border:1.5px solid var(--green);background:var(--key-bg);color:var(--key-text)}
+  .legend-item.ls{border:1.5px solid var(--slate-400);background:var(--sag-bg);color:var(--sag-text)}
 
   /* section */
-  .section{background:var(--surface);border-radius:var(--r);border:1px solid var(--border);margin-bottom:8px;overflow:hidden}
-  .sec-head{padding:5px 10px;background:var(--surface2);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:6px}
-  .sec-title{font-size:11px;font-weight:500}
+  .section{background:var(--white);border-radius:var(--r);border:1px solid var(--border);box-shadow:var(--shadow);margin-bottom:10px;overflow:hidden}
+  .sec-head{padding:6px 12px;background:var(--slate-800);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:6px}
+  .sec-title{font-size:11px;font-weight:500;color:#fff}
   .phase-label{font-size:9px;font-weight:600;padding:1px 7px;border-radius:20px}
-  .pl-1{background:#CECBF6;color:#3C3489}
-  .pl-2{background:#9FE1CB;color:#085041}
-  .tb .key-badge{display:none}
-  .tb .sag-badge{display:none}
-  .tr.is-key{border-left:3px solid #FAC775;background:linear-gradient(to right,#FEF8EC 0%,transparent 60%) !important}
-  .tr.is-sag{border-left:3px solid #AFA9EC;background:linear-gradient(to right,#F2F1FE 0%,transparent 60%) !important}
-  .aux-badge{font-size:9px;padding:1px 5px;border-radius:20px;background:#F1EFE8;color:#5F5E5A;font-weight:500;white-space:nowrap}
-  .star{font-size:11px;color:#8B5E0A;margin-right:2px}
-  .tref{font-size:9px;color:var(--text-ter);font-family:'DM Mono',monospace;margin-left:2px}
-  .tr.sub-row .col-grid{background:var(--surface2)}
+  .pl-1{background:#475569;color:#f1f5f9}
+
+  .tr.is-key{border-left:3px solid var(--green);background:linear-gradient(to right,var(--key-bg) 0%,transparent 60%) !important}
+  .tr.is-sag{border-left:3px solid var(--slate-400);background:linear-gradient(to right,var(--sag-bg) 0%,transparent 60%) !important}
+  .star{font-size:11px;color:var(--slate-500);margin-right:2px}
+  .tref{font-size:9px;color:var(--text-ter);font-family:ui-monospace,monospace;margin-left:2px}
+  .tr.sub-row .measure-grid{background:var(--surface2)}
   .tr.sub-row .tn{padding-left:14px;font-size:10px;color:var(--text-sec)}
 
-  /* grid: test-name | L-pre | R-pre | pre-badge | L-post | R-post | post-badge */
-  .col-grid{display:grid;grid-template-columns:1fr 46px 46px 58px 46px 46px 58px;gap:3px;align-items:center}
-  .note-row{padding:2px 0 4px}
-  .note-input{width:100%;border:1px solid var(--border-med);border-radius:var(--rs);padding:3px 8px;font-size:11px;font-family:'DM Sans',sans-serif;color:var(--text-pri);background:var(--bg);box-sizing:border-box}
-  .note-input:focus{outline:none;border-color:#888;background:#fff}
-  .note-input::placeholder{color:var(--text-ter)}
+  /* main measurement grid: name | L-pre | R-pre | badge-pre | L-post | R-post | badge-post */
   .tb{padding:3px 8px 6px}
+  .col-hdr-grid{display:grid;grid-template-columns:1fr 46px 46px 52px 46px 46px 52px;gap:3px;align-items:center}
+  .measure-grid{display:grid;grid-template-columns:1fr 46px 46px 52px 46px 46px 52px;gap:3px;align-items:center}
   .group-hdr{font-size:8px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;text-align:center;padding-bottom:2px;color:var(--text-ter)}
   .group-hdr.pre{border-bottom:1.5px solid var(--aL)}
   .group-hdr.post{border-bottom:1.5px dashed var(--aN)}
-  .ch{font-size:9px;color:var(--text-ter);text-align:center;font-family:'DM Mono',monospace}
+  .ch{font-size:9px;color:var(--text-ter);text-align:center;font-family:ui-monospace,monospace}
   .tr{padding:4px 0;border-top:1px solid var(--border)}
   .tn{font-size:11px;line-height:1.2;display:flex;align-items:center;gap:2px;flex-wrap:wrap}
   .iw{position:relative}
-  .iw input{width:100%;border:1px solid var(--border-med);border-radius:var(--rs);padding:3px 12px 3px 4px;font-size:12px;font-family:'DM Mono',monospace;color:var(--text-pri);background:var(--bg);text-align:center}
-  .iw input:focus{outline:none;border-color:#888;background:#fff}
+  .iw input{width:100%;border:1.5px solid var(--border-med);border-radius:var(--rs);padding:3px 12px 3px 4px;font-size:12px;font-family:ui-monospace,monospace;color:var(--text-pri);background:var(--surface2);text-align:center}
+  .iw input:focus{outline:none;border-color:var(--slate-700);background:var(--white)}
   .iu{position:absolute;right:3px;top:50%;transform:translateY(-50%);font-size:8px;color:var(--text-ter);pointer-events:none}
-  .badge{font-size:10px;padding:2px 5px;border-radius:var(--rs);font-weight:500;white-space:nowrap;font-family:'DM Mono',monospace;text-align:center;display:block;width:100%}
+  .badge{font-size:10px;padding:2px 4px;border-radius:var(--rs);font-weight:500;white-space:nowrap;font-family:ui-monospace,monospace;text-align:center;display:block;width:100%}
   .bL{background:var(--aL-bg);color:var(--aL)}
   .bR{background:var(--aR-bg);color:var(--aR)}
   .bN{background:var(--aN-bg);color:var(--aN)}
   .b0{background:var(--surface2);color:var(--text-ter);font-weight:400}
 
-  /* grounding compact */
-  .neuro-section{background:var(--surface);border-radius:var(--r);border:1.5px dashed var(--neuro-border);margin-bottom:8px;overflow:hidden}
-  .neuro-sh{padding:5px 10px;border-bottom:1px dashed var(--neuro-border);display:flex;align-items:center;gap:6px}
-  .neuro-label{font-size:9px;padding:1px 6px;border-radius:20px;background:var(--neuro-bg);color:var(--neuro-text);font-weight:500}
-  .neuro-tb{padding:8px 10px}
-  .grd-grid{display:grid;grid-template-columns:40px 1fr 1fr 1fr 1fr;gap:4px;align-items:center;margin-bottom:4px}
-  .grd-hdr{font-size:9px;text-align:center;color:var(--text-ter);font-family:'DM Mono',monospace}
-  .grd-label{font-size:11px;color:var(--text-pri)}
-  .grd-subhdr{font-size:9px;font-weight:600;color:var(--text-ter);letter-spacing:.04em;text-transform:uppercase;grid-column:span 2;text-align:center;padding:2px 4px;background:var(--surface2);border-radius:3px}
-  .grd-subhdr.obj{color:var(--neuro-text);background:var(--neuro-bg)}
-  .neuro-result{margin-top:6px;border-radius:var(--rs);padding:6px 10px;background:var(--surface2);font-size:11px;color:var(--text-sec);line-height:1.5}
+  /* description row under each test row */
+  .desc-row{padding:2px 0 5px}
+  .desc-input{width:100%;border:none;border-bottom:1px solid var(--border-med);padding:4px 6px;font-size:11px;color:var(--text-pri);background:transparent;line-height:1.5}
+  .desc-input:focus{outline:none;border-bottom-color:var(--aL);background:var(--surface2);border-radius:var(--rs) var(--rs) 0 0}
+  .desc-input::placeholder{color:var(--text-ter);font-style:italic}
+
+  /* grounding */
+  .neuro-section{background:var(--white);border-radius:var(--r);border:1.5px dashed var(--neuro-border);box-shadow:var(--shadow);margin-bottom:10px;overflow:hidden}
+  .neuro-sh{padding:6px 12px;background:var(--slate-800);border-bottom:1px dashed var(--neuro-border);display:flex;align-items:center;gap:6px}
+  .neuro-sh .sec-title{color:#fff}
+  .neuro-label{font-size:9px;padding:1px 6px;border-radius:20px;background:var(--green-mid);color:#166534;font-weight:500}
+  .neuro-tb{padding:8px 10px;display:flex;flex-direction:column;gap:10px}
+  .neuro-phase-label{font-size:9px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--text-ter);padding-bottom:4px;border-bottom:1px solid var(--border);margin-bottom:2px}
+  .neuro-phase-label.pre{border-bottom-color:var(--aL);color:var(--aL)}
+  .neuro-phase-label.post{border-bottom-color:var(--aN);color:var(--aN);border-bottom-style:dashed}
+
+  .grd-grid{display:grid;grid-template-columns:32px 52px 52px 1fr;gap:6px;align-items:center;margin-bottom:4px}
+  .grd-hdr{font-size:9px;text-align:center;color:var(--text-ter);font-family:ui-monospace,monospace;font-weight:600}
+  .grd-hdr.desc{text-align:left}
+  .grd-label{font-size:11px;color:var(--text-pri);font-weight:500}
+  .neuro-desc-input{width:100%;border:none;border-bottom:1px solid var(--border-med);padding:3px 6px;font-size:11px;color:var(--text-pri);background:transparent}
+  .neuro-desc-input:focus{outline:none;border-bottom-color:var(--neuro-border);background:var(--neuro-bg);border-radius:var(--rs) var(--rs) 0 0}
+  .neuro-desc-input::placeholder{color:var(--text-ter);font-style:italic}
+  .neuro-result{border-radius:var(--rs);padding:6px 10px;background:var(--surface2);font-size:11px;color:var(--text-sec);line-height:1.5;margin-top:4px}
   .neuro-result.has-val{background:var(--neuro-active-bg);color:var(--neuro-text)}
   .neuro-result strong{font-weight:600;display:inline}
 
   /* summary */
-  .sumbox{background:var(--surface);border-radius:var(--r);border:1px solid var(--border);margin-bottom:8px;overflow:hidden}
-  .sumh{padding:5px 10px;background:var(--surface2);border-bottom:1px solid var(--border);font-size:12px;font-weight:600}
+  .sumbox{background:var(--white);border-radius:var(--r);border:1px solid var(--border);box-shadow:var(--shadow);margin-bottom:10px;overflow:hidden}
+  .sumh{padding:6px 12px;background:var(--slate-800);border-bottom:1px solid var(--border);font-size:12px;font-weight:600;color:#fff}
   .sumb{padding:8px 10px}
-  .verdict-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px}
+  .verdict-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+  @media(max-width:480px){.verdict-grid{grid-template-columns:1fr}}
   .verdict-field{display:flex;flex-direction:column;gap:3px}
-  .verdict-label{font-size:10px;color:var(--text-sec);font-weight:500}
-  .verdict-select{width:100%;border:1px solid var(--border-med);border-radius:var(--rs);padding:5px 6px;font-size:11px;font-family:'DM Sans',sans-serif;color:var(--text-pri);background:var(--bg);cursor:pointer;font-weight:500}
-  .verdict-select:focus{outline:none;border-color:#888}
+  .verdict-label{font-size:10px;color:var(--text-sec);font-weight:500;line-height:1.3}
+  .verdict-select{width:100%;border:1.5px solid var(--border-med);border-radius:var(--rs);padding:5px 6px;font-size:11px;color:var(--text-pri);background:var(--surface2);cursor:pointer;font-weight:500}
+  .verdict-select:focus{outline:none;border-color:var(--slate-700)}
   .verdict-select.sel-L{background:var(--aL-bg);color:var(--aL);border-color:var(--aL)}
   .verdict-select.sel-R{background:var(--aR-bg);color:var(--aR);border-color:var(--aR)}
-  .verdict-select.sel-left-lying{background:var(--aL-bg);color:var(--aL);border-color:var(--aL)}
-  .verdict-select.sel-right-lying{background:var(--aR-bg);color:var(--aR);border-color:var(--aR)}
   .verdict-select.sel-none{background:var(--aN-bg);color:var(--aN);border-color:var(--aN)}
-  .verdict-select.sel-sway{background:var(--sag-bg);color:var(--sag-text);border-color:#AFA9EC}
-  .verdict-select.sel-apt{background:var(--key-bg);color:var(--key-text);border-color:#FAC775}
 
   /* notes */
-  .eval-notes-box{background:var(--surface);border-radius:var(--r);border:1px solid var(--border);margin-bottom:8px;overflow:hidden}
-  .eval-notes-head{padding:5px 10px;background:var(--surface2);border-bottom:1px solid var(--border);font-size:12px;font-weight:600}
+  .eval-notes-box{background:var(--white);border-radius:var(--r);border:1px solid var(--border);box-shadow:var(--shadow);margin-bottom:10px;overflow:hidden}
+  .eval-notes-head{padding:6px 12px;background:var(--slate-800);border-bottom:1px solid var(--border);font-size:12px;font-weight:600;color:#fff}
   .eval-notes-body{padding:8px 10px}
-  .eval-notes-textarea{width:100%;border:1px solid var(--border-med);border-radius:var(--rs);padding:7px 10px;font-size:12px;font-family:'DM Sans',sans-serif;color:var(--text-pri);background:var(--bg);resize:vertical;min-height:100px;line-height:1.6}
-  .eval-notes-textarea:focus{outline:none;border-color:#888;background:#fff}
+  .eval-notes-textarea{width:100%;border:1.5px solid var(--border-med);border-radius:var(--rs);padding:7px 10px;font-size:12px;color:var(--text-pri);background:var(--surface2);resize:vertical;min-height:100px;line-height:1.6}
+  .eval-notes-textarea:focus{outline:none;border-color:var(--slate-700);background:var(--white)}
   .eval-notes-textarea::placeholder{color:var(--text-ter)}
 
-  .screenshot-btn{width:100%;padding:9px;border-radius:var(--r);border:none;background:#1A1917;color:#F7F6F3;font-size:12px;font-weight:500;font-family:'DM Sans',sans-serif;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px}
-  .screenshot-btn:disabled{background:#888;cursor:wait}
+  .screenshot-btn{width:100%;padding:10px;border-radius:var(--r);border:none;background:var(--slate-800);color:#fff;font-size:12px;font-weight:500;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px}
+  .screenshot-btn:hover{background:var(--slate-700)}
+  .screenshot-btn:disabled{opacity:.5;cursor:wait}
+
+  @media(max-width:520px){
+    .col-hdr-grid,.measure-grid{grid-template-columns:1fr 38px 38px 48px 38px 38px 48px}
+  }
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-</head>
-<body>
+
 <div class="container">
 
   <div class="page-header">
@@ -135,25 +140,23 @@
     <div class="legend-item lk">判斷偏側化　左右承重主要依據</div>
     <div class="legend-item ls">判斷矢狀面代償　骨盆整體代償狀態</div>
     <div class="legend-item" style="margin-left:4px">
-      <svg viewBox="0 0 12 12" width="10" height="10"><polygon points="6,1 11,11 1,11" fill="#8B5E0A"/></svg>
+      <svg viewBox="0 0 12 12" width="10" height="10"><polygon points="6,1 11,11 1,11" fill="#64748b"/></svg>
       <span>輔助判斷與區域判斷</span>
     </div>
   </div>
 
   <!-- col headers -->
-  <div class="col-grid" style="padding:0 8px 2px">
+  <div class="col-hdr-grid" style="padding:0 8px 2px">
     <div></div>
     <div class="group-hdr pre" style="grid-column:span 2">前測 PRE</div>
     <div class="group-hdr pre" style="border-bottom-color:var(--aL)">判讀</div>
     <div class="group-hdr post" style="grid-column:span 2">後測 POST</div>
     <div class="group-hdr post" style="border-bottom-color:var(--aN)">判讀</div>
   </div>
-  <div class="col-grid" style="padding:1px 8px 4px">
+  <div class="col-hdr-grid" style="padding:1px 8px 4px">
     <div></div>
-    <div class="ch">左°</div><div class="ch">右°</div>
-    <div class="ch"></div>
-    <div class="ch">左°</div><div class="ch">右°</div>
-    <div class="ch"></div>
+    <div class="ch">左°</div><div class="ch">右°</div><div class="ch"></div>
+    <div class="ch">左°</div><div class="ch">右°</div><div class="ch"></div>
   </div>
 
   <!-- PHASE 1 -->
@@ -165,8 +168,8 @@
     <div class="tb">
 
       <div class="tr is-key" data-test="cervical-rot">
-        <div class="col-grid">
-          <div class="tn">CV. Rota　頸旋轉 <span class="key-badge">判斷偏側化</span><span class="tref"> &gt;30°</span></div>
+        <div class="measure-grid">
+          <div class="tn">CV. Rota　頸旋轉<span class="tref">&gt;30°</span></div>
           <div class="iw"><input type="number" min="0" max="90" placeholder="–" oninput="calc(this)"><span class="iu">°</span></div>
           <div class="iw"><input type="number" min="0" max="90" placeholder="–" oninput="calc(this)"><span class="iu">°</span></div>
           <div><span class="badge b0" id="pre-cervical-rot">–</span></div>
@@ -174,12 +177,12 @@
           <div class="iw"><input type="number" min="0" max="90" placeholder="–" oninput="calc(this)"><span class="iu">°</span></div>
           <div><span class="badge b0" id="post-cervical-rot">–</span></div>
         </div>
-        <div class="note-row"><input class="note-input" type="text" placeholder="備註…"></div>
+        <div class="desc-row"><input class="desc-input" type="text" placeholder="敘述補充…"></div>
       </div>
 
       <div class="tr is-key" data-test="pelvis-rot">
-        <div class="col-grid">
-          <div class="tn">PV. Rota　骨盆旋轉 <span class="key-badge">判斷偏側化</span><span class="tref"> &gt;70°</span></div>
+        <div class="measure-grid">
+          <div class="tn">PV. Rota　骨盆旋轉<span class="tref">&gt;70°</span></div>
           <div class="iw"><input type="number" min="0" max="180" placeholder="–" oninput="calc(this)"><span class="iu">°</span></div>
           <div class="iw"><input type="number" min="0" max="180" placeholder="–" oninput="calc(this)"><span class="iu">°</span></div>
           <div><span class="badge b0" id="pre-pelvis-rot">–</span></div>
@@ -187,12 +190,12 @@
           <div class="iw"><input type="number" min="0" max="180" placeholder="–" oninput="calc(this)"><span class="iu">°</span></div>
           <div><span class="badge b0" id="post-pelvis-rot">–</span></div>
         </div>
-        <div class="note-row"><input class="note-input" type="text" placeholder="備註…"></div>
+        <div class="desc-row"><input class="desc-input" type="text" placeholder="敘述補充…"></div>
       </div>
 
       <div class="tr is-key" data-test="shoulder-abd">
-        <div class="col-grid">
-          <div class="tn">SH. Abd　肩外展 <span class="key-badge">判斷偏側化</span><span class="tref"> &gt;45°</span></div>
+        <div class="measure-grid">
+          <div class="tn">SH. Abd　肩外展<span class="tref">&gt;45°</span></div>
           <div class="iw"><input type="number" min="0" max="180" placeholder="–" oninput="calc(this)"><span class="iu">°</span></div>
           <div class="iw"><input type="number" min="0" max="180" placeholder="–" oninput="calc(this)"><span class="iu">°</span></div>
           <div><span class="badge b0" id="pre-shoulder-abd">–</span></div>
@@ -200,12 +203,12 @@
           <div class="iw"><input type="number" min="0" max="180" placeholder="–" oninput="calc(this)"><span class="iu">°</span></div>
           <div><span class="badge b0" id="post-shoulder-abd">–</span></div>
         </div>
-        <div class="note-row"><input class="note-input" type="text" placeholder="備註…"></div>
+        <div class="desc-row"><input class="desc-input" type="text" placeholder="敘述補充…"></div>
       </div>
 
       <div class="tr sub-row" data-test="shoulder-er">
-        <div class="col-grid">
-          <div class="tn">└ <svg viewBox="0 0 12 12" width="10" height="10" style="display:inline-block;vertical-align:middle;margin-right:2px"><polygon points="6,1 11,11 1,11" fill="#8B5E0A"/></svg>SH. ER　肩外旋<span class="tref"> &gt;70°</span></div>
+        <div class="measure-grid">
+          <div class="tn">└ <svg viewBox="0 0 12 12" width="10" height="10" style="display:inline-block;vertical-align:middle;margin-right:2px"><polygon points="6,1 11,11 1,11" fill="#64748b"/></svg>SH. ER　肩外旋<span class="tref">&gt;70°</span></div>
           <div class="iw"><input type="number" min="0" max="180" placeholder="–" oninput="calc(this)"><span class="iu">°</span></div>
           <div class="iw"><input type="number" min="0" max="180" placeholder="–" oninput="calc(this)"><span class="iu">°</span></div>
           <div><span class="badge b0" id="pre-shoulder-er">–</span></div>
@@ -213,12 +216,12 @@
           <div class="iw"><input type="number" min="0" max="180" placeholder="–" oninput="calc(this)"><span class="iu">°</span></div>
           <div><span class="badge b0" id="post-shoulder-er">–</span></div>
         </div>
-        <div class="note-row"><input class="note-input" type="text" placeholder="備註…"></div>
+        <div class="desc-row"><input class="desc-input" type="text" placeholder="敘述補充…"></div>
       </div>
 
       <div class="tr is-sag" data-test="hip-ext">
-        <div class="col-grid">
-          <div class="tn"><span class="star">★</span>HP. Exten　髖伸 <span class="sag-badge">判斷矢狀面代償</span><span class="tref"> −5~0°</span></div>
+        <div class="measure-grid">
+          <div class="tn"><span class="star">★</span>HP. Exten　髖伸<span class="tref">−5~0°</span></div>
           <div class="iw"><input type="number" min="-30" max="60" placeholder="–" oninput="calc(this)"><span class="iu">°</span></div>
           <div class="iw"><input type="number" min="-30" max="60" placeholder="–" oninput="calc(this)"><span class="iu">°</span></div>
           <div><span class="badge b0" id="pre-hip-ext">–</span></div>
@@ -226,12 +229,12 @@
           <div class="iw"><input type="number" min="-30" max="60" placeholder="–" oninput="calc(this)"><span class="iu">°</span></div>
           <div><span class="badge b0" id="post-hip-ext">–</span></div>
         </div>
-        <div class="note-row"><input class="note-input" type="text" placeholder="備註…"></div>
+        <div class="desc-row"><input class="desc-input" type="text" placeholder="敘述補充…"></div>
       </div>
 
       <div class="tr sub-row is-sag" data-test="slr">
-        <div class="col-grid">
-          <div class="tn">└ <span class="star">★</span>SLR　直腿抬高<span class="tref"> &gt;70°</span></div>
+        <div class="measure-grid">
+          <div class="tn">└ <span class="star">★</span>SLR　直腿抬高<span class="tref">&gt;70°</span></div>
           <div class="iw"><input type="number" min="0" max="120" placeholder="–" oninput="calc(this)"><span class="iu">°</span></div>
           <div class="iw"><input type="number" min="0" max="120" placeholder="–" oninput="calc(this)"><span class="iu">°</span></div>
           <div><span class="badge b0" id="pre-slr">–</span></div>
@@ -239,12 +242,12 @@
           <div class="iw"><input type="number" min="0" max="120" placeholder="–" oninput="calc(this)"><span class="iu">°</span></div>
           <div><span class="badge b0" id="post-slr">–</span></div>
         </div>
-        <div class="note-row"><input class="note-input" type="text" placeholder="備註…"></div>
+        <div class="desc-row"><input class="desc-input" type="text" placeholder="敘述補充…"></div>
       </div>
 
       <div class="tr is-sag" data-test="shoulder-ir">
-        <div class="col-grid">
-          <div class="tn"><span class="star">★</span>SH. IR　肩內旋 <span class="sag-badge">判斷矢狀面代償</span><span class="tref"> &gt;70°</span></div>
+        <div class="measure-grid">
+          <div class="tn"><span class="star">★</span>SH. IR　肩內旋<span class="tref">&gt;70°</span></div>
           <div class="iw"><input type="number" min="0" max="180" placeholder="–" oninput="calc(this)"><span class="iu">°</span></div>
           <div class="iw"><input type="number" min="0" max="180" placeholder="–" oninput="calc(this)"><span class="iu">°</span></div>
           <div><span class="badge b0" id="pre-shoulder-ir">–</span></div>
@@ -252,96 +255,72 @@
           <div class="iw"><input type="number" min="0" max="180" placeholder="–" oninput="calc(this)"><span class="iu">°</span></div>
           <div><span class="badge b0" id="post-shoulder-ir">–</span></div>
         </div>
-        <div class="note-row"><input class="note-input" type="text" placeholder="備註…"></div>
+        <div class="desc-row"><input class="desc-input" type="text" placeholder="敘述補充…"></div>
       </div>
 
     </div>
   </div>
 
-  <!-- PHASE 2 -->
-  <div class="section">
-    <div class="sec-head">
-      <span class="phase-label pl-2">Phase 2</span>
-      <span class="sec-title">FE. IR ＆ FE. ER ＆ CV. Lat</span>
-    </div>
-    <div class="tb">
-
-      <div class="tr" data-test="femoral-ir">
-        <div class="col-grid">
-          <div class="tn"><svg viewBox="0 0 12 12" width="10" height="10" style="display:inline-block;vertical-align:middle;margin-right:2px;flex-shrink:0"><polygon points="6,1 11,11 1,11" fill="#8B5E0A"/></svg>FE. IR　股骨內旋<span class="tref"> &gt;40°</span></div>
-          <div class="iw"><input type="number" min="0" max="90" placeholder="–" oninput="calc(this)"><span class="iu">°</span></div>
-          <div class="iw"><input type="number" min="0" max="90" placeholder="–" oninput="calc(this)"><span class="iu">°</span></div>
-          <div><span class="badge b0" id="pre-femoral-ir">–</span></div>
-          <div class="iw"><input type="number" min="0" max="90" placeholder="–" oninput="calc(this)"><span class="iu">°</span></div>
-          <div class="iw"><input type="number" min="0" max="90" placeholder="–" oninput="calc(this)"><span class="iu">°</span></div>
-          <div><span class="badge b0" id="post-femoral-ir">–</span></div>
-        </div>
-        <div class="note-row"><input class="note-input" type="text" placeholder="備註…"></div>
-      </div>
-
-      <div class="tr" data-test="femoral-er">
-        <div class="col-grid">
-          <div class="tn"><svg viewBox="0 0 12 12" width="10" height="10" style="display:inline-block;vertical-align:middle;margin-right:2px;flex-shrink:0"><polygon points="6,1 11,11 1,11" fill="#8B5E0A"/></svg>FE. ER　股骨外旋<span class="tref"> &gt;45°</span></div>
-          <div class="iw"><input type="number" min="0" max="90" placeholder="–" oninput="calc(this)"><span class="iu">°</span></div>
-          <div class="iw"><input type="number" min="0" max="90" placeholder="–" oninput="calc(this)"><span class="iu">°</span></div>
-          <div><span class="badge b0" id="pre-femoral-er">–</span></div>
-          <div class="iw"><input type="number" min="0" max="90" placeholder="–" oninput="calc(this)"><span class="iu">°</span></div>
-          <div class="iw"><input type="number" min="0" max="90" placeholder="–" oninput="calc(this)"><span class="iu">°</span></div>
-          <div><span class="badge b0" id="post-femoral-er">–</span></div>
-        </div>
-        <div class="note-row"><input class="note-input" type="text" placeholder="備註…"></div>
-      </div>
-
-      <div class="tr" data-test="cervical-lat">
-        <div class="col-grid">
-          <div class="tn"><svg viewBox="0 0 12 12" width="10" height="10" style="display:inline-block;vertical-align:middle;margin-right:2px;flex-shrink:0"><polygon points="6,1 11,11 1,11" fill="#8B5E0A"/></svg>CV. Lat　頸側屈<span class="tref"> &gt;30°</span></div>
-          <div class="iw"><input type="number" min="0" max="90" placeholder="–" oninput="calc(this)"><span class="iu">°</span></div>
-          <div class="iw"><input type="number" min="0" max="90" placeholder="–" oninput="calc(this)"><span class="iu">°</span></div>
-          <div><span class="badge b0" id="pre-cervical-lat">–</span></div>
-          <div class="iw"><input type="number" min="0" max="90" placeholder="–" oninput="calc(this)"><span class="iu">°</span></div>
-          <div class="iw"><input type="number" min="0" max="90" placeholder="–" oninput="calc(this)"><span class="iu">°</span></div>
-          <div><span class="badge b0" id="post-cervical-lat">–</span></div>
-        </div>
-        <div class="note-row"><input class="note-input" type="text" placeholder="備註…"></div>
-      </div>
-
-    </div>
-  </div>
-
-  <!-- GROUNDING compact -->
+  <!-- GROUNDING -->
   <div class="neuro-section">
     <div class="neuro-sh">
       <span class="sec-title">接地功能　Grounding</span>
       <span class="neuro-label">神經偏好</span>
     </div>
     <div class="neuro-tb">
-      <div class="grd-grid">
-        <div></div>
-        <div class="grd-subhdr">主觀</div>
-        <div class="grd-subhdr obj">客觀（判讀依據）</div>
+
+      <!-- PRE -->
+      <div>
+        <div class="neuro-phase-label pre">前測 PRE</div>
+        <div class="grd-grid" style="margin-top:4px">
+          <div></div>
+          <div class="grd-hdr">主觀（分）</div>
+          <div class="grd-hdr">客觀（分）</div>
+          <div class="grd-hdr desc">敘述</div>
+        </div>
+        <div class="grd-grid">
+          <div class="grd-label">左側</div>
+          <div class="iw"><input type="number" min="1" max="10" placeholder="–" oninput="calcNeuro()" id="subj-L-pre"><span class="iu" style="font-size:8px">分</span></div>
+          <div class="iw"><input type="number" min="1" max="10" placeholder="–" oninput="calcNeuro()" id="obj-L-pre"><span class="iu" style="font-size:8px">分</span></div>
+          <div><input class="neuro-desc-input" type="text" placeholder="補充…" id="desc-L-pre"></div>
+        </div>
+        <div class="grd-grid">
+          <div class="grd-label">右側</div>
+          <div class="iw"><input type="number" min="1" max="10" placeholder="–" oninput="calcNeuro()" id="subj-R-pre"><span class="iu" style="font-size:8px">分</span></div>
+          <div class="iw"><input type="number" min="1" max="10" placeholder="–" oninput="calcNeuro()" id="obj-R-pre"><span class="iu" style="font-size:8px">分</span></div>
+          <div><input class="neuro-desc-input" type="text" placeholder="補充…" id="desc-R-pre"></div>
+        </div>
+        <div class="neuro-result" id="neuro-result-pre">
+          <strong>輸入客觀分數後顯示大腦偏好</strong>　以客觀前測判讀
+        </div>
       </div>
-      <div class="grd-grid" style="margin-bottom:2px">
-        <div></div>
-        <div class="grd-hdr">前測</div><div class="grd-hdr">後測</div>
-        <div class="grd-hdr">前測</div><div class="grd-hdr">後測</div>
+
+      <!-- POST -->
+      <div>
+        <div class="neuro-phase-label post">後測 POST</div>
+        <div class="grd-grid" style="margin-top:4px">
+          <div></div>
+          <div class="grd-hdr">主觀（分）</div>
+          <div class="grd-hdr">客觀（分）</div>
+          <div class="grd-hdr desc">敘述</div>
+        </div>
+        <div class="grd-grid">
+          <div class="grd-label">左側</div>
+          <div class="iw"><input type="number" min="1" max="10" placeholder="–" oninput="calcNeuro()" id="subj-L-post"><span class="iu" style="font-size:8px">分</span></div>
+          <div class="iw"><input type="number" min="1" max="10" placeholder="–" oninput="calcNeuro()" id="obj-L-post"><span class="iu" style="font-size:8px">分</span></div>
+          <div><input class="neuro-desc-input" type="text" placeholder="補充…" id="desc-L-post"></div>
+        </div>
+        <div class="grd-grid">
+          <div class="grd-label">右側</div>
+          <div class="iw"><input type="number" min="1" max="10" placeholder="–" oninput="calcNeuro()" id="subj-R-post"><span class="iu" style="font-size:8px">分</span></div>
+          <div class="iw"><input type="number" min="1" max="10" placeholder="–" oninput="calcNeuro()" id="obj-R-post"><span class="iu" style="font-size:8px">分</span></div>
+          <div><input class="neuro-desc-input" type="text" placeholder="補充…" id="desc-R-post"></div>
+        </div>
+        <div class="neuro-result" id="neuro-result-post">
+          <strong>輸入客觀分數後顯示大腦偏好</strong>　以客觀後測判讀
+        </div>
       </div>
-      <div class="grd-grid" style="margin-bottom:4px">
-        <div class="grd-label">左側</div>
-        <div class="iw"><input type="number" min="1" max="10" placeholder="–" oninput="calcNeuro()" id="subj-L-pre"><span class="iu" style="font-size:8px">分</span></div>
-        <div class="iw"><input type="number" min="1" max="10" placeholder="–" oninput="calcNeuro()" id="subj-L-post"><span class="iu" style="font-size:8px">分</span></div>
-        <div class="iw"><input type="number" min="1" max="10" placeholder="–" oninput="calcNeuro()" id="obj-L-pre"><span class="iu" style="font-size:8px">分</span></div>
-        <div class="iw"><input type="number" min="1" max="10" placeholder="–" oninput="calcNeuro()" id="obj-L-post"><span class="iu" style="font-size:8px">分</span></div>
-      </div>
-      <div class="grd-grid">
-        <div class="grd-label">右側</div>
-        <div class="iw"><input type="number" min="1" max="10" placeholder="–" oninput="calcNeuro()" id="subj-R-pre"><span class="iu" style="font-size:8px">分</span></div>
-        <div class="iw"><input type="number" min="1" max="10" placeholder="–" oninput="calcNeuro()" id="subj-R-post"><span class="iu" style="font-size:8px">分</span></div>
-        <div class="iw"><input type="number" min="1" max="10" placeholder="–" oninput="calcNeuro()" id="obj-R-pre"><span class="iu" style="font-size:8px">分</span></div>
-        <div class="iw"><input type="number" min="1" max="10" placeholder="–" oninput="calcNeuro()" id="obj-R-post"><span class="iu" style="font-size:8px">分</span></div>
-      </div>
-      <div class="neuro-result" id="neuro-result" style="margin-top:6px">
-        <strong>輸入客觀分數後顯示大腦偏好</strong>　以客觀前測判讀
-      </div>
+
     </div>
   </div>
 
@@ -361,20 +340,19 @@
           </select>
         </div>
         <div class="verdict-field">
-          <label class="verdict-label">給予側臥位改善</label>
-          <select class="verdict-select" id="sel-lying" onchange="styleSelect(this,{'left':'sel-left-lying','right':'sel-right-lying'})">
+          <label class="verdict-label">給予哪側壓縮腔體改善評估結果</label>
+          <select class="verdict-select" id="sel-compress" onchange="styleSelect(this,{'L':'sel-L','R':'sel-R'})">
             <option value="">— 選擇 —</option>
-            <option value="left">左側臥</option>
-            <option value="right">右側臥</option>
+            <option value="L">左側壓縮</option>
+            <option value="R">右側壓縮</option>
           </select>
         </div>
         <div class="verdict-field">
-          <label class="verdict-label">矢狀面整體代償</label>
-          <select class="verdict-select" id="sel-sag" onchange="styleSelect(this,{'none':'sel-none','sway':'sel-sway','apt':'sel-apt'})">
+          <label class="verdict-label">ghope 促進側</label>
+          <select class="verdict-select" id="sel-ghope" onchange="styleSelect(this,{'L':'sel-L','R':'sel-R'})">
             <option value="">— 選擇 —</option>
-            <option value="none">無</option>
-            <option value="sway">Swayback</option>
-            <option value="apt">APT 骨盆前傾</option>
+            <option value="L">左側 ghope</option>
+            <option value="R">右側 ghope</option>
           </select>
         </div>
       </div>
@@ -403,15 +381,16 @@ const TESTS={
   'hip-ext':      {leftLat:(L,R)=>R<L},
   'shoulder-ir':  {leftLat:(L,R)=>L<R},
   'cervical-rot': {leftLat:(L,R)=>R<L},
-  'shoulder-er':  {leftLat:(L,R)=>R<L},
-  'femoral-ir':   {leftLat:(L,R)=>R<L},
-  'femoral-er':   {leftLat:(L,R)=>L<R},
-  'cervical-lat': {leftLat:(L,R)=>L<R}
+  'shoulder-er':  {leftLat:(L,R)=>R<L}
 };
-const preResults={};
 
 function getLat(id,L,R){if(L===R)return'N';return TESTS[id].leftLat(L,R)?'L':'R';}
-function setBadge(elId,lat){const el=document.getElementById(elId);if(!el)return;if(lat===null){el.className='badge b0';el.textContent='–';return;}el.className='badge b'+lat;el.textContent=lat==='N'?'對稱':lat+' Lat';}
+function setBadge(elId,lat){
+  const el=document.getElementById(elId);if(!el)return;
+  if(lat===null){el.className='badge b0';el.textContent='–';return;}
+  el.className='badge b'+lat;
+  el.textContent=lat==='N'?'對稱':lat+' Lat';
+}
 
 function calc(input){
   const row=input.closest('[data-test]');
@@ -419,21 +398,30 @@ function calc(input){
   const numInputs=Array.from(row.querySelectorAll('input[type="number"]'));
   const preL=parseFloat(numInputs[0].value),preR=parseFloat(numInputs[1].value);
   const postL=parseFloat(numInputs[2].value),postR=parseFloat(numInputs[3].value);
-  if(!isNaN(preL)&&!isNaN(preR)){setBadge('pre-'+id,getLat(id,preL,preR));}
-  else{setBadge('pre-'+id,null);}
-  if(!isNaN(postL)&&!isNaN(postR)){setBadge('post-'+id,getLat(id,postL,postR));}
-  else{setBadge('post-'+id,null);}
+  if(!isNaN(preL)&&!isNaN(preR))setBadge('pre-'+id,getLat(id,preL,preR));
+  else setBadge('pre-'+id,null);
+  if(!isNaN(postL)&&!isNaN(postR))setBadge('post-'+id,getLat(id,postL,postR));
+  else setBadge('post-'+id,null);
 }
 
-function calcNeuro(){
-  const objL=parseFloat(document.getElementById('obj-L-pre').value);
-  const objR=parseFloat(document.getElementById('obj-R-pre').value);
-  const box=document.getElementById('neuro-result');
-  if(isNaN(objL)||isNaN(objR)){box.className='neuro-result';box.innerHTML='<strong>輸入客觀分數後顯示大腦偏好</strong>　以客觀前測判讀';return;}
+function calcNeuroPhase(objLId,objRId,resultId,label){
+  const objL=parseFloat(document.getElementById(objLId).value);
+  const objR=parseFloat(document.getElementById(objRId).value);
+  const box=document.getElementById(resultId);
+  if(isNaN(objL)||isNaN(objR)){
+    box.className='neuro-result';
+    box.innerHTML='<strong>輸入客觀分數後顯示大腦偏好</strong>　以客觀'+label+'判讀';
+    return;
+  }
   box.className='neuro-result has-val';
   if(objL>objR)box.innerHTML='<strong>大腦更喜歡站在左邊</strong>　客觀：左 '+objL+' 分 ／ 右 '+objR+' 分';
   else if(objR>objL)box.innerHTML='<strong>大腦更喜歡站在右邊</strong>　客觀：左 '+objL+' 分 ／ 右 '+objR+' 分';
   else box.innerHTML='<strong>左右客觀分數相同</strong>　左 '+objL+' 分 ／ 右 '+objR+' 分，目前無明顯神經偏好側';
+}
+
+function calcNeuro(){
+  calcNeuroPhase('obj-L-pre','obj-R-pre','neuro-result-pre','前測');
+  calcNeuroPhase('obj-L-post','obj-R-post','neuro-result-post','後測');
 }
 
 function styleSelect(sel,map){
@@ -444,23 +432,21 @@ function styleSelect(sel,map){
 
 function takeScreenshot(){
   const btn=document.getElementById('screenshot-btn');
-  btn.disabled=true;btn.textContent='截圖中…';
-  btn.style.visibility='hidden';
+  btn.disabled=true;btn.textContent='截圖中…';btn.style.visibility='hidden';
   html2canvas(document.querySelector('.container'),{
-    scale:window.devicePixelRatio||2,backgroundColor:'#F7F6F3',useCORS:true,
-    scrollX:0,scrollY:-window.scrollY,
-    windowWidth:document.documentElement.clientWidth,windowHeight:document.documentElement.scrollHeight
+    scale:window.devicePixelRatio||2,
+    backgroundColor:getComputedStyle(document.body).backgroundColor,
+    useCORS:true,scrollX:0,scrollY:-window.scrollY,
+    windowWidth:document.documentElement.clientWidth,
+    windowHeight:document.documentElement.scrollHeight
   }).then(canvas=>{
-    btn.style.visibility='';
-    btn.disabled=false;
+    btn.style.visibility='';btn.disabled=false;
     btn.innerHTML='<svg width="14" height="14" viewBox="0 0 16 16" fill="none"><rect x="1" y="3" width="14" height="10" rx="2" stroke="currentColor" stroke-width="1.3"/><circle cx="8" cy="8" r="2.5" stroke="currentColor" stroke-width="1.3"/><path d="M5.5 3L6.5 1.5h3L10.5 3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg> 儲存評估截圖';
     const now=new Date();
     const name=document.getElementById('client-name').value.trim();
     const d=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0')+'-'+String(now.getDate()).padStart(2,'0');
     const t=String(now.getHours()).padStart(2,'0')+String(now.getMinutes()).padStart(2,'0');
-    const filename='動作評估_'+(name?name+'_':'')+d+'_'+t+'.png';
     const dataUrl=canvas.toDataURL('image/png');
-    // iOS Safari 不支援 download 屬性，改為在新視窗顯示讓使用者長按儲存
     const isIOS=/iPad|iPhone|iPod/.test(navigator.userAgent)&&!window.MSStream;
     if(isIOS){
       const overlay=document.createElement('div');
@@ -468,11 +454,8 @@ function takeScreenshot(){
       overlay.innerHTML='<p style="color:#fff;font-size:13px;text-align:center">長按圖片 → 儲存至相簿</p><img src="'+dataUrl+'" style="max-width:100%;max-height:80vh;border-radius:8px"><button style="color:#fff;background:none;border:1px solid rgba(255,255,255,.5);border-radius:8px;padding:8px 24px;font-size:13px;cursor:pointer" onclick="this.parentElement.remove()">關閉</button>';
       document.body.appendChild(overlay);
     } else {
-      const link=document.createElement('a');
-      link.download=filename;link.href=dataUrl;link.click();
+      const link=document.createElement('a');link.download='動作評估_'+(name?name+'_':'')+d+'_'+t+'.png';link.href=dataUrl;link.click();
     }
   }).catch(()=>{btn.style.visibility='';btn.disabled=false;btn.textContent='截圖失敗，請再試一次';});
 }
 </script>
-</body>
-</html>
