@@ -3665,8 +3665,8 @@ function renderEditContracts(s){
 }
 
 function confirmDeleteContract(stuId, contractIndex, btn){
+  toast('DEBUG click state='+btn.getAttribute('data-pending')+' id='+stuId+' ci='+contractIndex);
   if(btn.getAttribute('data-pending')==='1'){
-    // Second click → execute
     btn.removeAttribute('data-pending');
     btn.textContent='🗑 刪除方案';
     btn.style.background='var(--red-bg)';
@@ -3674,7 +3674,6 @@ function confirmDeleteContract(stuId, contractIndex, btn){
     btn.style.color='var(--red)';
     deleteContract(stuId, contractIndex);
   } else {
-    // First click → arm
     btn.setAttribute('data-pending','1');
     btn.textContent='⚠️ 確認刪除？';
     btn.style.background='var(--red)';
@@ -3693,8 +3692,10 @@ function confirmDeleteContract(stuId, contractIndex, btn){
 }
 
 function deleteContract(stuId, contractIndex){
+  toast('DEBUG deleteContract called id='+stuId+' ci='+contractIndex+' students='+students.length);
   var s=students.find(function(st){return String(st.id)===String(stuId);});
-  if(!s){toast('找不到學員，請重新整理後再試');return;}
+  if(!s){toast('找不到學員 id='+stuId);return;}
+  toast('DEBUG found student: '+s.name+' contracts='+s.contracts.length);
   var contracts=s.contracts||[];
   var c=contracts[contractIndex];
   if(!c)return;
