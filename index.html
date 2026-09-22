@@ -410,6 +410,19 @@ select.finput{-webkit-appearance:none;appearance:none;background-image:url("data
       <div class="stu-fname" id="stu-fname"></div>
       <div class="stu-fdetail" id="stu-fdetail"></div>
       <div class="dots" id="stu-dots"></div>
+      <div id="combo-session-picker" style="display:none;margin-top:14px;border-top:1px solid #eee;padding-top:12px">
+        <div style="font-size:12px;color:#888;margin-bottom:8px">本次要上哪種課？</div>
+        <div style="display:flex;gap:10px">
+          <button id="cpick-strength" onclick="pickSessionTypeInline('strength')" style="flex:1;padding:12px 8px;border-radius:10px;border:2px solid #ddd;background:#fff;cursor:pointer;font-family:inherit;text-align:center">
+            <div style="font-size:14px;font-weight:700;color:#111">重量訓練</div>
+            <div id="cpick-strength-remain" style="font-size:12px;color:#555;margin-top:2px"></div>
+          </button>
+          <button id="cpick-pilates" onclick="pickSessionTypeInline('pilates')" style="flex:1;padding:12px 8px;border-radius:10px;border:2px solid #ddd;background:#fff;cursor:pointer;font-family:inherit;text-align:center">
+            <div style="font-size:14px;font-weight:700;color:#a855f7">器械皮拉提斯</div>
+            <div id="cpick-pilates-remain" style="font-size:12px;color:#a855f7;margin-top:2px"></div>
+          </button>
+        </div>
+      </div>
     </div>
     <div class="notfound" id="notfound">找不到此學員，請確認姓名後重新輸入，或洽詢教練協助</div>
     <div class="multibox" id="multibox"></div>
@@ -1157,6 +1170,8 @@ function confirmStuById(id) {
 
 function confirmStu(s) {
   selStudent = s;
+  sessionSubType = 'strength';
+  activeComboContract = null;
   var pi = getPeriodInfo(s);
   var periodTag = pi.totalPeriods > 1 ? ' 第' + pi.period + '/' + pi.totalPeriods + '期' : '';
   document.getElementById('stu-fname').textContent = s.name;
@@ -1169,15 +1184,51 @@ function confirmStu(s) {
   document.getElementById('multibox').style.display = 'none';
   document.getElementById('stu-found').style.display = 'block';
   hideKb();
+  // Check combo plan
+  var combo = findActiveComboContract(s);
+  var picker = document.getElementById('combo-session-picker');
+  var pilatesLeft = getPilatesRemaining(s);
+  var strengthLeft = pi.remaining;
   var b = document.getElementById('btn-to-sig');
-  if (pi.remaining <= 0) {
-    var a = document.getElementById('name-alert');
-    a.textContent = '⚠️ 堂數已用完，請洽詢教練或前台儲值';
-    a.style.display = 'block';
-    if (b) b.disabled = true;
+  var a = document.getElementById('name-alert');
+  if (combo && (strengthLeft > 0 || pilatesLeft > 0)) {
+    activeComboContract = combo;
+    if (strengthLeft > 0 && pilatesLeft > 0) {
+      // Both available: show picker, wait for selection
+      document.getElementById('cpick-strength-remain').textContent = strengthLeft + '堂剩餘';
+      document.getElementById('cpick-pilates-remain').textContent = pilatesLeft + '堂剩餘';
+      picker.style.display = 'block';
+      document.getElementById('cpick-strength').style.borderColor = '#ddd';
+      document.getElementById('cpick-strength').style.background = '#fff';
+      document.getElementById('cpick-pilates').style.borderColor = '#ddd';
+      document.getElementById('cpick-pilates').style.background = '#fff';
+      if (b) b.disabled = true;
+    } else {
+      // Only one type left: auto-select
+      picker.style.display = 'none';
+      sessionSubType = strengthLeft > 0 ? 'strength' : 'pilates';
+      if (b) b.disabled = false;
+    }
   } else {
-    if (b) b.disabled = false;
+    activeComboContract = null;
+    if (picker) picker.style.display = 'none';
+    if (pi.remaining <= 0) {
+      a.textContent = '⚠️ 堂數已用完，請洽詢教練或前台儲值';
+      a.style.display = 'block';
+      if (b) b.disabled = true;
+    } else {
+      if (b) b.disabled = false;
+    }
   }
+}
+function pickSessionTypeInline(type) {
+  sessionSubType = type;
+  document.getElementById('cpick-strength').style.borderColor = type === 'strength' ? '#2e7d32' : '#ddd';
+  document.getElementById('cpick-pilates').style.borderColor = type === 'pilates' ? '#a855f7' : '#ddd';
+  document.getElementById('cpick-strength').style.background = type === 'strength' ? 'rgba(46,125,50,.06)' : '#fff';
+  document.getElementById('cpick-pilates').style.background = type === 'pilates' ? 'rgba(168,85,247,.06)' : '#fff';
+  var b = document.getElementById('btn-to-sig');
+  if (b) b.disabled = false;
 }
 
 function findActiveComboContract(stu) {
@@ -1201,27 +1252,6 @@ function getPilatesRemaining(stu) {
 function goToSig() {
   if (!selStudent) return;
   hideKb();
-  // Check for active combo contract
-  var combo = findActiveComboContract(selStudent);
-  var strengthRemaining = selStudent.totalSessions - (selStudent.usedSessions || 0);
-  if (combo && strengthRemaining > 0 && getPilatesRemaining(selStudent) > 0) {
-    // Show session type selection
-    activeComboContract = combo;
-    var el = document.getElementById('session-type-strength-remain');
-    var el2 = document.getElementById('session-type-pilates-remain');
-    if (el) el.textContent = strengthRemaining + '堂剩餘';
-    if (el2) el2.textContent = getPilatesRemaining(selStudent) + '堂剩餘';
-    var coachEl = document.getElementById('session-type-pilates-coach');
-    if (coachEl) coachEl.textContent = combo.pilatesCoach || '';
-    goScreen('s-session-type');
-  } else {
-    activeComboContract = null;
-    sessionSubType = 'strength';
-    goScreen('s-sig');
-  }
-}
-function pickSessionType(type) {
-  sessionSubType = type;
   goScreen('s-sig');
 }
 
