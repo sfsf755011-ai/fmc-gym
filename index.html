@@ -852,7 +852,9 @@ function goScreen(id) {
     } else {
       if (en) en.textContent = selStudent ? selStudent.name : '—';
     }
-    if (ec) ec.textContent = selCoach ? selCoach.name : '—';
+    var displayCoach = (sessionSubType === 'pilates' && activeComboContract && activeComboContract.pilatesCoach)
+      ? activeComboContract.pilatesCoach : (selCoach ? selCoach.name : '—');
+    if (ec) ec.textContent = displayCoach;
     if (ed) ed.textContent = now.toLocaleDateString('zh-TW',{month:'2-digit',day:'2-digit'}) + '  ' + now.toLocaleTimeString('zh-TW',{hour:'2-digit',minute:'2-digit'});
     initSig();
   } else if (id === 's-welcome') {
