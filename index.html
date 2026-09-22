@@ -1464,8 +1464,14 @@ function submitCheckin() {
           recArr.unshift(rec);
           db.ref('data/records').set(recArr, function(err1) {
             if (err1) { fail('堂數已扣除，但簽到紀錄儲存失敗，請告知教練'); return; }
+            if (_done) return;
+            _done = true;
+            _submitting = false;
+            clearTimeout(_timeout);
+            hideLoading();
             if (_sigData) saveSignature(_sigStuId, _sigData, _sigDate, _sigTime);
-            // Show success with pilates info
+            var cb = document.querySelector('.lbtn-next');
+            if (cb) { cb.disabled = false; cb.textContent = '確認簽到 ✓'; }
             var si = document.getElementById('suc-info');
             var sr = document.getElementById('suc-remain');
             if (si) si.textContent = stu.name + '・' + pilatesCoachName;
