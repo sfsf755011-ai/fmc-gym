@@ -3708,8 +3708,12 @@ function deleteContract(stuId, contractIndex){
   }
 
   db.ref('data/records').once('value',function(snap){
-    var recArr=snap.val()||[];
-    if(!Array.isArray(recArr))recArr=Object.values(recArr);
+    var raw=snap.val();
+    var recArr=[];
+    if(raw){
+      if(Array.isArray(raw)) recArr=raw.filter(function(r){return r&&typeof r==='object';});
+      else recArr=Object.values(raw).filter(function(r){return r&&typeof r==='object';});
+    }
     var toDelArr=recArr.filter(function(r){
       return r.student===s.name&&r.date>=fromDate&&r.date<toDate;
     });
@@ -3719,22 +3723,24 @@ function deleteContract(stuId, contractIndex){
     var newRecArr=recArr.filter(function(r){
       return !(r.student===s.name&&r.date>=fromDate&&r.date<toDate);
     });
-    db.ref('data/records').set(newRecArr,function(err){
-      if(err){toast('刪除記錄失敗，請重試');return;}
-      s.contracts.splice(contractIndex,1);
-      s.totalSessions=Math.max(0,(s.totalSessions||0)-contractSessions);
-      s.usedSessions=Math.max(0,(s.usedSessions||0)-strengthDel);
-      if(pilatesDel>0)s.usedPilateSessions=Math.max(0,(s.usedPilateSessions||0)-pilatesDel);
-      logAction('刪除方案',s.name,s.coach,(c.planLabel||c.sessions+'堂合約')+'・移除 '+toDelArr.length+' 筆簽到紀錄');
-      fbSaveSingleStudent(s);
-      try{save('gym_students',students);}catch(e){}
-      renderEditContracts(s);
-      var usedEl=document.getElementById('edit-used-sessions');
-      var totalEl=document.getElementById('edit-total-sessions');
-      if(usedEl)usedEl.value=s.usedSessions||0;
-      if(totalEl)totalEl.value=s.totalSessions||0;
-      toast('✓ 方案已刪除，共移除 '+toDelArr.length+' 筆簽到記錄');
-    });
+    // Update student first, then records
+    s.contracts.splice(contractIndex,1);
+    s.totalSessions=Math.max(0,(s.totalSessions||0)-contractSessions);
+    s.usedSessions=Math.max(0,(s.usedSessions||0)-strengthDel);
+    if(pilatesDel>0)s.usedPilateSessions=Math.max(0,(s.usedPilateSessions||0)-pilatesDel);
+    logAction('刪除方案',s.name,s.coach,(c.planLabel||c.sessions+'堂合約')+'・移除 '+toDelArr.length+' 筆簽到紀錄');
+    fbSaveSingleStudent(s);
+    try{save('gym_students',students);}catch(e){}
+    renderEditContracts(s);
+    var usedEl=document.getElementById('edit-used-sessions');
+    var totalEl=document.getElementById('edit-total-sessions');
+    if(usedEl)usedEl.value=s.usedSessions||0;
+    if(totalEl)totalEl.value=s.totalSessions||0;
+    toast('✓ 方案已刪除，共移除 '+toDelArr.length+' 筆簽到記錄');
+    // Write records async (don't block UI on this)
+    if(toDelArr.length>0){
+      db.ref('data/records').set(newRecArr.length>0?newRecArr:null);
+    }
   });
 }
 
