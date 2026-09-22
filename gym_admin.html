@@ -3609,7 +3609,7 @@ function renderEditContracts(s){
     h2+='<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">';
     h2+='<span style="font-size:12px;color:var(--text2)">已收 NT$'+paidAmt.toLocaleString()+' ／ NT$'+totalAmt.toLocaleString()+'</span>';
     if(isOld)h2+='<button id="ec-toggle-btn-'+ci+'" onclick="event.stopPropagation();toggleContractDetail('+ci+')" style="font-size:12px;padding:3px 10px;border-radius:6px;border:1px solid var(--border2);background:var(--bg);color:var(--text2);cursor:pointer">▼ 查看歷史</button>';
-    h2+='<button onclick="event.stopPropagation();deleteContract('+s.id+','+ci+')" style="font-size:12px;padding:3px 10px;border-radius:6px;border:1px solid var(--red);background:var(--red-bg);color:var(--red);cursor:pointer;font-weight:600">🗑 刪除方案</button>';
+    h2+='<button id="del-contract-btn-'+ci+'" onclick="event.stopPropagation();confirmDeleteContract('+s.id+','+ci+',this)" style="font-size:12px;padding:3px 10px;border-radius:6px;border:1px solid var(--red);background:var(--red-bg);color:var(--red);cursor:pointer;font-weight:600">🗑 刪除方案</button>';
     h2+='</div>';
     h2+='</div>';
     // Detail content (collapsible for old contracts)
@@ -3664,6 +3664,38 @@ function renderEditContracts(s){
   el.innerHTML=h2;
 }
 
+var _delContractPending = null;
+function confirmDeleteContract(stuId, contractIndex, btn){
+  // Two-step: first click shows warning, second click within 4s executes
+  if(_delContractPending && _delContractPending.stuId===stuId && _delContractPending.ci===contractIndex){
+    clearTimeout(_delContractPending.timer);
+    _delContractPending=null;
+    btn.textContent='🗑 刪除方案';
+    btn.style.background='var(--red-bg)';
+    btn.style.borderColor='var(--red)';
+    btn.style.color='var(--red)';
+    deleteContract(stuId, contractIndex);
+    return;
+  }
+  // Reset any other pending
+  if(_delContractPending){
+    var ob=document.getElementById('del-contract-btn-'+_delContractPending.ci);
+    if(ob){ob.textContent='🗑 刪除方案';ob.style.background='var(--red-bg)';ob.style.borderColor='var(--red)';ob.style.color='var(--red)';}
+    clearTimeout(_delContractPending.timer);
+  }
+  btn.textContent='⚠️ 確認刪除？';
+  btn.style.background='var(--red)';
+  btn.style.borderColor='var(--red)';
+  btn.style.color='#fff';
+  _delContractPending={stuId:stuId, ci:contractIndex, timer:setTimeout(function(){
+    _delContractPending=null;
+    btn.textContent='🗑 刪除方案';
+    btn.style.background='var(--red-bg)';
+    btn.style.borderColor='var(--red)';
+    btn.style.color='var(--red)';
+  },4000)};
+}
+
 function deleteContract(stuId, contractIndex){
   var s=students.find(function(st){return String(st.id)===String(stuId);});
   if(!s)return;
@@ -3671,7 +3703,6 @@ function deleteContract(stuId, contractIndex){
   var c=contracts[contractIndex];
   if(!c)return;
 
-  // Determine date range for this contract
   var fromDate=c.date||'2000-01-01';
   var toDate='9999-12-31';
   for(var i=0;i<contracts.length;i++){
@@ -3689,12 +3720,6 @@ function deleteContract(stuId, contractIndex){
     var strengthDel=toDelArr.filter(function(r){return r.planType!=='pilates';}).length;
     var pilatesDel=toDelArr.filter(function(r){return r.planType==='pilates';}).length;
     var contractSessions=(c.sessions||0)+(c.giftSessions||0);
-    var msg='確定要刪除「'+(c.planLabel||c.sessions+'堂合約')+'」嗎？\n\n'
-      +'⚠️ 將永久刪除 '+toDelArr.length+' 筆簽到記錄';
-    if(pilatesDel>0)msg+='（重訓 '+strengthDel+' 堂 ＋ 皮拉提斯 '+pilatesDel+' 堂）';
-    msg+='\n📉 總堂數 −'+contractSessions+' 堂\n\n此操作不可還原！';
-    if(!confirm(msg))return;
-
     var newRecArr=recArr.filter(function(r){
       return !(r.student===s.name&&r.date>=fromDate&&r.date<toDate);
     });
@@ -3708,7 +3733,6 @@ function deleteContract(stuId, contractIndex){
       fbSaveSingleStudent(s);
       try{save('gym_students',students);}catch(e){}
       renderEditContracts(s);
-      // refresh session count display
       var usedEl=document.getElementById('edit-used-sessions');
       var totalEl=document.getElementById('edit-total-sessions');
       if(usedEl)usedEl.value=s.usedSessions||0;
