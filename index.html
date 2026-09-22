@@ -420,6 +420,26 @@ select.finput{-webkit-appearance:none;appearance:none;background-image:url("data
   </div>
 </div>
 
+<!-- SESSION TYPE (combo plan) -->
+<div class="screen" id="s-session-type" style="flex-direction:column;background:#f0f2f7">
+  <div class="lhead" style="background:#fff;border-radius:0 0 18px 18px;padding:20px 24px 16px;margin-bottom:0;box-shadow:0 2px 8px rgba(0,0,0,.06)">
+    <div class="lhead-row"><img class="lhead-logo" id="session-type-logo" src="" alt="FMC"><span style="font-size:13px;font-weight:600;color:#333">FMC・選擇本次課程</span></div>
+    <p style="margin:6px 0 0;color:#666;font-size:13px">您有綜合方案，請選擇本次要上哪種課</p>
+  </div>
+  <div style="flex:1;padding:24px 20px;display:flex;flex-direction:column;gap:14px">
+    <button onclick="pickSessionType('strength')" style="background:#fff;border:2px solid #334;border-radius:16px;padding:20px 18px;text-align:left;cursor:pointer;font-family:inherit;box-shadow:0 2px 8px rgba(0,0,0,.06)">
+      <div style="font-size:17px;font-weight:700;color:#1a1a2e;margin-bottom:4px">重量訓練</div>
+      <div id="session-type-strength-remain" style="font-size:13px;color:#555">-- 堂剩餘</div>
+    </button>
+    <button onclick="pickSessionType('pilates')" style="background:#fff;border:2px solid #a855f7;border-radius:16px;padding:20px 18px;text-align:left;cursor:pointer;font-family:inherit;box-shadow:0 2px 8px rgba(168,85,247,.15)">
+      <div style="font-size:17px;font-weight:700;color:#a855f7;margin-bottom:4px">器械皮拉提斯</div>
+      <div id="session-type-pilates-remain" style="font-size:13px;color:#a855f7;opacity:.8">-- 堂剩餘</div>
+      <div style="font-size:12px;color:#aaa;margin-top:3px">教練：<span id="session-type-pilates-coach"></span></div>
+    </button>
+  </div>
+  <div class="lbottom"><button class="lbtn" onclick="goScreen('s-name')">返回</button></div>
+</div>
+
 <!-- SIG -->
 <div class="screen" id="s-sig">
   <div class="lhead">
@@ -596,6 +616,8 @@ var sessionType = 'regular'; // 'regular' or 'trial'
 var trialName = '';
 var trialType = '';
 var trialRevenue = 0;
+var sessionSubType = 'strength'; // 'strength' or 'pilates' (for combo plans)
+var activeComboContract = null;
 var sigCtx = null;
 var sigCanvas = null;
 var sigDrawing = false;
@@ -740,7 +762,7 @@ function saveRecords(cb) {
 
 // ══ Logo ══
 function setLogos() {
-  var ids = ['welcome-logo','topbar-logo','name-logo','sig-logo','q-logo'];
+  var ids = ['welcome-logo','topbar-logo','name-logo','sig-logo','q-logo','session-type-logo'];
   for (var i = 0; i < ids.length; i++) {
     var el = document.getElementById(ids[i]);
     if (el) el.src = FMC_LOGO;
@@ -1158,7 +1180,50 @@ function confirmStu(s) {
   }
 }
 
-function goToSig() { if (selStudent) { hideKb(); goScreen('s-sig'); } }
+function findActiveComboContract(stu) {
+  var contracts = stu.contracts || [];
+  for (var i = contracts.length - 1; i >= 0; i--) {
+    var c = contracts[i];
+    var plan = (window.PLANS && window.PLANS[c.planId]) || {};
+    if (plan.category === 'combo' || (c.pilateSessions && c.pilatesCoach)) {
+      var pilateSessions = c.pilateSessions || 0;
+      var usedPilates = stu.usedPilateSessions || 0;
+      if (pilateSessions > usedPilates) return c;
+    }
+  }
+  return null;
+}
+function getPilatesRemaining(stu) {
+  var combo = findActiveComboContract(stu);
+  if (!combo) return 0;
+  return (combo.pilateSessions || 0) - (stu.usedPilateSessions || 0);
+}
+function goToSig() {
+  if (!selStudent) return;
+  hideKb();
+  // Check for active combo contract
+  var combo = findActiveComboContract(selStudent);
+  var strengthRemaining = selStudent.totalSessions - (selStudent.usedSessions || 0);
+  if (combo && strengthRemaining > 0 && getPilatesRemaining(selStudent) > 0) {
+    // Show session type selection
+    activeComboContract = combo;
+    var el = document.getElementById('session-type-strength-remain');
+    var el2 = document.getElementById('session-type-pilates-remain');
+    if (el) el.textContent = strengthRemaining + '堂剩餘';
+    if (el2) el2.textContent = getPilatesRemaining(selStudent) + '堂剩餘';
+    var coachEl = document.getElementById('session-type-pilates-coach');
+    if (coachEl) coachEl.textContent = combo.pilatesCoach || '';
+    goScreen('s-session-type');
+  } else {
+    activeComboContract = null;
+    sessionSubType = 'strength';
+    goScreen('s-sig');
+  }
+}
+function pickSessionType(type) {
+  sessionSubType = type;
+  goScreen('s-sig');
+}
 
 // ══ Signature ══
 function initSig() {
@@ -1310,63 +1375,98 @@ function submitCheckin() {
     return;
   }
 
-  // Step 1: 從記憶體找學員（Firebase是陣列格式，不能用ID當路徑）
+  // Step 1: 從記憶體找學員
   var stu = null;
   for (var i = 0; i < students.length; i++) {
     if (String(students[i].id) === String(selStudent.id)) { stu = students[i]; break; }
   }
-  if (!stu || stu.totalSessions - stu.usedSessions <= 0) {
-    fail('堂數已用完，請洽詢前台'); return;
+  var isPilates = sessionSubType === 'pilates' && activeComboContract;
+  if (isPilates) {
+    if (!stu || getPilatesRemaining(stu) <= 0) { fail('皮拉提斯堂數已用完，請洽詢前台'); return; }
+  } else {
+    if (!stu || stu.totalSessions - (stu.usedSessions||0) <= 0) { fail('堂數已用完，請洽詢前台'); return; }
   }
-  // Step 1.5: 從 Firebase 讀最新資料（用 student.id 當 Firebase key）
+
+  // Step 1.5: 從 Firebase 讀最新資料
   db.ref('data/students').once('value', function(snap) {
     var rawStu = snap.val() || {};
     var stuKey = null;
     if (Array.isArray(rawStu)) {
-      // 舊格式：array，找 index
       for (var j = 0; j < rawStu.length; j++) {
         if (rawStu[j] && String(rawStu[j].id) === String(selStudent.id)) { stu = rawStu[j]; stuKey = String(j); break; }
       }
     } else {
-      // 新格式：object，key 就是 student.id
       var keys = Object.keys(rawStu);
       for (var j = 0; j < keys.length; j++) {
         var s = rawStu[keys[j]];
         if (s && String(s.id) === String(selStudent.id)) { stu = s; stuKey = keys[j]; break; }
       }
     }
-    if (!stu || stuKey === null || getPeriodInfo(stu).remaining <= 0) {
-      fail('堂數已用完，請洽詢前台'); return;
+    if (!stu || stuKey === null) { fail('找不到學員資料，請重試'); return; }
+    if (isPilates) {
+      if (getPilatesRemaining(stu) <= 0) { fail('皮拉提斯堂數已用完，請洽詢前台'); return; }
+    } else {
+      if (getPeriodInfo(stu).remaining <= 0) { fail('堂數已用完，請洽詢前台'); return; }
     }
 
-    // Step 2: 用 transaction 原子性扣堂數（用正確的 Firebase key）
-    db.ref('data/students/' + stuKey + '/usedSessions').transaction(function(current) {
+    // Step 2: 原子扣堂數
+    var txField = isPilates ? 'usedPilateSessions' : 'usedSessions';
+    db.ref('data/students/' + stuKey + '/' + txField).transaction(function(current) {
       return (current || 0) + 1;
     }, function(txErr, committed, snapshot) {
       if (txErr || !committed) { fail('堂數更新失敗，請重試'); return; }
       var newUsed = snapshot.val();
-      stu.usedSessions = newUsed;
-      var nr = getPeriodInfo(stu).remaining;
-      for (var k = 0; k < students.length; k++) {
-        if (String(students[k].id) === String(stu.id)) { students[k] = stu; break; }
+      if (isPilates) {
+        stu.usedPilateSessions = newUsed;
+        var nr = getPilatesRemaining(stu);
+        var pilatesCoachName = activeComboContract.pilatesCoach || selCoach.name;
+        var rec = {date:todayStr(), time:nowStr(), student:stu.name, coach:pilatesCoachName, remainAfter:nr, planType:'pilates', sessionType:'pilates'};
+        var _sigData = getCompressedSig();
+        var _sigDate = rec.date, _sigTime = rec.time, _sigStuId = stu.id;
+        for (var k = 0; k < students.length; k++) {
+          if (String(students[k].id) === String(stu.id)) { students[k] = stu; break; }
+        }
+        db.ref('data/records').once('value', function(recSnap) {
+          var recArr = recSnap.val() || [];
+          if (!Array.isArray(recArr)) recArr = Object.values(recArr);
+          recArr.unshift(rec);
+          db.ref('data/records').set(recArr, function(err1) {
+            if (err1) { fail('堂數已扣除，但簽到紀錄儲存失敗，請告知教練'); return; }
+            if (_sigData) saveSignature(_sigStuId, _sigData, _sigDate, _sigTime);
+            // Show success with pilates info
+            var si = document.getElementById('suc-info');
+            var sr = document.getElementById('suc-remain');
+            if (si) si.textContent = stu.name + '・' + pilatesCoachName;
+            var tag;
+            if (nr <= 0) tag = '<span class="rbadge rout">皮拉提斯堂數已全數使用</span>';
+            else tag = '<span class="rbadge" style="background:rgba(168,85,247,.12);color:#a855f7">器械皮拉提斯剩餘 ' + nr + ' 堂</span>';
+            if (sr) sr.innerHTML = tag;
+            loadRecords();
+            buildSuccessDetail(stu);
+            goScreen('s-success');
+          });
+        }, function(err) { fail('讀取資料失敗，請重試'); });
+      } else {
+        stu.usedSessions = newUsed;
+        var nr = getPeriodInfo(stu).remaining;
+        for (var k = 0; k < students.length; k++) {
+          if (String(students[k].id) === String(stu.id)) { students[k] = stu; break; }
+        }
+        var _planType=(stu.contracts||[]).some(function(c){return (c.planId&&c.planId.indexOf('1v2')!==-1)||(c.planLabel&&c.planLabel.indexOf('1v2')!==-1);})? '1v2':'1v1';
+        var rec = {date:todayStr(), time:nowStr(), student:stu.name, coach:selCoach.name, remainAfter:nr, planType:_planType};
+        var _sigData = getCompressedSig();
+        var _sigDate = rec.date, _sigTime = rec.time, _sigStuId = stu.id;
+        db.ref('data/records').once('value', function(recSnap) {
+          var recArr = recSnap.val() || [];
+          if (!Array.isArray(recArr)) recArr = Object.values(recArr);
+          recArr.unshift(rec);
+          db.ref('data/records').set(recArr, function(err1) {
+            if (err1) { fail('堂數已扣除，但簽到紀錄儲存失敗，請告知教練'); return; }
+            if (_sigData) saveSignature(_sigStuId, _sigData, _sigDate, _sigTime);
+            showSuccess(stu, nr);
+          });
+        }, function(err) { fail('讀取資料失敗，請重試'); });
       }
-
-      var _planType=(stu.contracts||[]).some(function(c){return (c.planId&&c.planId.indexOf('1v2')!==-1)||(c.planLabel&&c.planLabel.indexOf('1v2')!==-1);})? '1v2':'1v1';
-      var rec = {date:todayStr(), time:nowStr(), student:stu.name, coach:selCoach.name, remainAfter:nr, planType:_planType};
-      var _sigData = getCompressedSig();
-      var _sigDate = rec.date, _sigTime = rec.time, _sigStuId = stu.id;
-
-      // Step 3: 寫簽到紀錄（堂數已確保原子扣除）
-      db.ref('data/records').once('value', function(recSnap) {
-        var recArr = recSnap.val() || [];
-        if (!Array.isArray(recArr)) recArr = Object.values(recArr);
-        recArr.unshift(rec);
-        db.ref('data/records').set(recArr, function(err1) {
-          if (err1) { fail('堂數已扣除，但簽到紀錄儲存失敗，請告知教練'); return; }
-          if (_sigData) saveSignature(_sigStuId, _sigData, _sigDate, _sigTime);
-          showSuccess(stu, nr);
-        });
-      }, function(err) { fail('讀取資料失敗，請重試'); });
     });
   }, function(err) {
     fail('讀取資料失敗，請重試');
@@ -1421,7 +1521,7 @@ function buildSuccessDetail(stu) {
     + '<div class="dcard"><div class="dtitle">🕐 所有簽到紀錄</div>' + histHTML + '</div>';
 }
 
-function resetAll() { selCoach=null; selStudent=null; sessionType='regular'; trialName=''; trialType=''; trialRevenue=0; hideKb(); hideQKb(); goScreen('s-welcome'); }
+function resetAll() { selCoach=null; selStudent=null; sessionType='regular'; trialName=''; trialType=''; trialRevenue=0; sessionSubType='strength'; activeComboContract=null; hideKb(); hideQKb(); goScreen('s-welcome'); }
 
 // ══ Query ══
 function initQuery() {
