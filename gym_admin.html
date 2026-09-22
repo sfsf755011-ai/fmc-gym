@@ -3664,41 +3664,37 @@ function renderEditContracts(s){
   el.innerHTML=h2;
 }
 
-var _delContractPending = null;
 function confirmDeleteContract(stuId, contractIndex, btn){
-  // Two-step: first click shows warning, second click within 4s executes
-  if(_delContractPending && _delContractPending.stuId===stuId && _delContractPending.ci===contractIndex){
-    clearTimeout(_delContractPending.timer);
-    _delContractPending=null;
+  if(btn.getAttribute('data-pending')==='1'){
+    // Second click → execute
+    btn.removeAttribute('data-pending');
     btn.textContent='🗑 刪除方案';
     btn.style.background='var(--red-bg)';
     btn.style.borderColor='var(--red)';
     btn.style.color='var(--red)';
     deleteContract(stuId, contractIndex);
-    return;
-  }
-  // Reset any other pending
-  if(_delContractPending){
-    var ob=document.getElementById('del-contract-btn-'+_delContractPending.ci);
-    if(ob){ob.textContent='🗑 刪除方案';ob.style.background='var(--red-bg)';ob.style.borderColor='var(--red)';ob.style.color='var(--red)';}
-    clearTimeout(_delContractPending.timer);
-  }
-  btn.textContent='⚠️ 確認刪除？';
-  btn.style.background='var(--red)';
-  btn.style.borderColor='var(--red)';
-  btn.style.color='#fff';
-  _delContractPending={stuId:stuId, ci:contractIndex, timer:setTimeout(function(){
-    _delContractPending=null;
-    btn.textContent='🗑 刪除方案';
-    btn.style.background='var(--red-bg)';
+  } else {
+    // First click → arm
+    btn.setAttribute('data-pending','1');
+    btn.textContent='⚠️ 確認刪除？';
+    btn.style.background='var(--red)';
     btn.style.borderColor='var(--red)';
-    btn.style.color='var(--red)';
-  },4000)};
+    btn.style.color='#fff';
+    setTimeout(function(){
+      if(btn.getAttribute('data-pending')==='1'){
+        btn.removeAttribute('data-pending');
+        btn.textContent='🗑 刪除方案';
+        btn.style.background='var(--red-bg)';
+        btn.style.borderColor='var(--red)';
+        btn.style.color='var(--red)';
+      }
+    },4000);
+  }
 }
 
 function deleteContract(stuId, contractIndex){
   var s=students.find(function(st){return String(st.id)===String(stuId);});
-  if(!s)return;
+  if(!s){toast('找不到學員，請重新整理後再試');return;}
   var contracts=s.contracts||[];
   var c=contracts[contractIndex];
   if(!c)return;
