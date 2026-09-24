@@ -49,8 +49,8 @@
 
   /* main measurement grid: name | L-pre | R-pre | badge-pre | L-post | R-post | badge-post */
   .tb{padding:3px 8px 6px}
-  .col-hdr-grid{display:grid;grid-template-columns:1fr 46px 46px 52px 46px 46px 52px;gap:3px;align-items:center}
-  .measure-grid{display:grid;grid-template-columns:1fr 46px 46px 52px 46px 46px 52px;gap:3px;align-items:center}
+  .col-hdr-grid{display:grid;grid-template-columns:1fr 54px 54px 56px 54px 54px 56px;gap:3px;align-items:center}
+  .measure-grid{display:grid;grid-template-columns:1fr 54px 54px 56px 54px 54px 56px;gap:3px;align-items:center}
   .group-hdr{font-size:8px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;text-align:center;padding-bottom:2px;color:var(--text-ter)}
   .group-hdr.pre{border-bottom:1.5px solid var(--aL)}
   .group-hdr.post{border-bottom:1.5px dashed var(--aN)}
@@ -58,7 +58,7 @@
   .tr{padding:4px 0;border-top:1px solid var(--border)}
   .tn{font-size:11px;line-height:1.2;display:flex;align-items:center;gap:2px;flex-wrap:wrap}
   .iw{position:relative}
-  .iw input{width:100%;border:1.5px solid var(--border-med);border-radius:var(--rs);padding:3px 12px 3px 4px;font-size:12px;font-family:ui-monospace,monospace;color:var(--text-pri);background:var(--surface2);text-align:center}
+  .iw input{width:100%;border:1.5px solid var(--border-med);border-radius:var(--rs);padding:3px 14px 3px 3px;font-size:12px;font-family:ui-monospace,monospace;color:var(--text-pri);background:var(--surface2);text-align:center}
   .iw input:focus{outline:none;border-color:var(--slate-700);background:var(--white)}
   .iu{position:absolute;right:3px;top:50%;transform:translateY(-50%);font-size:8px;color:var(--text-ter);pointer-events:none}
   .badge{font-size:10px;padding:2px 4px;border-radius:var(--rs);font-weight:500;white-space:nowrap;font-family:ui-monospace,monospace;text-align:center;display:block;width:100%}
@@ -122,7 +122,7 @@
   .screenshot-btn:disabled{opacity:.5;cursor:wait}
 
   @media(max-width:520px){
-    .col-hdr-grid,.measure-grid{grid-template-columns:1fr 38px 38px 48px 38px 38px 48px}
+    .col-hdr-grid,.measure-grid{grid-template-columns:1fr 46px 46px 52px 46px 46px 52px}
   }
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
@@ -331,7 +331,7 @@
     <div class="sumb">
       <div class="verdict-grid">
         <div class="verdict-field">
-          <label class="verdict-label">偏側化方向</label>
+          <label class="verdict-label">結構側化方向</label>
           <select class="verdict-select" id="sel-lat" onchange="styleSelect(this,{'L':'sel-L','R':'sel-R'})">
             <option value="">— 選擇 —</option>
             <option value="L">左側　Left</option>
@@ -341,7 +341,7 @@
           </select>
         </div>
         <div class="verdict-field">
-          <label class="verdict-label">給予哪側壓縮腔體改善評估結果</label>
+          <label class="verdict-label">壓縮腔體策略</label>
           <select class="verdict-select" id="sel-compress" onchange="styleSelect(this,{'L':'sel-L','R':'sel-R'})">
             <option value="">— 選擇 —</option>
             <option value="L">左側壓縮</option>
