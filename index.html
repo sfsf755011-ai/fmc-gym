@@ -1341,8 +1341,10 @@ function submitCheckin() {
   var _timeout = setTimeout(function() {
     if (_done) return;
     _done = true;
+    _submitting = false;
     hideLoading();
-    alert('網路連線不穩，簽到未完成，請重試或告知教練');
+    if (confirmBtn) { confirmBtn.disabled = false; confirmBtn.textContent = '確認簽到 ✓'; }
+    alert('網路連線不穩，請至「當日簽到總覽」確認是否已完成\n若總覽有出現則簽到成功，若無則可重新簽到');
   }, 12000);
 
   function fail(msg) {
@@ -1421,6 +1423,7 @@ function submitCheckin() {
 
   // Step 1.5: 從 Firebase 讀最新資料
   db.ref('data/students').once('value', function(snap) {
+    if (_done) return; // timeout already fired before data arrived - abort cleanly before any writes
     var rawStu = snap.val() || {};
     var stuKey = null;
     if (Array.isArray(rawStu)) {
