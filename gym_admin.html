@@ -1053,14 +1053,28 @@ function fbSaveStudents() {
     if (err) console.error('Save students error:', err);
   });
 }
-function fbSaveSingleStudent(stu) {
+function fbSaveSingleStudent(stu, sessionCountsAlreadyFresh) {
   if (!stu) return;
-  // 找出此學員在 students array 中的 index，對應 Firebase key
   var idx = students.findIndex(function(s){ return String(s.id) === String(stu.id); });
-  if (idx >= 0) {
-    fbdb.ref('data/students/' + idx).set(stu, function(err) {
+  if (idx < 0) return;
+  function doSet(stuToSave) {
+    fbdb.ref('data/students/' + idx).set(stuToSave, function(err) {
       if (err) console.error('Save student error:', err);
     });
+  }
+  if (sessionCountsAlreadyFresh) {
+    // 後台明確編輯了堂數，直接寫入
+    doSet(stu);
+  } else {
+    // 先讀 Firebase 最新堂數，避免覆蓋前台剛簽到的扣堂紀錄
+    fbdb.ref('data/students/' + idx).once('value', function(snap) {
+      var latest = snap.val();
+      if (latest) {
+        if (latest.usedSessions !== undefined) stu.usedSessions = latest.usedSessions;
+        if (latest.usedPilateSessions !== undefined) stu.usedPilateSessions = latest.usedPilateSessions;
+      }
+      doSet(stu);
+    }, function() { doSet(stu); }); // 讀取失敗仍儲存
   }
 }
 function fbDeleteStudent(stuId) {
@@ -3308,15 +3322,19 @@ function loadEditStu(){
   form.style.display='block';
 }
 function updateEditRemain(){
-  var total=parseInt(document.getElementById('edit-total-sessions').value)||0;
-  var used=parseInt(document.getElementById('edit-used-sessions').value)||0;
+  var totalStr=document.getElementById('edit-total-sessions').value;
+  var usedStr=document.getElementById('edit-used-sessions').value;
+  var total=totalStr!==''?parseInt(totalStr)||0:0;
+  var used=usedStr!==''?parseInt(usedStr)||0:0;
   var el=document.getElementById('edit-remain-display');
+  // Always calculate from field values directly (stored data may be stale vs. check-ins)
+  var remain=Math.max(0,total-used);
+  // Keep period label from stored data for reference
   var selId=document.getElementById('edit-stu-sel').value;
   var stu=students.find(function(st){return String(st.id)===String(selId);});
   var pi=stu?getPeriodInfo(stu):null;
-  var periodRemain=pi?pi.remaining:Math.max(0,total-used);
   var periodLabel=pi&&pi.totalPeriods>1?' （第'+pi.period+'/'+pi.totalPeriods+'期）':'';
-  if(el){el.textContent=periodRemain+' 堂'+periodLabel;el.style.background=periodRemain<=2?'var(--red)':'var(--green)';}
+  if(el){el.textContent=remain+' 堂'+periodLabel;el.style.background=remain<=2?'var(--red)':'var(--green)';}
   var warn=document.getElementById('edit-over-warn');
   if(warn)warn.style.display=used>total?'block':'none';
 }
@@ -3339,8 +3357,10 @@ function saveEditStu(){
   var coach=document.getElementById('edit-stu-coach').value;
   if(!name){toast('學員姓名不能為空');return;}
   var oldName=s.name;var oldCoach=s.coach;
-  var newTotal=parseInt(document.getElementById('edit-total-sessions').value)||s.totalSessions;
-  var newUsed=parseInt(document.getElementById('edit-used-sessions').value)||s.usedSessions;
+  var _totalRaw=document.getElementById('edit-total-sessions').value;
+  var _usedRaw=document.getElementById('edit-used-sessions').value;
+  var newTotal=_totalRaw!==''?parseInt(_totalRaw)||0:s.totalSessions;
+  var newUsed=_usedRaw!==''?parseInt(_usedRaw)||0:s.usedSessions;
   if(newUsed>newTotal){toast('已上堂數不能超過總購堂數');return;}
   s.totalSessions=newTotal;s.usedSessions=newUsed;
   if(coach.toLowerCase()==='shian教練'){var scEl=document.getElementById('shian-type-company');s.shianType=(scEl&&scEl.classList.contains('active'))?'company':'self';}
@@ -3355,7 +3375,7 @@ function saveEditStu(){
   if(oldName!==name){records.forEach(function(r){if(r.student===oldName)r.student=name;});fbSaveRecords();}
   s.name=name;s.coach=coach;
   logAction('編輯學員',name,coach,'姓名：'+oldName+'→'+name+'，教練：'+oldCoach+'→'+coach+'，堂數：總'+s.totalSessions+'/已上'+s.usedSessions+'/剩'+(s.totalSessions-s.usedSessions));
-  fbSaveSingleStudent(s);
+  fbSaveSingleStudent(s, true); // admin explicitly edited session counts
   try{save('gym_students',students);save('gym_records',records);}catch(e){}
   toast('✓ 學員資料已更新：'+name);
   filterEditStudents();
@@ -3727,7 +3747,7 @@ function deleteContract(stuId, contractIndex){
     s.usedSessions=Math.max(0,(s.usedSessions||0)-strengthDel);
     if(pilatesDel>0)s.usedPilateSessions=Math.max(0,(s.usedPilateSessions||0)-pilatesDel);
     logAction('刪除方案',s.name,s.coach,(c.planLabel||c.sessions+'堂合約')+'・移除 '+toDelArr.length+' 筆簽到紀錄');
-    fbSaveSingleStudent(s);
+    fbSaveSingleStudent(s, true); // explicitly recalculated session counts
     try{save('gym_students',students);}catch(e){}
     renderEditContracts(s);
     var usedEl=document.getElementById('edit-used-sessions');
@@ -3889,7 +3909,7 @@ function addStudent(){
   if(coach.toLowerCase()==='shian教練')stu.shianType='self';
   students.push(stu);
   logAction('新增學員',name,coach,p.label+'・'+totalSessions+'堂・NT$'+price.toLocaleString()+(addPeriods>1?'・'+addPeriods+'期付':''));
-  fbSaveSingleStudent(stu);
+  fbSaveSingleStudent(stu, true); // new student, session counts start fresh
   try{save('gym_students',students);}catch(e){}
   toast('✓ 已新增學員：'+name);
   // 重置表單
