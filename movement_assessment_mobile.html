@@ -12,9 +12,9 @@
   --sag-border:#94a3b8;--sag-bg:#f8fafc;
   --neuro-border:var(--green);
   --text-pri:var(--slate-900);--text-sec:var(--slate-500);--text-ter:var(--slate-400);
-  --r:14px;--rs:10px;
+  --r:16px;--rs:12px;
   --shadow:0 1px 4px rgba(0,0,0,.08),0 1px 2px rgba(0,0,0,.04);
-  --input-h:44px;
+  --input-h:42px;
 }
 @media(prefers-color-scheme:dark){
   :root:not([data-theme="light"]){
@@ -46,22 +46,22 @@ html,body{height:100%}
 body{
   font-family:-apple-system,BlinkMacSystemFont,'PingFang TC','Microsoft JhengHei',sans-serif;
   background:var(--bg);color:var(--text-pri);
-  padding:0 0 60px;
-  font-size:14px;
+  padding:0 0 72px;
+  font-size:16px;
 }
 
 /* header */
 .top-bar{
   position:sticky;top:0;z-index:100;
   background:var(--slate-800);
-  padding:12px 16px;
+  padding:14px 16px;
   display:flex;align-items:center;gap:10px;
   box-shadow:0 2px 8px rgba(0,0,0,.2);
 }
-.top-bar h1{font-size:14px;font-weight:600;color:#fff;white-space:nowrap}
+.top-bar h1{font-size:17px;font-weight:600;color:#fff;white-space:nowrap}
 .name-input{
   flex:1;border:1.5px solid rgba(255,255,255,.2);border-radius:var(--rs);
-  padding:6px 10px;font-size:13px;color:#fff;background:rgba(255,255,255,.1);
+  padding:8px 12px;font-size:16px;color:#fff;background:rgba(255,255,255,.1);
   min-width:0;
 }
 .name-input::placeholder{color:rgba(255,255,255,.45)}
@@ -69,79 +69,82 @@ body{
 
 /* legend strip */
 .legend{
-  display:flex;gap:6px;padding:8px 16px;flex-wrap:wrap;
+  display:flex;gap:8px;padding:9px 16px;
+  flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;
   background:var(--surface);border-bottom:1px solid var(--slate-200);
+  scrollbar-width:none;
 }
-.leg{font-size:10px;padding:3px 9px;border-radius:20px;display:flex;align-items:center;gap:4px}
+.legend::-webkit-scrollbar{display:none}
+.leg{font-size:12px;padding:5px 11px;border-radius:20px;display:flex;align-items:center;gap:4px;white-space:nowrap;flex-shrink:0}
 .leg-key{background:var(--key-bg);color:var(--green);border:1.5px solid var(--green)}
 .leg-sag{background:var(--sag-bg);color:var(--text-sec);border:1.5px solid var(--slate-400)}
 .leg-aux{color:var(--text-ter);border:1px solid var(--slate-300);background:var(--surface2)}
 
 /* section heading */
 .section-head{
-  margin:12px 16px 6px;
+  margin:10px 16px 6px;
   display:flex;align-items:center;gap:8px;
 }
-.section-head h2{font-size:11px;font-weight:600;color:var(--text-sec);text-transform:uppercase;letter-spacing:.06em}
-.phase-chip{font-size:9px;padding:2px 8px;border-radius:20px;background:#475569;color:#f1f5f9;font-weight:600;letter-spacing:.04em}
+.section-head h2{font-size:12px;font-weight:600;color:var(--text-sec);text-transform:uppercase;letter-spacing:.06em}
+.phase-chip{font-size:10px;padding:2px 9px;border-radius:20px;background:#475569;color:#f1f5f9;font-weight:600;letter-spacing:.04em}
 
 /* test card */
 .test-card{
-  margin:0 12px 10px;
+  margin:0 12px 12px;
   background:var(--surface);border-radius:var(--r);
   border:1px solid var(--slate-200);
   box-shadow:var(--shadow);overflow:hidden;
 }
-.test-card.is-key{border-left:3px solid var(--green)}
-.test-card.is-sag{border-left:3px solid var(--slate-400)}
-.test-card.is-sub .card-title{padding-left:22px;font-size:12px;color:var(--text-sec)}
+.test-card.is-key{border-left:4px solid var(--green)}
+.test-card.is-sag{border-left:4px solid var(--slate-400)}
+.test-card.is-sub .card-title{padding-left:24px;font-size:15px;color:var(--text-sec)}
 
 .card-title{
-  padding:10px 14px 8px;
-  font-size:13px;font-weight:600;line-height:1.3;
+  padding:10px 16px 8px;
+  font-size:16px;font-weight:600;line-height:1.3;
   display:flex;align-items:center;gap:6px;flex-wrap:wrap;
   border-bottom:1px solid var(--slate-200);
 }
-.card-title .ref{font-size:10px;color:var(--text-ter);font-family:ui-monospace,monospace;font-weight:400}
-.card-title .star{font-size:11px;color:var(--slate-400)}
+.card-title .ref{font-size:12px;color:var(--text-ter);font-family:ui-monospace,monospace;font-weight:400}
+.card-title .star{font-size:13px;color:var(--slate-400)}
 .card-title .sub-icon{color:var(--text-ter)}
 
 /* two-column pre/post */
 .measure-cols{display:grid;grid-template-columns:1fr 1fr;border-bottom:1px solid var(--slate-200)}
-.phase-col{padding:10px 12px;display:flex;flex-direction:column;gap:8px}
+.phase-col{padding:10px 12px;display:flex;flex-direction:column;gap:7px}
 .phase-col+.phase-col{border-left:1px solid var(--slate-200)}
 
 .phase-tag{
-  font-size:9px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;
-  padding-bottom:5px;border-bottom:2px solid;margin-bottom:2px;
+  font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;
+  padding-bottom:6px;border-bottom:2px solid;margin-bottom:2px;
 }
 .phase-tag.pre{color:var(--aL);border-color:var(--aL)}
 .phase-tag.post{color:var(--aN);border-color:var(--aN);border-style:dashed}
 
-.side-row{display:flex;align-items:center;gap:6px}
+.side-row{display:flex;align-items:center;gap:8px}
 .side-label{
-  font-size:11px;font-weight:600;color:var(--text-sec);
-  width:16px;flex-shrink:0;text-align:center;
+  font-size:15px;font-weight:700;color:var(--text-sec);
+  width:20px;flex-shrink:0;text-align:center;
 }
 .num-wrap{position:relative;flex:1}
 .num-wrap input{
   width:100%;height:var(--input-h);
   border:1.5px solid var(--slate-300);border-radius:var(--rs);
-  padding:0 20px 0 8px;
-  font-size:16px;font-family:ui-monospace,monospace;
+  padding:0 22px 0 8px;
+  font-size:19px;font-family:ui-monospace,monospace;
   color:var(--text-pri);background:var(--surface2);
   text-align:center;
   -webkit-appearance:none;appearance:none;
 }
 .num-wrap input:focus{outline:none;border-color:var(--slate-700);background:var(--surface)}
 .num-unit{
-  position:absolute;right:6px;top:50%;transform:translateY(-50%);
-  font-size:9px;color:var(--text-ter);pointer-events:none;
+  position:absolute;right:7px;top:50%;transform:translateY(-50%);
+  font-size:11px;color:var(--text-ter);pointer-events:none;
 }
 .badge{
-  height:36px;border-radius:var(--rs);
+  height:34px;border-radius:var(--rs);
   display:flex;align-items:center;justify-content:center;
-  font-size:12px;font-weight:600;font-family:ui-monospace,monospace;
+  font-size:14px;font-weight:600;font-family:ui-monospace,monospace;
   letter-spacing:.01em;
 }
 .b0{background:var(--surface2);color:var(--text-ter);border:1px solid var(--slate-200);font-weight:400}
@@ -149,15 +152,29 @@ body{
 .bR{background:var(--aR-bg);color:var(--aR);border:1px solid var(--aR-border)}
 .bN{background:var(--aN-bg);color:var(--aN);border:1px solid var(--green-mid)}
 
+/* desc toggle */
+.desc-toggle{
+  padding:5px 14px 7px;display:flex;align-items:center;gap:5px;
+  cursor:pointer;border-top:1px solid var(--slate-200);
+  font-size:12px;color:var(--text-ter);user-select:none;
+  -webkit-user-select:none;
+}
+.desc-toggle:active{background:var(--surface2)}
+.desc-toggle-icon{font-size:14px;line-height:1;color:var(--slate-400)}
+.test-card.show-desc .desc-toggle-icon{transform:rotate(45deg);display:inline-block}
+.test-card.show-desc .desc-toggle{color:var(--aL)}
+
 /* desc */
-.desc-wrap{padding:8px 12px}
+.desc-wrap{display:none;padding:4px 12px 10px}
+.test-card.show-desc .desc-wrap{display:block}
 .desc-input{
-  width:100%;border:none;border-bottom:1.5px solid var(--slate-200);
-  padding:4px 4px 6px;font-size:13px;color:var(--text-pri);background:transparent;
-  line-height:1.5;
+  width:100%;height:36px;
+  border:1.5px solid var(--aL-border);border-radius:8px;
+  padding:0 10px;font-size:14px;color:var(--text-pri);background:var(--surface2);
+  line-height:36px;
 }
 .desc-input::placeholder{color:var(--text-ter);font-style:italic}
-.desc-input:focus{outline:none;border-bottom-color:var(--aL);background:var(--surface2);border-radius:var(--rs) var(--rs) 0 0;padding-left:8px}
+.desc-input:focus{outline:none;border-color:var(--aL);background:var(--surface)}
 
 /* grounding card */
 .neuro-card{
@@ -270,8 +287,6 @@ body{
   </div>
 </div>
 
-<div class="spacer"></div>
-
 <!-- PHASE 1 -->
 <div class="section-head">
   <span class="phase-chip">Phase 1</span>
@@ -307,6 +322,7 @@ body{
       <span class="badge b0" id="post-cervical-rot">–</span>
     </div>
   </div>
+  <div class="desc-toggle" onclick="toggleDesc(this)"><span class="desc-toggle-icon">＋</span>敘述補充</div>
   <div class="desc-wrap"><input class="desc-input" type="text" placeholder="敘述補充…"></div>
 </div>
 
@@ -327,6 +343,7 @@ body{
       <span class="badge b0" id="post-pelvis-rot">–</span>
     </div>
   </div>
+  <div class="desc-toggle" onclick="toggleDesc(this)"><span class="desc-toggle-icon">＋</span>敘述補充</div>
   <div class="desc-wrap"><input class="desc-input" type="text" placeholder="敘述補充…"></div>
 </div>
 
@@ -347,6 +364,7 @@ body{
       <span class="badge b0" id="post-shoulder-abd">–</span>
     </div>
   </div>
+  <div class="desc-toggle" onclick="toggleDesc(this)"><span class="desc-toggle-icon">＋</span>敘述補充</div>
   <div class="desc-wrap"><input class="desc-input" type="text" placeholder="敘述補充…"></div>
 </div>
 
@@ -371,6 +389,7 @@ body{
       <span class="badge b0" id="post-shoulder-er">–</span>
     </div>
   </div>
+  <div class="desc-toggle" onclick="toggleDesc(this)"><span class="desc-toggle-icon">＋</span>敘述補充</div>
   <div class="desc-wrap"><input class="desc-input" type="text" placeholder="敘述補充…"></div>
 </div>
 
@@ -391,6 +410,7 @@ body{
       <span class="badge b0" id="post-hip-ext">–</span>
     </div>
   </div>
+  <div class="desc-toggle" onclick="toggleDesc(this)"><span class="desc-toggle-icon">＋</span>敘述補充</div>
   <div class="desc-wrap"><input class="desc-input" type="text" placeholder="敘述補充…"></div>
 </div>
 
@@ -414,6 +434,7 @@ body{
       <span class="badge b0" id="post-slr">–</span>
     </div>
   </div>
+  <div class="desc-toggle" onclick="toggleDesc(this)"><span class="desc-toggle-icon">＋</span>敘述補充</div>
   <div class="desc-wrap"><input class="desc-input" type="text" placeholder="敘述補充…"></div>
 </div>
 
@@ -434,6 +455,7 @@ body{
       <span class="badge b0" id="post-shoulder-ir">–</span>
     </div>
   </div>
+  <div class="desc-toggle" onclick="toggleDesc(this)"><span class="desc-toggle-icon">＋</span>敘述補充</div>
   <div class="desc-wrap"><input class="desc-input" type="text" placeholder="敘述補充…"></div>
 </div>
 
@@ -644,6 +666,15 @@ function styleSelect(sel,map){
   if(v==='L'||v==='CL')sel.style.backgroundImage="url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%231d4ed8' d='M6 8L1 3h10z'/%3E%3C/svg%3E\")";
   else if(v==='R'||v==='CR')sel.style.backgroundImage="url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23b91c1c' d='M6 8L1 3h10z'/%3E%3C/svg%3E\")";
   else sel.style.backgroundImage="url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2394a3b8' d='M6 8L1 3h10z'/%3E%3C/svg%3E\")";
+}
+
+function toggleDesc(btn){
+  var card=btn.closest('.test-card');
+  var wasShown=card.classList.toggle('show-desc');
+  if(wasShown){
+    var input=card.querySelector('.desc-input');
+    if(input)setTimeout(function(){input.focus();},50);
+  }
 }
 
 function takeScreenshot(){
