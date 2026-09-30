@@ -1,708 +1,862 @@
-<title>動作評估（手機版）</title>
+<title>動作評估</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <style>
 :root{
-  --bg:#f0f4f8;--surface:#fff;--surface2:#f8fafc;
-  --slate-200:#e2e8f0;--slate-300:#cbd5e1;--slate-400:#94a3b8;
-  --slate-500:#64748b;--slate-700:#334155;--slate-800:#1e293b;--slate-900:#0f172a;
-  --green:#16a34a;--green-light:#f0fdf4;--green-mid:#bbf7d0;
-  --aL:#1d4ed8;--aL-bg:#dbeafe;--aL-border:#93c5fd;
-  --aR:#b91c1c;--aR-bg:#fee2e2;--aR-border:#fca5a5;
-  --aN:var(--green);--aN-bg:var(--green-light);
-  --key-border:var(--green);--key-bg:#f0fdf4;
-  --sag-border:#94a3b8;--sag-bg:#f8fafc;
-  --neuro-border:var(--green);
-  --text-pri:var(--slate-900);--text-sec:var(--slate-500);--text-ter:var(--slate-400);
-  --r:16px;--rs:12px;
-  --shadow:0 1px 4px rgba(0,0,0,.08),0 1px 2px rgba(0,0,0,.04);
-  --input-h:42px;
+  --bg:#f1f5f9;--white:#fff;
+  --sl50:#f8fafc;--sl100:#f1f5f9;--sl200:#e2e8f0;--sl300:#cbd5e1;
+  --sl400:#94a3b8;--sl500:#64748b;--sl600:#475569;--sl700:#334155;--sl800:#1e293b;--sl900:#0f172a;
+  --green:#16a34a;--gl:#f0fdf4;--gm:#bbf7d0;
+  --aL:#1d4ed8;--aLbg:#dbeafe;--aLbr:#93c5fd;
+  --aR:#b91c1c;--aRbg:#fee2e2;--aRbr:#fca5a5;
+  --aN:var(--green);--aNbg:var(--gl);--aNbr:var(--gm);
+  --r:14px;--rs:9px;
+  --shadow:0 1px 3px rgba(0,0,0,.08),0 1px 2px rgba(0,0,0,.05);
+  --ih:42px;
+  --hh:104px; /* header height */
+  --nh:60px;  /* nav height */
 }
-@media(prefers-color-scheme:dark){
-  :root:not([data-theme="light"]){
-    --bg:#0f172a;--surface:#1e293b;--surface2:#0f172a;
-    --slate-200:#334155;--slate-300:#475569;--slate-400:#64748b;
-    --slate-500:#94a3b8;--slate-700:#cbd5e1;--slate-800:#e2e8f0;
-    --text-pri:#f1f5f9;--text-sec:#94a3b8;--text-ter:#64748b;
-    --aL:#3b82f6;--aL-bg:#1e3a5f;--aL-border:#2563eb;
-    --aR:#ef4444;--aR-bg:#450a0a;--aR-border:#dc2626;
-    --aN:#22c55e;--aN-bg:#052e16;
-    --key-bg:#052e16;--sag-bg:#1a2636;
-    --green-light:#052e16;
-  }
-}
-:root[data-theme="dark"]{
-  --bg:#0f172a;--surface:#1e293b;--surface2:#0f172a;
-  --slate-200:#334155;--slate-300:#475569;--slate-400:#64748b;
-  --slate-500:#94a3b8;--slate-700:#cbd5e1;--slate-800:#e2e8f0;
-  --text-pri:#f1f5f9;--text-sec:#94a3b8;--text-ter:#64748b;
-  --aL:#3b82f6;--aL-bg:#1e3a5f;--aL-border:#2563eb;
-  --aR:#ef4444;--aR-bg:#450a0a;--aR-border:#dc2626;
-  --aN:#22c55e;--aN-bg:#052e16;
-  --key-bg:#052e16;--sag-bg:#1a2636;
-  --green-light:#052e16;
-}
-
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-html,body{height:100%}
+html{height:100%;background:var(--sl800)}
 body{
   font-family:-apple-system,BlinkMacSystemFont,'PingFang TC','Microsoft JhengHei',sans-serif;
-  background:var(--bg);color:var(--text-pri);
-  padding:0 0 72px;
-  font-size:16px;
+  background:var(--bg);color:var(--sl900);
+  min-height:100%;
+  padding-top:var(--hh);
+  padding-bottom:calc(var(--nh) + env(safe-area-inset-bottom,0px));
 }
 
-/* header */
-.top-bar{
-  position:sticky;top:0;z-index:100;
-  background:var(--slate-800);
-  padding:14px 16px;
-  display:flex;align-items:center;gap:10px;
-  box-shadow:0 2px 8px rgba(0,0,0,.2);
+/* ── HEADER ── */
+.app-header{
+  position:fixed;top:0;left:0;right:0;z-index:200;
+  background:var(--sl800);
+  padding:env(safe-area-inset-top,0px) 0 0;
 }
-.top-bar h1{font-size:17px;font-weight:600;color:#fff;white-space:nowrap}
-.name-input{
-  flex:1;border:1.5px solid rgba(255,255,255,.2);border-radius:var(--rs);
-  padding:8px 12px;font-size:16px;color:#fff;background:rgba(255,255,255,.1);
-  min-width:0;
+.header-inner{padding:12px 16px 10px;display:flex;flex-direction:column;gap:8px}
+.header-top{display:flex;align-items:center;gap:10px}
+.header-title{font-size:16px;font-weight:700;color:#fff;flex:1;white-space:nowrap}
+.name-inp{
+  flex:1;min-width:0;
+  border:1.5px solid rgba(255,255,255,.2);border-radius:8px;
+  padding:6px 10px;font-size:14px;color:#fff;background:rgba(255,255,255,.1);
 }
-.name-input::placeholder{color:rgba(255,255,255,.45)}
-.name-input:focus{outline:none;border-color:rgba(255,255,255,.5);background:rgba(255,255,255,.15)}
+.name-inp::placeholder{color:rgba(255,255,255,.35)}
+.name-inp:focus{outline:none;border-color:rgba(255,255,255,.45)}
 
-/* legend strip */
-.legend{
-  display:flex;gap:8px;padding:9px 16px;
-  flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;
-  background:var(--surface);border-bottom:1px solid var(--slate-200);
-  scrollbar-width:none;
+/* progress pills */
+.progress-row{display:flex;align-items:center;gap:0}
+.prog-pill{
+  flex:1;height:4px;border-radius:2px;background:rgba(255,255,255,.2);
+  transition:background .3s;
+  cursor:pointer;
 }
-.legend::-webkit-scrollbar{display:none}
-.leg{font-size:12px;padding:5px 11px;border-radius:20px;display:flex;align-items:center;gap:4px;white-space:nowrap;flex-shrink:0}
-.leg-key{background:var(--key-bg);color:var(--green);border:1.5px solid var(--green)}
-.leg-sag{background:var(--sag-bg);color:var(--text-sec);border:1.5px solid var(--slate-400)}
-.leg-aux{color:var(--text-ter);border:1px solid var(--slate-300);background:var(--surface2)}
+.prog-pill+.prog-pill{margin-left:4px}
+.prog-pill.active{background:rgba(255,255,255,.9)}
+.prog-pill.done{background:rgba(255,255,255,.5)}
+.prog-labels{display:flex;justify-content:space-between;margin-top:5px}
+.prog-label{font-size:9px;color:rgba(255,255,255,.45);font-weight:500;letter-spacing:.03em;text-align:center;flex:1}
+.prog-label.active{color:rgba(255,255,255,.9);font-weight:700}
 
-/* section heading */
-.section-head{
-  margin:10px 16px 6px;
-  display:flex;align-items:center;gap:8px;
-}
-.section-head h2{font-size:12px;font-weight:600;color:var(--text-sec);text-transform:uppercase;letter-spacing:.06em}
-.phase-chip{font-size:10px;padding:2px 9px;border-radius:20px;background:#475569;color:#f1f5f9;font-weight:600;letter-spacing:.04em}
+/* ── PAGES ── */
+.pages-container{position:relative;overflow:hidden}
+.page{display:none;padding:10px 12px 6px;animation:fadeIn .2s ease}
+.page.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
 
-/* test card */
+/* ── TEST CARD ── */
 .test-card{
-  margin:0 12px 12px;
-  background:var(--surface);border-radius:var(--r);
-  border:1px solid var(--slate-200);
-  box-shadow:var(--shadow);overflow:hidden;
+  background:var(--white);border-radius:var(--r);
+  border:1px solid var(--sl200);box-shadow:var(--shadow);
+  margin-bottom:10px;overflow:hidden;
 }
-.test-card.is-key{border-left:4px solid var(--green)}
-.test-card.is-sag{border-left:4px solid var(--slate-400)}
-.test-card.is-sub .card-title{padding-left:24px;font-size:15px;color:var(--text-sec)}
+.test-card.is-key{border-left:3px solid var(--green)}
+.test-card.is-sag{border-left:3px solid var(--sl400)}
+.test-card.is-sub{border-left:3px solid var(--sl300)}
 
-.card-title{
-  padding:10px 16px 8px;
-  font-size:16px;font-weight:600;line-height:1.3;
-  display:flex;align-items:center;gap:6px;flex-wrap:wrap;
-  border-bottom:1px solid var(--slate-200);
+.card-hd{
+  padding:10px 14px 8px;
+  font-size:14px;font-weight:700;line-height:1.25;
+  display:flex;align-items:center;gap:5px;flex-wrap:wrap;
+  border-bottom:1px solid var(--sl200);background:var(--sl50);
 }
-.card-title .ref{font-size:12px;color:var(--text-ter);font-family:ui-monospace,monospace;font-weight:400}
-.card-title .star{font-size:13px;color:var(--slate-400)}
-.card-title .sub-icon{color:var(--text-ter)}
+.card-hd .ref{font-size:11px;color:var(--sl400);font-family:ui-monospace,monospace;font-weight:400}
+.card-hd .star{font-size:12px;color:var(--sl400)}
 
-/* two-column pre/post */
-.measure-cols{display:grid;grid-template-columns:1fr 1fr;border-bottom:1px solid var(--slate-200)}
-.phase-col{padding:10px 12px;display:flex;flex-direction:column;gap:7px}
-.phase-col+.phase-col{border-left:1px solid var(--slate-200)}
+/* 2-column measure */
+.m-cols{display:grid;grid-template-columns:1fr 1fr}
+.m-col{padding:10px 11px;display:flex;flex-direction:column;gap:6px}
+.m-col+.m-col{border-left:1px solid var(--sl200)}
 
-.phase-tag{
-  font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;
-  padding-bottom:6px;border-bottom:2px solid;margin-bottom:2px;
+.phase-lbl{
+  font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;
+  padding-bottom:5px;border-bottom:2px solid;
 }
-.phase-tag.pre{color:var(--aL);border-color:var(--aL)}
-.phase-tag.post{color:var(--aN);border-color:var(--aN);border-style:dashed}
+.phase-lbl.pre{color:var(--aL);border-color:var(--aL)}
+.phase-lbl.post{color:var(--aN);border-color:var(--aN);border-style:dashed}
 
-.side-row{display:flex;align-items:center;gap:8px}
-.side-label{
-  font-size:15px;font-weight:700;color:var(--text-sec);
-  width:20px;flex-shrink:0;text-align:center;
-}
-.num-wrap{position:relative;flex:1}
-.num-wrap input{
-  width:100%;height:var(--input-h);
-  border:1.5px solid var(--slate-300);border-radius:var(--rs);
-  padding:0 22px 0 8px;
-  font-size:19px;font-family:ui-monospace,monospace;
-  color:var(--text-pri);background:var(--surface2);
-  text-align:center;
+.side-row{display:flex;align-items:center;gap:6px}
+.side-lbl{font-size:13px;font-weight:700;color:var(--sl500);width:18px;flex-shrink:0;text-align:center}
+.nw{position:relative;flex:1}
+.nw input{
+  width:100%;height:var(--ih);
+  border:1.5px solid var(--sl300);border-radius:var(--rs);
+  padding:0 18px 0 6px;font-size:17px;font-family:ui-monospace,monospace;
+  color:var(--sl900);background:var(--sl50);text-align:center;
   -webkit-appearance:none;appearance:none;
 }
-.num-wrap input:focus{outline:none;border-color:var(--slate-700);background:var(--surface)}
-.num-unit{
-  position:absolute;right:7px;top:50%;transform:translateY(-50%);
-  font-size:11px;color:var(--text-ter);pointer-events:none;
-}
+.nw input:focus{outline:none;border-color:var(--sl700);background:#fff}
+.nu{position:absolute;right:5px;top:50%;transform:translateY(-50%);font-size:10px;color:var(--sl400);pointer-events:none}
 .badge{
-  height:34px;border-radius:var(--rs);
+  height:32px;border-radius:var(--rs);
   display:flex;align-items:center;justify-content:center;
-  font-size:14px;font-weight:600;font-family:ui-monospace,monospace;
-  letter-spacing:.01em;
+  font-size:13px;font-weight:700;font-family:ui-monospace,monospace;
+  border:1px solid var(--sl200);background:var(--sl50);color:var(--sl400);
 }
-.b0{background:var(--surface2);color:var(--text-ter);border:1px solid var(--slate-200);font-weight:400}
-.bL{background:var(--aL-bg);color:var(--aL);border:1px solid var(--aL-border)}
-.bR{background:var(--aR-bg);color:var(--aR);border:1px solid var(--aR-border)}
-.bN{background:var(--aN-bg);color:var(--aN);border:1px solid var(--green-mid)}
+.bL{background:var(--aLbg);color:var(--aL);border-color:var(--aLbr)}
+.bR{background:var(--aRbg);color:var(--aR);border-color:var(--aRbr)}
+.bN{background:var(--aNbg);color:var(--aN);border-color:var(--aNbr)}
 
 /* desc toggle */
-.desc-toggle{
-  padding:5px 14px 7px;display:flex;align-items:center;gap:5px;
-  cursor:pointer;border-top:1px solid var(--slate-200);
-  font-size:12px;color:var(--text-ter);user-select:none;
-  -webkit-user-select:none;
+.desc-row{border-top:1px solid var(--sl200)}
+.desc-tog{
+  padding:6px 14px;display:flex;align-items:center;gap:5px;
+  font-size:12px;color:var(--sl400);cursor:pointer;user-select:none;-webkit-user-select:none;
 }
-.desc-toggle:active{background:var(--surface2)}
-.desc-toggle-icon{font-size:14px;line-height:1;color:var(--slate-400)}
-.test-card.show-desc .desc-toggle-icon{transform:rotate(45deg);display:inline-block}
-.test-card.show-desc .desc-toggle{color:var(--aL)}
-
-/* desc */
-.desc-wrap{display:none;padding:4px 12px 10px}
-.test-card.show-desc .desc-wrap{display:block}
-.desc-input{
+.desc-tog:active{background:var(--sl50)}
+.desc-tog-icon{font-size:13px;transition:transform .2s}
+.test-card.show-desc .desc-tog-icon{transform:rotate(45deg)}
+.test-card.show-desc .desc-tog{color:var(--aL)}
+.desc-body{display:none;padding:4px 12px 10px}
+.test-card.show-desc .desc-body{display:block}
+.desc-inp{
   width:100%;height:36px;
-  border:1.5px solid var(--aL-border);border-radius:8px;
-  padding:0 10px;font-size:14px;color:var(--text-pri);background:var(--surface2);
-  line-height:36px;
+  border:1.5px solid var(--sl300);border-radius:var(--rs);
+  padding:0 10px;font-size:14px;color:var(--sl900);background:var(--sl50);
 }
-.desc-input::placeholder{color:var(--text-ter);font-style:italic}
-.desc-input:focus{outline:none;border-color:var(--aL);background:var(--surface)}
+.desc-inp:focus{outline:none;border-color:var(--aL);background:#fff}
+.desc-inp::placeholder{color:var(--sl400);font-style:italic}
 
-/* grounding card */
-.neuro-card{
-  margin:0 12px 10px;
-  background:var(--surface);border-radius:var(--r);
-  border:1.5px dashed var(--neuro-border);
-  box-shadow:var(--shadow);overflow:hidden;
+/* ── GROUNDING (page 3) ── */
+.g-card{
+  background:var(--white);border-radius:var(--r);
+  border:1.5px dashed var(--green);box-shadow:var(--shadow);
+  margin-bottom:10px;overflow:hidden;
 }
-.neuro-head{
-  padding:10px 14px;background:var(--slate-800);
+.g-head{
+  padding:10px 14px;background:var(--sl800);
   display:flex;align-items:center;gap:8px;
-  border-bottom:1px dashed var(--neuro-border);
+  border-bottom:1px dashed var(--green);
 }
-.neuro-head-title{font-size:13px;font-weight:600;color:#fff}
-.neuro-chip{font-size:9px;padding:2px 7px;border-radius:20px;background:var(--green-mid);color:#166534;font-weight:600}
+.g-head-title{font-size:14px;font-weight:700;color:#fff}
+.g-chip{font-size:10px;padding:2px 8px;border-radius:20px;background:var(--gm);color:#166534;font-weight:600}
 
-.neuro-phase{padding:12px 14px;border-bottom:1px solid var(--slate-200)}
-.neuro-phase:last-child{border-bottom:none}
-.neuro-phase-label{font-size:9px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;padding-bottom:6px;border-bottom:2px solid;margin-bottom:10px}
-.neuro-phase-label.pre{color:var(--aL);border-color:var(--aL)}
-.neuro-phase-label.post{color:var(--aN);border-color:var(--aN);border-style:dashed}
+.g-phase{padding:12px 14px}
+.g-phase+.g-phase{border-top:1px solid var(--sl200)}
+.g-phase-lbl{font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;padding-bottom:6px;border-bottom:2px solid;margin-bottom:10px}
+.g-phase-lbl.pre{color:var(--aL);border-color:var(--aL)}
+.g-phase-lbl.post{color:var(--aN);border-color:var(--aN);border-style:dashed}
 
-.neuro-row{display:flex;align-items:center;gap:8px;margin-bottom:8px}
-.neuro-side{font-size:12px;font-weight:600;width:28px;flex-shrink:0}
-.neuro-score-group{display:flex;gap:6px;flex:1}
-.neuro-score-col{flex:1;display:flex;flex-direction:column;gap:3px}
-.neuro-score-label{font-size:9px;color:var(--text-ter);text-align:center}
-.neuro-desc-col{flex:2}
-.neuro-desc-label{font-size:9px;color:var(--text-ter);margin-bottom:3px}
-.neuro-desc-input{
-  width:100%;border:none;border-bottom:1.5px solid var(--slate-200);
-  padding:3px 4px 5px;font-size:13px;color:var(--text-pri);background:transparent;
+.g-row{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.g-side{font-size:13px;font-weight:700;width:28px;flex-shrink:0}
+.g-scores{display:flex;gap:6px;flex:1}
+.g-score-col{flex:1}
+.g-score-lbl{font-size:9px;color:var(--sl400);text-align:center;margin-bottom:3px;font-weight:600;letter-spacing:.04em}
+.g-desc-col{flex:2}
+.g-desc-lbl{font-size:9px;color:var(--sl400);margin-bottom:3px;font-weight:600;letter-spacing:.04em}
+.g-desc-inp{
+  width:100%;border:none;border-bottom:1.5px solid var(--sl200);
+  padding:2px 4px 5px;font-size:13px;color:var(--sl900);background:transparent;
 }
-.neuro-desc-input:focus{outline:none;border-bottom-color:var(--neuro-border)}
-.neuro-desc-input::placeholder{color:var(--text-ter);font-style:italic}
-
-.neuro-result{
-  margin-top:6px;padding:10px 12px;border-radius:var(--rs);
-  background:var(--surface2);font-size:12px;color:var(--text-sec);line-height:1.5;
-  border:1px solid var(--slate-200);
+.g-desc-inp:focus{outline:none;border-bottom-color:var(--green)}
+.g-desc-inp::placeholder{color:var(--sl400);font-style:italic}
+.g-result{
+  margin-top:8px;padding:10px 12px;border-radius:var(--rs);
+  background:var(--sl50);font-size:12px;color:var(--sl500);line-height:1.5;
+  border:1px solid var(--sl200);
 }
-.neuro-result.has-val{background:var(--green-light);color:#166534;border-color:var(--green-mid)}
+.g-result.has-val{background:var(--gl);color:#166534;border-color:var(--gm)}
+.g-result strong{font-weight:700}
 .score-worse{color:var(--aR)!important}
 
-/* summary */
-.sumbox{
-  margin:0 12px 10px;
-  background:var(--surface);border-radius:var(--r);
-  border:1px solid var(--slate-200);box-shadow:var(--shadow);overflow:hidden;
+/* ── SUMMARY (page 4) ── */
+.sum-card{
+  background:var(--white);border-radius:var(--r);
+  border:1px solid var(--sl200);box-shadow:var(--shadow);
+  margin-bottom:10px;overflow:hidden;
 }
-.sumh{padding:10px 14px;background:var(--slate-800);font-size:13px;font-weight:600;color:#fff}
-.sumb{padding:12px 14px;display:flex;flex-direction:column;gap:10px}
-.verdict-field{display:flex;flex-direction:column;gap:4px}
-.verdict-label{font-size:11px;color:var(--text-sec);font-weight:500}
-.verdict-select{
-  width:100%;border:1.5px solid var(--slate-300);border-radius:var(--rs);
-  padding:10px 12px;font-size:14px;color:var(--text-pri);background:var(--surface2);
-  cursor:pointer;font-weight:500;height:44px;
-  -webkit-appearance:none;appearance:none;
+.sum-hd{padding:10px 14px;background:var(--sl800);font-size:14px;font-weight:700;color:#fff}
+.sum-body{padding:14px}
+.vfield{display:flex;flex-direction:column;gap:4px;margin-bottom:12px}
+.vfield:last-child{margin-bottom:0}
+.vlabel{font-size:11px;font-weight:600;color:var(--sl500);text-transform:uppercase;letter-spacing:.05em}
+.vsel{
+  width:100%;height:46px;
+  border:1.5px solid var(--sl300);border-radius:var(--rs);
+  padding:0 32px 0 12px;font-size:15px;color:var(--sl900);background:var(--sl50);
+  -webkit-appearance:none;appearance:none;font-weight:600;
   background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2394a3b8' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
   background-repeat:no-repeat;background-position:right 12px center;
-  padding-right:32px;
+  cursor:pointer;
 }
-.verdict-select:focus{outline:none;border-color:var(--slate-700)}
-.verdict-select.sel-L{background-color:var(--aL-bg);color:var(--aL);border-color:var(--aL-border)}
-.verdict-select.sel-R{background-color:var(--aR-bg);color:var(--aR);border-color:var(--aR-border)}
-.verdict-select.sel-none{background-color:var(--aN-bg);color:var(--aN);border-color:var(--green-mid)}
+.vsel:focus{outline:none;border-color:var(--sl700)}
+.vsel.sel-L{background-color:var(--aLbg);color:var(--aL);border-color:var(--aLbr)}
+.vsel.sel-R{background-color:var(--aRbg);color:var(--aR);border-color:var(--aRbr)}
+.vsel.sel-N{background-color:var(--aNbg);color:var(--aN);border-color:var(--aNbr)}
 
-/* notes */
-.notesbox{
-  margin:0 12px 10px;
-  background:var(--surface);border-radius:var(--r);
-  border:1px solid var(--slate-200);box-shadow:var(--shadow);overflow:hidden;
+.notes-ta{
+  width:100%;border:1.5px solid var(--sl300);border-radius:var(--rs);
+  padding:10px 12px;font-size:14px;color:var(--sl900);background:var(--sl50);
+  resize:vertical;min-height:110px;line-height:1.7;
+  font-family:inherit;
 }
-.notesh{padding:10px 14px;background:var(--slate-800);font-size:13px;font-weight:600;color:#fff}
-.notesb{padding:12px 14px}
-.notes-textarea{
-  width:100%;border:1.5px solid var(--slate-300);border-radius:var(--rs);
-  padding:10px 12px;font-size:14px;color:var(--text-pri);background:var(--surface2);
-  resize:vertical;min-height:120px;line-height:1.7;
+.notes-ta:focus{outline:none;border-color:var(--sl700);background:#fff}
+.notes-ta::placeholder{color:var(--sl400)}
+
+/* results summary */
+.results-grid{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}
+.result-row{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:8px 12px;background:var(--sl50);border-radius:var(--rs);
+  border:1px solid var(--sl200);font-size:13px;
 }
-.notes-textarea:focus{outline:none;border-color:var(--slate-700);background:var(--surface)}
-.notes-textarea::placeholder{color:var(--text-ter)}
+.result-name{font-weight:600;color:var(--sl700)}
+.result-badges{display:flex;gap:6px}
+.r-badge{font-size:11px;font-family:ui-monospace,monospace;font-weight:700;
+  padding:2px 8px;border-radius:6px;background:var(--sl200);color:var(--sl600)}
+.r-badge.bL{background:var(--aLbg);color:var(--aL)}
+.r-badge.bR{background:var(--aRbg);color:var(--aR)}
+.r-badge.bN{background:var(--aNbg);color:var(--aN)}
 
 /* screenshot btn */
-.btn-bar{padding:0 12px 8px}
-.screenshot-btn{
-  width:100%;height:50px;border-radius:var(--r);border:none;
-  background:var(--slate-800);color:#fff;font-size:14px;font-weight:500;
+.btn-screenshot{
+  width:100%;height:48px;border-radius:var(--r);border:none;
+  background:var(--sl800);color:#fff;font-size:15px;font-weight:700;
   cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;
+  margin-top:4px;
 }
-.screenshot-btn:active{background:var(--slate-700)}
-.screenshot-btn:disabled{opacity:.5;cursor:wait}
+.btn-screenshot:active{background:var(--sl700)}
 
-.spacer{height:8px}
+/* ── BOTTOM NAV ── */
+.bottom-nav{
+  position:fixed;bottom:0;left:0;right:0;z-index:200;
+  background:var(--white);border-top:1px solid var(--sl200);
+  padding:10px 16px;
+  padding-bottom:calc(10px + env(safe-area-inset-bottom,0px));
+  display:flex;align-items:center;gap:10px;
+}
+.nav-btn{
+  flex:1;height:44px;border:1.5px solid var(--sl300);border-radius:var(--rs);
+  background:var(--white);color:var(--sl700);font-size:14px;font-weight:600;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;
+}
+.nav-btn:active{background:var(--sl100)}
+.nav-btn.primary{background:var(--sl800);color:#fff;border-color:var(--sl800)}
+.nav-btn.primary:active{background:var(--sl700)}
+.nav-btn:disabled{opacity:.35;pointer-events:none}
+.nav-page-num{font-size:12px;color:var(--sl400);white-space:nowrap;font-weight:600}
+
+/* section label between cards */
+.sec-label{
+  font-size:10px;font-weight:700;color:var(--sl500);text-transform:uppercase;
+  letter-spacing:.08em;margin:4px 2px 6px;display:flex;align-items:center;gap:6px;
+}
+.sec-label::before{content:'';display:block;width:3px;height:12px;background:var(--sl400);border-radius:2px}
+
+/* iOS screenshot overlay */
+#sc-overlay{display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.88);
+  flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:20px}
+#sc-overlay p{color:#fff;font-size:14px;text-align:center;line-height:1.6}
+#sc-overlay img{max-width:100%;max-height:70vh;border-radius:10px}
+#sc-overlay button{color:#fff;background:none;border:1.5px solid rgba(255,255,255,.4);
+  border-radius:10px;padding:10px 28px;font-size:14px;cursor:pointer}
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
-<div class="top-bar">
-  <h1>動作評估</h1>
-  <input type="text" class="name-input" id="client-name" placeholder="個案姓名…">
-</div>
-
-<div class="legend">
-  <div class="leg leg-key">偏側化主要依據</div>
-  <div class="leg leg-sag">★ 矢狀面代償</div>
-  <div class="leg leg-aux">
-    <svg viewBox="0 0 12 12" width="9" height="9"><polygon points="6,1 11,11 1,11" fill="#94a3b8"/></svg>
-    輔助判斷
+<!-- HEADER -->
+<div class="app-header" id="app-header">
+  <div class="header-inner">
+    <div class="header-top">
+      <span class="header-title">動作評估</span>
+      <input class="name-inp" id="client-name" type="text" placeholder="個案姓名…" oninput="save()">
+    </div>
+    <div class="progress-row">
+      <div class="prog-pill active" onclick="goPage(0)" id="pp0"></div>
+      <div class="prog-pill" onclick="goPage(1)" id="pp1"></div>
+      <div class="prog-pill" onclick="goPage(2)" id="pp2"></div>
+      <div class="prog-pill" onclick="goPage(3)" id="pp3"></div>
+    </div>
+    <div class="prog-labels">
+      <span class="prog-label active" id="pl0">旋轉組</span>
+      <span class="prog-label" id="pl1">外展組</span>
+      <span class="prog-label" id="pl2">接地</span>
+      <span class="prog-label" id="pl3">總結</span>
+    </div>
   </div>
 </div>
 
-<!-- PHASE 1 -->
-<div class="section-head">
-  <span class="phase-chip">Phase 1</span>
-  <h2>頸旋轉 ／ 骨盆 ／ 肩外展 ／ 髖伸 ／ 肩內旋</h2>
-</div>
+<!-- PAGE 1: 頸旋轉 / 骨盆旋轉 / 肩外展 -->
+<div class="pages-container">
+<div class="page active" id="page-0">
 
-<!-- CV Rotation -->
-<div class="test-card is-key" data-test="cervical-rot">
-  <div class="card-title">CV. Rota　頸旋轉<span class="ref">&gt;30°</span></div>
-  <div class="measure-cols">
-    <div class="phase-col">
-      <div class="phase-tag pre">前測 PRE</div>
-      <div class="side-row">
-        <span class="side-label">左</span>
-        <div class="num-wrap"><input type="number" inputmode="decimal" min="0" max="90" placeholder="–" oninput="calc(this)"><span class="num-unit">°</span></div>
+  <div class="sec-label">偏側化主要依據</div>
+
+  <div class="test-card is-key" data-test="cervical-rot">
+    <div class="card-hd">CV. Rota　頸旋轉<span class="ref">&gt;30°</span></div>
+    <div class="m-cols">
+      <div class="m-col">
+        <div class="phase-lbl pre">前測 PRE</div>
+        <div class="side-row"><span class="side-lbl">左</span><div class="nw"><input type="number" inputmode="decimal" min="0" max="90" placeholder="–" oninput="calc(this);save()"><span class="nu">°</span></div></div>
+        <div class="side-row"><span class="side-lbl">右</span><div class="nw"><input type="number" inputmode="decimal" min="0" max="90" placeholder="–" oninput="calc(this);save()"><span class="nu">°</span></div></div>
+        <div class="badge" id="pre-cervical-rot">–</div>
       </div>
-      <div class="side-row">
-        <span class="side-label">右</span>
-        <div class="num-wrap"><input type="number" inputmode="decimal" min="0" max="90" placeholder="–" oninput="calc(this)"><span class="num-unit">°</span></div>
+      <div class="m-col">
+        <div class="phase-lbl post">後測 POST</div>
+        <div class="side-row"><span class="side-lbl">左</span><div class="nw"><input type="number" inputmode="decimal" min="0" max="90" placeholder="–" oninput="calc(this);save()"><span class="nu">°</span></div></div>
+        <div class="side-row"><span class="side-lbl">右</span><div class="nw"><input type="number" inputmode="decimal" min="0" max="90" placeholder="–" oninput="calc(this);save()"><span class="nu">°</span></div></div>
+        <div class="badge" id="post-cervical-rot">–</div>
       </div>
-      <span class="badge b0" id="pre-cervical-rot">–</span>
     </div>
-    <div class="phase-col">
-      <div class="phase-tag post">後測 POST</div>
-      <div class="side-row">
-        <span class="side-label">左</span>
-        <div class="num-wrap"><input type="number" inputmode="decimal" min="0" max="90" placeholder="–" oninput="calc(this)"><span class="num-unit">°</span></div>
+    <div class="desc-row">
+      <div class="desc-tog" onclick="toggleDesc(this)"><span class="desc-tog-icon">＋</span>敘述補充</div>
+      <div class="desc-body"><input class="desc-inp" type="text" placeholder="敘述補充…" oninput="save()"></div>
+    </div>
+  </div>
+
+  <div class="test-card is-key" data-test="pelvis-rot">
+    <div class="card-hd">PV. Rota　骨盆旋轉<span class="ref">&gt;70°</span></div>
+    <div class="m-cols">
+      <div class="m-col">
+        <div class="phase-lbl pre">前測 PRE</div>
+        <div class="side-row"><span class="side-lbl">左</span><div class="nw"><input type="number" inputmode="decimal" min="0" max="180" placeholder="–" oninput="calc(this);save()"><span class="nu">°</span></div></div>
+        <div class="side-row"><span class="side-lbl">右</span><div class="nw"><input type="number" inputmode="decimal" min="0" max="180" placeholder="–" oninput="calc(this);save()"><span class="nu">°</span></div></div>
+        <div class="badge" id="pre-pelvis-rot">–</div>
       </div>
-      <div class="side-row">
-        <span class="side-label">右</span>
-        <div class="num-wrap"><input type="number" inputmode="decimal" min="0" max="90" placeholder="–" oninput="calc(this)"><span class="num-unit">°</span></div>
+      <div class="m-col">
+        <div class="phase-lbl post">後測 POST</div>
+        <div class="side-row"><span class="side-lbl">左</span><div class="nw"><input type="number" inputmode="decimal" min="0" max="180" placeholder="–" oninput="calc(this);save()"><span class="nu">°</span></div></div>
+        <div class="side-row"><span class="side-lbl">右</span><div class="nw"><input type="number" inputmode="decimal" min="0" max="180" placeholder="–" oninput="calc(this);save()"><span class="nu">°</span></div></div>
+        <div class="badge" id="post-pelvis-rot">–</div>
       </div>
-      <span class="badge b0" id="post-cervical-rot">–</span>
+    </div>
+    <div class="desc-row">
+      <div class="desc-tog" onclick="toggleDesc(this)"><span class="desc-tog-icon">＋</span>敘述補充</div>
+      <div class="desc-body"><input class="desc-inp" type="text" placeholder="敘述補充…" oninput="save()"></div>
     </div>
   </div>
-  <div class="desc-toggle" onclick="toggleDesc(this)"><span class="desc-toggle-icon">＋</span>敘述補充</div>
-  <div class="desc-wrap"><input class="desc-input" type="text" placeholder="敘述補充…"></div>
+
+  <div class="test-card is-key" data-test="shoulder-abd">
+    <div class="card-hd">SH. Abd　肩外展<span class="ref">&gt;45°</span></div>
+    <div class="m-cols">
+      <div class="m-col">
+        <div class="phase-lbl pre">前測 PRE</div>
+        <div class="side-row"><span class="side-lbl">左</span><div class="nw"><input type="number" inputmode="decimal" min="0" max="180" placeholder="–" oninput="calc(this);save()"><span class="nu">°</span></div></div>
+        <div class="side-row"><span class="side-lbl">右</span><div class="nw"><input type="number" inputmode="decimal" min="0" max="180" placeholder="–" oninput="calc(this);save()"><span class="nu">°</span></div></div>
+        <div class="badge" id="pre-shoulder-abd">–</div>
+      </div>
+      <div class="m-col">
+        <div class="phase-lbl post">後測 POST</div>
+        <div class="side-row"><span class="side-lbl">左</span><div class="nw"><input type="number" inputmode="decimal" min="0" max="180" placeholder="–" oninput="calc(this);save()"><span class="nu">°</span></div></div>
+        <div class="side-row"><span class="side-lbl">右</span><div class="nw"><input type="number" inputmode="decimal" min="0" max="180" placeholder="–" oninput="calc(this);save()"><span class="nu">°</span></div></div>
+        <div class="badge" id="post-shoulder-abd">–</div>
+      </div>
+    </div>
+    <div class="desc-row">
+      <div class="desc-tog" onclick="toggleDesc(this)"><span class="desc-tog-icon">＋</span>敘述補充</div>
+      <div class="desc-body"><input class="desc-inp" type="text" placeholder="敘述補充…" oninput="save()"></div>
+    </div>
+  </div>
+
 </div>
 
-<!-- Pelvis Rotation -->
-<div class="test-card is-key" data-test="pelvis-rot">
-  <div class="card-title">PV. Rota　骨盆旋轉<span class="ref">&gt;70°</span></div>
-  <div class="measure-cols">
-    <div class="phase-col">
-      <div class="phase-tag pre">前測 PRE</div>
-      <div class="side-row"><span class="side-label">左</span><div class="num-wrap"><input type="number" inputmode="decimal" min="0" max="180" placeholder="–" oninput="calc(this)"><span class="num-unit">°</span></div></div>
-      <div class="side-row"><span class="side-label">右</span><div class="num-wrap"><input type="number" inputmode="decimal" min="0" max="180" placeholder="–" oninput="calc(this)"><span class="num-unit">°</span></div></div>
-      <span class="badge b0" id="pre-pelvis-rot">–</span>
+<!-- PAGE 2: 肩外旋 / 肩內旋 / 直腿抬高 / 髖伸 -->
+<div class="page" id="page-1">
+
+  <div class="sec-label">矢狀面代償 ★ ／ 輔助判斷 ▲</div>
+
+  <div class="test-card is-sub" data-test="shoulder-er">
+    <div class="card-hd">▲ SH. ER　肩外旋<span class="ref">&gt;70°</span></div>
+    <div class="m-cols">
+      <div class="m-col">
+        <div class="phase-lbl pre">前測 PRE</div>
+        <div class="side-row"><span class="side-lbl">左</span><div class="nw"><input type="number" inputmode="decimal" min="0" max="180" placeholder="–" oninput="calc(this);save()"><span class="nu">°</span></div></div>
+        <div class="side-row"><span class="side-lbl">右</span><div class="nw"><input type="number" inputmode="decimal" min="0" max="180" placeholder="–" oninput="calc(this);save()"><span class="nu">°</span></div></div>
+        <div class="badge" id="pre-shoulder-er">–</div>
+      </div>
+      <div class="m-col">
+        <div class="phase-lbl post">後測 POST</div>
+        <div class="side-row"><span class="side-lbl">左</span><div class="nw"><input type="number" inputmode="decimal" min="0" max="180" placeholder="–" oninput="calc(this);save()"><span class="nu">°</span></div></div>
+        <div class="side-row"><span class="side-lbl">右</span><div class="nw"><input type="number" inputmode="decimal" min="0" max="180" placeholder="–" oninput="calc(this);save()"><span class="nu">°</span></div></div>
+        <div class="badge" id="post-shoulder-er">–</div>
+      </div>
     </div>
-    <div class="phase-col">
-      <div class="phase-tag post">後測 POST</div>
-      <div class="side-row"><span class="side-label">左</span><div class="num-wrap"><input type="number" inputmode="decimal" min="0" max="180" placeholder="–" oninput="calc(this)"><span class="num-unit">°</span></div></div>
-      <div class="side-row"><span class="side-label">右</span><div class="num-wrap"><input type="number" inputmode="decimal" min="0" max="180" placeholder="–" oninput="calc(this)"><span class="num-unit">°</span></div></div>
-      <span class="badge b0" id="post-pelvis-rot">–</span>
+    <div class="desc-row">
+      <div class="desc-tog" onclick="toggleDesc(this)"><span class="desc-tog-icon">＋</span>敘述補充</div>
+      <div class="desc-body"><input class="desc-inp" type="text" placeholder="敘述補充…" oninput="save()"></div>
     </div>
   </div>
-  <div class="desc-toggle" onclick="toggleDesc(this)"><span class="desc-toggle-icon">＋</span>敘述補充</div>
-  <div class="desc-wrap"><input class="desc-input" type="text" placeholder="敘述補充…"></div>
+
+  <div class="test-card is-sag" data-test="shoulder-ir">
+    <div class="card-hd"><span class="star">★</span> SH. IR　肩內旋<span class="ref">&gt;70°</span></div>
+    <div class="m-cols">
+      <div class="m-col">
+        <div class="phase-lbl pre">前測 PRE</div>
+        <div class="side-row"><span class="side-lbl">左</span><div class="nw"><input type="number" inputmode="decimal" min="0" max="180" placeholder="–" oninput="calc(this);save()"><span class="nu">°</span></div></div>
+        <div class="side-row"><span class="side-lbl">右</span><div class="nw"><input type="number" inputmode="decimal" min="0" max="180" placeholder="–" oninput="calc(this);save()"><span class="nu">°</span></div></div>
+        <div class="badge" id="pre-shoulder-ir">–</div>
+      </div>
+      <div class="m-col">
+        <div class="phase-lbl post">後測 POST</div>
+        <div class="side-row"><span class="side-lbl">左</span><div class="nw"><input type="number" inputmode="decimal" min="0" max="180" placeholder="–" oninput="calc(this);save()"><span class="nu">°</span></div></div>
+        <div class="side-row"><span class="side-lbl">右</span><div class="nw"><input type="number" inputmode="decimal" min="0" max="180" placeholder="–" oninput="calc(this);save()"><span class="nu">°</span></div></div>
+        <div class="badge" id="post-shoulder-ir">–</div>
+      </div>
+    </div>
+    <div class="desc-row">
+      <div class="desc-tog" onclick="toggleDesc(this)"><span class="desc-tog-icon">＋</span>敘述補充</div>
+      <div class="desc-body"><input class="desc-inp" type="text" placeholder="敘述補充…" oninput="save()"></div>
+    </div>
+  </div>
+
+  <div class="test-card is-sag" data-test="slr">
+    <div class="card-hd"><span class="star">★</span> SLR　直腿抬高<span class="ref">&gt;70°</span></div>
+    <div class="m-cols">
+      <div class="m-col">
+        <div class="phase-lbl pre">前測 PRE</div>
+        <div class="side-row"><span class="side-lbl">左</span><div class="nw"><input type="number" inputmode="decimal" min="0" max="120" placeholder="–" oninput="calc(this);save()"><span class="nu">°</span></div></div>
+        <div class="side-row"><span class="side-lbl">右</span><div class="nw"><input type="number" inputmode="decimal" min="0" max="120" placeholder="–" oninput="calc(this);save()"><span class="nu">°</span></div></div>
+        <div class="badge" id="pre-slr">–</div>
+      </div>
+      <div class="m-col">
+        <div class="phase-lbl post">後測 POST</div>
+        <div class="side-row"><span class="side-lbl">左</span><div class="nw"><input type="number" inputmode="decimal" min="0" max="120" placeholder="–" oninput="calc(this);save()"><span class="nu">°</span></div></div>
+        <div class="side-row"><span class="side-lbl">右</span><div class="nw"><input type="number" inputmode="decimal" min="0" max="120" placeholder="–" oninput="calc(this);save()"><span class="nu">°</span></div></div>
+        <div class="badge" id="post-slr">–</div>
+      </div>
+    </div>
+    <div class="desc-row">
+      <div class="desc-tog" onclick="toggleDesc(this)"><span class="desc-tog-icon">＋</span>敘述補充</div>
+      <div class="desc-body"><input class="desc-inp" type="text" placeholder="敘述補充…" oninput="save()"></div>
+    </div>
+  </div>
+
+  <div class="test-card is-sag" data-test="hip-ext">
+    <div class="card-hd"><span class="star">★</span> HP. Exten　髖伸<span class="ref">−5~0°</span></div>
+    <div class="m-cols">
+      <div class="m-col">
+        <div class="phase-lbl pre">前測 PRE</div>
+        <div class="side-row"><span class="side-lbl">左</span><div class="nw"><input type="number" inputmode="decimal" min="-30" max="60" placeholder="–" oninput="calc(this);save()"><span class="nu">°</span></div></div>
+        <div class="side-row"><span class="side-lbl">右</span><div class="nw"><input type="number" inputmode="decimal" min="-30" max="60" placeholder="–" oninput="calc(this);save()"><span class="nu">°</span></div></div>
+        <div class="badge" id="pre-hip-ext">–</div>
+      </div>
+      <div class="m-col">
+        <div class="phase-lbl post">後測 POST</div>
+        <div class="side-row"><span class="side-lbl">左</span><div class="nw"><input type="number" inputmode="decimal" min="-30" max="60" placeholder="–" oninput="calc(this);save()"><span class="nu">°</span></div></div>
+        <div class="side-row"><span class="side-lbl">右</span><div class="nw"><input type="number" inputmode="decimal" min="-30" max="60" placeholder="–" oninput="calc(this);save()"><span class="nu">°</span></div></div>
+        <div class="badge" id="post-hip-ext">–</div>
+      </div>
+    </div>
+    <div class="desc-row">
+      <div class="desc-tog" onclick="toggleDesc(this)"><span class="desc-tog-icon">＋</span>敘述補充</div>
+      <div class="desc-body"><input class="desc-inp" type="text" placeholder="敘述補充…" oninput="save()"></div>
+    </div>
+  </div>
+
 </div>
 
-<!-- Shoulder Abduction -->
-<div class="test-card is-key" data-test="shoulder-abd">
-  <div class="card-title">SH. Abd　肩外展<span class="ref">&gt;45°</span></div>
-  <div class="measure-cols">
-    <div class="phase-col">
-      <div class="phase-tag pre">前測 PRE</div>
-      <div class="side-row"><span class="side-label">左</span><div class="num-wrap"><input type="number" inputmode="decimal" min="0" max="180" placeholder="–" oninput="calc(this)"><span class="num-unit">°</span></div></div>
-      <div class="side-row"><span class="side-label">右</span><div class="num-wrap"><input type="number" inputmode="decimal" min="0" max="180" placeholder="–" oninput="calc(this)"><span class="num-unit">°</span></div></div>
-      <span class="badge b0" id="pre-shoulder-abd">–</span>
-    </div>
-    <div class="phase-col">
-      <div class="phase-tag post">後測 POST</div>
-      <div class="side-row"><span class="side-label">左</span><div class="num-wrap"><input type="number" inputmode="decimal" min="0" max="180" placeholder="–" oninput="calc(this)"><span class="num-unit">°</span></div></div>
-      <div class="side-row"><span class="side-label">右</span><div class="num-wrap"><input type="number" inputmode="decimal" min="0" max="180" placeholder="–" oninput="calc(this)"><span class="num-unit">°</span></div></div>
-      <span class="badge b0" id="post-shoulder-abd">–</span>
-    </div>
-  </div>
-  <div class="desc-toggle" onclick="toggleDesc(this)"><span class="desc-toggle-icon">＋</span>敘述補充</div>
-  <div class="desc-wrap"><input class="desc-input" type="text" placeholder="敘述補充…"></div>
-</div>
+<!-- PAGE 3: 接地功能 -->
+<div class="page" id="page-2">
 
-<!-- Shoulder ER (sub) -->
-<div class="test-card is-sub" data-test="shoulder-er">
-  <div class="card-title">
-    <span class="sub-icon">└</span>
-    <svg viewBox="0 0 12 12" width="11" height="11" style="flex-shrink:0"><polygon points="6,1 11,11 1,11" fill="#64748b"/></svg>
-    SH. ER　肩外旋<span class="ref">&gt;70°</span>
-  </div>
-  <div class="measure-cols">
-    <div class="phase-col">
-      <div class="phase-tag pre">前測 PRE</div>
-      <div class="side-row"><span class="side-label">左</span><div class="num-wrap"><input type="number" inputmode="decimal" min="0" max="180" placeholder="–" oninput="calc(this)"><span class="num-unit">°</span></div></div>
-      <div class="side-row"><span class="side-label">右</span><div class="num-wrap"><input type="number" inputmode="decimal" min="0" max="180" placeholder="–" oninput="calc(this)"><span class="num-unit">°</span></div></div>
-      <span class="badge b0" id="pre-shoulder-er">–</span>
+  <div class="g-card">
+    <div class="g-head">
+      <span class="g-head-title">接地功能　Grounding</span>
+      <span class="g-chip">神經偏好</span>
     </div>
-    <div class="phase-col">
-      <div class="phase-tag post">後測 POST</div>
-      <div class="side-row"><span class="side-label">左</span><div class="num-wrap"><input type="number" inputmode="decimal" min="0" max="180" placeholder="–" oninput="calc(this)"><span class="num-unit">°</span></div></div>
-      <div class="side-row"><span class="side-label">右</span><div class="num-wrap"><input type="number" inputmode="decimal" min="0" max="180" placeholder="–" oninput="calc(this)"><span class="num-unit">°</span></div></div>
-      <span class="badge b0" id="post-shoulder-er">–</span>
-    </div>
-  </div>
-  <div class="desc-toggle" onclick="toggleDesc(this)"><span class="desc-toggle-icon">＋</span>敘述補充</div>
-  <div class="desc-wrap"><input class="desc-input" type="text" placeholder="敘述補充…"></div>
-</div>
 
-<!-- Hip Extension -->
-<div class="test-card is-sag" data-test="hip-ext">
-  <div class="card-title"><span class="star">★</span>HP. Exten　髖伸<span class="ref">−5~0°</span></div>
-  <div class="measure-cols">
-    <div class="phase-col">
-      <div class="phase-tag pre">前測 PRE</div>
-      <div class="side-row"><span class="side-label">左</span><div class="num-wrap"><input type="number" inputmode="decimal" min="-30" max="60" placeholder="–" oninput="calc(this)"><span class="num-unit">°</span></div></div>
-      <div class="side-row"><span class="side-label">右</span><div class="num-wrap"><input type="number" inputmode="decimal" min="-30" max="60" placeholder="–" oninput="calc(this)"><span class="num-unit">°</span></div></div>
-      <span class="badge b0" id="pre-hip-ext">–</span>
-    </div>
-    <div class="phase-col">
-      <div class="phase-tag post">後測 POST</div>
-      <div class="side-row"><span class="side-label">左</span><div class="num-wrap"><input type="number" inputmode="decimal" min="-30" max="60" placeholder="–" oninput="calc(this)"><span class="num-unit">°</span></div></div>
-      <div class="side-row"><span class="side-label">右</span><div class="num-wrap"><input type="number" inputmode="decimal" min="-30" max="60" placeholder="–" oninput="calc(this)"><span class="num-unit">°</span></div></div>
-      <span class="badge b0" id="post-hip-ext">–</span>
-    </div>
-  </div>
-  <div class="desc-toggle" onclick="toggleDesc(this)"><span class="desc-toggle-icon">＋</span>敘述補充</div>
-  <div class="desc-wrap"><input class="desc-input" type="text" placeholder="敘述補充…"></div>
-</div>
-
-<!-- SLR (sub) -->
-<div class="test-card is-sag is-sub" data-test="slr">
-  <div class="card-title">
-    <span class="sub-icon">└</span>
-    <span class="star">★</span>SLR　直腿抬高<span class="ref">&gt;70°</span>
-  </div>
-  <div class="measure-cols">
-    <div class="phase-col">
-      <div class="phase-tag pre">前測 PRE</div>
-      <div class="side-row"><span class="side-label">左</span><div class="num-wrap"><input type="number" inputmode="decimal" min="0" max="120" placeholder="–" oninput="calc(this)"><span class="num-unit">°</span></div></div>
-      <div class="side-row"><span class="side-label">右</span><div class="num-wrap"><input type="number" inputmode="decimal" min="0" max="120" placeholder="–" oninput="calc(this)"><span class="num-unit">°</span></div></div>
-      <span class="badge b0" id="pre-slr">–</span>
-    </div>
-    <div class="phase-col">
-      <div class="phase-tag post">後測 POST</div>
-      <div class="side-row"><span class="side-label">左</span><div class="num-wrap"><input type="number" inputmode="decimal" min="0" max="120" placeholder="–" oninput="calc(this)"><span class="num-unit">°</span></div></div>
-      <div class="side-row"><span class="side-label">右</span><div class="num-wrap"><input type="number" inputmode="decimal" min="0" max="120" placeholder="–" oninput="calc(this)"><span class="num-unit">°</span></div></div>
-      <span class="badge b0" id="post-slr">–</span>
-    </div>
-  </div>
-  <div class="desc-toggle" onclick="toggleDesc(this)"><span class="desc-toggle-icon">＋</span>敘述補充</div>
-  <div class="desc-wrap"><input class="desc-input" type="text" placeholder="敘述補充…"></div>
-</div>
-
-<!-- Shoulder IR -->
-<div class="test-card is-sag" data-test="shoulder-ir">
-  <div class="card-title"><span class="star">★</span>SH. IR　肩內旋<span class="ref">&gt;70°</span></div>
-  <div class="measure-cols">
-    <div class="phase-col">
-      <div class="phase-tag pre">前測 PRE</div>
-      <div class="side-row"><span class="side-label">左</span><div class="num-wrap"><input type="number" inputmode="decimal" min="0" max="180" placeholder="–" oninput="calc(this)"><span class="num-unit">°</span></div></div>
-      <div class="side-row"><span class="side-label">右</span><div class="num-wrap"><input type="number" inputmode="decimal" min="0" max="180" placeholder="–" oninput="calc(this)"><span class="num-unit">°</span></div></div>
-      <span class="badge b0" id="pre-shoulder-ir">–</span>
-    </div>
-    <div class="phase-col">
-      <div class="phase-tag post">後測 POST</div>
-      <div class="side-row"><span class="side-label">左</span><div class="num-wrap"><input type="number" inputmode="decimal" min="0" max="180" placeholder="–" oninput="calc(this)"><span class="num-unit">°</span></div></div>
-      <div class="side-row"><span class="side-label">右</span><div class="num-wrap"><input type="number" inputmode="decimal" min="0" max="180" placeholder="–" oninput="calc(this)"><span class="num-unit">°</span></div></div>
-      <span class="badge b0" id="post-shoulder-ir">–</span>
-    </div>
-  </div>
-  <div class="desc-toggle" onclick="toggleDesc(this)"><span class="desc-toggle-icon">＋</span>敘述補充</div>
-  <div class="desc-wrap"><input class="desc-input" type="text" placeholder="敘述補充…"></div>
-</div>
-
-<!-- GROUNDING -->
-<div class="section-head">
-  <h2>接地功能　Grounding</h2>
-</div>
-
-<div class="neuro-card">
-  <div class="neuro-head">
-    <span class="neuro-head-title">接地功能　Grounding</span>
-    <span class="neuro-chip">神經偏好</span>
-  </div>
-
-  <!-- PRE -->
-  <div class="neuro-phase">
-    <div class="neuro-phase-label pre">前測 PRE</div>
-    <div class="neuro-row">
-      <span class="neuro-side">左側</span>
-      <div class="neuro-score-group">
-        <div class="neuro-score-col">
-          <div class="neuro-score-label">主觀（分）</div>
-          <div class="num-wrap"><input type="number" inputmode="decimal" min="1" max="10" placeholder="–" oninput="calcNeuro()" id="subj-L-pre"><span class="num-unit">分</span></div>
+    <div class="g-phase">
+      <div class="g-phase-lbl pre">前測 PRE</div>
+      <div class="g-row">
+        <span class="g-side">左側</span>
+        <div class="g-scores">
+          <div class="g-score-col">
+            <div class="g-score-lbl">主觀</div>
+            <div class="nw"><input type="number" inputmode="decimal" min="1" max="10" placeholder="–" oninput="calcNeuro();save()" id="subj-L-pre"><span class="nu" style="font-size:9px">分</span></div>
+          </div>
+          <div class="g-score-col">
+            <div class="g-score-lbl">客觀</div>
+            <div class="nw"><input type="number" inputmode="decimal" min="1" max="10" placeholder="–" oninput="calcNeuro();save()" id="obj-L-pre"><span class="nu" style="font-size:9px">分</span></div>
+          </div>
         </div>
-        <div class="neuro-score-col">
-          <div class="neuro-score-label">客觀（分）</div>
-          <div class="num-wrap"><input type="number" inputmode="decimal" min="1" max="10" placeholder="–" oninput="calcNeuro()" id="obj-L-pre"><span class="num-unit">分</span></div>
-        </div>
-      </div>
-      <div class="neuro-desc-col">
-        <div class="neuro-desc-label">敘述</div>
-        <input class="neuro-desc-input" type="text" placeholder="補充…" id="desc-L-pre">
-      </div>
-    </div>
-    <div class="neuro-row">
-      <span class="neuro-side">右側</span>
-      <div class="neuro-score-group">
-        <div class="neuro-score-col">
-          <div class="neuro-score-label">主觀（分）</div>
-          <div class="num-wrap"><input type="number" inputmode="decimal" min="1" max="10" placeholder="–" oninput="calcNeuro()" id="subj-R-pre"><span class="num-unit">分</span></div>
-        </div>
-        <div class="neuro-score-col">
-          <div class="neuro-score-label">客觀（分）</div>
-          <div class="num-wrap"><input type="number" inputmode="decimal" min="1" max="10" placeholder="–" oninput="calcNeuro()" id="obj-R-pre"><span class="num-unit">分</span></div>
+        <div class="g-desc-col">
+          <div class="g-desc-lbl">敘述</div>
+          <input class="g-desc-inp" type="text" placeholder="補充…" id="desc-L-pre" oninput="save()">
         </div>
       </div>
-      <div class="neuro-desc-col">
-        <div class="neuro-desc-label">敘述</div>
-        <input class="neuro-desc-input" type="text" placeholder="補充…" id="desc-R-pre">
+      <div class="g-row">
+        <span class="g-side">右側</span>
+        <div class="g-scores">
+          <div class="g-score-col">
+            <div class="g-score-lbl">主觀</div>
+            <div class="nw"><input type="number" inputmode="decimal" min="1" max="10" placeholder="–" oninput="calcNeuro();save()" id="subj-R-pre"><span class="nu" style="font-size:9px">分</span></div>
+          </div>
+          <div class="g-score-col">
+            <div class="g-score-lbl">客觀</div>
+            <div class="nw"><input type="number" inputmode="decimal" min="1" max="10" placeholder="–" oninput="calcNeuro();save()" id="obj-R-pre"><span class="nu" style="font-size:9px">分</span></div>
+          </div>
+        </div>
+        <div class="g-desc-col">
+          <div class="g-desc-lbl">敘述</div>
+          <input class="g-desc-inp" type="text" placeholder="補充…" id="desc-R-pre" oninput="save()">
+        </div>
       </div>
+      <div class="g-result" id="neuro-result-pre"><strong>輸入客觀分數後顯示大腦偏好</strong>　以客觀前測判讀</div>
     </div>
-    <div class="neuro-result" id="neuro-result-pre"><strong>輸入客觀分數後顯示大腦偏好</strong>　以客觀前測判讀</div>
+
+    <div class="g-phase">
+      <div class="g-phase-lbl post">後測 POST</div>
+      <div class="g-row">
+        <span class="g-side">左側</span>
+        <div class="g-scores">
+          <div class="g-score-col">
+            <div class="g-score-lbl">主觀</div>
+            <div class="nw"><input type="number" inputmode="decimal" min="1" max="10" placeholder="–" oninput="calcNeuro();save()" id="subj-L-post"><span class="nu" style="font-size:9px">分</span></div>
+          </div>
+          <div class="g-score-col">
+            <div class="g-score-lbl">客觀</div>
+            <div class="nw"><input type="number" inputmode="decimal" min="1" max="10" placeholder="–" oninput="calcNeuro();save()" id="obj-L-post"><span class="nu" style="font-size:9px">分</span></div>
+          </div>
+        </div>
+        <div class="g-desc-col">
+          <div class="g-desc-lbl">敘述</div>
+          <input class="g-desc-inp" type="text" placeholder="補充…" id="desc-L-post" oninput="save()">
+        </div>
+      </div>
+      <div class="g-row">
+        <span class="g-side">右側</span>
+        <div class="g-scores">
+          <div class="g-score-col">
+            <div class="g-score-lbl">主觀</div>
+            <div class="nw"><input type="number" inputmode="decimal" min="1" max="10" placeholder="–" oninput="calcNeuro();save()" id="subj-R-post"><span class="nu" style="font-size:9px">分</span></div>
+          </div>
+          <div class="g-score-col">
+            <div class="g-score-lbl">客觀</div>
+            <div class="nw"><input type="number" inputmode="decimal" min="1" max="10" placeholder="–" oninput="calcNeuro();save()" id="obj-R-post"><span class="nu" style="font-size:9px">分</span></div>
+          </div>
+        </div>
+        <div class="g-desc-col">
+          <div class="g-desc-lbl">敘述</div>
+          <input class="g-desc-inp" type="text" placeholder="補充…" id="desc-R-post" oninput="save()">
+        </div>
+      </div>
+      <div class="g-result" id="neuro-result-post"><strong>輸入客觀分數後顯示大腦偏好</strong>　以客觀後測判讀</div>
+    </div>
   </div>
 
-  <!-- POST -->
-  <div class="neuro-phase">
-    <div class="neuro-phase-label post">後測 POST</div>
-    <div class="neuro-row">
-      <span class="neuro-side">左側</span>
-      <div class="neuro-score-group">
-        <div class="neuro-score-col">
-          <div class="neuro-score-label">主觀（分）</div>
-          <div class="num-wrap"><input type="number" inputmode="decimal" min="1" max="10" placeholder="–" oninput="calcNeuro()" id="subj-L-post"><span class="num-unit">分</span></div>
-        </div>
-        <div class="neuro-score-col">
-          <div class="neuro-score-label">客觀（分）</div>
-          <div class="num-wrap"><input type="number" inputmode="decimal" min="1" max="10" placeholder="–" oninput="calcNeuro()" id="obj-L-post"><span class="num-unit">分</span></div>
-        </div>
-      </div>
-      <div class="neuro-desc-col">
-        <div class="neuro-desc-label">敘述</div>
-        <input class="neuro-desc-input" type="text" placeholder="補充…" id="desc-L-post">
-      </div>
-    </div>
-    <div class="neuro-row">
-      <span class="neuro-side">右側</span>
-      <div class="neuro-score-group">
-        <div class="neuro-score-col">
-          <div class="neuro-score-label">主觀（分）</div>
-          <div class="num-wrap"><input type="number" inputmode="decimal" min="1" max="10" placeholder="–" oninput="calcNeuro()" id="subj-R-post"><span class="num-unit">分</span></div>
-        </div>
-        <div class="neuro-score-col">
-          <div class="neuro-score-label">客觀（分）</div>
-          <div class="num-wrap"><input type="number" inputmode="decimal" min="1" max="10" placeholder="–" oninput="calcNeuro()" id="obj-R-post"><span class="num-unit">分</span></div>
-        </div>
-      </div>
-      <div class="neuro-desc-col">
-        <div class="neuro-desc-label">敘述</div>
-        <input class="neuro-desc-input" type="text" placeholder="補充…" id="desc-R-post">
-      </div>
-    </div>
-    <div class="neuro-result" id="neuro-result-post"><strong>輸入客觀分數後顯示大腦偏好</strong>　以客觀後測判讀</div>
-  </div>
 </div>
 
-<!-- SUMMARY -->
-<div class="section-head"><h2>結構評估總結</h2></div>
-<div class="sumbox">
-  <div class="sumh">結構評估總結</div>
-  <div class="sumb">
-    <div class="verdict-field">
-      <label class="verdict-label">結構側化方向</label>
-      <select class="verdict-select" id="sel-lat" onchange="styleSelect(this,{'L':'sel-L','R':'sel-R'})">
-        <option value="">— 選擇 —</option>
-        <option value="L">左側　Left</option>
-        <option value="R">右側　Right</option>
-        <option value="CL">混亂左側化</option>
-        <option value="CR">混亂右側化</option>
-      </select>
-    </div>
-    <div class="verdict-field">
-      <label class="verdict-label">壓縮腔體策略</label>
-      <select class="verdict-select" id="sel-compress" onchange="styleSelect(this,{'L':'sel-L','R':'sel-R'})">
-        <option value="">— 選擇 —</option>
-        <option value="L">左側壓縮</option>
-        <option value="R">右側壓縮</option>
-      </select>
-    </div>
-    <div class="verdict-field">
-      <label class="verdict-label">ghope 促進側</label>
-      <select class="verdict-select" id="sel-ghope" onchange="styleSelect(this,{'L':'sel-L','R':'sel-R'})">
-        <option value="">— 選擇 —</option>
-        <option value="L">左側 ghope</option>
-        <option value="R">右側 ghope</option>
-      </select>
+<!-- PAGE 4: 總結 -->
+<div class="page" id="page-3">
+
+  <div class="sum-card">
+    <div class="sum-hd">各項判讀總覽</div>
+    <div class="sum-body">
+      <div class="results-grid" id="results-grid">
+        <!-- filled by JS -->
+      </div>
     </div>
   </div>
-</div>
 
-<!-- NOTES -->
-<div class="section-head"><h2>回家作業與總結</h2></div>
-<div class="notesbox">
-  <div class="notesh">回家作業與總結</div>
-  <div class="notesb">
-    <textarea class="notes-textarea" id="eval-notes" placeholder="回家作業、介入方向、目前階段判斷、觀察重點…"></textarea>
+  <div class="sum-card">
+    <div class="sum-hd">結構評估總結</div>
+    <div class="sum-body">
+      <div class="vfield">
+        <label class="vlabel">結構側化方向</label>
+        <select class="vsel" id="sel-lat" onchange="styleSelect(this);save()">
+          <option value="">— 選擇 —</option>
+          <option value="L">左側　Left</option>
+          <option value="R">右側　Right</option>
+          <option value="CL">混亂左側化</option>
+          <option value="CR">混亂右側化</option>
+        </select>
+      </div>
+      <div class="vfield">
+        <label class="vlabel">壓縮腔體策略</label>
+        <select class="vsel" id="sel-compress" onchange="styleSelect(this);save()">
+          <option value="">— 選擇 —</option>
+          <option value="L">左側壓縮</option>
+          <option value="R">右側壓縮</option>
+        </select>
+      </div>
+      <div class="vfield">
+        <label class="vlabel">ghope 促進側</label>
+        <select class="vsel" id="sel-ghope" onchange="styleSelect(this);save()">
+          <option value="">— 選擇 —</option>
+          <option value="L">左側 ghope</option>
+          <option value="R">右側 ghope</option>
+        </select>
+      </div>
+    </div>
   </div>
-</div>
 
-<div class="btn-bar">
-  <button class="screenshot-btn" id="screenshot-btn" onclick="takeScreenshot()">
+  <div class="sum-card">
+    <div class="sum-hd">回家作業與總結</div>
+    <div class="sum-body">
+      <textarea class="notes-ta" id="eval-notes" placeholder="回家作業、介入方向、目前階段判斷、觀察重點…" oninput="save()"></textarea>
+    </div>
+  </div>
+
+  <button class="btn-screenshot" id="sc-btn" onclick="takeScreenshot()">
     <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="1" y="3" width="14" height="10" rx="2" stroke="currentColor" stroke-width="1.3"/><circle cx="8" cy="8" r="2.5" stroke="currentColor" stroke-width="1.3"/><path d="M5.5 3L6.5 1.5h3L10.5 3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
     儲存評估截圖
   </button>
+
+</div>
+</div><!-- /pages-container -->
+
+<!-- BOTTOM NAV -->
+<div class="bottom-nav">
+  <button class="nav-btn" id="btn-prev" onclick="goPage(curPage-1)" disabled>
+    <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M9 2L4 7l5 5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    上一頁
+  </button>
+  <span class="nav-page-num" id="nav-num">1 / 4</span>
+  <button class="nav-btn primary" id="btn-next" onclick="goPage(curPage+1)">
+    下一頁
+    <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M5 2l5 5-5 5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  </button>
+</div>
+
+<!-- Screenshot overlay (iOS) -->
+<div id="sc-overlay">
+  <p>長按圖片 → 儲存至相簿</p>
+  <img id="sc-img" src="" alt="">
+  <button onclick="document.getElementById('sc-overlay').style.display='none'">關閉</button>
 </div>
 
 <script>
+// ── Config ──
 const TESTS={
-  'slr':          {leftLat:(L,R)=>R<L},
+  'cervical-rot': {leftLat:(L,R)=>R<L},
   'pelvis-rot':   {leftLat:(L,R)=>R<L},
   'shoulder-abd': {leftLat:(L,R)=>R<L},
-  'hip-ext':      {leftLat:(L,R)=>R<L},
+  'shoulder-er':  {leftLat:(L,R)=>R<L},
   'shoulder-ir':  {leftLat:(L,R)=>L<R},
-  'cervical-rot': {leftLat:(L,R)=>R<L},
-  'shoulder-er':  {leftLat:(L,R)=>R<L}
+  'slr':          {leftLat:(L,R)=>R<L},
+  'hip-ext':      {leftLat:(L,R)=>R<L}
 };
+const TEST_NAMES={
+  'cervical-rot':'頸旋轉','pelvis-rot':'骨盆旋轉','shoulder-abd':'肩外展',
+  'shoulder-er':'肩外旋','shoulder-ir':'肩內旋','slr':'直腿抬高','hip-ext':'髖伸'
+};
+const STORAGE_KEY='fmc-assess-v1';
+let curPage=0;
 
+// ── Badge ──
 function getLat(id,L,R){if(L===R)return'N';return TESTS[id].leftLat(L,R)?'L':'R';}
-function setBadge(elId,lat){
-  const el=document.getElementById(elId);if(!el)return;
-  if(lat===null){el.className='badge b0';el.textContent='–';return;}
+function setBadge(el,lat){
+  if(!el)return;
+  if(lat===null){el.className='badge';el.textContent='–';return;}
   el.className='badge b'+lat;
   el.textContent=lat==='N'?'對稱':lat+' Lat';
 }
 
 function calc(input){
-  const row=input.closest('[data-test]');
+  const row=input.closest('[data-test]');if(!row)return;
   const id=row.dataset.test;
-  const numInputs=Array.from(row.querySelectorAll('input[type="number"]'));
-  const preL=parseFloat(numInputs[0].value),preR=parseFloat(numInputs[1].value);
-  const postL=parseFloat(numInputs[2].value),postR=parseFloat(numInputs[3].value);
-  if(!isNaN(preL)&&!isNaN(preR))setBadge('pre-'+id,getLat(id,preL,preR));
-  else setBadge('pre-'+id,null);
-  if(!isNaN(postL)&&!isNaN(postR))setBadge('post-'+id,getLat(id,postL,postR));
-  else setBadge('post-'+id,null);
+  const nums=Array.from(row.querySelectorAll('input[type="number"]'));
+  const pL=parseFloat(nums[0].value),pR=parseFloat(nums[1].value);
+  const qL=parseFloat(nums[2].value),qR=parseFloat(nums[3].value);
+  setBadge(document.getElementById('pre-'+id),!isNaN(pL)&&!isNaN(pR)?getLat(id,pL,pR):null);
+  setBadge(document.getElementById('post-'+id),!isNaN(qL)&&!isNaN(qR)?getLat(id,qL,qR):null);
+  refreshResultsGrid();
 }
 
+// ── Neuro ──
 function calcNeuroPhase(objLId,objRId,resultId,label){
   const objLEl=document.getElementById(objLId);
   const objREl=document.getElementById(objRId);
-  const objL=parseFloat(objLEl.value);
-  const objR=parseFloat(objREl.value);
+  const objL=parseFloat(objLEl.value),objR=parseFloat(objREl.value);
   const box=document.getElementById(resultId);
-  objLEl.classList.remove('score-worse');
-  objREl.classList.remove('score-worse');
+  objLEl.classList.remove('score-worse');objREl.classList.remove('score-worse');
   if(isNaN(objL)||isNaN(objR)){
-    box.className='neuro-result';
-    box.innerHTML='<strong>輸入客觀分數後顯示大腦偏好</strong>　以客觀'+label+'判讀';
-    return;
+    box.className='g-result';
+    box.innerHTML='<strong>輸入客觀分數後顯示大腦偏好</strong>　以客觀'+label+'判讀';return;
   }
   if(objL<objR)objLEl.classList.add('score-worse');
   else if(objR<objL)objREl.classList.add('score-worse');
-  box.className='neuro-result has-val';
-  if(objL>objR)box.innerHTML='<strong>大腦更喜歡站在左邊</strong>　客觀：左 '+objL+' 分 ／ 右 '+objR+' 分';
-  else if(objR>objL)box.innerHTML='<strong>大腦更喜歡站在右邊</strong>　客觀：左 '+objL+' 分 ／ 右 '+objR+' 分';
-  else box.innerHTML='<strong>左右客觀分數相同</strong>　左 '+objL+' 分 ／ 右 '+objR+' 分，目前無明顯神經偏好側';
+  box.className='g-result has-val';
+  if(objL>objR)box.innerHTML='<strong>大腦更喜歡站在左邊</strong>　客觀：左 '+objL+' ／ 右 '+objR+' 分';
+  else if(objR>objL)box.innerHTML='<strong>大腦更喜歡站在右邊</strong>　客觀：左 '+objL+' ／ 右 '+objR+' 分';
+  else box.innerHTML='<strong>左右客觀分數相同</strong>　左 '+objL+' ／ 右 '+objR+' 分';
 }
-
 function calcNeuro(){
   calcNeuroPhase('obj-L-pre','obj-R-pre','neuro-result-pre','前測');
   calcNeuroPhase('obj-L-post','obj-R-post','neuro-result-post','後測');
 }
 
-function styleSelect(sel,map){
-  sel.className='verdict-select';
+// ── Summary grid ──
+function refreshResultsGrid(){
+  const grid=document.getElementById('results-grid');if(!grid)return;
+  let html='';
+  Object.keys(TESTS).forEach(function(id){
+    const preBadge=document.getElementById('pre-'+id);
+    const postBadge=document.getElementById('post-'+id);
+    const preText=preBadge?preBadge.textContent:'–';
+    const postText=postBadge?postBadge.textContent:'–';
+    const preCls=preBadge?preBadge.className.replace('badge','').trim():'';
+    const postCls=postBadge?postBadge.className.replace('badge','').trim():'';
+    html+='<div class="result-row"><span class="result-name">'+TEST_NAMES[id]+'</span>';
+    html+='<div class="result-badges">';
+    html+='<span class="r-badge '+preCls+'">前 '+preText+'</span>';
+    html+='<span class="r-badge '+postCls+'">後 '+postText+'</span>';
+    html+='</div></div>';
+  });
+  grid.innerHTML=html;
+}
+
+// ── Select styling ──
+function styleSelect(sel){
+  sel.className='vsel';
   const v=sel.value;
-  if(v&&map[v])sel.classList.add(map[v]);
-  // also update arrow color for colored states
-  if(v==='L'||v==='CL')sel.style.backgroundImage="url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%231d4ed8' d='M6 8L1 3h10z'/%3E%3C/svg%3E\")";
-  else if(v==='R'||v==='CR')sel.style.backgroundImage="url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23b91c1c' d='M6 8L1 3h10z'/%3E%3C/svg%3E\")";
-  else sel.style.backgroundImage="url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2394a3b8' d='M6 8L1 3h10z'/%3E%3C/svg%3E\")";
+  if(v==='L'||v==='CL')sel.classList.add('sel-L');
+  else if(v==='R'||v==='CR')sel.classList.add('sel-R');
 }
 
+// ── Desc toggle ──
 function toggleDesc(btn){
-  var card=btn.closest('.test-card');
-  var wasShown=card.classList.toggle('show-desc');
-  if(wasShown){
-    var input=card.querySelector('.desc-input');
-    if(input)setTimeout(function(){input.focus();},50);
-  }
+  const card=btn.closest('.test-card');
+  const shown=card.classList.toggle('show-desc');
+  if(shown)setTimeout(function(){var i=card.querySelector('.desc-inp');if(i)i.focus();},50);
 }
 
+// ── Page nav ──
+function goPage(n){
+  if(n<0||n>3)return;
+  document.getElementById('page-'+curPage).classList.remove('active');
+  document.getElementById('pp'+curPage).classList.remove('active');
+  document.getElementById('pl'+curPage).classList.remove('active');
+  curPage=n;
+  document.getElementById('page-'+curPage).classList.add('active');
+  document.getElementById('pp'+curPage).classList.add('active');
+  document.getElementById('pl'+curPage).classList.add('active');
+  // mark done pills
+  for(var i=0;i<4;i++){
+    var pp=document.getElementById('pp'+i);
+    pp.classList.remove('done');
+    if(i<curPage)pp.classList.add('done');
+  }
+  document.getElementById('btn-prev').disabled=(curPage===0);
+  document.getElementById('btn-next').disabled=(curPage===3);
+  if(curPage===3)document.getElementById('btn-next').style.display='none';
+  else document.getElementById('btn-next').style.display='';
+  document.getElementById('nav-num').textContent=(curPage+1)+' / 4';
+  window.scrollTo(0,0);
+  if(curPage===3)refreshResultsGrid();
+}
+
+// ── localStorage save/restore ──
+function save(){
+  try{
+    var data={};
+    // all number inputs
+    document.querySelectorAll('input[type="number"]').forEach(function(el,i){
+      data['n'+i]=el.value;
+    });
+    // all text inputs
+    document.querySelectorAll('input[type="text"], textarea').forEach(function(el){
+      if(el.id)data[el.id]=el.value;
+    });
+    // selects
+    ['sel-lat','sel-compress','sel-ghope'].forEach(function(id){
+      var el=document.getElementById(id);if(el)data[id]=el.value;
+    });
+    // desc-open state
+    var openDescs=[];
+    document.querySelectorAll('.test-card.show-desc').forEach(function(card){
+      openDescs.push(card.dataset.test);
+    });
+    data._openDescs=openDescs.join(',');
+    localStorage.setItem(STORAGE_KEY,JSON.stringify(data));
+  }catch(e){}
+}
+
+function restore(){
+  try{
+    var raw=localStorage.getItem(STORAGE_KEY);if(!raw)return;
+    var data=JSON.parse(raw);
+    // number inputs
+    document.querySelectorAll('input[type="number"]').forEach(function(el,i){
+      if(data['n'+i]!==undefined&&data['n'+i]!=='')el.value=data['n'+i];
+    });
+    // text inputs + textarea
+    document.querySelectorAll('input[type="text"], textarea').forEach(function(el){
+      if(el.id&&data[el.id]!==undefined)el.value=data[el.id];
+    });
+    // selects
+    ['sel-lat','sel-compress','sel-ghope'].forEach(function(id){
+      var el=document.getElementById(id);
+      if(el&&data[id]){el.value=data[id];styleSelect(el);}
+    });
+    // desc open state
+    if(data._openDescs){
+      data._openDescs.split(',').forEach(function(testId){
+        if(!testId)return;
+        var card=document.querySelector('[data-test="'+testId+'"]');
+        if(card)card.classList.add('show-desc');
+      });
+    }
+    // recalc all badges
+    document.querySelectorAll('[data-test]').forEach(function(card){
+      var inp=card.querySelector('input[type="number"]');
+      if(inp)calc(inp);
+    });
+    calcNeuro();
+  }catch(e){}
+}
+
+// ── Screenshot ──
 function takeScreenshot(){
-  const btn=document.getElementById('screenshot-btn');
-  btn.disabled=true;btn.textContent='截圖中…';btn.style.visibility='hidden';
+  var btn=document.getElementById('sc-btn');
+  btn.disabled=true;btn.textContent='截圖中…';
+  // render full page
   html2canvas(document.body,{
     scale:window.devicePixelRatio||2,
-    backgroundColor:getComputedStyle(document.body).getPropertyValue('--bg')||'#f0f4f8',
+    backgroundColor:'#f1f5f9',
     useCORS:true,scrollX:0,scrollY:-window.scrollY,
     windowWidth:document.documentElement.clientWidth,
     windowHeight:document.documentElement.scrollHeight
-  }).then(canvas=>{
-    btn.style.visibility='';btn.disabled=false;
-    btn.innerHTML='<svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="1" y="3" width="14" height="10" rx="2" stroke="currentColor" stroke-width="1.3"/><circle cx="8" cy="8" r="2.5" stroke="currentColor" stroke-width="1.3"/><path d="M5.5 3L6.5 1.5h3L10.5 3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg> 儲存評估截圖';
-    const now=new Date();
-    const name=document.getElementById('client-name').value.trim();
-    const d=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0')+'-'+String(now.getDate()).padStart(2,'0');
-    const t=String(now.getHours()).padStart(2,'0')+String(now.getMinutes()).padStart(2,'0');
-    const dataUrl=canvas.toDataURL('image/png');
-    const isIOS=/iPad|iPhone|iPod/.test(navigator.userAgent)&&!window.MSStream;
+  }).then(function(canvas){
+    btn.disabled=false;btn.innerHTML='<svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="1" y="3" width="14" height="10" rx="2" stroke="currentColor" stroke-width="1.3"/><circle cx="8" cy="8" r="2.5" stroke="currentColor" stroke-width="1.3"/><path d="M5.5 3L6.5 1.5h3L10.5 3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg> 儲存評估截圖';
+    var now=new Date();
+    var name=document.getElementById('client-name').value.trim();
+    var d=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0')+'-'+String(now.getDate()).padStart(2,'0');
+    var t=String(now.getHours()).padStart(2,'0')+String(now.getMinutes()).padStart(2,'0');
+    var dataUrl=canvas.toDataURL('image/png');
+    var isIOS=/iPad|iPhone|iPod/.test(navigator.userAgent)&&!window.MSStream;
     if(isIOS){
-      const overlay=document.createElement('div');
-      overlay.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:20px';
-      overlay.innerHTML='<p style="color:#fff;font-size:14px;text-align:center;line-height:1.6">長按圖片 → 儲存至相簿</p><img src="'+dataUrl+'" style="max-width:100%;max-height:72vh;border-radius:10px"><button style="color:#fff;background:none;border:1.5px solid rgba(255,255,255,.4);border-radius:10px;padding:10px 28px;font-size:14px;cursor:pointer" onclick="this.parentElement.remove()">關閉</button>';
-      document.body.appendChild(overlay);
-    } else {
-      const link=document.createElement('a');link.download='動作評估_'+(name?name+'_':'')+d+'_'+t+'.png';link.href=dataUrl;link.click();
+      var ov=document.getElementById('sc-overlay');
+      document.getElementById('sc-img').src=dataUrl;
+      ov.style.display='flex';
+    }else{
+      var link=document.createElement('a');
+      link.download='動作評估_'+(name?name+'_':'')+d+'_'+t+'.png';
+      link.href=dataUrl;link.click();
     }
-  }).catch(()=>{btn.style.visibility='';btn.disabled=false;btn.textContent='截圖失敗，請再試一次';});
+  }).catch(function(){
+    btn.disabled=false;btn.textContent='截圖失敗';
+  });
 }
+
+// ── Adjust header height ──
+function setHeaderHeight(){
+  var h=document.getElementById('app-header').offsetHeight;
+  document.body.style.paddingTop=h+'px';
+}
+
+// ── Init ──
+window.addEventListener('load',function(){
+  restore();
+  setHeaderHeight();
+  window.addEventListener('resize',setHeaderHeight);
+  // measure for correct --hh
+  document.documentElement.style.setProperty('--hh', document.getElementById('app-header').offsetHeight+'px');
+});
 </script>
