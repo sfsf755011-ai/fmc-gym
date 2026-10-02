@@ -486,6 +486,23 @@ tr:hover td{background:var(--bg2)}
               </div>
             </div>
             <div id="edit-session-warning" style="display:none;font-size:12px;color:var(--amber-text);background:var(--amber-bg);padding:8px 12px;border-radius:6px">⚠️ 已上堂數不能超過總購堂數</div>
+            <div id="edit-pilates-row" style="display:none;margin-top:10px;padding:10px 12px;background:var(--bg2);border-radius:8px;border:1px solid var(--border)">
+              <div style="font-size:11px;font-weight:700;color:var(--text2);margin-bottom:8px;letter-spacing:.04em">皮拉提斯堂數</div>
+              <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">
+                <div>
+                  <label class="form-label" style="margin-top:0">總堂數</label>
+                  <div id="edit-pilates-total" style="padding:9px 12px;font-size:14px;font-weight:700;border-radius:var(--radius-sm);background:var(--bg);border:1px solid var(--border2);color:var(--text)">—</div>
+                </div>
+                <div>
+                  <label class="form-label" style="margin-top:0">已上堂數</label>
+                  <input class="form-input" id="edit-pilates-used" type="number" min="0" oninput="updateEditRemain()">
+                </div>
+                <div>
+                  <label class="form-label" style="margin-top:0">剩餘堂數</label>
+                  <div id="edit-pilates-remain" style="padding:9px 12px;font-size:14px;font-weight:700;border-radius:var(--radius-sm);background:var(--green-bg,#d1fae5);border:1px solid var(--border2);color:var(--green,#059669)">—</div>
+                </div>
+              </div>
+            </div>
           </div>
           <div class="card">
             <div class="card-title">付款合約</div>
@@ -3386,6 +3403,15 @@ function loadEditStu(){
   }
   document.getElementById('edit-total-sessions').value=s.totalSessions;
   document.getElementById('edit-used-sessions').value=s.usedSessions;
+  var _totalPilate=(s.contracts||[]).reduce(function(sum,c){return sum+(c.pilateSessions||0);},0);
+  var _pilatesRow=document.getElementById('edit-pilates-row');
+  if(_totalPilate>0){
+    _pilatesRow.style.display='block';
+    document.getElementById('edit-pilates-total').textContent=_totalPilate+' 堂';
+    document.getElementById('edit-pilates-used').value=s.usedPilateSessions||0;
+  } else {
+    _pilatesRow.style.display='none';
+  }
   updateEditRemain();
   renderEditContracts(s);
   renderContractSig(s);
@@ -3408,6 +3434,17 @@ function updateEditRemain(){
   if(el){el.textContent=remain+' 堂'+periodLabel;el.style.background=remain<=2?'var(--red)':'var(--green)';}
   var warn=document.getElementById('edit-over-warn');
   if(warn)warn.style.display=used>total?'block':'none';
+  var pUsedEl=document.getElementById('edit-pilates-used');
+  var pRemainEl=document.getElementById('edit-pilates-remain');
+  var pTotalEl=document.getElementById('edit-pilates-total');
+  if(pUsedEl&&pRemainEl&&pTotalEl&&document.getElementById('edit-pilates-row').style.display!=='none'){
+    var pTotal=parseInt(pTotalEl.textContent)||0;
+    var pUsed=parseInt(pUsedEl.value)||0;
+    var pRemain=Math.max(0,pTotal-pUsed);
+    pRemainEl.textContent=pRemain+' 堂';
+    pRemainEl.style.background=pRemain<=0?'var(--red)':'var(--green-bg,#d1fae5)';
+    pRemainEl.style.color=pRemain<=0?'#fff':'var(--green,#059669)';
+  }
 }
 function setShianType(type,btn){
   var id=parseInt(document.getElementById('edit-stu-sel').value);
@@ -3434,6 +3471,9 @@ function saveEditStu(){
   var newUsed=_usedRaw!==''?parseInt(_usedRaw)||0:s.usedSessions;
   if(newUsed>newTotal){toast('已上堂數不能超過總購堂數');return;}
   s.totalSessions=newTotal;s.usedSessions=newUsed;
+  var _pRow=document.getElementById('edit-pilates-row');
+  var _pUsedEl=document.getElementById('edit-pilates-used');
+  if(_pRow&&_pRow.style.display!=='none'&&_pUsedEl)s.usedPilateSessions=parseInt(_pUsedEl.value)||0;
   if(coach.toLowerCase()==='shian教練'){var scEl=document.getElementById('shian-type-company');s.shianType=(scEl&&scEl.classList.contains('active'))?'company':'self';}
   (s.contracts||[]).forEach(function(c,ci){
     c.installments.forEach(function(ins,ii){
