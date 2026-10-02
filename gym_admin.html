@@ -1959,6 +1959,7 @@ function _renderSalaryInner(){
   console.log('[salary] coach='+_salaryCoach+' admin='+_salaryAdmin+' savedResult='+(!!window._savedCoachResult));
   if(!_salaryCoach){console.log('[salary] no coach, return');return;}
   var coachName=_salaryAdmin?document.getElementById('salary-coach-sel').value:_salaryCoach;
+  var isSimpleCoach=(coachName==='dolly'||coachName==='elly'); // 二店教練：無店業績乘數、無個人業績加減
   var month=document.getElementById('salary-month').value;
   if(!month){console.log('[salary] no month, return');return;}
   console.log('[salary] coachName='+coachName+' month='+month);
@@ -2007,11 +2008,11 @@ function _renderSalaryInner(){
         {name:'堂數抽成小計（計薪 '+(cr.paidSessions||0)+' 堂）',amt:cr.commission||0,type:'bold'},
         {name:'1v2加成（'+(cr.v2Sessions||0)+'堂 × $100）',amt:cr.v2Bonus||0,type:'green'},
       ];
-      if((cr.revenueBonus||0)>0) rows.push({name:'業績加成',amt:cr.revenueBonus,type:'green'});
-      if((cr.revenuePenalty||0)>0) rows.push({name:'業績未達標',amt:-(cr.revenuePenalty),type:'red'});
+      if(!isSimpleCoach&&(cr.revenueBonus||0)>0) rows.push({name:'業績加成',amt:cr.revenueBonus,type:'green'});
+      if(!isSimpleCoach&&(cr.revenuePenalty||0)>0) rows.push({name:'業績未達標',amt:-(cr.revenuePenalty),type:'red'});
       if((cr.subsidy||0)!==0) rows.push({name:'健保/就保補助',amt:cr.subsidy||0,type:(cr.subsidy||0)>=0?'green':'red'});
       if((cr.groupBonus||0)>0) rows.push({name:'團體課程獎金',amt:cr.groupBonus,type:'green'});
-      rows.push({name:'店業績乘數（'+((cr.mult||1)*100).toFixed(1)+'%，調整額）',amt:cr.storeAdj||0,type:(cr.mult||1)>=1?'green':'red'});
+      if(!isSimpleCoach) rows.push({name:'店業績乘數（'+((cr.mult||1)*100).toFixed(1)+'%，調整額）',amt:cr.storeAdj||0,type:(cr.mult||1)>=1?'green':'red'});
       rows.push({name:'最終薪資',amt:cr.finalSalary||0,type:'total'});
     }
     var bdHtml='';
@@ -2079,10 +2080,10 @@ function _renderSalaryInner(){
 
   var storeRev=parseInt(document.getElementById('store-revenue').value)||0;
 
-  // Update store mult preview
-  var mult=getStoreMultiplier(storeRev);
-  var multLabel=storeRev>0?((mult*100).toFixed(1)+'% 乘數'):'請輸入店總營收';
-  var multColor=mult>=1?'var(--green-text)':mult>=0.975?'var(--amber-text)':'var(--red-text)';
+  // Update store mult preview（二店教練不套用）
+  var mult=isSimpleCoach?1:getStoreMultiplier(storeRev);
+  var multLabel=isSimpleCoach?'二店教練（不適用）':storeRev>0?((mult*100).toFixed(1)+'% 乘數'):'請輸入店總營收';
+  var multColor=isSimpleCoach?'var(--text3)':mult>=1?'var(--green-text)':mult>=0.975?'var(--amber-text)':'var(--red-text)';
   document.getElementById('store-mult-preview').textContent=multLabel;
   document.getElementById('store-mult-preview').style.color=multColor;
 
@@ -2145,8 +2146,8 @@ function _renderSalaryInner(){
   var commission=commResult.total; // exact integer
   var v2Bonus=v2Sessions*100; // exact integer
   var bonusRate=getRevenueBonusRate(revenue);
-  var revenueBonus=revenue>=120001?revenue*bonusRate:0; // float - don't round yet
-  var revenuePenalty=revenue>0&&revenue<120000?paidSessions*50:0; // exact integer
+  var revenueBonus=(!isSimpleCoach&&revenue>=120001)?revenue*bonusRate:0; // float - don't round yet
+  var revenuePenalty=(!isSimpleCoach&&revenue>0&&revenue<120000)?paidSessions*50:0; // exact integer
   var subsidy=HEALTH_SUBSIDY[coachName]||0; // exact integer
   var _agbEl=document.getElementById('agb-'+coachName);
   var groupBonus=(_salaryAdmin&&_agbEl)
@@ -2235,12 +2236,11 @@ function _renderSalaryInner(){
     rows.push({name:'堂數抽成（前30堂不計，共 '+totalSessions+' 堂）',amt:0,type:'muted'});
   }
   if(v2Sessions>0)rows.push({name:'1v2加成（'+v2Sessions+'堂 × $100）',amt:v2Bonus,type:'green'});
-  if(revenueBonus>0)rows.push({name:'業績加成（'+fmtMoney(revenue)+' × '+(bonusRate*100)+'%）',amt:revenueBonus,type:'green'});
-  if(revenuePenalty>0)rows.push({name:'業績未達標（計薪'+paidSessions+'堂 × -$50）',amt:-revenuePenalty,type:'red'});
+  if(!isSimpleCoach&&revenueBonus>0)rows.push({name:'業績加成（'+fmtMoney(revenue)+' × '+(bonusRate*100)+'%）',amt:revenueBonus,type:'green'});
+  if(!isSimpleCoach&&revenuePenalty>0)rows.push({name:'業績未達標（計薪'+paidSessions+'堂 × -$50）',amt:-revenuePenalty,type:'red'});
   if(subsidy!==0)rows.push({name:'健保/就保補助',amt:subsidy,type:subsidy>0?'green':'red'});
   if(groupBonus>0)rows.push({name:'團體課程獎金',amt:groupBonus,type:'green'});
-  // 小計行已移除（依需求）
-  rows.push({name:'店業績乘數（'+(mult*100).toFixed(1)+'%，調整額）',amt:Math.round(subtotal*mult-subtotal),type:mult>=1?'green':'red'});
+  if(!isSimpleCoach)rows.push({name:'店業績乘數（'+(mult*100).toFixed(1)+'%，調整額）',amt:Math.round(subtotal*mult-subtotal),type:mult>=1?'green':'red'});
   rows.push({name:'最終薪資',amt:finalSalary,type:'total'});
 
   var bdHtml='';
@@ -2282,7 +2282,8 @@ function _renderSalaryInner(){
 // ══ End 薪資計算 ══
 
 // ══ 主管薪資總表 ══
-var ADMIN_COACHES = ['apple','sherry','jay','jenny','yoyo','shian','dolly','elly'];
+var ADMIN_COACHES = ['apple','sherry','jay','jenny','yoyo','shian'];
+var ADMIN_COACHES_STORE2 = ['dolly','elly']; // 二店教練（薪資獨立）
 var COACH_DISPLAY = {apple:'apple教練',sherry:'sherry教練',jay:'jay教練',jenny:'jenny教練',yoyo:'yoyo教練',fiona:'fiona教練',shian:'shian教練',dolly:'dolly教練',elly:'elly教練'};
 
 function initAdminGroupBonusInputs(){
