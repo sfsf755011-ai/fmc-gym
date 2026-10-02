@@ -1952,6 +1952,86 @@ function calcCommission(paidSessions, template, totalSessions){
 }
 function fmtMoney(n){return 'NT$'+Math.round(n).toLocaleString();}
 
+// ── 皮拉提斯業績拆帳輔助 ──
+var PILATES_PRICE_PER_SESSION=2000; // 每堂皮拉提斯業績單價
+
+function _pilatesFrac(contract){
+  if(!contract.pilateSessions||!contract.pilatesCoach)return 0;
+  var tot=contract.installments.reduce(function(s,i){return s+i.amount;},0);
+  return tot>0?Math.min(1,(contract.pilateSessions*PILATES_PRICE_PER_SESSION)/tot):0;
+}
+
+function _mainRevenue(coachDisplayName,monthStr,onlyCompany){
+  // 自有學生業績，扣除綜合方案中皮拉提斯比例
+  var tot=0;
+  students.forEach(function(s){
+    if(s.coach!==coachDisplayName)return;
+    if(onlyCompany&&s.shianType!=='company')return;
+    (s.contracts||[]).forEach(function(c){
+      var frac=_pilatesFrac(c);
+      c.installments.forEach(function(i){
+        if(i.paid&&i.paidDate&&i.paidDate.startsWith(monthStr))
+          tot+=Math.round(i.amount*(1-frac));
+      });
+    });
+  });
+  return tot;
+}
+
+function _pilatesRevenue(pilatesCoachKey,monthStr){
+  // 所有學生中綜合方案屬於該皮拉提斯教練的業績份額
+  var tot=0;
+  students.forEach(function(s){
+    (s.contracts||[]).forEach(function(c){
+      if(c.pilatesCoach!==pilatesCoachKey)return;
+      var frac=_pilatesFrac(c);
+      if(!frac)return;
+      c.installments.forEach(function(i){
+        if(i.paid&&i.paidDate&&i.paidDate.startsWith(monthStr))
+          tot+=Math.round(i.amount*frac);
+      });
+    });
+  });
+  return tot;
+}
+
+function _buildRevDetails(coachKey,coachDisplayName,monthStr,onlyCompany){
+  var details=[];
+  // 1. 自有學生業績（扣除皮拉提斯比例）
+  students.forEach(function(s){
+    if(s.coach!==coachDisplayName)return;
+    if(onlyCompany&&s.shianType!=='company')return;
+    (s.contracts||[]).forEach(function(c){
+      var frac=_pilatesFrac(c);
+      c.installments.forEach(function(i){
+        if(!i.paid||!i.paidDate||!i.paidDate.startsWith(monthStr))return;
+        var mainAmt=Math.round(i.amount*(1-frac));
+        if(mainAmt>0){
+          var lbl=(c.planLabel||(c.sessions+'堂合約'))+(frac>0?' (扣皮拉提斯)':'');
+          details.push({name:s.name,plan:lbl,seq:i.seq,amount:mainAmt,paidDate:i.paidDate,method:i.method});
+        }
+      });
+    });
+  });
+  // 2. 皮拉提斯份額：來自其他（或自己）學生的綜合方案
+  students.forEach(function(s){
+    (s.contracts||[]).forEach(function(c){
+      if(c.pilatesCoach!==coachKey)return;
+      var frac=_pilatesFrac(c);
+      if(!frac)return;
+      c.installments.forEach(function(i){
+        if(!i.paid||!i.paidDate||!i.paidDate.startsWith(monthStr))return;
+        var pAmt=Math.round(i.amount*frac);
+        if(pAmt>0)
+          details.push({name:s.name,plan:(c.planLabel||'')+'・皮拉提斯拆帳',seq:i.seq,amount:pAmt,paidDate:i.paidDate,method:i.method});
+      });
+    });
+  });
+  details.sort(function(a,b){return a.paidDate>b.paidDate?-1:1;});
+  return details;
+}
+// ── End 皮拉提斯業績拆帳輔助 ──
+
 function renderSalary(){
   try{ _renderSalaryInner(); } catch(e){ console.error('[renderSalary ERROR]', e); }
 }
@@ -2029,19 +2109,7 @@ function _renderSalaryInner(){
     // Compute live revenue list (salary totals frozen, but payment records always live)
     var _rvDispNames={apple:'apple教練',sherry:'sherry教練',jay:'jay教練',jenny:'jenny教練',yoyo:'yoyo教練',fiona:'fiona教練',shian:'shian教練',dolly:'dolly教練',elly:'elly教練'};
     var _rvCoachDisp=_rvDispNames[coachName]||coachName;
-    var _rvStudents=students.filter(function(s){return s.coach===_rvCoachDisp;});
-    var _rvDetails=[];
-    _rvStudents.forEach(function(s){
-      if(coachName==='shian'&&s.shianType!=='company') return;
-      (s.contracts||[]).forEach(function(c){
-        c.installments.forEach(function(i){
-          if(i.paid&&i.paidDate&&i.paidDate.startsWith(month)){
-            _rvDetails.push({name:s.name,seq:i.seq,amount:i.amount,paidDate:i.paidDate,method:i.method});
-          }
-        });
-      });
-    });
-    _rvDetails.sort(function(a,b){return a.paidDate>b.paidDate?-1:1;});
+    var _rvDetails=_buildRevDetails(coachName,_rvCoachDisp,month,coachName==='shian');
     var _rvLiveTotal=_rvDetails.reduce(function(s,d){return s+d.amount;},0);
     // Compute live session counts to match history query
     var _rvMonthRecs=records.filter(function(r){return r.date&&r.date.startsWith(month)&&r.coach===_rvCoachDisp;});
@@ -2115,29 +2183,13 @@ function _renderSalaryInner(){
   var trialDisp=document.getElementById('trial-display');
   if(trialDisp) trialDisp.textContent=trialFromSettings;
 
-  // Revenue from paid installments in this month
-  var coachStudents=students.filter(function(s){return s.coach===(coachDisplayNames[coachName]||coachName);});
-  // shian只計算公司學生業績
-  var revenue=coachStudents.reduce(function(sum,s){
-    if(coachName==='shian'&&s.shianType!=='company') return sum;
-    return sum+(s.contracts||[]).reduce(function(cs,c){
-      return cs+c.installments.filter(function(i){return i.paid&&i.paidDate&&i.paidDate.startsWith(month);}).reduce(function(is,i){return is+i.amount;},0);
-    },0);
-  },0);
+  // Revenue from paid installments in this month（含皮拉提斯拆帳）
+  var _cDisp=coachDisplayNames[coachName]||coachName;
+  var _isShianLive=(coachName==='shian');
+  var revenue=_mainRevenue(_cDisp,month,_isShianLive)+_pilatesRevenue(coachName,month);
 
-  // 收集當月已付款明細（shian只收公司學生）
-  var revenueDetails=[];
-  coachStudents.forEach(function(s){
-    if(coachName==='shian'&&s.shianType!=='company') return;
-    (s.contracts||[]).forEach(function(c){
-      c.installments.forEach(function(i){
-        if(i.paid&&i.paidDate&&i.paidDate.startsWith(month)){
-          revenueDetails.push({name:s.name,plan:c.planLabel||(c.sessions+'堂合約'),seq:i.seq,amount:i.amount,paidDate:i.paidDate,method:i.method});
-        }
-      });
-    });
-  });
-  revenueDetails.sort(function(a,b){return a.paidDate>b.paidDate?-1:1;});
+  // 收集當月已付款明細（含皮拉提斯拆帳）
+  var revenueDetails=_buildRevDetails(coachName,_cDisp,month,_isShianLive);
 
   // Calculate salary
   var template=SALARY_TEMPLATES[coachName]||'senior';
@@ -2413,14 +2465,7 @@ function calcCoachSalary(coachKey, month, storeRev, groupBonus, trialCount){
     return s&&(s.contracts||[]).some(function(c){return (c.planId&&c.planId.indexOf('1v2')!==-1)||(c.planLabel&&c.planLabel.indexOf('1v2')!==-1);});
   }).length;
   var paidSessions=Math.max(0,totalSessions+trial-30);
-  var coachStudents=students.filter(function(s){return s.coach===coachName;});
-  var revFrom=month+'-01';
-  var revTo=month+'-31';
-  var revenue=coachStudents.reduce(function(sum,s){
-    return sum+(s.contracts||[]).reduce(function(cs,c){
-      return cs+c.installments.filter(function(i){return i.paid&&i.paidDate&&i.paidDate>=revFrom&&i.paidDate<=revTo;}).reduce(function(is,i){return is+i.amount;},0);
-    },0);
-  },0);
+  var revenue=_mainRevenue(coachName,month)+_pilatesRevenue(coachKey,month);
   var template=SALARY_TEMPLATES[coachKey]||'senior';
   var allowance=PERSONAL_ALLOWANCE[coachKey]||PERSONAL_ALLOWANCE_DEFAULT;
   var commResult=calcCommission(paidSessions,template,totalSessions+trial);
