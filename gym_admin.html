@@ -3700,7 +3700,7 @@ function renderEditContracts(s){
     h2+='<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">';
     h2+='<span style="font-size:12px;color:var(--text2)">已收 NT$'+paidAmt.toLocaleString()+' ／ NT$'+totalAmt.toLocaleString()+'</span>';
     if(isOld)h2+='<button id="ec-toggle-btn-'+ci+'" onclick="event.stopPropagation();toggleContractDetail('+ci+')" style="font-size:12px;padding:3px 10px;border-radius:6px;border:1px solid var(--border2);background:var(--bg);color:var(--text2);cursor:pointer">▼ 查看歷史</button>';
-    h2+='<button id="del-contract-btn-'+ci+'" onclick="event.stopPropagation();confirmDeleteContract('+s.id+','+ci+',this)" style="font-size:12px;padding:3px 10px;border-radius:6px;border:1px solid var(--red);background:var(--red-bg);color:var(--red);cursor:pointer;font-weight:600">🗑 刪除方案</button>';
+    h2+='<button id="del-contract-btn-'+ci+'" onclick="event.stopPropagation();confirmDeleteContract('+s.id+','+ci+')" style="font-size:12px;padding:3px 10px;border-radius:6px;border:1px solid var(--red);background:var(--red-bg);color:var(--red);cursor:pointer;font-weight:600">🗑 刪除方案</button>';
     h2+='</div>';
     h2+='</div>';
     // Detail content (collapsible for old contracts)
@@ -3755,38 +3755,19 @@ function renderEditContracts(s){
   el.innerHTML=h2;
 }
 
-function confirmDeleteContract(stuId, contractIndex, btn){
-  if(btn.getAttribute('data-pending')==='1'){
-    btn.removeAttribute('data-pending');
-    btn.textContent='🗑 刪除方案';
-    btn.style.background='var(--red-bg)';
-    btn.style.borderColor='var(--red)';
-    btn.style.color='var(--red)';
-    deleteContract(stuId, contractIndex);
-  } else {
-    btn.setAttribute('data-pending','1');
-    btn.textContent='⚠️ 確認刪除？';
-    btn.style.background='var(--red)';
-    btn.style.borderColor='var(--red)';
-    btn.style.color='#fff';
-    setTimeout(function(){
-      if(btn.getAttribute('data-pending')==='1'){
-        btn.removeAttribute('data-pending');
-        btn.textContent='🗑 刪除方案';
-        btn.style.background='var(--red-bg)';
-        btn.style.borderColor='var(--red)';
-        btn.style.color='var(--red)';
-      }
-    },4000);
-  }
+function confirmDeleteContract(stuId, contractIndex){
+  if(!confirm('確定要刪除此方案？\n相關簽到紀錄也會一併刪除，此操作無法復原。')){return;}
+  deleteContract(stuId, contractIndex);
 }
 
 function deleteContract(stuId, contractIndex){
+  toast('🔍 開始刪除... stuId='+stuId+' idx='+contractIndex);
   var s=students.find(function(st){return String(st.id)===String(stuId);});
   if(!s){toast('找不到學員，請重新整理後再試');return;}
   var contracts=s.contracts||[];
   var c=contracts[contractIndex];
-  if(!c)return;
+  toast('✓ 找到學員: '+s.name+' 方案數:'+contracts.length);
+  if(!c){toast('找不到方案 index='+contractIndex);return;}
 
   var fromDate=c.date||'2000-01-01';
   var toDate='9999-12-31';
@@ -3796,7 +3777,9 @@ function deleteContract(stuId, contractIndex){
     }
   }
 
-  db.ref('data/records').once('value',function(snap){
+  toast('🔍 讀取 Firebase 紀錄中...');
+  fbdb.ref('data/records').once('value',function(snap){
+    toast('✓ Firebase 回應，開始處理...');
     var raw=snap.val();
     var recArr=[];
     if(raw){
@@ -3828,7 +3811,7 @@ function deleteContract(stuId, contractIndex){
     toast('✓ 方案已刪除，共移除 '+toDelArr.length+' 筆簽到記錄');
     // Write records async (don't block UI on this)
     if(toDelArr.length>0){
-      db.ref('data/records').set(newRecArr.length>0?newRecArr:null);
+      fbdb.ref('data/records').set(newRecArr.length>0?newRecArr:null);
     }
   });
 }
