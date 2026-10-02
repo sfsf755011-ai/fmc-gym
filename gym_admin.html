@@ -844,6 +844,13 @@ tr:hover td{background:var(--bg2)}
           onkeydown="if(event.key==='Enter')checkSalaryPw()">
         <button class="btn btn-primary" onclick="checkSalaryPw()">確認</button>
         <div id="salary-pw-err" style="color:var(--red-text);font-size:13px;margin-top:8px;display:none">密碼錯誤</div>
+        <div style="margin-top:16px;padding-top:14px;border-top:1px solid var(--border)">
+          <div style="font-size:12px;color:var(--text2);margin-bottom:8px">免密碼快速查看</div>
+          <div style="display:flex;gap:8px">
+            <button class="btn" onclick="checkSalaryNoPw('dolly')" style="flex:1">Dolly</button>
+            <button class="btn" onclick="checkSalaryNoPw('elly')" style="flex:1">Elly</button>
+          </div>
+        </div>
       </div>
 
       <!-- 薪資內容 -->
@@ -863,6 +870,8 @@ tr:hover td{background:var(--bg2)}
               <option value="yoyo">yoyo教練</option>
               <option value="fiona">fiona教練</option>
             <option value="shian">shian教練</option>
+              <option value="dolly">dolly教練</option>
+              <option value="elly">elly教練</option>
             </select>
             <input type="month" id="salary-month" onchange="loadSalarySettings(this.value)"
               style="font-size:14px;padding:7px 10px;border-radius:8px;border:1px solid var(--border2);background:var(--bg2);color:var(--text)">
@@ -1708,7 +1717,7 @@ var SALARY_PASSWORDS = {
   '1029': 'shian',
   '1762': 'admin'
 };
-var SALARY_TEMPLATES = { jay: 'junior' };
+var SALARY_TEMPLATES = { jay: 'junior', dolly: 'junior', elly: 'junior' };
 var BASE_SALARY = 25200;
 var PERSONAL_ALLOWANCE = { apple: 4000 };
 var PERSONAL_ALLOWANCE_DEFAULT = 3500;
@@ -1767,7 +1776,7 @@ function loadSalarySettings(month){
       // Store trial sessions globally for renderSalary
       window._savedTrialSessions = {};
       if(d.trialSessions) Object.keys(d.trialSessions).forEach(function(c){
-        var cname = ({"apple":"apple教練","sherry":"sherry教練","jay":"jay教練","jenny":"jenny教練","yoyo":"yoyo教練","fiona":"fiona教練","shian":"shian教練"})[c]||c;
+        var cname = ({"apple":"apple教練","sherry":"sherry教練","jay":"jay教練","jenny":"jenny教練","yoyo":"yoyo教練","fiona":"fiona教練","shian":"shian教練","dolly":"dolly教練","elly":"elly教練"})[c]||c;
         window._savedTrialSessions[cname] = d.trialSessions[c]||0;
       });
       // Load store revenue
@@ -1799,7 +1808,7 @@ function loadSalarySettings(month){
         // Store trial globally
         window._savedTrialSessions={};
         window._savedTrialSessions[_salaryCoach]=trialVal;
-        var dispNames={'apple':'apple教練','sherry':'sherry教練','jay':'jay教練','jenny':'jenny教練','yoyo':'yoyo教練','fiona':'fiona教練','shian':'shian教練'};
+        var dispNames={'apple':'apple教練','sherry':'sherry教練','jay':'jay教練','jenny':'jenny教練','yoyo':'yoyo教練','fiona':'fiona教練','shian':'shian教練','dolly':'dolly教練','elly':'elly教練'};
         window._savedTrialSessions[dispNames[_salaryCoach]||_salaryCoach]=trialVal;
       }
       // trial-display updated above for non-admin
@@ -1820,6 +1829,22 @@ function loadSalarySettings(month){
     }
     renderSalary();
   });
+}
+
+function checkSalaryNoPw(coach){
+  _salaryAdmin=false;
+  _salaryCoach=coach;
+  document.getElementById('salary-lock').style.display='none';
+  document.getElementById('salary-content').style.display='block';
+  document.getElementById('salary-coach-sel').style.display='none';
+  document.getElementById('salary-admin-panel').style.display='none';
+  document.getElementById('shian-extra-fields').style.display='none';
+  var srEl=document.getElementById('store-revenue');
+  if(srEl){srEl.readOnly=true;srEl.style.opacity='0.7';}
+  var d=new Date();d.setMonth(d.getMonth()-1);
+  var m=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');
+  document.getElementById('salary-month').value=m;
+  loadSalarySettings(m);
 }
 
 function checkSalaryPw(){
@@ -2001,7 +2026,7 @@ function _renderSalaryInner(){
     });
     document.getElementById('salary-breakdown').innerHTML=bdHtml;
     // Compute live revenue list (salary totals frozen, but payment records always live)
-    var _rvDispNames={apple:'apple教練',sherry:'sherry教練',jay:'jay教練',jenny:'jenny教練',yoyo:'yoyo教練',fiona:'fiona教練',shian:'shian教練'};
+    var _rvDispNames={apple:'apple教練',sherry:'sherry教練',jay:'jay教練',jenny:'jenny教練',yoyo:'yoyo教練',fiona:'fiona教練',shian:'shian教練',dolly:'dolly教練',elly:'elly教練'};
     var _rvCoachDisp=_rvDispNames[coachName]||coachName;
     var _rvStudents=students.filter(function(s){return s.coach===_rvCoachDisp;});
     var _rvDetails=[];
@@ -2062,7 +2087,7 @@ function _renderSalaryInner(){
   document.getElementById('store-mult-preview').style.color=multColor;
 
   // Coach display name
-  var coachDisplayNames={apple:'apple教練',sherry:'sherry教練',jay:'jay教練',jenny:'jenny教練',yoyo:'yoyo教練',fiona:'fiona教練',shian:'shian教練'};
+  var coachDisplayNames={apple:'apple教練',sherry:'sherry教練',jay:'jay教練',jenny:'jenny教練',yoyo:'yoyo教練',fiona:'fiona教練',shian:'shian教練',dolly:'dolly教練',elly:'elly教練'};
   document.getElementById('salary-coach-label').textContent=coachDisplayNames[coachName]||coachName;
   document.getElementById('salary-month-label').textContent=month+' 薪資試算';
 
@@ -2257,8 +2282,8 @@ function _renderSalaryInner(){
 // ══ End 薪資計算 ══
 
 // ══ 主管薪資總表 ══
-var ADMIN_COACHES = ['apple','sherry','jay','jenny','yoyo','shian'];
-var COACH_DISPLAY = {apple:'apple教練',sherry:'sherry教練',jay:'jay教練',jenny:'jenny教練',yoyo:'yoyo教練',fiona:'fiona教練',shian:'shian教練'};
+var ADMIN_COACHES = ['apple','sherry','jay','jenny','yoyo','shian','dolly','elly'];
+var COACH_DISPLAY = {apple:'apple教練',sherry:'sherry教練',jay:'jay教練',jenny:'jenny教練',yoyo:'yoyo教練',fiona:'fiona教練',shian:'shian教練',dolly:'dolly教練',elly:'elly教練'};
 
 function initAdminGroupBonusInputs(){
   var el=document.getElementById('admin-group-bonus-inputs');
