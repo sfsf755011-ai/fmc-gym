@@ -128,6 +128,15 @@ body{display:flex;flex-direction:column;align-items:center;padding:0 0 60px}
       </div>
 
       <div class="field">
+        <label class="flbl">性別</label>
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+          <div class="chip"><input type="radio" name="性別" value="男" id="g1"><label for="g1">男</label></div>
+          <div class="chip"><input type="radio" name="性別" value="女" id="g2"><label for="g2">女</label></div>
+          <div class="chip"><input type="radio" name="性別" value="不公開" id="g3"><label for="g3">不公開</label></div>
+        </div>
+      </div>
+
+      <div class="field">
         <label class="flbl">聯絡電話</label>
         <input class="finput" type="tel" name="電話" id="fPhone" placeholder="請輸入手機號碼" inputmode="numeric">
         <div class="errmsg" id="phoneErr">請輸入正確的電話號碼</div>
