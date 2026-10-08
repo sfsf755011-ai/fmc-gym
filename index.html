@@ -1335,7 +1335,7 @@ function submitCheckin() {
     if (_fts && Date.now() - _fts < CHECKIN_FREEZE_MS) {
       var _left = Math.ceil((CHECKIN_FREEZE_MS - (Date.now()-_fts))/1000);
       var _m = Math.floor(_left/60), _s = _left%60;
-      alert('此學員剛完成簽到，系統保護中\n請 '+_m+' 分 '+(_s<10?'0':'')+_s+' 秒後再試\n（若確認未簽到成功請洽教練）');
+      alert('✅ 此學員剛才的簽到已成功完成\n\n系統保護中，'+_m+' 分 '+(_s<10?'0':'')+_s+' 秒後可再次簽到\n（被此提示攔截即代表上次簽到有效）');
       return;
     }
   }
