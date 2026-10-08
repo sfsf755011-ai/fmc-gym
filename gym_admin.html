@@ -2191,8 +2191,9 @@ function _renderSalaryInner(){
 
   // Count sessions from records
   var monthRecs=records.filter(function(r){return r.date&&r.date.startsWith(month)&&(r.coach||'').toLowerCase()===(coachDisplayNames[coachName]||coachName).toLowerCase();});
-  // Count sessions from records
-  var totalSessions=monthRecs.length;
+  // Count sessions from records — exclude isTrial records (those are counted via autoTrialCount)
+  var normalRecs=monthRecs.filter(function(r){return !r.isTrial;});
+  var totalSessions=normalRecs.length;
 
   // 1v2 判斷：優先看 record 的 planType 欄位（新資料）；舊資料 fallback 查學員合約
   function _is1v2(r){
@@ -2200,7 +2201,7 @@ function _renderSalaryInner(){
     var stu=students.find(function(s){return s.name===r.student;});
     return stu&&(stu.contracts||[]).some(function(c){return (c.planId&&c.planId.indexOf('1v2')!==-1)||(c.planLabel&&c.planLabel.indexOf('1v2')!==-1);});
   }
-  var v2Sessions=monthRecs.filter(_is1v2).length;
+  var v2Sessions=normalRecs.filter(_is1v2).length;
   var v1Sessions=totalSessions-v2Sessions;
   var _cDispForTrial=coachDisplayNames[coachName]||coachName;
   var trialFromSettings=autoTrialCount(_cDispForTrial,month);
@@ -2508,7 +2509,7 @@ function saveAdminSettings(){
 function calcCoachSalary(coachKey, month, storeRev, groupBonus, trialCount){
   var coachName=COACH_DISPLAY[coachKey];
   var mult=getStoreMultiplier(storeRev);
-  var monthRecs=records.filter(function(r){return r.date&&r.date.startsWith(month)&&r.coach===coachName;});
+  var monthRecs=records.filter(function(r){return r.date&&r.date.startsWith(month)&&r.coach===coachName&&!r.isTrial;});
   var totalSessions=monthRecs.length;
   var trial=trialCount||0;
   var v2Sessions=monthRecs.filter(function(r){
