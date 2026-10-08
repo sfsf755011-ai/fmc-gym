@@ -993,7 +993,8 @@ tr:hover td{background:var(--bg2)}
           </div>
           <div style="font-size:13px;font-weight:600;color:var(--text2);margin-bottom:8px">各教練團課獎金</div>
           <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px;margin-bottom:14px" id="admin-group-bonus-inputs"></div>
-          <div style="font-size:13px;font-weight:600;color:var(--text2);margin-bottom:8px">各教練體驗成交（堂數）</div>
+          <div style="font-size:13px;font-weight:600;color:var(--text2);margin-bottom:4px">各教練體驗成交（自動抓取）</div>
+          <div style="font-size:12px;color:var(--text3);margin-bottom:8px">根據體驗課程頁「✓ 成交」紀錄自動計算</div>
           <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px;margin-bottom:14px" id="admin-trial-inputs"></div>
           <div style="display:flex;gap:8px;flex-wrap:wrap">
             <button onclick="saveAdminSettings()" class="btn btn-primary" style="flex:1">💾 儲存本月設定</button>
@@ -2197,7 +2198,8 @@ function _renderSalaryInner(){
   }
   var v2Sessions=monthRecs.filter(_is1v2).length;
   var v1Sessions=totalSessions-v2Sessions;
-  var trialFromSettings=(window._savedTrialSessions&&window._savedTrialSessions[coachName])||0;
+  var _cDispForTrial=coachDisplayNames[coachName]||coachName;
+  var trialFromSettings=autoTrialCount(_cDispForTrial,month);
   var paidSessions=Math.max(0,totalSessions+trialFromSettings-30);
   // Update trial display for non-admin coaches
   var trialDisp=document.getElementById('trial-display');
@@ -2358,6 +2360,12 @@ var ADMIN_COACHES = ['apple','sherry','jay','jenny','yoyo','shian'];
 var ADMIN_COACHES_STORE2 = ['dolly','elly']; // 二店教練（薪資獨立）
 var COACH_DISPLAY = {apple:'apple教練',sherry:'sherry教練',jay:'jay教練',jenny:'jenny教練',yoyo:'yoyo教練',fiona:'fiona教練',shian:'shian教練',dolly:'dolly教練',elly:'elly教練'};
 
+function autoTrialCount(coachDisplayName, monthStr){
+  return (trialCheckins||[]).filter(function(r){
+    return r.converted && r.date && r.date.startsWith(monthStr) && r.coach===coachDisplayName;
+  }).length;
+}
+
 function initAdminGroupBonusInputs(){
   var el=document.getElementById('admin-group-bonus-inputs');
   if(el) el.innerHTML=ADMIN_COACHES.map(function(c){
@@ -2368,9 +2376,14 @@ function initAdminGroupBonusInputs(){
   var el2=document.getElementById('admin-trial-inputs');
   if(el2) el2.innerHTML=ADMIN_COACHES.map(function(c){
     return '<div><label style="font-size:12px;color:var(--text2);display:block;margin-bottom:4px">'+COACH_DISPLAY[c]+'</label>'
-      +'<input type="number" id="atr-'+c+'" min="0" placeholder="0" oninput="renderAdminTable()"'
-      +' style="width:100%;padding:7px 10px;border-radius:8px;border:1px solid var(--border2);background:var(--bg2);color:var(--text);font-size:13px"></div>';
+      +'<div id="atr-'+c+'" style="width:100%;padding:7px 10px;border-radius:8px;border:1px solid var(--border2);background:var(--bg);color:var(--text);font-size:13px;font-weight:700">—</div></div>';
   }).join('');
+}
+function _updateTrialDisplay(month){
+  ADMIN_COACHES.forEach(function(c){
+    var el=document.getElementById('atr-'+c);
+    if(el) el.textContent=month?autoTrialCount(COACH_DISPLAY[c],month)+' 堂':'—';
+  });
 }
 
 function getAdminInputs(){
@@ -2443,12 +2456,13 @@ function saveAdminSettings(){
         finalSalary:finalSalary
       };
     } else {
-      var r=calcCoachSalary(c,inp.month,inp.storeRev,inp.groupBonuses[c]||0,(inp.trialSessions||{})[c]||0);
+      var _autoTrial=autoTrialCount(COACH_DISPLAY[c],inp.month);
+      var r=calcCoachSalary(c,inp.month,inp.storeRev,inp.groupBonuses[c]||0,_autoTrial);
       coachResults[c]={
         coachName:r.coachName, month:inp.month,
-        totalSessions:r.totalSessions+((inp.trialSessions||{})[c]||0),
+        totalSessions:r.totalSessions+_autoTrial,
         paidSessions:r.paidSessions, v2Sessions:r.v2Sessions,
-        trial:(inp.trialSessions||{})[c]||0,
+        trial:_autoTrial,
         revenue:Math.round(r.revenue),
         baseSalary:25200, allowance:r.allowance,
         commission:Math.round(r.commission),
@@ -2509,8 +2523,9 @@ function calcCoachSalary(coachKey, month, storeRev, groupBonus, trialCount){
 
 function renderAdminTable(){
   var inp=getAdminInputs();
+  _updateTrialDisplay(inp.month);
   if(!inp.month){document.getElementById('admin-salary-table').innerHTML='';return;}
-  var results=ADMIN_COACHES.filter(function(c){return c!=='shian';}).map(function(c){return calcCoachSalary(c,inp.month,inp.storeRev,inp.groupBonuses[c]||0,(inp.trialSessions||{})[c]||0);});
+  var results=ADMIN_COACHES.filter(function(c){return c!=='shian';}).map(function(c){return calcCoachSalary(c,inp.month,inp.storeRev,inp.groupBonuses[c]||0,autoTrialCount(COACH_DISPLAY[c],inp.month));});
   var totalSalary=results.reduce(function(s,r){return s+r.finalSalary;},0);
 
   var html='<div id="admin-print-area">';
@@ -2535,7 +2550,7 @@ function renderAdminTable(){
     function n(v){return Math.round(v).toLocaleString();}
     html+='<tr style="'+bg+'">';
     html+='<td style="'+p+';font-weight:700;white-space:nowrap">'+r.coachName+'</td>';
-    html+='<td style="'+p+';text-align:right">'+(r.totalSessions+(inp.trialSessions[r.coachKey]||0))+'</td>';
+    html+='<td style="'+p+';text-align:right">'+(r.totalSessions+autoTrialCount(COACH_DISPLAY[r.coachKey],inp.month))+'</td>';
     html+='<td style="'+p+';text-align:right">'+r.paidSessions+'</td>';
     html+='<td style="'+p+';text-align:right">'+r.v2Sessions+'</td>';
     html+='<td style="'+p+';text-align:right">'+n(r.revenue)+'</td>';
@@ -2582,7 +2597,7 @@ function ri(n){return Math.round(n);}
 function exportAdminExcel(){
   var inp=getAdminInputs();
   if(!inp.month){toast('請先選擇月份');return;}
-  var results=ADMIN_COACHES.filter(function(c){return c!=='shian';}).map(function(c){return calcCoachSalary(c,inp.month,inp.storeRev,inp.groupBonuses[c]||0,(inp.trialSessions||{})[c]||0);});
+  var results=ADMIN_COACHES.filter(function(c){return c!=='shian';}).map(function(c){return calcCoachSalary(c,inp.month,inp.storeRev,inp.groupBonuses[c]||0,autoTrialCount(COACH_DISPLAY[c],inp.month));});
 
   var allRows=[];
   // 主要教練表頭 (A~L)
@@ -2596,7 +2611,7 @@ function exportAdminExcel(){
     var revAdj=ri(r.revenueBonus)-ri(r.revenuePenalty);
     var groupOrig=inp.groupBonuses[r.coachKey]||0; // original input, not multiplied
     var multLabel=(multPct*100).toFixed(1)+'%';
-    allRows.push([r.coachName,r.totalSessions+(inp.trialSessions[r.coachKey]||0),r.paidSessions,r.v2Sessions,ri(r.revenue),ri(BASE_SALARY+r.allowance),ri(r.commission+(r.v2Bonus||0)),revAdj,ri(r.subsidy),groupOrig,multLabel,ri(r.finalSalary)]);
+    allRows.push([r.coachName,r.totalSessions+autoTrialCount(COACH_DISPLAY[r.coachKey],inp.month),r.paidSessions,r.v2Sessions,ri(r.revenue),ri(BASE_SALARY+r.allowance),ri(r.commission+(r.v2Bonus||0)),revAdj,ri(r.subsidy),groupOrig,multLabel,ri(r.finalSalary)]);
   });
   // 空行
   allRows.push([]);
