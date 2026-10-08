@@ -1323,8 +1323,22 @@ function saveSignature(stuId, sigData, date, time) {
 }
 
 var _submitting = false;
+var CHECKIN_FREEZE_MS = 2 * 60 * 1000; // 2 minutes
+function _getFreeze(stuId) { try { return parseInt(localStorage.getItem('chk_frz_'+stuId))||0; } catch(e){return 0;} }
+function _setFreeze(stuId) { try { localStorage.setItem('chk_frz_'+stuId, String(Date.now())); } catch(e){} }
+
 function submitCheckin() {
   if (_submitting) return; // prevent double submit
+  // 2-minute freeze: prevent double check-in from network retry
+  if (selStudent && selStudent.id && sessionType !== 'trial') {
+    var _fts = _getFreeze(selStudent.id);
+    if (_fts && Date.now() - _fts < CHECKIN_FREEZE_MS) {
+      var _left = Math.ceil((CHECKIN_FREEZE_MS - (Date.now()-_fts))/1000);
+      var _m = Math.floor(_left/60), _s = _left%60;
+      alert('此學員剛完成簽到，系統保護中\n請 '+_m+' 分 '+(_s<10?'0':'')+_s+' 秒後再試\n（若確認未簽到成功請洽教練）');
+      return;
+    }
+  }
   if (!hasSig()) {
     var a = document.getElementById('sig-alert');
     a.style.display = 'block';
@@ -1362,6 +1376,7 @@ function submitCheckin() {
     _submitting = false;
     clearTimeout(_timeout);
     hideLoading();
+    _setFreeze(stu.id); // start 2-minute cooldown after successful deduction
     var cb = document.querySelector('.lbtn-next');
     if (cb) { cb.disabled = false; cb.textContent = '確認簽到 ✓'; }
     selStudent = stu;
@@ -1472,6 +1487,7 @@ function submitCheckin() {
             _submitting = false;
             clearTimeout(_timeout);
             hideLoading();
+            _setFreeze(stu.id); // start 2-minute cooldown after successful deduction
             if (_sigData) saveSignature(_sigStuId, _sigData, _sigDate, _sigTime);
             var cb = document.querySelector('.lbtn-next');
             if (cb) { cb.disabled = false; cb.textContent = '確認簽到 ✓'; }
