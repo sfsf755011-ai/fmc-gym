@@ -2732,7 +2732,7 @@ function refreshDebug(){
 function renderDashboard(){
   var t=today();
   document.getElementById('dash-date').textContent=new Date().toLocaleDateString('zh-TW',{year:'numeric',month:'long',day:'numeric',weekday:'long'});
-  var todayRec=records.filter(function(r){return r.date===t&&r.coach.toLowerCase()!=='shian教練';});
+  var todayRec=records.filter(function(r){return r.date===t;});
   var totalRev=students.reduce(function(sum,s){
     if((s.coach||'').toLowerCase()==='shian教練')return sum;
     return sum+(s.contracts||[]).reduce(function(cs,c){
