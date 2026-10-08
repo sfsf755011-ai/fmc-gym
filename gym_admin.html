@@ -928,6 +928,10 @@ tr:hover td{background:var(--bg2)}
               <div id="store-mult-preview" style="font-size:12px;color:var(--amber-text);font-weight:600;margin-top:4px"></div>
             </div>
             <div>
+              <div style="font-size:12px;color:var(--amber-text);margin-bottom:4px">體驗上課（堂）</div>
+              <div id="trial-total-display" style="font-size:15px;font-weight:700;padding:9px 12px;background:var(--bg);border-radius:8px;border:1.5px solid var(--amber);color:var(--text)">0</div>
+            </div>
+            <div>
               <div style="font-size:12px;color:var(--amber-text);margin-bottom:4px">體驗成交（堂）</div>
               <div id="trial-display" style="font-size:15px;font-weight:700;padding:9px 12px;background:var(--bg);border-radius:8px;border:1.5px solid var(--amber);color:var(--text)">0</div>
             </div>
@@ -2200,10 +2204,12 @@ function _renderSalaryInner(){
   var v1Sessions=totalSessions-v2Sessions;
   var _cDispForTrial=coachDisplayNames[coachName]||coachName;
   var trialFromSettings=autoTrialCount(_cDispForTrial,month);
+  var trialTotalCount=autoTrialTotal(_cDispForTrial,month);
   var paidSessions=Math.max(0,totalSessions+trialFromSettings-30);
-  // Update trial display for non-admin coaches
   var trialDisp=document.getElementById('trial-display');
   if(trialDisp) trialDisp.textContent=trialFromSettings;
+  var trialTotalDisp=document.getElementById('trial-total-display');
+  if(trialTotalDisp) trialTotalDisp.textContent=trialTotalCount;
 
   // Revenue from paid installments in this month（含皮拉提斯拆帳）
   var _cDisp=coachDisplayNames[coachName]||coachName;
@@ -2361,8 +2367,15 @@ var ADMIN_COACHES_STORE2 = ['dolly','elly']; // 二店教練（薪資獨立）
 var COACH_DISPLAY = {apple:'apple教練',sherry:'sherry教練',jay:'jay教練',jenny:'jenny教練',yoyo:'yoyo教練',fiona:'fiona教練',shian:'shian教練',dolly:'dolly教練',elly:'elly教練'};
 
 function autoTrialCount(coachDisplayName, monthStr){
+  var cn=(coachDisplayName||'').toLowerCase();
   return (trialCheckins||[]).filter(function(r){
-    return r.converted && r.date && r.date.startsWith(monthStr) && r.coach===coachDisplayName;
+    return r.converted && r.date && r.date.startsWith(monthStr) && (r.coach||'').toLowerCase()===cn;
+  }).length;
+}
+function autoTrialTotal(coachDisplayName, monthStr){
+  var cn=(coachDisplayName||'').toLowerCase();
+  return (trialCheckins||[]).filter(function(r){
+    return r.date && r.date.startsWith(monthStr) && (r.coach||'').toLowerCase()===cn;
   }).length;
 }
 
@@ -2382,7 +2395,11 @@ function initAdminGroupBonusInputs(){
 function _updateTrialDisplay(month){
   ADMIN_COACHES.forEach(function(c){
     var el=document.getElementById('atr-'+c);
-    if(el) el.textContent=month?autoTrialCount(COACH_DISPLAY[c],month)+' 堂':'—';
+    if(!el)return;
+    if(!month){el.textContent='—';return;}
+    var conv=autoTrialCount(COACH_DISPLAY[c],month);
+    var tot=autoTrialTotal(COACH_DISPLAY[c],month);
+    el.textContent=conv+' 堂成交 / 共'+tot+'堂';
   });
 }
 
