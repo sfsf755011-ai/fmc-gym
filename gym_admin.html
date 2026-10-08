@@ -2240,10 +2240,11 @@ function _renderSalaryInner(){
     // shian 特殊計算：公司學生每堂課程單價 × 60%，無底薪、無業績加成
     // 店長加給：從2026-03起$10000，每年3月+$1000
     var baseYear=2026; var baseMonth=3; var baseAmt=10000;
-    var nowDate=new Date(); var nowYear=nowDate.getFullYear(); var nowMon=nowDate.getMonth()+1;
-    var yearsElapsed=nowYear-baseYear+(nowMon>=baseMonth?0:-1);
+    var _salaryMonthParts=(month||'').split('-'); var _sYear=parseInt(_salaryMonthParts[0])||2026; var _sMon=parseInt(_salaryMonthParts[1])||1;
+    var yearsElapsed=_sYear-baseYear+(_sMon>=baseMonth?0:-1);
     var shianStoreAllowance=baseAmt+Math.max(0,yearsElapsed)*1000;
-    var shianLaborSubsidy=1500;
+    var _laborEl=document.getElementById('shian-labor-subsidy');
+    var shianLaborSubsidy=(_laborEl&&_laborEl.value!=='')?parseInt(_laborEl.value)||0:1500;
     // 店業績抽成
     var shianStoreRev=parseInt(document.getElementById('store-revenue')?document.getElementById('store-revenue').value:0)||0;
     var shianStorePct=shianStoreRev>=1000000?0.01:shianStoreRev>=950000?0.0075:shianStoreRev>=850000?0.005:0;
