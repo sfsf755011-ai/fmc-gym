@@ -919,12 +919,12 @@ tr:hover td{background:var(--bg2)}
           </div>
         </div>
         <div class="card" style="border:1.5px solid var(--amber);background:var(--amber-bg);margin-bottom:16px">
-          <div class="card-title" style="color:var(--amber-text)">🏪 主管設定（唯讀）</div>
+          <div class="card-title" style="color:var(--amber-text)">🏪 主管設定</div>
           <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px">
             <div>
-              <div style="font-size:12px;color:var(--amber-text);margin-bottom:4px">店總營收</div>
-              <div id="store-revenue-display" style="font-size:15px;font-weight:700;padding:9px 12px;background:var(--bg);border-radius:8px;border:1.5px solid var(--amber);color:var(--text)">—</div>
-              <input type="hidden" id="store-revenue">
+              <label style="font-size:12px;color:var(--amber-text);font-weight:600;display:block;margin-bottom:4px">店總營收 NT$</label>
+              <input type="number" id="store-revenue" min="0" placeholder="請輸入本月店總營收" oninput="renderSalary()"
+                style="width:100%;font-size:15px;padding:9px 12px;border-radius:8px;border:1.5px solid var(--amber);background:var(--bg);color:var(--text)">
               <div id="store-mult-preview" style="font-size:12px;color:var(--amber-text);font-weight:600;margin-top:4px"></div>
             </div>
             <div>
@@ -936,12 +936,11 @@ tr:hover td{background:var(--bg2)}
               <div id="trial-display" style="font-size:15px;font-weight:700;padding:9px 12px;background:var(--bg);border-radius:8px;border:1.5px solid var(--amber);color:var(--text)">0</div>
             </div>
             <div>
-              <div style="font-size:12px;color:var(--amber-text);margin-bottom:4px">團體課程獎金</div>
-              <div id="group-bonus-display" style="font-size:15px;font-weight:700;padding:9px 12px;background:var(--bg);border-radius:8px;border:1.5px solid var(--amber);color:var(--text)">—</div>
-              <input type="hidden" id="group-bonus">
+              <label style="font-size:12px;color:var(--amber-text);font-weight:600;display:block;margin-bottom:4px">團體課程獎金 NT$</label>
+              <input type="number" id="group-bonus" min="0" placeholder="0" oninput="renderSalary()"
+                style="width:100%;font-size:15px;padding:9px 12px;border-radius:8px;border:1.5px solid var(--amber);background:var(--bg);color:var(--text)">
             </div>
           </div>
-          <input type="hidden" id="group-bonus">
         </div>
 
         <!-- 結果卡 -->
@@ -1781,16 +1780,12 @@ function loadSalarySettings(month){
     if(_storeEl) _storeEl.value='';
     var _adminStoreEl=document.getElementById('admin-store-rev');
     if(_adminStoreEl) _adminStoreEl.value='';
-    var _storeDisp=document.getElementById('store-revenue-display');
-    if(_storeDisp) _storeDisp.textContent='—';
     var _multPrev=document.getElementById('store-mult-preview');
     if(_multPrev){_multPrev.textContent='';_multPrev.style.color='';}
     var _trialDisp=document.getElementById('trial-display');
     if(_trialDisp) _trialDisp.textContent='0';
-    var _gbDisp=document.getElementById('group-bonus-display');
-    if(_gbDisp) _gbDisp.textContent='—';
     var _gbEl=document.getElementById('group-bonus');
-    if(_gbEl) _gbEl.value='0';
+    if(_gbEl) _gbEl.value='';
     if(_salaryAdmin && typeof ADMIN_COACHES!=='undefined'){
       ADMIN_COACHES.forEach(function(c){
         var agb=document.getElementById('agb-'+c);if(agb) agb.value='';
@@ -1810,9 +1805,6 @@ function loadSalarySettings(month){
       if(storeEl) storeEl.value = storeVal;
       var adminStoreEl = document.getElementById('admin-store-rev');
       if(adminStoreEl) adminStoreEl.value = storeVal;
-      var storeDisp = document.getElementById('store-revenue-display');
-      if(storeDisp) storeDisp.textContent = 'NT$'+(storeVal).toLocaleString();
-
       // Load group bonus and trial for this coach (non-admin)
       if(!_salaryAdmin && _salaryCoach){
         // shian is the admin-owner: always use live calculation, never cached result
@@ -1822,12 +1814,9 @@ function loadSalarySettings(month){
         // Always read groupBonus from the authoritative settings (not saved result)
         var gbVal=(d.groupBonuses&&d.groupBonuses[_salaryCoach])||0;
         var trialVal=cr?cr.trial:((d.trialSessions&&d.trialSessions[_salaryCoach])||0);
-        // Set hidden inputs
+        // Set inputs directly (group-bonus and store-revenue are now editable inputs for Shian)
         var gbEl=document.getElementById('group-bonus');
-        if(gbEl) gbEl.value=gbVal;
-        // Set display elements
-        var gbDisp=document.getElementById('group-bonus-display');
-        if(gbDisp) gbDisp.textContent=gbVal>0?'NT$'+gbVal.toLocaleString():'—';
+        if(gbEl) gbEl.value=gbVal||'';
         var trialDisp=document.getElementById('trial-display');
         if(trialDisp) trialDisp.textContent=trialVal;
         // Store trial globally
