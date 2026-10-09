@@ -1811,8 +1811,10 @@ function loadSalarySettings(month){
         var _isShianSelf=(_salaryCoach==='shian');
         window._savedCoachResult = _isShianSelf ? null : ((d.coachResults&&d.coachResults[_salaryCoach])||null);
         var cr=_isShianSelf ? null : (d.coachResults&&d.coachResults[_salaryCoach]);
-        // Always read groupBonus from the authoritative settings (not saved result)
-        var gbVal=(d.groupBonuses&&d.groupBonuses[_salaryCoach])||0;
+        // Read groupBonus from settings; fall back to saved coachResult if available
+        var gbVal=(d.groupBonuses&&d.groupBonuses[_salaryCoach])
+          ||(d.coachResults&&d.coachResults[_salaryCoach]&&d.coachResults[_salaryCoach].groupBonus)
+          ||0;
         var trialVal=cr?cr.trial:((d.trialSessions&&d.trialSessions[_salaryCoach])||0);
         // Set inputs directly (group-bonus and store-revenue are now editable inputs for Shian)
         var gbEl=document.getElementById('group-bonus');
@@ -1828,14 +1830,14 @@ function loadSalarySettings(month){
       // trial-display updated above for non-admin
       // For admin, load all group bonuses
       if(_salaryAdmin && d.groupBonuses){
-        ADMIN_COACHES.forEach(function(c){
+        ADMIN_COACHES.concat(ADMIN_COACHES_STORE2).forEach(function(c){
           var el = document.getElementById('agb-'+c);
           if(el && d.groupBonuses[c] !== undefined) el.value = d.groupBonuses[c];
         });
         if(d.storeRev) document.getElementById('admin-store-rev').value = d.storeRev;
       }
       if(_salaryAdmin && d.trialSessions){
-        ADMIN_COACHES.forEach(function(c){
+        ADMIN_COACHES.concat(ADMIN_COACHES_STORE2).forEach(function(c){
           var el = document.getElementById('atr-'+c);
           if(el && d.trialSessions[c] !== undefined) el.value = d.trialSessions[c];
         });
@@ -2373,19 +2375,25 @@ function autoTrialTotal(coachDisplayName, monthStr){
 
 function initAdminGroupBonusInputs(){
   var el=document.getElementById('admin-group-bonus-inputs');
-  if(el) el.innerHTML=ADMIN_COACHES.map(function(c){
-    return '<div><label style="font-size:12px;color:var(--text2);display:block;margin-bottom:4px">'+COACH_DISPLAY[c]+'</label>'
+  var allForBonus=ADMIN_COACHES.concat(ADMIN_COACHES_STORE2);
+  if(el) el.innerHTML=allForBonus.map(function(c,i){
+    var sepStyle=(i===ADMIN_COACHES.length)?'border-top:1px solid var(--border);padding-top:10px;margin-top:4px;':'';
+    var tag=(ADMIN_COACHES_STORE2.indexOf(c)>=0)?'<span style="font-size:10px;color:var(--blue);margin-left:4px">二店</span>':'';
+    return '<div style="'+sepStyle+'"><label style="font-size:12px;color:var(--text2);display:block;margin-bottom:4px">'+COACH_DISPLAY[c]+tag+'</label>'
       +'<input type="number" id="agb-'+c+'" min="0" placeholder="0" oninput="renderAdminTable()"'
       +' style="width:100%;padding:7px 10px;border-radius:8px;border:1px solid var(--border2);background:var(--bg2);color:var(--text);font-size:13px"></div>';
   }).join('');
   var el2=document.getElementById('admin-trial-inputs');
-  if(el2) el2.innerHTML=ADMIN_COACHES.map(function(c){
-    return '<div><label style="font-size:12px;color:var(--text2);display:block;margin-bottom:4px">'+COACH_DISPLAY[c]+'</label>'
+  var allForTrial=ADMIN_COACHES.concat(ADMIN_COACHES_STORE2);
+  if(el2) el2.innerHTML=allForTrial.map(function(c,i){
+    var sepStyle=(i===ADMIN_COACHES.length)?'border-top:1px solid var(--border);padding-top:10px;margin-top:4px;':'';
+    var tag=(ADMIN_COACHES_STORE2.indexOf(c)>=0)?'<span style="font-size:10px;color:var(--blue);margin-left:4px">二店</span>':'';
+    return '<div style="'+sepStyle+'"><label style="font-size:12px;color:var(--text2);display:block;margin-bottom:4px">'+COACH_DISPLAY[c]+tag+'</label>'
       +'<div id="atr-'+c+'" style="width:100%;padding:7px 10px;border-radius:8px;border:1px solid var(--border2);background:var(--bg);color:var(--text);font-size:13px;font-weight:700">—</div></div>';
   }).join('');
 }
 function _updateTrialDisplay(month){
-  ADMIN_COACHES.forEach(function(c){
+  ADMIN_COACHES.concat(ADMIN_COACHES_STORE2).forEach(function(c){
     var el=document.getElementById('atr-'+c);
     if(!el)return;
     if(!month){el.textContent='—';return;}
@@ -2400,7 +2408,7 @@ function getAdminInputs(){
   var storeRev=parseInt(document.getElementById('admin-store-rev').value)||0;
   var groupBonuses={};
   var trialSessions={};
-  ADMIN_COACHES.forEach(function(c){
+  ADMIN_COACHES.concat(ADMIN_COACHES_STORE2).forEach(function(c){
     groupBonuses[c]=parseInt(document.getElementById('agb-'+c)?document.getElementById('agb-'+c).value:0)||0;
     trialSessions[c]=parseInt(document.getElementById('atr-'+c)?document.getElementById('atr-'+c).value:0)||0;
   });
@@ -2414,13 +2422,13 @@ function loadAdminSettings(month){
     if(!d)return;
     if(d.storeRev) document.getElementById('admin-store-rev').value=d.storeRev;
     if(d.groupBonuses){
-      ADMIN_COACHES.forEach(function(c){
+      ADMIN_COACHES.concat(ADMIN_COACHES_STORE2).forEach(function(c){
         var el=document.getElementById('agb-'+c);
         if(el&&d.groupBonuses[c]!==undefined) el.value=d.groupBonuses[c];
       });
     }
     if(d.trialSessions){
-      ADMIN_COACHES.forEach(function(c){
+      ADMIN_COACHES.concat(ADMIN_COACHES_STORE2).forEach(function(c){
         var el=document.getElementById('atr-'+c);
         if(el&&d.trialSessions[c]!==undefined) el.value=d.trialSessions[c];
       });
@@ -2486,6 +2494,24 @@ function saveAdminSettings(){
       };
     }
   });
+  // 二店 coaches
+  ADMIN_COACHES_STORE2.forEach(function(c){
+    var r2=calcCoachSalary(c,inp.month,0,inp.groupBonuses[c]||0);
+    coachResults[c]={
+      coachName:r2.coachName, month:inp.month, isStore2:true,
+      totalSessions:r2.totalSessions, paidSessions:r2.paidSessions, v2Sessions:r2.v2Sessions,
+      revenue:Math.round(r2.revenue),
+      baseSalary:25200, allowance:r2.allowance,
+      commission:Math.round(r2.commission),
+      v2Bonus:r2.v2Bonus,
+      revenueBonus:0, revenuePenalty:0,
+      subsidy:r2.subsidy,
+      groupBonus:inp.groupBonuses[c]||0,
+      storeRev:0, mult:1,
+      storeAdj:0,
+      finalSalary:r2.finalSalary
+    };
+  });
   var saveData=Object.assign({},inp,{coachResults:coachResults});
   fbdb.ref('data/salary_settings/'+inp.month).set(saveData,function(err){
     if(err){toast('❌ 儲存失敗');return;}
@@ -2497,8 +2523,9 @@ function saveAdminSettings(){
 }
 
 function calcCoachSalary(coachKey, month, storeRev, groupBonus, trialCount){
+  var isStore2=(ADMIN_COACHES_STORE2||[]).indexOf(coachKey)>=0; // 二店：無業績加減、無店業績乘數
   var coachName=COACH_DISPLAY[coachKey];
-  var mult=getStoreMultiplier(storeRev);
+  var mult=isStore2?1:getStoreMultiplier(storeRev);
   var monthRecs=records.filter(function(r){return r.date&&r.date.startsWith(month)&&r.coach===coachName;});
   var totalSessions=monthRecs.length;
   var v2Sessions=monthRecs.filter(function(r){
@@ -2514,17 +2541,17 @@ function calcCoachSalary(coachKey, month, storeRev, groupBonus, trialCount){
   var commission=commResult.total;
   var v2Bonus=v2Sessions*100;
   var bonusRate=getRevenueBonusRate(revenue);
-  var revenueBonus=revenue>=120001?revenue*bonusRate:0; // float - round at end
-  var revenuePenalty=revenue>0&&revenue<120000?paidSessions*50:0;
+  var revenueBonus=(!isStore2&&revenue>=120001)?revenue*bonusRate:0; // float - round at end
+  var revenuePenalty=(!isStore2&&revenue>0&&revenue<120000)?paidSessions*50:0;
   var subsidy=HEALTH_SUBSIDY[coachKey]||0;
   var subtotal=BASE_SALARY+allowance+commission+v2Bonus+revenueBonus-revenuePenalty+subsidy+groupBonus;
   var finalSalary=Math.round(subtotal*mult);
   return {
-    coachKey:coachKey, coachName:coachName,
+    coachKey:coachKey, coachName:coachName, isStore2:isStore2,
     totalSessions:totalSessions, paidSessions:paidSessions, v2Sessions:v2Sessions,
     revenue:revenue, commission:commission, v2Bonus:v2Bonus,
     revenueBonus:revenueBonus, revenuePenalty:revenuePenalty,
-    subsidy:subsidy, allowance:allowance, groupBonus:groupBonus*mult,
+    subsidy:subsidy, allowance:allowance, groupBonus:groupBonus,
     subtotal:subtotal, mult:mult, finalSalary:finalSalary
   };
 }
@@ -2535,50 +2562,65 @@ function renderAdminTable(){
   if(!inp.month){document.getElementById('admin-salary-table').innerHTML='';return;}
   var results=ADMIN_COACHES.filter(function(c){return c!=='shian';}).map(function(c){return calcCoachSalary(c,inp.month,inp.storeRev,inp.groupBonuses[c]||0);});
   var totalSalary=results.reduce(function(s,r){return s+r.finalSalary;},0);
+  var results2=ADMIN_COACHES_STORE2.map(function(c){return calcCoachSalary(c,inp.month,0,inp.groupBonuses[c]||0);});
+  var totalSalary2=results2.reduce(function(s,r){return s+r.finalSalary;},0);
+
+  function buildSalaryTable(rows, totalAmt, storeRevLabel){
+    function n(v){return Math.round(v).toLocaleString();}
+    var th=['教練','總堂','計薪堂','1v2','當月業績','底薪+加給','堂數抽成+1v2','個人業績加減','健保補助','團課獎金','店營收%','最終薪資'];
+    var tbl='<div style="overflow-x:auto;margin-bottom:8px"><table style="width:100%;font-size:12px;border-collapse:collapse;min-width:900px">';
+    tbl+='<thead><tr style="background:var(--bg2)">';
+    th.forEach(function(h){tbl+='<th style="padding:6px 8px;text-align:right;font-weight:600;white-space:pre;border-bottom:2px solid var(--border2);font-size:11px">'+h+'</th>';});
+    tbl+='</tr></thead><tbody>';
+    rows.forEach(function(r,i){
+      var bg=i%2===0?'':'background:var(--bg2)';
+      var p='padding:5px 8px;border-bottom:1px solid var(--border)';
+      var revAdj=r.revenueBonus-r.revenuePenalty;
+      var gOrig=inp.groupBonuses[r.coachKey]||0;
+      tbl+='<tr style="'+bg+'">';
+      tbl+='<td style="'+p+';font-weight:700;white-space:nowrap">'+r.coachName+'</td>';
+      tbl+='<td style="'+p+';text-align:right">'+r.totalSessions+'</td>';
+      tbl+='<td style="'+p+';text-align:right">'+r.paidSessions+'</td>';
+      tbl+='<td style="'+p+';text-align:right">'+r.v2Sessions+'</td>';
+      tbl+='<td style="'+p+';text-align:right">'+n(r.revenue)+'</td>';
+      tbl+='<td style="'+p+';text-align:right">'+n(BASE_SALARY+r.allowance)+'</td>';
+      tbl+='<td style="'+p+';text-align:right">'+n(r.commission+(r.v2Bonus||0))+'</td>';
+      tbl+='<td style="'+p+';text-align:right;color:'+(revAdj>=0?'var(--green-text)':'var(--red-text)')+'">'+n(revAdj)+'</td>';
+      tbl+='<td style="'+p+';text-align:right;color:'+(r.subsidy>=0?'var(--green-text)':'var(--red-text)')+'">'+n(r.subsidy)+'</td>';
+      tbl+='<td style="'+p+';text-align:right">'+n(gOrig)+'</td>';
+      tbl+='<td style="'+p+';text-align:right;color:var(--blue)">'+(r.mult*100).toFixed(1)+'%</td>';
+      tbl+='<td style="'+p+';text-align:right;font-weight:700">'+n(r.finalSalary)+'</td>';
+      tbl+='</tr>';
+    });
+    tbl+='<tr style="background:var(--accent);color:#fff">';
+    tbl+='<td style="padding:8px 10px;font-weight:700">小計</td>';
+    tbl+='<td colspan="10" style="padding:8px 10px;font-size:12px;color:rgba(255,255,255,.7)">'+storeRevLabel+'</td>';
+    tbl+='<td style="padding:8px 10px;text-align:right;font-weight:800;font-size:14px;min-width:150px;white-space:nowrap;word-break:keep-all">NT$'+Math.round(totalAmt).toLocaleString()+'</td>';
+    tbl+='</tr>';
+    tbl+='</tbody></table></div>';
+    return tbl;
+  }
 
   var html='<div id="admin-print-area">';
   html+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px">';
   html+='<div style="font-size:16px;font-weight:700">'+inp.month+' 全教練薪資總表</div>';
-  html+='<div style="font-size:14px;color:var(--text2)">店總營收：NT$'+inp.storeRev.toLocaleString()+' （'+(results[0].mult*100).toFixed(1)+'%）</div>';
+  html+='<div style="font-size:14px;color:var(--text2)">店總營收：NT$'+inp.storeRev.toLocaleString()+(results.length?'（'+(results[0].mult*100).toFixed(1)+'%）':'')+'</div>';
   html+='</div>';
 
-  // Summary table
-  html+='<div style="overflow-x:auto;margin-bottom:20px"><table style="width:100%;font-size:12px;border-collapse:collapse;min-width:900px">';
-  html+='<thead><tr style="background:var(--bg2)">';
-  ['教練','總堂','計薪堂','1v2','當月業績','底薪+加給','堂數抽成+1v2','個人業績加減','健保補助','團課獎金','店營收%','最終薪資'].forEach(function(h){
-    html+='<th style="padding:6px 8px;text-align:right;font-weight:600;white-space:pre;border-bottom:2px solid var(--border2);font-size:11px">'+h+'</th>';
-  });
-  html+='</tr></thead><tbody>';
+  // 一店
+  html+='<div style="font-size:13px;font-weight:700;color:var(--blue);margin-bottom:6px;padding:4px 8px;background:var(--blue-bg);border-radius:6px;display:inline-block">🏠 一店</div>';
+  html+=buildSalaryTable(results, totalSalary, '店總營收：NT$'+inp.storeRev.toLocaleString());
 
-  results.forEach(function(r,i){
-    var bg=i%2===0?'':'background:var(--bg2)';
-    var p='padding:5px 8px;border-bottom:1px solid var(--border)';
-    var revAdj=r.revenueBonus-r.revenuePenalty;
-    var gOrig=inp.groupBonuses[r.coachKey]||0;
-    function n(v){return Math.round(v).toLocaleString();}
-    html+='<tr style="'+bg+'">';
-    html+='<td style="'+p+';font-weight:700;white-space:nowrap">'+r.coachName+'</td>';
-    html+='<td style="'+p+';text-align:right">'+r.totalSessions+'</td>';
-    html+='<td style="'+p+';text-align:right">'+r.paidSessions+'</td>';
-    html+='<td style="'+p+';text-align:right">'+r.v2Sessions+'</td>';
-    html+='<td style="'+p+';text-align:right">'+n(r.revenue)+'</td>';
-    html+='<td style="'+p+';text-align:right">'+n(BASE_SALARY+r.allowance)+'</td>';
-    html+='<td style="'+p+';text-align:right">'+n(r.commission+(r.v2Bonus||0))+'</td>';
-    html+='<td style="'+p+';text-align:right;color:'+(revAdj>=0?'var(--green-text)':'var(--red-text)')+'">'+n(revAdj)+'</td>';
-    html+='<td style="'+p+';text-align:right;color:'+(r.subsidy>=0?'var(--green-text)':'var(--red-text)')+'">'+n(r.subsidy)+'</td>';
-    html+='<td style="'+p+';text-align:right">'+n(gOrig)+'</td>';
-    html+='<td style="'+p+';text-align:right;color:var(--blue)">'+(r.mult*100).toFixed(1)+'%</td>';
-    html+='<td style="'+p+';text-align:right;font-weight:700">'+n(r.finalSalary)+'</td>';
-    html+='</tr>';
-  });
+  // 二店
+  html+='<div style="font-size:13px;font-weight:700;color:var(--teal,#0f766e);margin-bottom:6px;margin-top:16px;padding:4px 8px;background:var(--teal-bg,#d1fae5);border-radius:6px;display:inline-block">🏠 二店</div>';
+  html+=buildSalaryTable(results2, totalSalary2, '無店業績乘數');
 
-  // Total row
-  html+='<tr style="background:var(--accent);color:#fff">';
-  html+='<td style="padding:8px 10px;font-weight:700">總計</td>';
-  html+='<td colspan="10" style="padding:8px 10px"></td>';
-  html+='<td style="padding:8px 10px;text-align:right;font-weight:800;font-size:14px;min-width:150px;white-space:nowrap;word-break:keep-all">NT$'+Math.round(totalSalary).toLocaleString()+'</td>';
-  html+='</tr>';
-  html+='</tbody></table></div>';
+  // 總計
+  html+='<div style="display:flex;justify-content:flex-end;align-items:center;padding:10px 12px;background:var(--bg3);border-radius:8px;margin-top:4px">';
+  html+='<span style="font-size:13px;color:var(--text2);margin-right:16px">一店＋二店合計</span>';
+  html+='<span style="font-size:18px;font-weight:800">NT$'+Math.round(totalSalary+totalSalary2).toLocaleString()+'</span>';
+  html+='</div>';
+
   html+='</div>';
 
   document.getElementById('admin-salary-table').innerHTML=html;
@@ -2606,20 +2648,26 @@ function exportAdminExcel(){
   var inp=getAdminInputs();
   if(!inp.month){toast('請先選擇月份');return;}
   var results=ADMIN_COACHES.filter(function(c){return c!=='shian';}).map(function(c){return calcCoachSalary(c,inp.month,inp.storeRev,inp.groupBonuses[c]||0);});
+  var results2=ADMIN_COACHES_STORE2.map(function(c){return calcCoachSalary(c,inp.month,0,inp.groupBonuses[c]||0);});
 
   var allRows=[];
-  // 主要教練表頭 (A~L)
-  // A:教練 B:總堂數 C:計薪堂數 D:1v2堂數 E:當月業績
-  // F:底薪+加給 G:堂數抽成+1v2 H:個人業績加減 I:健保補助 J:團課獎金
-  // K:店營收% L:最終薪資(公式=F+G+H+I+J)×K
+  // 一店 table
+  allRows.push(['【一店】']);
   allRows.push(['教練','總堂數','計薪堂數','1v2堂數','當月業績','底薪+加給','堂數抽成+1v2','個人業績加減','健保補助','團課獎金','店營收%','最終薪資']);
-  var multPct=getStoreMultiplier(inp.storeRev); // e.g. 1.025
+  var multPct=getStoreMultiplier(inp.storeRev);
   results.forEach(function(r,idx){
-    var rowNum=idx+2; // row 2 onwards (row 1 = header)
+    var rowNum=idx+3;
     var revAdj=ri(r.revenueBonus)-ri(r.revenuePenalty);
-    var groupOrig=inp.groupBonuses[r.coachKey]||0; // original input, not multiplied
+    var groupOrig=inp.groupBonuses[r.coachKey]||0;
     var multLabel=(multPct*100).toFixed(1)+'%';
     allRows.push([r.coachName,r.totalSessions,r.paidSessions,r.v2Sessions,ri(r.revenue),ri(BASE_SALARY+r.allowance),ri(r.commission+(r.v2Bonus||0)),revAdj,ri(r.subsidy),groupOrig,multLabel,ri(r.finalSalary)]);
+  });
+  // 二店 table
+  allRows.push([]);
+  allRows.push(['【二店】']);
+  allRows.push(['教練','總堂數','計薪堂數','1v2堂數','當月業績','底薪+加給','堂數抽成+1v2','個人業績加減','健保補助','團課獎金','店營收%','最終薪資']);
+  results2.forEach(function(r){
+    allRows.push([r.coachName,r.totalSessions,r.paidSessions,r.v2Sessions,ri(r.revenue),ri(BASE_SALARY+r.allowance),ri(r.commission+(r.v2Bonus||0)),0,ri(r.subsidy),inp.groupBonuses[r.coachKey]||0,'100.0%',ri(r.finalSalary)]);
   });
   // 空行
   allRows.push([]);
