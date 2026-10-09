@@ -888,7 +888,6 @@ tr:hover td{background:var(--bg2)}
               <option value="jay">jay教練</option>
               <option value="jenny">jenny教練</option>
               <option value="yoyo">yoyo教練</option>
-              <option value="fiona">fiona教練</option>
             <option value="shian">shian教練</option>
               <option value="dolly">dolly教練</option>
               <option value="elly">elly教練</option>
@@ -1071,8 +1070,7 @@ var DEFAULT_COACHES = [
   {id:3,name:'sherry教練',specialty:'壺鈴'},
   {id:4,name:'jay教練',specialty:'搏擊'},
   {id:5,name:'jenny教練',specialty:'槓鈴'},
-  {id:6,name:'yoyo教練',specialty:'TRX'},
-  {id:7,name:'fiona教練',specialty:'瑜珈'}
+  {id:6,name:'yoyo教練',specialty:'TRX'}
 ];
 
 // ── Safe save: only update the specific field, never overwrite everything ──
@@ -1796,7 +1794,7 @@ function loadSalarySettings(month){
       // Store trial sessions globally for renderSalary
       window._savedTrialSessions = {};
       if(d.trialSessions) Object.keys(d.trialSessions).forEach(function(c){
-        var cname = ({"apple":"apple教練","sherry":"sherry教練","jay":"jay教練","jenny":"jenny教練","yoyo":"yoyo教練","fiona":"fiona教練","shian":"shian教練","dolly":"dolly教練","elly":"elly教練"})[c]||c;
+        var cname = ({"apple":"apple教練","sherry":"sherry教練","jay":"jay教練","jenny":"jenny教練","yoyo":"yoyo教練","shian":"shian教練","dolly":"dolly教練","elly":"elly教練"})[c]||c;
         window._savedTrialSessions[cname] = d.trialSessions[c]||0;
       });
       // Load store revenue
@@ -1824,7 +1822,7 @@ function loadSalarySettings(month){
         // Store trial globally
         window._savedTrialSessions={};
         window._savedTrialSessions[_salaryCoach]=trialVal;
-        var dispNames={'apple':'apple教練','sherry':'sherry教練','jay':'jay教練','jenny':'jenny教練','yoyo':'yoyo教練','fiona':'fiona教練','shian':'shian教練','dolly':'dolly教練','elly':'elly教練'};
+        var dispNames={'apple':'apple教練','sherry':'sherry教練','jay':'jay教練','jenny':'jenny教練','yoyo':'yoyo教練','shian':'shian教練','dolly':'dolly教練','elly':'elly教練'};
         window._savedTrialSessions[dispNames[_salaryCoach]||_salaryCoach]=trialVal;
       }
       // trial-display updated above for non-admin
@@ -2123,7 +2121,7 @@ function _renderSalaryInner(){
     });
     document.getElementById('salary-breakdown').innerHTML=bdHtml;
     // Compute live revenue list (salary totals frozen, but payment records always live)
-    var _rvDispNames={apple:'apple教練',sherry:'sherry教練',jay:'jay教練',jenny:'jenny教練',yoyo:'yoyo教練',fiona:'fiona教練',shian:'shian教練',dolly:'dolly教練',elly:'elly教練'};
+    var _rvDispNames={apple:'apple教練',sherry:'sherry教練',jay:'jay教練',jenny:'jenny教練',yoyo:'yoyo教練',shian:'shian教練',dolly:'dolly教練',elly:'elly教練'};
     var _rvCoachDisp=_rvDispNames[coachName]||coachName;
     var _rvDetails=_buildRevDetails(coachName,_rvCoachDisp,month,coachName==='shian');
     var _rvLiveTotal=_rvDetails.reduce(function(s,d){return s+d.amount;},0);
@@ -2172,7 +2170,7 @@ function _renderSalaryInner(){
   document.getElementById('store-mult-preview').style.color=multColor;
 
   // Coach display name
-  var coachDisplayNames={apple:'apple教練',sherry:'sherry教練',jay:'jay教練',jenny:'jenny教練',yoyo:'yoyo教練',fiona:'fiona教練',shian:'shian教練',dolly:'dolly教練',elly:'elly教練'};
+  var coachDisplayNames={apple:'apple教練',sherry:'sherry教練',jay:'jay教練',jenny:'jenny教練',yoyo:'yoyo教練',shian:'shian教練',dolly:'dolly教練',elly:'elly教練'};
   document.getElementById('salary-coach-label').textContent=coachDisplayNames[coachName]||coachName;
   document.getElementById('salary-month-label').textContent=month+' 薪資試算';
 
@@ -2358,7 +2356,7 @@ function _renderSalaryInner(){
 // ══ 主管薪資總表 ══
 var ADMIN_COACHES = ['apple','sherry','jay','jenny','yoyo','shian'];
 var ADMIN_COACHES_STORE2 = ['dolly','elly']; // 二店教練（薪資獨立）
-var COACH_DISPLAY = {apple:'apple教練',sherry:'sherry教練',jay:'jay教練',jenny:'jenny教練',yoyo:'yoyo教練',fiona:'fiona教練',shian:'shian教練',dolly:'dolly教練',elly:'elly教練'};
+var COACH_DISPLAY = {apple:'apple教練',sherry:'sherry教練',jay:'jay教練',jenny:'jenny教練',yoyo:'yoyo教練',shian:'shian教練',dolly:'dolly教練',elly:'elly教練'};
 
 function autoTrialCount(coachDisplayName, monthStr){
   var cn=(coachDisplayName||'').toLowerCase();
@@ -2699,22 +2697,37 @@ function exportAdminExcel(){
   } else {
     allRows.push(['shian（見薪資頁）','','','','','']);
   }
-  // daniel row - SUM formula at col F (index 6), data at B-E (index 2-5)
-  var danielRow = allRows.length + 1;
-  allRows.push(['daniel','','','','','=B'+danielRow+'+C'+danielRow+'+D'+danielRow+'+E'+danielRow]);
-  var qqRow = allRows.length + 1;
-  allRows.push(['QQ','','','','','=B'+qqRow+'+C'+qqRow+'+D'+qqRow+'+E'+qqRow]);
-  var janeRow = allRows.length + 1;
-  allRows.push(['jane','','','','','=B'+janeRow+'+C'+janeRow+'+D'+janeRow+'+E'+janeRow]);
-  var fionaRow = allRows.length + 1;
-  allRows.push(['fiona','','','','','=B'+fionaRow+'+C'+fionaRow+'+D'+fionaRow+'+E'+fionaRow]);
+  // 動態追蹤行號：一店資料從 row 3 開始（row1=【一店】, row2=header）
+  var store1DataStart=3;
+  var store1DataEnd=store1DataStart+results.length-1;
+  // 二店：row1=空行, row2=【二店】, row3=header → store2DataStart = store1DataEnd+4
+  var store2DataStart=store1DataEnd+4;
+  var store2DataEnd=store2DataStart+results2.length-1;
 
-  // 人事費用總計
-  var mainStart=2; var mainEnd=1+results.length;
-  var shianIndepRow=mainEnd+3; var danielRowNum=mainEnd+4; var qqRowNum=mainEnd+5; var janeRowNum=mainEnd+6; var fionaRowNum=mainEnd+7;
+  // 獨立教練（shian/daniel/QQ/jane）從 store2DataEnd+3 開始（空行+header）
+  var indepHeaderRow=store2DataEnd+3;
+  var shianIndepRow=indepHeaderRow+1;
+  var danielRowNum=shianIndepRow+1;
+  var qqRowNum=danielRowNum+1;
+  var janeRowNum=qqRowNum+1;
+
+  var danielRow=danielRowNum;
+  allRows.push(['daniel','','','','','=B'+danielRow+'+C'+danielRow+'+D'+danielRow+'+E'+danielRow]);
+  var qqRow=qqRowNum;
+  allRows.push(['QQ','','','','','=B'+qqRow+'+C'+qqRow+'+D'+qqRow+'+E'+qqRow]);
+  var janeRow=janeRowNum;
+  allRows.push(['jane','','','','','=B'+janeRow+'+C'+janeRow+'+D'+janeRow+'+E'+janeRow]);
+
+  // 人事費用總計（分一店/二店）
   allRows.push([]);
-  // Total: main coaches (L col) + shian indep + daniel + QQ + jane + fiona
-  allRows.push(['','','','','人事費用總計','=SUM(L'+mainStart+':L'+mainEnd+')+F'+shianIndepRow+'+F'+danielRowNum+'+F'+qqRowNum+'+F'+janeRowNum+'+F'+fionaRowNum]);
+  // 一店 = 一店正職(L col) + shian/daniel/QQ/jane(F col)
+  var store1TotalRow=allRows.length+1;
+  allRows.push(['','','','','一店人事費用','=SUM(L'+store1DataStart+':L'+store1DataEnd+')+F'+shianIndepRow+'+F'+danielRowNum+'+F'+qqRowNum+'+F'+janeRowNum]);
+  // 二店 = 二店正職(L col)
+  var store2TotalRow=allRows.length+1;
+  allRows.push(['','','','','二店人事費用','=SUM(L'+store2DataStart+':L'+store2DataEnd+')']);
+  // 合計
+  allRows.push(['','','','','人事費用合計','=F'+store1TotalRow+'+F'+store2TotalRow]);
 
   // Format numbers with commas, no decimals
   function fmtCell(v){
