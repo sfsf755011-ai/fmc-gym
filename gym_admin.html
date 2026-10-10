@@ -1993,17 +1993,16 @@ function _mainRevenue(coachDisplayName,monthStr,onlyCompany){
 }
 
 function _pilatesRevenue(pilatesCoachKey,monthStr){
-  // 所有學生中綜合方案屬於該皮拉提斯教練的業績份額
+  // 方案B：購買月份（最早付款日）一次給 pilateSessions×2000，後續月份不重複
   var tot=0;
   students.forEach(function(s){
     (s.contracts||[]).forEach(function(c){
-      if(c.pilatesCoach!==pilatesCoachKey)return;
-      var frac=_pilatesFrac(c);
-      if(!frac)return;
-      c.installments.forEach(function(i){
-        if(i.paid&&i.paidDate&&i.paidDate.startsWith(monthStr))
-          tot+=Math.round(i.amount*frac);
-      });
+      if(c.pilatesCoach!==pilatesCoachKey||!c.pilateSessions)return;
+      var paidDates=(c.installments||[]).filter(function(i){return i.paid&&i.paidDate;}).map(function(i){return i.paidDate;});
+      if(!paidDates.length)return;
+      var firstPaid=paidDates.reduce(function(a,b){return a<b?a:b;});
+      if(firstPaid.startsWith(monthStr))
+        tot+=c.pilateSessions*PILATES_PRICE_PER_SESSION;
     });
   });
   return tot;
@@ -2027,18 +2026,16 @@ function _buildRevDetails(coachKey,coachDisplayName,monthStr,onlyCompany){
       });
     });
   });
-  // 2. 皮拉提斯份額：來自其他（或自己）學生的綜合方案
+  // 2. 皮拉提斯份額：購買月份（最早付款日）一次計入 pilateSessions×2000
   students.forEach(function(s){
     (s.contracts||[]).forEach(function(c){
-      if(c.pilatesCoach!==coachKey)return;
-      var frac=_pilatesFrac(c);
-      if(!frac)return;
-      c.installments.forEach(function(i){
-        if(!i.paid||!i.paidDate||!i.paidDate.startsWith(monthStr))return;
-        var pAmt=Math.round(i.amount*frac);
-        if(pAmt>0)
-          details.push({name:s.name,plan:(c.planLabel||'')+'・皮拉提斯拆帳',seq:i.seq,amount:pAmt,paidDate:i.paidDate,method:i.method});
-      });
+      if(c.pilatesCoach!==coachKey||!c.pilateSessions)return;
+      var paidInsts=(c.installments||[]).filter(function(i){return i.paid&&i.paidDate;});
+      if(!paidInsts.length)return;
+      var firstPaid=paidInsts.reduce(function(a,b){return a.paidDate<b.paidDate?a:b;});
+      if(!firstPaid.paidDate.startsWith(monthStr))return;
+      var pAmt=c.pilateSessions*PILATES_PRICE_PER_SESSION;
+      details.push({name:s.name,plan:(c.planLabel||'')+'・皮拉提斯（'+c.pilateSessions+'堂）',seq:firstPaid.seq,amount:pAmt,paidDate:firstPaid.paidDate,method:firstPaid.method});
     });
   });
   details.sort(function(a,b){return a.paidDate>b.paidDate?-1:1;});
