@@ -201,6 +201,7 @@ body{
 .vsel.sel-L{background-color:var(--aLbg);color:var(--aL);border-color:var(--aLbr)}
 .vsel.sel-R{background-color:var(--aRbg);color:var(--aR);border-color:var(--aRbr)}
 .vsel.sel-N{background-color:var(--aNbg);color:var(--aN);border-color:var(--aNbr)}
+.vsel.sel-PEC{background-color:rgba(168,85,247,.12);color:#c084fc;border-color:#a855f7}
 
 .notes-ta{
   width:100%;border:1.5px solid var(--sl300);border-radius:var(--rs);
@@ -565,19 +566,36 @@ body{
   </div>
 
   <div class="sum-card">
-    <div class="sum-hd">結構評估總結</div>
+    <div class="sum-hd">評估總結</div>
     <div class="sum-body">
       <div class="vfield">
         <label class="vlabel">結構側化方向</label>
-        <select class="vsel" id="sel-lat" onchange="styleSelect(this);save()">
+        <select class="vsel" id="sel-lat" onchange="styleSelect(this);updateComparison();save()">
           <option value="">— 選擇 —</option>
           <option value="L">左側　Left</option>
           <option value="R">右側　Right</option>
           <option value="CL">混亂左側化</option>
           <option value="CR">混亂右側化</option>
+          <option value="PEC">雙邊 Pec</option>
         </select>
       </div>
       <div class="vfield">
+        <label class="vlabel">GPT 測試結果</label>
+        <select class="vsel" id="sel-gpt" onchange="styleSelect(this);updateComparison();save()">
+          <option value="">— 選擇 —</option>
+          <option value="L">左側神經優勢</option>
+          <option value="R">右側神經優勢</option>
+          <option value="PEC">雙邊 pec（皆小於 3 分）</option>
+        </select>
+      </div>
+
+      <!-- 自動對比結果 -->
+      <div id="comparison-box" style="display:none;margin-top:10px;border-radius:12px;padding:14px 16px;background:var(--comp-bg,#1e293b);border:1.5px solid var(--comp-border,#334155)">
+        <div style="font-size:11px;color:#94a3b8;font-weight:600;letter-spacing:.05em;margin-bottom:6px">結構 × GPT 對比判讀</div>
+        <div id="comparison-result" style="font-size:15px;font-weight:700;line-height:1.5"></div>
+      </div>
+
+      <div class="vfield" style="margin-top:12px">
         <label class="vlabel">壓縮腔體策略</label>
         <select class="vsel" id="sel-compress" onchange="styleSelect(this);save()">
           <option value="">— 選擇 —</option>
@@ -718,6 +736,54 @@ function styleSelect(sel){
   const v=sel.value;
   if(v==='L'||v==='CL')sel.classList.add('sel-L');
   else if(v==='R'||v==='CR')sel.classList.add('sel-R');
+  else if(v==='PEC')sel.classList.add('sel-PEC');
+}
+
+// ── 結構 × GPT 對比判讀 ──
+function updateComparison(){
+  var lat=document.getElementById('sel-lat').value;
+  var gpt=document.getElementById('sel-gpt').value;
+  var box=document.getElementById('comparison-box');
+  var res=document.getElementById('comparison-result');
+  if(!lat||!gpt){box.style.display='none';return;}
+  box.style.display='block';
+
+  var structLeft=(lat==='L'||lat==='CL');
+  var structRight=(lat==='R'||lat==='CR');
+  var structPec=(lat==='PEC');
+  var gptLeft=(gpt==='L');
+  var gptRight=(gpt==='R');
+  var gptPec=(gpt==='PEC');
+
+  var text='',color='#f8fafc',bg='',border='';
+
+  if(structPec&&gptPec){
+    text='⛔ 禁止 ghope　先做雙邊減壓或側臥測試';
+    color='#fca5a5';bg='rgba(239,68,68,.12)';border='#ef4444';
+  }else if(structPec&&gptLeft){
+    text='🔒 左側死鎖需減壓　（結構雙邊 Pec × GPT 左優勢）';
+    color='#fcd34d';bg='rgba(245,158,11,.12)';border='#f59e0b';
+  }else if(structPec&&gptRight){
+    text='🔒 右側死鎖需減壓　（結構雙邊 Pec × GPT 右優勢）';
+    color='#fcd34d';bg='rgba(245,158,11,.12)';border='#f59e0b';
+  }else if((structLeft&&gptLeft)||(structRight&&gptRight)){
+    var dir=structLeft?'左':'右';
+    text='✅ 典型'+dir+'承重';
+    color='#6ee7b7';bg='rgba(16,185,129,.12)';border='#10b981';
+  }else if(structLeft&&gptRight){
+    text='⚠️ 假性左承重　（結構左 × GPT 右優勢）';
+    color='#fbbf24';bg='rgba(245,158,11,.12)';border='#f59e0b';
+  }else if(structRight&&gptLeft){
+    text='⚠️ 假性右承重　（結構右 × GPT 左優勢）';
+    color='#fbbf24';bg='rgba(245,158,11,.12)';border='#f59e0b';
+  }else{
+    text='— 無法判讀此組合 —';
+    color='#94a3b8';bg='';border='#334155';
+  }
+  res.textContent=text;
+  res.style.color=color;
+  box.style.background=bg||'rgba(30,41,59,.8)';
+  box.style.borderColor=border||'#334155';
 }
 
 // ── Desc toggle ──
@@ -765,7 +831,7 @@ function save(){
       if(el.id)data[el.id]=el.value;
     });
     // selects
-    ['sel-lat','sel-compress','sel-ghope'].forEach(function(id){
+    ['sel-lat','sel-gpt','sel-compress','sel-ghope'].forEach(function(id){
       var el=document.getElementById(id);if(el)data[id]=el.value;
     });
     // desc-open state
@@ -791,10 +857,11 @@ function restore(){
       if(el.id&&data[el.id]!==undefined)el.value=data[el.id];
     });
     // selects
-    ['sel-lat','sel-compress','sel-ghope'].forEach(function(id){
+    ['sel-lat','sel-gpt','sel-compress','sel-ghope'].forEach(function(id){
       var el=document.getElementById(id);
       if(el&&data[id]){el.value=data[id];styleSelect(el);}
     });
+    updateComparison();
     // desc open state
     if(data._openDescs){
       data._openDescs.split(',').forEach(function(testId){
