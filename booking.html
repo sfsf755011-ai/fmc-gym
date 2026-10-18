@@ -128,6 +128,19 @@ body{display:flex;flex-direction:column;align-items:center;padding:0 0 60px}
       </div>
 
       <div class="field">
+        <label class="flbl">人數</label>
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+          <div class="chip"><input type="radio" name="人數" value="一對一" id="pax1"><label for="pax1">一對一</label></div>
+          <div class="chip"><input type="radio" name="人數" value="一對二" id="pax2"><label for="pax2">一對二</label></div>
+        </div>
+      </div>
+
+      <div class="field">
+        <label class="flbl">年齡</label>
+        <input class="finput" type="text" name="年齡" id="fAge" placeholder="請輸入年齡" inputmode="numeric" maxlength="3">
+      </div>
+
+      <div class="field">
         <label class="flbl">性別</label>
         <div style="display:flex;gap:10px;flex-wrap:wrap">
           <div class="chip"><input type="radio" name="性別" value="男" id="g1"><label for="g1">男</label></div>

@@ -130,6 +130,19 @@ body{display:flex;flex-direction:column;align-items:center;padding:0 0 60px}
         </div>
         <div class="twocol" style="margin-top:18px">
           <div class="field">
+            <label class="flbl">人數</label>
+            <div class="chiprow">
+              <div class="chip"><input type="radio" name="人數" value="一對一" id="pax1"><label for="pax1">一對一</label></div>
+              <div class="chip"><input type="radio" name="人數" value="一對二" id="pax2"><label for="pax2">一對二</label></div>
+            </div>
+          </div>
+          <div class="field">
+            <label class="flbl" for="fAge">年齡</label>
+            <input class="finput" id="fAge" name="年齡" type="text" placeholder="請輸入年齡" inputmode="numeric" maxlength="3">
+          </div>
+        </div>
+        <div class="twocol" style="margin-top:18px">
+          <div class="field">
             <label class="flbl" for="fPhone">聯絡電話<span class="req">*</span></label>
             <input class="finput" id="fPhone" name="聯絡電話" type="tel" placeholder="0912-345-678" required>
             <div id="phoneErr" class="errmsg">請輸入正確的台灣手機號碼</div>
