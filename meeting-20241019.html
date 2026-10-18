@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>10/19 開會紀錄</title>
+<style>
+:root{
+  --bg:#18191c;--surface:#222327;--surface2:#2a2b30;
+  --border:#33353b;--border2:#3e4047;
+  --text:#e8e9ec;--text2:#9a9ca4;--text3:#5c5e66;
+  --accent:#ffffff;
+  --r:12px;--rs:8px;
+  --shadow:0 1px 4px rgba(0,0,0,.35);
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{min-height:100%;font-family:-apple-system,BlinkMacSystemFont,'PingFang TC','Microsoft JhengHei',sans-serif;background:var(--bg);color:var(--text);font-size:15px}
+
+/* ── HEADER ── */
+.hd{background:#111213;border-bottom:1px solid var(--border);padding:24px 20px 20px;position:sticky;top:0;z-index:10}
+.hd-inner{max-width:720px;margin:0 auto}
+.hd-badge{display:inline-block;font-size:11px;font-weight:700;color:var(--text3);letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px}
+.hd-title{font-size:26px;font-weight:900;color:var(--accent);letter-spacing:-.01em;margin-bottom:4px}
+.hd-sub{font-size:13px;color:var(--text3);display:flex;align-items:center;gap:8px}
+.hd-sub::before{content:'✦';font-size:10px}
+
+/* ── CONTAINER ── */
+.container{max-width:720px;margin:0 auto;padding:24px 20px 60px}
+
+/* ── ITEM CARD ── */
+.item-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);margin-bottom:14px;box-shadow:var(--shadow);overflow:hidden}
+.item-card:last-child{margin-bottom:0}
+
+.item-hd{padding:16px 18px 14px;display:flex;align-items:flex-start;gap:14px}
+.item-num{width:28px;height:28px;border-radius:50%;background:var(--surface2);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:var(--text2);flex-shrink:0;margin-top:1px}
+.item-body{flex:1;min-width:0}
+.item-title{font-size:15px;font-weight:800;color:var(--text);line-height:1.4;margin-bottom:6px}
+.item-subs{display:flex;flex-direction:column;gap:4px}
+.item-sub{font-size:13px;color:var(--text2);padding-left:14px;position:relative;line-height:1.5}
+.item-sub::before{content:'·';position:absolute;left:4px;color:var(--text3)}
+
+/* ── NOTES AREA ── */
+.item-notes{border-top:1px solid var(--border);padding:12px 18px}
+.notes-lbl{font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:7px}
+.notes-ta{
+  width:100%;min-height:72px;
+  background:var(--surface2);
+  border:1.5px solid var(--border2);
+  border-radius:var(--rs);
+  padding:10px 12px;
+  font-size:14px;color:var(--text);
+  font-family:inherit;
+  resize:vertical;outline:none;
+  line-height:1.6;
+  transition:border-color .15s;
+}
+.notes-ta:focus{border-color:#555760;background:#2e3036}
+.notes-ta::placeholder{color:var(--text3)}
+
+/* ── FOOTER ── */
+.footer{text-align:center;padding:32px 0 8px;font-size:12px;color:var(--text3)}
+</style>
+</head>
+<body>
+
+<div class="hd">
+  <div class="hd-inner">
+    <div class="hd-badge">FMC 會議紀錄</div>
+    <div class="hd-title">10/19 開會紀錄</div>
+    <div class="hd-sub">全員到齊</div>
+  </div>
+</div>
+
+<div class="container">
+
+  <div class="item-card">
+    <div class="item-hd">
+      <div class="item-num">1</div>
+      <div class="item-body">
+        <div class="item-title">一店／二店 副店長事項宣布</div>
+      </div>
+    </div>
+    <div class="item-notes">
+      <div class="notes-lbl">紀錄</div>
+      <textarea class="notes-ta" placeholder="在此輸入紀錄內容…"></textarea>
+    </div>
+  </div>
+
+  <div class="item-card">
+    <div class="item-hd">
+      <div class="item-num">2</div>
+      <div class="item-body">
+        <div class="item-title">團體課程細項</div>
+      </div>
+    </div>
+    <div class="item-notes">
+      <div class="notes-lbl">紀錄</div>
+      <textarea class="notes-ta" placeholder="在此輸入紀錄內容…"></textarea>
+    </div>
+  </div>
+
+  <div class="item-card">
+    <div class="item-hd">
+      <div class="item-num">3</div>
+      <div class="item-body">
+        <div class="item-title">社群軟體經營</div>
+      </div>
+    </div>
+    <div class="item-notes">
+      <div class="notes-lbl">紀錄</div>
+      <textarea class="notes-ta" placeholder="在此輸入紀錄內容…"></textarea>
+    </div>
+  </div>
+
+  <div class="item-card">
+    <div class="item-hd">
+      <div class="item-num">4</div>
+      <div class="item-body">
+        <div class="item-title">行政流程修正統整</div>
+        <div class="item-subs">
+          <div class="item-sub">諮詢體驗</div>
+          <div class="item-sub">皮拉提斯體驗推廣流程</div>
+        </div>
+      </div>
+    </div>
+    <div class="item-notes">
+      <div class="notes-lbl">紀錄</div>
+      <textarea class="notes-ta" placeholder="在此輸入紀錄內容…"></textarea>
+    </div>
+  </div>
+
+  <div class="item-card">
+    <div class="item-hd">
+      <div class="item-num">5</div>
+      <div class="item-body">
+        <div class="item-title">行政 SOP 補充</div>
+      </div>
+    </div>
+    <div class="item-notes">
+      <div class="notes-lbl">紀錄</div>
+      <textarea class="notes-ta" placeholder="在此輸入紀錄內容…"></textarea>
+    </div>
+  </div>
+
+  <div class="item-card">
+    <div class="item-hd">
+      <div class="item-num">6</div>
+      <div class="item-body">
+        <div class="item-title">設備器材維護</div>
+        <div class="item-subs">
+          <div class="item-sub">上油</div>
+        </div>
+      </div>
+    </div>
+    <div class="item-notes">
+      <div class="notes-lbl">紀錄</div>
+      <textarea class="notes-ta" placeholder="在此輸入紀錄內容…"></textarea>
+    </div>
+  </div>
+
+  <div class="item-card">
+    <div class="item-hd">
+      <div class="item-num">7</div>
+      <div class="item-body">
+        <div class="item-title">活動 — 評論打卡送團課</div>
+        <div class="item-subs">
+          <div class="item-sub">附上照片與您的課程心得與期望，即可獲得 4 點團課點數，期限 3 個月</div>
+        </div>
+      </div>
+    </div>
+    <div class="item-notes">
+      <div class="notes-lbl">紀錄</div>
+      <textarea class="notes-ta" placeholder="在此輸入紀錄內容…"></textarea>
+    </div>
+  </div>
+
+  <div class="item-card">
+    <div class="item-hd">
+      <div class="item-num">8</div>
+      <div class="item-body">
+        <div class="item-title">團建時間</div>
+      </div>
+    </div>
+    <div class="item-notes">
+      <div class="notes-lbl">紀錄</div>
+      <textarea class="notes-ta" placeholder="在此輸入紀錄內容…"></textarea>
+    </div>
+  </div>
+
+  <div class="item-card">
+    <div class="item-hd">
+      <div class="item-num">9</div>
+      <div class="item-body">
+        <div class="item-title">打掃</div>
+        <div class="item-subs">
+          <div class="item-sub">廁所磁磚</div>
+          <div class="item-sub">樓梯</div>
+        </div>
+      </div>
+    </div>
+    <div class="item-notes">
+      <div class="notes-lbl">紀錄</div>
+      <textarea class="notes-ta" placeholder="在此輸入紀錄內容…"></textarea>
+    </div>
+  </div>
+
+</div>
+
+<div class="footer">FMC 健身場館 · 2024/10/19</div>
+
+</body>
+</html>
