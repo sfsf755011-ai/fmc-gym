@@ -176,6 +176,8 @@ body{display:flex;flex-direction:column;align-items:center;padding:0 0 60px}
               <div class="timechip"><input type="checkbox" value="10:00-12:00" id="tm1"><label for="tm1"><span>10:00-12:00</span><span class="tcheck"></span></label></div>
               <div class="timechip"><input type="checkbox" value="12:00-18:00" id="tm2"><label for="tm2"><span>12:00-18:00</span><span class="tcheck"></span></label></div>
               <div class="timechip"><input type="checkbox" value="18:00-22:00" id="tm3"><label for="tm3"><span>18:00-22:00<span class="ttag">熱門時段</span></span><span class="tcheck"></span></label></div>
+              <div class="timechip"><input type="checkbox" value="__other__" id="tm4" onchange="toggleOtherTime(this)"><label for="tm4"><span>其他時段</span><span class="tcheck"></span></label></div>
+              <input type="text" id="tmOtherInput" placeholder="請輸入方便的時間，例如：週三 09:00-10:00" autocomplete="off" style="display:none;margin-top:6px;width:100%;padding:13px 14px;border-radius:var(--radius-sm);border:1.5px solid var(--slate-300);font-size:14px;font-family:inherit;color:var(--slate-800);outline:none;box-sizing:border-box" oninput="syncOtherTime(this.value)">
             </div>
             <button type="button" id="addPrefBtn" class="addbtn">＋ 確認加入</button>
             <div id="prefErr" class="errmsg" style="margin-top:8px">請選擇天數與至少一個時段</div>
@@ -275,16 +277,36 @@ prefList.addEventListener('click',function(e){
   renderPreferences();
 });
 
+function toggleOtherTime(cb){
+  var inp=document.getElementById('tmOtherInput');
+  inp.style.display=cb.checked?'block':'none';
+  if(!cb.checked){inp.value='';cb.value='__other__';}
+  else{inp.focus();}
+}
+function syncOtherTime(val){
+  var cb=document.getElementById('tm4');
+  cb.value=val.trim()||'__other__';
+}
+
 addPrefBtn.addEventListener('click',function(){
   prefErr.style.display='none';
   var dayInput=dayPicker.querySelector('input[name="pref_day"]:checked');
   var timeInputs=timeGroup.querySelectorAll('input[type="checkbox"]:checked');
   if(!dayInput||timeInputs.length===0){prefErr.style.display='block';return;}
-  var times=Array.prototype.map.call(timeInputs,function(i){return i.value;});
+  var otherCb=document.getElementById('tm4');
+  var otherInp=document.getElementById('tmOtherInput');
+  if(otherCb.checked&&!otherInp.value.trim()){
+    otherInp.style.borderColor='#ef4444';otherInp.focus();return;
+  }
+  var times=Array.prototype.map.call(timeInputs,function(i){
+    return i.value==='__other__'?(otherInp.value.trim()||'其他時段'):i.value;
+  });
   preferences.push({day:dayInput.value,times:times});
   renderPreferences();
   dayInput.checked=false;
   timeInputs.forEach(function(i){i.checked=false;});
+  otherInp.value='';otherInp.style.borderColor='';otherInp.style.display='none';
+  otherCb.value='__other__';
 });
 
 renderPreferences();
