@@ -236,11 +236,54 @@ select.finput{-webkit-appearance:none;appearance:none;background-image:url("data
     <div id="daily-content" style="display:none">
       <div id="daily-summary" style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:20px"></div>
       <div id="daily-list"></div>
+      <div style="margin-top:16px">
+        <button onclick="bfInit();goScreen('s-backfill')" style="width:100%;padding:12px;background:#2a1a1a;color:#e74c3c;border:1px solid #553333;border-radius:12px;font-size:14px;font-weight:600;cursor:pointer">📝 補簽堂數</button>
+      </div>
     </div>
   </div>
   <!-- 返回首頁按鈕 -->
   <div style="position:fixed;bottom:0;left:0;right:0;padding:16px 20px 30px;background:#111;border-top:1px solid #333">
     <button onclick="exitDailyOverview()" style="width:100%;padding:14px;background:#333;color:#fff;border:none;border-radius:12px;font-size:16px;font-weight:600;cursor:pointer">← 返回首頁</button>
+  </div>
+</div>
+
+<!-- BACKFILL -->
+<div class="screen" id="s-backfill" style="background:#111;color:#fff">
+  <div class="lhead" style="background:#111;border-bottom:1px solid #333">
+    <div class="lhead-row" style="padding:14px 16px">
+      <span style="font-size:18px;font-weight:700;color:#e74c3c">📝 補簽模式</span>
+    </div>
+  </div>
+  <div style="padding:20px;padding-bottom:110px;overflow-y:auto">
+    <div style="margin-bottom:14px">
+      <label style="font-size:13px;color:#aaa;display:block;margin-bottom:6px">搜尋學員</label>
+      <input id="bf-search" type="text" placeholder="輸入學員姓名" oninput="bfSearch(this.value)"
+        style="width:100%;padding:12px;background:#222;color:#fff;border:1px solid #444;border-radius:10px;font-size:16px;box-sizing:border-box">
+    </div>
+    <div id="bf-results" style="margin-bottom:8px"></div>
+    <input type="hidden" id="bf-stu-id" value="">
+    <div id="bf-stu-selected" style="display:none;background:#1a3a1a;border:1px solid #2d6a2d;border-radius:10px;padding:12px;margin-bottom:14px;font-size:15px;color:#7dff7d"></div>
+    <div style="margin-bottom:14px">
+      <label style="font-size:13px;color:#aaa;display:block;margin-bottom:6px">補簽日期</label>
+      <input id="bf-date" type="date" style="width:100%;padding:12px;background:#222;color:#fff;border:1px solid #444;border-radius:10px;font-size:16px;box-sizing:border-box">
+    </div>
+    <div style="margin-bottom:14px">
+      <label style="font-size:13px;color:#aaa;display:block;margin-bottom:6px">補簽堂數</label>
+      <div style="display:flex;align-items:center;gap:12px">
+        <button onclick="bfAdjCount(-1)" style="width:48px;height:48px;font-size:24px;background:#333;color:#fff;border:none;border-radius:10px;cursor:pointer">−</button>
+        <div id="bf-count-display" style="flex:1;text-align:center;font-size:32px;font-weight:700;color:#fff">1</div>
+        <input type="hidden" id="bf-count" value="1">
+        <button onclick="bfAdjCount(1)" style="width:48px;height:48px;font-size:24px;background:#333;color:#fff;border:none;border-radius:10px;cursor:pointer">+</button>
+      </div>
+    </div>
+    <div style="margin-bottom:14px">
+      <label style="font-size:13px;color:#aaa;display:block;margin-bottom:6px">教練</label>
+      <select id="bf-coach" style="width:100%;padding:12px;background:#222;color:#fff;border:1px solid #444;border-radius:10px;font-size:16px;box-sizing:border-box"></select>
+    </div>
+  </div>
+  <div style="position:fixed;bottom:0;left:0;right:0;padding:12px 20px 30px;background:#111;border-top:1px solid #333;display:flex;gap:10px">
+    <button onclick="goScreen('s-daily')" style="flex:1;padding:14px;background:#333;color:#fff;border:none;border-radius:12px;font-size:16px;font-weight:600;cursor:pointer">← 返回</button>
+    <button onclick="submitBackfill()" style="flex:2;padding:14px;background:#e74c3c;color:#fff;border:none;border-radius:12px;font-size:16px;font-weight:600;cursor:pointer">確認補簽</button>
   </div>
 </div>
 
@@ -1327,6 +1370,120 @@ var _submitting = false;
 var CHECKIN_FREEZE_MS = 2 * 60 * 1000; // 2 minutes
 function _getFreeze(stuId) { try { return parseInt(localStorage.getItem('chk_frz_'+stuId))||0; } catch(e){return 0;} }
 function _setFreeze(stuId) { try { localStorage.setItem('chk_frz_'+stuId, String(Date.now())); } catch(e){} }
+
+function bfSearch(q) {
+  var res = document.getElementById('bf-results');
+  if (!q || q.trim().length < 1) { res.innerHTML = ''; return; }
+  var matches = (students || []).filter(function(s) {
+    return s && s.name && s.name.toLowerCase().includes(q.toLowerCase());
+  }).slice(0, 8);
+  if (!matches.length) { res.innerHTML = '<div style="color:#888;font-size:13px;padding:8px">找不到學員</div>'; return; }
+  res.innerHTML = matches.map(function(s) {
+    var remain = (s.totalSessions || 0) - (s.usedSessions || 0);
+    return '<div onclick="bfSelectStu(''+s.id+'',''+s.name.replace(/'/g,"\'")+'','+remain+')" style="padding:10px 14px;background:#222;border-radius:10px;margin-bottom:6px;cursor:pointer;border:1px solid #333">' +
+      '<span style="font-weight:600;color:#fff">' + s.name + '</span>' +
+      '<span style="color:#aaa;font-size:13px;margin-left:10px">剩 ' + remain + ' 堂</span></div>';
+  }).join('');
+}
+function bfSelectStu(id, name, remain) {
+  document.getElementById('bf-stu-id').value = String(id);
+  document.getElementById('bf-search').value = '';
+  document.getElementById('bf-results').innerHTML = '';
+  var sel = document.getElementById('bf-stu-selected');
+  sel.style.display = 'block';
+  sel.textContent = '✓ ' + name + '（剩餘 ' + remain + ' 堂）';
+}
+function bfAdjCount(delta) {
+  var inp = document.getElementById('bf-count');
+  var disp = document.getElementById('bf-count-display');
+  var val = (parseInt(inp.value) || 1) + delta;
+  if (val < 1) val = 1;
+  if (val > 20) val = 20;
+  inp.value = val;
+  disp.textContent = val;
+}
+function bfInit() {
+  document.getElementById('bf-date').value = todayStr();
+  var sel = document.getElementById('bf-coach');
+  sel.innerHTML = (coaches || []).map(function(c) {
+    return '<option value="' + c.name + '">' + c.name + '</option>';
+  }).join('');
+  document.getElementById('bf-stu-id').value = '';
+  document.getElementById('bf-search').value = '';
+  document.getElementById('bf-results').innerHTML = '';
+  document.getElementById('bf-stu-selected').style.display = 'none';
+  document.getElementById('bf-count').value = '1';
+  document.getElementById('bf-count-display').textContent = '1';
+}
+function submitBackfill() {
+  var stuId = document.getElementById('bf-stu-id').value;
+  var date = document.getElementById('bf-date').value;
+  var count = parseInt(document.getElementById('bf-count').value) || 1;
+  var coachName = document.getElementById('bf-coach').value;
+  if (!stuId) { alert('請先選擇學員'); return; }
+  if (!date) { alert('請選擇日期'); return; }
+  if (!coachName) { alert('請選擇教練'); return; }
+  var stu = null;
+  for (var i = 0; i < students.length; i++) {
+    if (String(students[i].id) === String(stuId)) { stu = students[i]; break; }
+  }
+  if (!stu) { alert('找不到學員資料，請重試'); return; }
+  if (!confirm(stu.name + '\n日期：' + date + '\n補簽堂數：' + count + ' 堂\n教練：' + coachName + '\n\n確認補簽？')) return;
+  showLoading('補簽中...');
+  db.ref('data/students').once('value', function(snap) {
+    var rawStu = snap.val() || {};
+    var stuKey = null, stuData = null;
+    if (Array.isArray(rawStu)) {
+      for (var j = 0; j < rawStu.length; j++) {
+        if (rawStu[j] && String(rawStu[j].id) === String(stuId)) { stuData = rawStu[j]; stuKey = String(j); break; }
+      }
+    } else {
+      var keys = Object.keys(rawStu);
+      for (var j = 0; j < keys.length; j++) {
+        var s = rawStu[keys[j]];
+        if (s && String(s.id) === String(stuId)) { stuData = s; stuKey = keys[j]; break; }
+      }
+    }
+    if (!stuData || stuKey === null) { hideLoading(); alert('找不到學員，請重試'); return; }
+    db.ref('data/students/' + stuKey + '/usedSessions').transaction(function(current) {
+      return (current || 0) + count;
+    }, function(txErr, committed, snapshot) {
+      if (txErr || !committed) { hideLoading(); alert('堂數更新失敗，請重試'); return; }
+      var newUsed = snapshot.val();
+      stuData.usedSessions = newUsed;
+      var totalSessions = stuData.totalSessions || 0;
+      var planType = (stuData.contracts || []).some(function(c) {
+        return (c.planId && c.planId.indexOf('1v2') !== -1) || (c.planLabel && c.planLabel.indexOf('1v2') !== -1);
+      }) ? '1v2' : '1v1';
+      db.ref('data/records').once('value', function(recSnap) {
+        var recArr = recSnap.val() || [];
+        if (!Array.isArray(recArr)) recArr = Object.values(recArr);
+        for (var n = 0; n < count; n++) {
+          var remainAfterThis = totalSessions - (newUsed - count + n + 1);
+          recArr.unshift({
+            date: date,
+            time: '補簽 #' + (n + 1),
+            student: stuData.name,
+            coach: coachName,
+            remainAfter: remainAfterThis,
+            planType: planType,
+            backfill: true
+          });
+        }
+        db.ref('data/records').set(recArr, function(err) {
+          hideLoading();
+          if (err) { alert('堂數已扣除，但紀錄儲存失敗，請告知教練'); return; }
+          for (var k = 0; k < students.length; k++) {
+            if (String(students[k].id) === String(stuId)) { students[k].usedSessions = newUsed; break; }
+          }
+          alert('✅ 補簽完成！\n' + stuData.name + ' 補簽 ' + count + ' 堂\n剩餘：' + (totalSessions - newUsed) + ' 堂');
+          goScreen('s-daily');
+          renderDailyOverview();
+        });
+      }, function() { hideLoading(); alert('讀取紀錄失敗，請重試'); });
+    });
+  }, function() { hideLoading(); alert('讀取學員失敗，請重試'); });
+}
 
 function submitCheckin() {
   if (_submitting) return; // prevent double submit
