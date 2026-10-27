@@ -1380,12 +1380,13 @@ function bfSearch(q) {
   if (!matches.length) { res.innerHTML = '<div style="color:#888;font-size:13px;padding:8px">找不到學員</div>'; return; }
   res.innerHTML = matches.map(function(s) {
     var remain = (s.totalSessions || 0) - (s.usedSessions || 0);
-    return '<div onclick="bfSelectStu(''+s.id+'',''+s.name.replace(/'/g,"\'")+'','+remain+')" style="padding:10px 14px;background:#222;border-radius:10px;margin-bottom:6px;cursor:pointer;border:1px solid #333">' +
-      '<span style="font-weight:600;color:#fff">' + s.name + '</span>' +
-      '<span style="color:#aaa;font-size:13px;margin-left:10px">剩 ' + remain + ' 堂</span></div>';
+    return '<div data-bfid="' + s.id + '" data-bfname="' + encodeURIComponent(s.name) + '" data-bfremain="' + remain + '" onclick="bfSelectStu(this)" style="padding:10px 14px;background:#222;border-radius:10px;margin-bottom:6px;cursor:pointer;border:1px solid #333"><span style="font-weight:600;color:#fff">' + s.name + '</span><span style="color:#aaa;font-size:13px;margin-left:10px">剩 ' + remain + ' 堂</span></div>';
   }).join('');
 }
-function bfSelectStu(id, name, remain) {
+function bfSelectStu(el) {
+  var id = el.getAttribute('data-bfid');
+  var name = decodeURIComponent(el.getAttribute('data-bfname'));
+  var remain = el.getAttribute('data-bfremain');
   document.getElementById('bf-stu-id').value = String(id);
   document.getElementById('bf-search').value = '';
   document.getElementById('bf-results').innerHTML = '';
@@ -1428,7 +1429,8 @@ function submitBackfill() {
     if (String(students[i].id) === String(stuId)) { stu = students[i]; break; }
   }
   if (!stu) { alert('找不到學員資料，請重試'); return; }
-  if (!confirm(stu.name + '\n日期：' + date + '\n補簽堂數：' + count + ' 堂\n教練：' + coachName + '\n\n確認補簽？')) return;
+  var msg = stu.name + '  日期：' + date + '  補簽：' + count + ' 堂  教練：' + coachName + '  確認補簽？';
+  if (!confirm(msg)) return;
   showLoading('補簽中...');
   db.ref('data/students').once('value', function(snap) {
     var rawStu = snap.val() || {};
@@ -1460,15 +1462,7 @@ function submitBackfill() {
         if (!Array.isArray(recArr)) recArr = Object.values(recArr);
         for (var n = 0; n < count; n++) {
           var remainAfterThis = totalSessions - (newUsed - count + n + 1);
-          recArr.unshift({
-            date: date,
-            time: '補簽 #' + (n + 1),
-            student: stuData.name,
-            coach: coachName,
-            remainAfter: remainAfterThis,
-            planType: planType,
-            backfill: true
-          });
+          recArr.unshift({date:date, time:'補簽 #'+(n+1), student:stuData.name, coach:coachName, remainAfter:remainAfterThis, planType:planType, backfill:true});
         }
         db.ref('data/records').set(recArr, function(err) {
           hideLoading();
@@ -1476,7 +1470,7 @@ function submitBackfill() {
           for (var k = 0; k < students.length; k++) {
             if (String(students[k].id) === String(stuId)) { students[k].usedSessions = newUsed; break; }
           }
-          alert('✅ 補簽完成！\n' + stuData.name + ' 補簽 ' + count + ' 堂\n剩餘：' + (totalSessions - newUsed) + ' 堂');
+          alert('✅ 補簽完成！ ' + stuData.name + ' 補簽 ' + count + ' 堂  剩餘：' + (totalSessions - newUsed) + ' 堂');
           goScreen('s-daily');
           renderDailyOverview();
         });
