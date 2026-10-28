@@ -727,6 +727,28 @@ function refreshResultsGrid(){
     html+='<span class="r-badge '+postCls+'">後 '+postText+'</span>';
     html+='</div></div>';
   });
+  // Grounding (接地) rows
+  var objLPre=parseFloat((document.getElementById('obj-L-pre')||{}).value||'');
+  var objRPre=parseFloat((document.getElementById('obj-R-pre')||{}).value||'');
+  var objLPost=parseFloat((document.getElementById('obj-L-post')||{}).value||'');
+  var objRPost=parseFloat((document.getElementById('obj-R-post')||{}).value||'');
+  var gPreCls=(!isNaN(objLPre)&&!isNaN(objRPre))?(objLPre>objRPre?'bL':objRPre>objLPre?'bR':'bN'):'';
+  var gPostCls=(!isNaN(objLPost)&&!isNaN(objRPost))?(objLPost>objRPost?'bL':objRPost>objLPost?'bR':'bN'):'';
+  var gPreText=(!isNaN(objLPre)&&!isNaN(objRPre))?('左'+objLPre+' / 右'+objRPre):'–';
+  var gPostText=(!isNaN(objLPost)&&!isNaN(objRPost))?('左'+objLPost+' / 右'+objRPost):'–';
+  html+='<div class="result-row"><span class="result-name">接地　神經偏好</span>';
+  html+='<div class="result-badges">';
+  html+='<span class="r-badge '+gPreCls+'">前 '+gPreText+'</span>';
+  html+='<span class="r-badge '+gPostCls+'">後 '+gPostText+'</span>';
+  html+='</div></div>';
+  var nrPre=document.getElementById('neuro-result-pre');
+  var nrPost=document.getElementById('neuro-result-post');
+  if(nrPre&&nrPre.classList.contains('has-val')){
+    html+='<div style="padding:8px 12px;font-size:12px;color:#166534;line-height:1.5;background:var(--gl);border-radius:9px;border:1px solid var(--gm)">前測：'+nrPre.textContent+'</div>';
+  }
+  if(nrPost&&nrPost.classList.contains('has-val')){
+    html+='<div style="padding:8px 12px;font-size:12px;color:#166534;line-height:1.5;background:var(--gl);border-radius:9px;border:1px solid var(--gm);margin-top:4px">後測：'+nrPost.textContent+'</div>';
+  }
   grid.innerHTML=html;
 }
 
