@@ -2214,11 +2214,8 @@ function _renderSalaryInner(){
   var commResult=calcCommission(paidSessions,template,totalSessions);
   var commission=commResult.total; // exact integer
   var v2Bonus=v2Sessions*100; // exact integer
-  // 皮拉提斯加購加給 NT$200/堂
-  var pilatesAddonSessions=monthRecs.filter(function(r){
-    var stu=students.find(function(s){return s.name===r.student;});
-    return stu&&(stu.contracts||[]).some(function(c){return c.planId==='pilates-addon-4';});
-  }).length;
+  // 皮拉提斯加購加給 NT$200/堂（記錄帶 planId:'pilates-addon-4'）
+  var pilatesAddonSessions=monthRecs.filter(function(r){return r.planId==='pilates-addon-4';}).length;
   var pilatesAddonBonus=pilatesAddonSessions*200;
   var bonusRate=getRevenueBonusRate(revenue);
   var revenueBonus=(!isSimpleCoach&&revenue>=120001)?revenue*bonusRate:0; // float - don't round yet
@@ -2544,10 +2541,7 @@ function calcCoachSalary(coachKey, month, storeRev, groupBonus, trialCount){
   var commResult=calcCommission(paidSessions,template,totalSessions);
   var commission=commResult.total;
   var v2Bonus=v2Sessions*100;
-  var pilatesAddonSessions=monthRecs.filter(function(r){
-    var stu=students.find(function(s){return s.name===r.student;});
-    return stu&&(stu.contracts||[]).some(function(c){return c.planId==='pilates-addon-4';});
-  }).length;
+  var pilatesAddonSessions=monthRecs.filter(function(r){return r.planId==='pilates-addon-4';}).length;
   var pilatesAddonBonus=pilatesAddonSessions*200;
   var bonusRate=getRevenueBonusRate(revenue);
   var revenueBonus=(!isStore2&&revenue>=120001)?revenue*bonusRate:0; // float - round at end
