@@ -295,6 +295,7 @@ tr:hover td{background:var(--bg2)}
             <button class="plan-btn" id="add-plan-n1v2-20" onclick="selectAddPlan('n1v2-20',this)"><div class="plan-label">1v2・20 堂</div><div class="plan-price">NT$43,000</div></button>
             <button class="plan-btn" id="add-plan-n1v1-30" onclick="selectAddPlan('n1v1-30',this)"><div class="plan-label">1v1・30 堂</div><div class="plan-price">NT$39,000</div></button>
             <button class="plan-btn" id="add-plan-n1v2-30" onclick="selectAddPlan('n1v2-30',this)"><div class="plan-label">1v2・30 堂</div><div class="plan-price">NT$54,000</div></button>
+            <button class="plan-btn" id="add-plan-pilates-addon-4" onclick="selectAddPlan('pilates-addon-4',this)" style="grid-column:1/-1"><div class="plan-label">加購皮拉提斯四堂</div><div class="plan-price">NT$6,999</div></button>
             <div style="font-size:13px;font-weight:700;color:var(--text);grid-column:1/-1;padding:6px 10px;background:var(--bg2);border-radius:var(--radius-sm);border-left:3px solid var(--amber);margin-top:6px;margin-bottom:6px">長青方案</div>
             <button class="plan-btn plan-senior" id="add-plan-s1v1-20" onclick="selectAddPlan('s1v1-20',this)"><div class="plan-label">1v1・20 堂</div><div class="plan-price">NT$28,000</div></button>
             <button class="plan-btn plan-senior" id="add-plan-s1v2-20" onclick="selectAddPlan('s1v2-20',this)"><div class="plan-label">1v2・20 堂</div><div class="plan-price">NT$39,000</div></button>
@@ -376,6 +377,7 @@ tr:hover td{background:var(--bg2)}
             <button class="plan-btn" id="plan-n1v2-20" onclick="selectPlan('n1v2-20',this)"><div class="plan-label">1v2・20 堂</div><div class="plan-price">NT$43,000</div></button>
             <button class="plan-btn" id="plan-n1v1-30" onclick="selectPlan('n1v1-30',this)"><div class="plan-label">1v1・30 堂</div><div class="plan-price">NT$39,000</div></button>
             <button class="plan-btn" id="plan-n1v2-30" onclick="selectPlan('n1v2-30',this)"><div class="plan-label">1v2・30 堂</div><div class="plan-price">NT$54,000</div></button>
+            <button class="plan-btn" id="plan-pilates-addon-4" onclick="selectPlan('pilates-addon-4',this)" style="grid-column:1/-1"><div class="plan-label">加購皮拉提斯四堂</div><div class="plan-price">NT$6,999</div></button>
             <div style="font-size:13px;font-weight:700;color:var(--text);grid-column:1/-1;padding:6px 10px;background:var(--bg2);border-radius:var(--radius-sm);border-left:3px solid var(--amber);margin-top:6px;margin-bottom:6px">長青方案</div>
             <button class="plan-btn plan-senior" id="plan-s1v1-20" onclick="selectPlan('s1v1-20',this)"><div class="plan-label">1v1・20 堂</div><div class="plan-price">NT$28,000</div></button>
             <button class="plan-btn plan-senior" id="plan-s1v2-20" onclick="selectPlan('s1v2-20',this)"><div class="plan-label">1v2・20 堂</div><div class="plan-price">NT$39,000</div></button>
@@ -2212,6 +2214,12 @@ function _renderSalaryInner(){
   var commResult=calcCommission(paidSessions,template,totalSessions);
   var commission=commResult.total; // exact integer
   var v2Bonus=v2Sessions*100; // exact integer
+  // 皮拉提斯加購加給 NT$200/堂
+  var pilatesAddonSessions=monthRecs.filter(function(r){
+    var stu=students.find(function(s){return s.name===r.student;});
+    return stu&&(stu.contracts||[]).some(function(c){return c.planId==='pilates-addon-4';});
+  }).length;
+  var pilatesAddonBonus=pilatesAddonSessions*200;
   var bonusRate=getRevenueBonusRate(revenue);
   var revenueBonus=(!isSimpleCoach&&revenue>=120001)?revenue*bonusRate:0; // float - don't round yet
   var revenuePenalty=(!isSimpleCoach&&revenue>0&&revenue<120000)?paidSessions*50:0; // exact integer
@@ -2278,7 +2286,7 @@ function _renderSalaryInner(){
     return;
   }
 
-  subtotal=BASE_SALARY+allowance+commission+v2Bonus+revenueBonus-revenuePenalty+subsidy+groupBonus;
+  subtotal=BASE_SALARY+allowance+commission+v2Bonus+pilatesAddonBonus+revenueBonus-revenuePenalty+subsidy+groupBonus;
   finalSalary=Math.round(subtotal*mult);
 
   // Metrics
@@ -2305,6 +2313,7 @@ function _renderSalaryInner(){
     rows.push({name:'堂數抽成（前30堂不計，共 '+totalSessions+' 堂）',amt:0,type:'muted'});
   }
   if(v2Sessions>0)rows.push({name:'1v2加成（'+v2Sessions+'堂 × $100）',amt:v2Bonus,type:'green'});
+  if(pilatesAddonSessions>0)rows.push({name:'皮拉提斯加購加給（'+pilatesAddonSessions+'堂 × $200）',amt:pilatesAddonBonus,type:'green'});
   if(!isSimpleCoach&&revenueBonus>0)rows.push({name:'業績加成（'+fmtMoney(revenue)+' × '+(bonusRate*100)+'%）',amt:revenueBonus,type:'green'});
   if(!isSimpleCoach&&revenuePenalty>0)rows.push({name:'業績未達標（計薪'+paidSessions+'堂 × -$50）',amt:-revenuePenalty,type:'red'});
   if(subsidy!==0)rows.push({name:'健保/就保補助',amt:subsidy,type:subsidy>0?'green':'red'});
@@ -2535,11 +2544,16 @@ function calcCoachSalary(coachKey, month, storeRev, groupBonus, trialCount){
   var commResult=calcCommission(paidSessions,template,totalSessions);
   var commission=commResult.total;
   var v2Bonus=v2Sessions*100;
+  var pilatesAddonSessions=monthRecs.filter(function(r){
+    var stu=students.find(function(s){return s.name===r.student;});
+    return stu&&(stu.contracts||[]).some(function(c){return c.planId==='pilates-addon-4';});
+  }).length;
+  var pilatesAddonBonus=pilatesAddonSessions*200;
   var bonusRate=getRevenueBonusRate(revenue);
   var revenueBonus=(!isStore2&&revenue>=120001)?revenue*bonusRate:0; // float - round at end
   var revenuePenalty=(!isStore2&&revenue>0&&revenue<120000)?paidSessions*50:0;
   var subsidy=HEALTH_SUBSIDY[coachKey]||0;
-  var subtotal=BASE_SALARY+allowance+commission+v2Bonus+revenueBonus-revenuePenalty+subsidy+groupBonus;
+  var subtotal=BASE_SALARY+allowance+commission+v2Bonus+pilatesAddonBonus+revenueBonus-revenuePenalty+subsidy+groupBonus;
   var finalSalary=Math.round(subtotal*mult);
   return {
     coachKey:coachKey, coachName:coachName, isStore2:isStore2,
@@ -3999,7 +4013,8 @@ var PLANS={
   'p-single':    {label:'皮拉提斯・單堂',             sessions:1,  price:2500,  type:'1v1', category:'pilates'},
   'p1v1-10':     {label:'皮拉提斯・1v1 10堂',        sessions:10, price:21999, type:'1v1', category:'pilates'},
   'combo-10-2':  {label:'綜合・10重訓＋2皮拉提斯', sessions:10, pilateSessions:2,  price:20999, type:'1v1', category:'combo'},
-  'combo-20-4':  {label:'綜合・20重訓＋4皮拉提斯', sessions:20, pilateSessions:4,  price:39999, type:'1v1', category:'combo'}
+  'combo-20-4':  {label:'綜合・20重訓＋4皮拉提斯', sessions:20, pilateSessions:4,  price:39999, type:'1v1', category:'combo'},
+  'pilates-addon-4': {label:'加購皮拉提斯四堂',      sessions:4,  price:6999,  type:'1v1', category:'pilates-addon', pilatesBonus:200}
 };
 var _addPlan=null,_tuPlan=null,_addDiscountOn=false,_tuDiscountOn=false;
 var _addPilatesCoach='',_tuPilatesCoach='';
