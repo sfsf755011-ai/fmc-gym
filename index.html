@@ -238,7 +238,6 @@ select.finput{-webkit-appearance:none;appearance:none;background-image:url("data
       <div id="daily-list"></div>
       <div style="margin-top:16px">
         <button onclick="bfInit();goScreen('s-backfill')" style="width:100%;padding:12px;background:#2a1a1a;color:#e74c3c;border:1px solid #553333;border-radius:12px;font-size:14px;font-weight:600;cursor:pointer">📝 補簽堂數</button>
-        <button onclick="paInit();goScreen('s-pilates-addon')" style="width:100%;padding:12px;background:#1a112e;color:#c084fc;border:1px solid #4c1d95;border-radius:12px;font-size:14px;font-weight:600;cursor:pointer;margin-top:8px">🪷 加購皮拉提斯簽到</button>
       </div>
     </div>
   </div>
@@ -288,33 +287,6 @@ select.finput{-webkit-appearance:none;appearance:none;background-image:url("data
   </div>
 </div>
 
-<!-- PILATES ADDON -->
-<div class="screen" id="s-pilates-addon" style="background:#111;color:#fff">
-  <div class="lhead" style="background:#111;border-bottom:1px solid #333">
-    <div class="lhead-row" style="padding:14px 16px">
-      <span style="font-size:18px;font-weight:700;color:#c084fc">🪷 加購皮拉提斯簽到</span>
-    </div>
-  </div>
-  <div style="padding:20px;padding-bottom:110px;overflow-y:auto">
-    <div style="margin-bottom:14px">
-      <label style="font-size:13px;color:#aaa;display:block;margin-bottom:6px">搜尋學員（加購皮拉提斯）</label>
-      <input id="pa-search" type="text" placeholder="輸入學員姓名" oninput="paSearch(this.value)"
-        style="width:100%;padding:12px;background:#222;color:#fff;border:1px solid #444;border-radius:10px;font-size:16px;box-sizing:border-box">
-    </div>
-    <div id="pa-results" style="margin-bottom:8px"></div>
-    <input type="hidden" id="pa-stu-id" value="">
-    <div id="pa-stu-selected" style="display:none;background:#1e0d3a;border:1px solid #6d28d9;border-radius:10px;padding:12px;margin-bottom:14px;font-size:15px;color:#c084fc"></div>
-    <div style="margin-bottom:14px">
-      <label style="font-size:13px;color:#aaa;display:block;margin-bottom:6px">教練</label>
-      <select id="pa-coach" style="width:100%;padding:12px;background:#222;color:#fff;border:1px solid #444;border-radius:10px;font-size:16px;box-sizing:border-box"></select>
-    </div>
-  </div>
-  <div style="position:fixed;bottom:0;left:0;right:0;padding:12px 20px 30px;background:#111;border-top:1px solid #333;display:flex;gap:10px">
-    <button onclick="goScreen('s-daily')" style="flex:1;padding:14px;background:#333;color:#fff;border:none;border-radius:12px;font-size:16px;font-weight:600;cursor:pointer">← 返回</button>
-    <button onclick="submitPilatesAddon()" style="flex:2;padding:14px;background:#7c3aed;color:#fff;border:none;border-radius:12px;font-size:16px;font-weight:600;cursor:pointer">確認簽到</button>
-  </div>
-</div>
-
 <!-- COACH -->
 
 <div class="screen" id="s-coach">
@@ -340,6 +312,25 @@ select.finput{-webkit-appearance:none;appearance:none;background-image:url("data
       <button class="btn-next-d" onclick="goToName()">下一步 →</button>
     </div>
   </div>
+</div>
+
+<!-- MAIN TYPE -->
+<div class="screen" id="s-main-type" style="background:#f0f2f7;flex-direction:column">
+  <div class="lhead" style="background:#fff;border-radius:0 0 18px 18px;padding:20px 24px 16px;box-shadow:0 2px 8px rgba(0,0,0,.06)">
+    <div class="lhead-row"><img class="lhead-logo" id="main-type-logo" src="" alt="FMC"><span style="font-size:13px;font-weight:600;color:#333">FMC・選擇本次課程類型</span></div>
+    <p style="margin:6px 0 0;color:#666;font-size:13px">教練：<span id="main-type-coach-label"></span></p>
+  </div>
+  <div style="flex:1;padding:24px 20px;display:flex;flex-direction:column;gap:14px">
+    <button onclick="setSessionCategory('strength')" style="background:#fff;border:2px solid #1a1a2e;border-radius:16px;padding:22px 18px;text-align:left;cursor:pointer;font-family:inherit;box-shadow:0 2px 8px rgba(0,0,0,.06)">
+      <div style="font-size:18px;font-weight:700;color:#1a1a2e;margin-bottom:4px">🏋️ 重量訓練</div>
+      <div style="font-size:13px;color:#555">私人客製化・1v1・1v2・長青</div>
+    </button>
+    <button onclick="setSessionCategory('pilates')" style="background:#fff;border:2px solid #a855f7;border-radius:16px;padding:22px 18px;text-align:left;cursor:pointer;font-family:inherit;box-shadow:0 2px 8px rgba(168,85,247,.15)">
+      <div style="font-size:18px;font-weight:700;color:#a855f7;margin-bottom:4px">🪷 皮拉提斯</div>
+      <div style="font-size:13px;color:#a855f7;opacity:.8">單堂・10堂・加購四堂</div>
+    </button>
+  </div>
+  <div class="lbottom"><button class="lbtn" onclick="goScreen('s-coach')">返回</button></div>
 </div>
 
 <!-- TRIAL COACH -->
@@ -703,6 +694,7 @@ var trialName = '';
 var trialType = '';
 var trialRevenue = 0;
 var sessionSubType = 'strength'; // 'strength' or 'pilates' (for combo plans)
+var sessionCategory = 'strength'; // 'strength' or 'pilates' (main type selection)
 var activeComboContract = null;
 var sigCtx = null;
 var sigCanvas = null;
@@ -989,8 +981,18 @@ function updateCoachBg(name) {
 function goToName() {
   if (!selCoach) { document.getElementById('coach-alert').style.display = 'block'; return; }
   sessionType = 'regular';
+  var lbl = document.getElementById('main-type-coach-label');
+  if (lbl) lbl.textContent = selCoach.name;
+  var logo = document.getElementById('main-type-logo');
+  var srcLogo = document.getElementById('topbar-logo');
+  if (logo && srcLogo) logo.src = srcLogo.src;
+  goScreen('s-main-type');
+}
+function setSessionCategory(cat) {
+  sessionCategory = cat;
   var h = document.getElementById('name-hint');
-  if (h) h.textContent = '教練：' + selCoach.name + '・請輸入您的姓名';
+  var catLabel = cat === 'pilates' ? '皮拉提斯' : '重量訓練';
+  if (h) h.textContent = '教練：' + selCoach.name + '・' + catLabel + '・請輸入您的姓名';
   var inp = document.getElementById('name-input');
   if (inp) { inp.value = ''; inp.disabled = false; }
   selStudent = null;
@@ -1215,6 +1217,7 @@ function searchStu(val) {
   for (var i = 0; i < students.length; i++) {
     if (students[i].name.indexOf(val) !== -1 && (students[i].coach||'').toLowerCase() === (selCoach.name||'').toLowerCase()) matches.push(students[i]);
   }
+  if (sessionCategory === 'pilates') matches = matches.filter(_hasPilatesPlan);
   if (matches.length === 1) {
     confirmStu(matches[0]);
   } else if (matches.length > 1) {
@@ -1518,97 +1521,6 @@ function _getPilatesPlanId(stu) {
   }
   return 'p-single';
 }
-function paSearch(q) {
-  var res = document.getElementById('pa-results');
-  if (!q || q.trim().length < 1) { res.innerHTML = ''; return; }
-  var matches = (students || []).filter(function(s) {
-    return s && s.name && s.name.toLowerCase().includes(q.toLowerCase()) && _hasPilatesPlan(s);
-  }).slice(0, 8);
-  if (!matches.length) { res.innerHTML = '<div style="color:#888;font-size:13px;padding:8px">找不到有加購皮拉提斯方案的學員</div>'; return; }
-  res.innerHTML = matches.map(function(s) {
-    var remain = (s.totalSessions || 0) - (s.usedSessions || 0);
-    return '<div data-paid="' + s.id + '" data-paname="' + encodeURIComponent(s.name) + '" data-paremain="' + remain + '" onclick="paSelectStu(this)" style="padding:10px 14px;background:#222;border-radius:10px;margin-bottom:6px;cursor:pointer;border:1px solid #333"><span style="font-weight:600;color:#fff">' + s.name + '</span><span style="color:#aaa;font-size:13px;margin-left:10px">剩 ' + remain + ' 堂</span></div>';
-  }).join('');
-}
-function paSelectStu(el) {
-  var id = el.getAttribute('data-paid');
-  var name = decodeURIComponent(el.getAttribute('data-paname'));
-  var remain = el.getAttribute('data-paremain');
-  document.getElementById('pa-stu-id').value = String(id);
-  document.getElementById('pa-search').value = '';
-  document.getElementById('pa-results').innerHTML = '';
-  var sel = document.getElementById('pa-stu-selected');
-  sel.style.display = 'block';
-  sel.textContent = '✓ ' + name + '（剩餘 ' + remain + ' 堂）';
-}
-function paInit() {
-  var sel = document.getElementById('pa-coach');
-  sel.innerHTML = (coaches || []).map(function(c) {
-    return '<option value="' + c.name + '">' + c.name + '</option>';
-  }).join('');
-  document.getElementById('pa-stu-id').value = '';
-  document.getElementById('pa-search').value = '';
-  document.getElementById('pa-results').innerHTML = '';
-  document.getElementById('pa-stu-selected').style.display = 'none';
-}
-function submitPilatesAddon() {
-  var stuId = document.getElementById('pa-stu-id').value;
-  var coachName = document.getElementById('pa-coach').value;
-  if (!stuId) { alert('請先選擇學員'); return; }
-  if (!coachName) { alert('請選擇教練'); return; }
-  var stu = null;
-  for (var i = 0; i < students.length; i++) {
-    if (String(students[i].id) === String(stuId)) { stu = students[i]; break; }
-  }
-  if (!stu) { alert('找不到學員資料，請重試'); return; }
-  var remain = (stu.totalSessions || 0) - (stu.usedSessions || 0);
-  if (remain <= 0) { alert('此學員堂數已用完'); return; }
-  if (!confirm(stu.name + '  加購皮拉提斯簽到  教練：' + coachName + '\n確認簽到？')) return;
-  showLoading('簽到中...');
-  db.ref('data/students').once('value', function(snap) {
-    var rawStu = snap.val() || {};
-    var stuKey = null, stuData = null;
-    if (Array.isArray(rawStu)) {
-      for (var j = 0; j < rawStu.length; j++) {
-        if (rawStu[j] && String(rawStu[j].id) === String(stuId)) { stuData = rawStu[j]; stuKey = String(j); break; }
-      }
-    } else {
-      var keys = Object.keys(rawStu);
-      for (var j = 0; j < keys.length; j++) {
-        var s = rawStu[keys[j]];
-        if (s && String(s.id) === String(stuId)) { stuData = s; stuKey = keys[j]; break; }
-      }
-    }
-    if (!stuData || stuKey === null) { hideLoading(); alert('找不到學員，請重試'); return; }
-    var nr = (stuData.totalSessions || 0) - (stuData.usedSessions || 0);
-    if (nr <= 0) { hideLoading(); alert('此學員堂數已用完'); return; }
-    db.ref('data/students/' + stuKey + '/usedSessions').transaction(function(current) {
-      return (current || 0) + 1;
-    }, function(txErr, committed, snapshot) {
-      if (txErr || !committed) { hideLoading(); alert('堂數更新失敗，請重試'); return; }
-      var newUsed = snapshot.val();
-      stuData.usedSessions = newUsed;
-      var newRemain = (stuData.totalSessions || 0) - newUsed;
-      var _pilatesPlanId = _getPilatesPlanId(stuData);
-      var rec = {date:todayStr(), time:nowStr(), student:stuData.name, coach:coachName, remainAfter:newRemain, planType:'1v1', planId:_pilatesPlanId};
-      db.ref('data/records').once('value', function(recSnap) {
-        var recArr = recSnap.val() || [];
-        if (!Array.isArray(recArr)) recArr = Object.values(recArr);
-        recArr.unshift(rec);
-        db.ref('data/records').set(recArr, function(err) {
-          hideLoading();
-          if (err) { alert('堂數已扣除，但記錄儲存失敗，請告知教練'); return; }
-          for (var k = 0; k < students.length; k++) {
-            if (String(students[k].id) === String(stuId)) { students[k].usedSessions = newUsed; break; }
-          }
-          alert('✅ 加購皮拉提斯簽到成功！\n' + stuData.name + '  剩餘：' + newRemain + ' 堂');
-          goScreen('s-daily');
-          renderDailyOverview();
-        });
-      }, function() { hideLoading(); alert('讀取紀錄失敗，請重試'); });
-    });
-  }, function() { hideLoading(); alert('讀取學員失敗，請重試'); });
-}
 
 function submitCheckin() {
   if (_submitting) return; // prevent double submit
@@ -1794,6 +1706,7 @@ function submitCheckin() {
         }
         var _planType=(stu.contracts||[]).some(function(c){return (c.planId&&c.planId.indexOf('1v2')!==-1)||(c.planLabel&&c.planLabel.indexOf('1v2')!==-1);})? '1v2':'1v1';
         var rec = {date:todayStr(), time:nowStr(), student:stu.name, coach:selCoach.name, remainAfter:nr, planType:_planType};
+        if (sessionCategory === 'pilates') rec.planId = _getPilatesPlanId(stu);
         var _sigData = getCompressedSig();
         var _sigDate = rec.date, _sigTime = rec.time, _sigStuId = stu.id;
         db.ref('data/records').once('value', function(recSnap) {
@@ -1861,7 +1774,7 @@ function buildSuccessDetail(stu) {
     + '<div class="dcard"><div class="dtitle">🕐 所有簽到紀錄</div>' + histHTML + '</div>';
 }
 
-function resetAll() { selCoach=null; selStudent=null; sessionType='regular'; trialName=''; trialType=''; trialRevenue=0; sessionSubType='strength'; activeComboContract=null; hideKb(); hideQKb(); goScreen('s-welcome'); }
+function resetAll() { selCoach=null; selStudent=null; sessionType='regular'; trialName=''; trialType=''; trialRevenue=0; sessionSubType='strength'; sessionCategory='strength'; activeComboContract=null; hideKb(); hideQKb(); goScreen('s-welcome'); }
 
 // ══ Query ══
 function initQuery() {
