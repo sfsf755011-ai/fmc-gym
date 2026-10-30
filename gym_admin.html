@@ -2214,8 +2214,9 @@ function _renderSalaryInner(){
   var commResult=calcCommission(paidSessions,template,totalSessions);
   var commission=commResult.total; // exact integer
   var v2Bonus=v2Sessions*100; // exact integer
-  // 皮拉提斯加購加給 NT$200/堂（記錄帶 planId:'pilates-addon-4'）
-  var pilatesAddonSessions=monthRecs.filter(function(r){return r.planId==='pilates-addon-4';}).length;
+  // 皮拉提斯加給 NT$200/堂（p-single / p1v1-10 / pilates-addon-4）
+  var _PILATES_IDS=['p-single','p1v1-10','pilates-addon-4'];
+  var pilatesAddonSessions=monthRecs.filter(function(r){return _PILATES_IDS.indexOf(r.planId)!==-1;}).length;
   var pilatesAddonBonus=pilatesAddonSessions*200;
   var bonusRate=getRevenueBonusRate(revenue);
   var revenueBonus=(!isSimpleCoach&&revenue>=120001)?revenue*bonusRate:0; // float - don't round yet
@@ -2310,7 +2311,7 @@ function _renderSalaryInner(){
     rows.push({name:'堂數抽成（前30堂不計，共 '+totalSessions+' 堂）',amt:0,type:'muted'});
   }
   if(v2Sessions>0)rows.push({name:'1v2加成（'+v2Sessions+'堂 × $100）',amt:v2Bonus,type:'green'});
-  if(pilatesAddonSessions>0)rows.push({name:'皮拉提斯加購加給（'+pilatesAddonSessions+'堂 × $200）',amt:pilatesAddonBonus,type:'green'});
+  if(pilatesAddonSessions>0)rows.push({name:'皮拉提斯加給（'+pilatesAddonSessions+'堂 × $200）',amt:pilatesAddonBonus,type:'green'});
   if(!isSimpleCoach&&revenueBonus>0)rows.push({name:'業績加成（'+fmtMoney(revenue)+' × '+(bonusRate*100)+'%）',amt:revenueBonus,type:'green'});
   if(!isSimpleCoach&&revenuePenalty>0)rows.push({name:'業績未達標（計薪'+paidSessions+'堂 × -$50）',amt:-revenuePenalty,type:'red'});
   if(subsidy!==0)rows.push({name:'健保/就保補助',amt:subsidy,type:subsidy>0?'green':'red'});
@@ -2541,7 +2542,8 @@ function calcCoachSalary(coachKey, month, storeRev, groupBonus, trialCount){
   var commResult=calcCommission(paidSessions,template,totalSessions);
   var commission=commResult.total;
   var v2Bonus=v2Sessions*100;
-  var pilatesAddonSessions=monthRecs.filter(function(r){return r.planId==='pilates-addon-4';}).length;
+  var _PILATES_IDS2=['p-single','p1v1-10','pilates-addon-4'];
+  var pilatesAddonSessions=monthRecs.filter(function(r){return _PILATES_IDS2.indexOf(r.planId)!==-1;}).length;
   var pilatesAddonBonus=pilatesAddonSessions*200;
   var bonusRate=getRevenueBonusRate(revenue);
   var revenueBonus=(!isStore2&&revenue>=120001)?revenue*bonusRate:0; // float - round at end
