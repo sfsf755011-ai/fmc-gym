@@ -1259,6 +1259,36 @@ function confirmStu(s) {
   document.getElementById('multibox').style.display = 'none';
   document.getElementById('stu-found').style.display = 'block';
   hideKb();
+  // Pilates mode: show pilates-specific session data
+  if (sessionCategory === 'pilates') {
+    var pilPlanId = _getPilatesPlanId(s);
+    var pilContract = null;
+    var pilCs = s.contracts || [];
+    for (var ci = 0; ci < pilCs.length; ci++) {
+      if (pilCs[ci].planId === pilPlanId) { pilContract = pilCs[ci]; break; }
+    }
+    var pilTotal = pilContract ? (pilContract.sessions || 1) : 1;
+    var pilUsed = (records || []).filter(function(r) {
+      return r.student === s.name && _PILATES_PLAN_IDS.indexOf(r.planId) !== -1;
+    }).length;
+    var pilRemain = Math.max(0, pilTotal - pilUsed);
+    document.getElementById('stu-fdetail').textContent = selCoach.name + '・皮拉提斯 剩餘 ' + pilRemain + ' 堂（已上 ' + pilUsed + ' / 共 ' + pilTotal + ' 堂）';
+    var pdHTML = '';
+    for (var pi2 = 0; pi2 < Math.min(pilTotal, 48); pi2++) pdHTML += '<div class="dot ' + (pi2 < pilUsed ? 'dot-u' : 'dot-l') + '"></div>';
+    document.getElementById('stu-dots').innerHTML = pdHTML;
+    var pbtn = document.getElementById('btn-to-sig');
+    var palert = document.getElementById('name-alert');
+    var ppicker = document.getElementById('combo-session-picker');
+    if (ppicker) ppicker.style.display = 'none';
+    if (pilRemain <= 0) {
+      palert.textContent = '⚠️ 皮拉提斯堂數已用完，請洽詢前台儲值';
+      palert.style.display = 'block';
+      if (pbtn) pbtn.disabled = true;
+    } else {
+      if (pbtn) pbtn.disabled = false;
+    }
+    return;
+  }
   // Check combo plan
   var combo = findActiveComboContract(s);
   var picker = document.getElementById('combo-session-picker');
@@ -1623,7 +1653,14 @@ function submitCheckin() {
     if (String(students[i].id) === String(selStudent.id)) { stu = students[i]; break; }
   }
   var isPilates = sessionSubType === 'pilates' && activeComboContract;
-  if (isPilates) {
+  if (sessionCategory === 'pilates' && !isPilates) {
+    // 獨立皮拉提斯方案：從記錄計算剩餘
+    var _pilPlanId = _getPilatesPlanId(stu);
+    var _pilContract = (stu.contracts||[]).filter(function(c){return c.planId===_pilPlanId;})[0];
+    var _pilTotal = _pilContract ? (_pilContract.sessions||1) : 1;
+    var _pilUsed = (records||[]).filter(function(r){return r.student===stu.name && _PILATES_PLAN_IDS.indexOf(r.planId)!==-1;}).length;
+    if (!stu || _pilUsed >= _pilTotal) { fail('皮拉提斯堂數已用完，請洽詢前台'); return; }
+  } else if (isPilates) {
     if (!stu || getPilatesRemaining(stu) <= 0) { fail('皮拉提斯堂數已用完，請洽詢前台'); return; }
   } else {
     if (!stu || stu.totalSessions - (stu.usedSessions||0) <= 0) { fail('堂數已用完，請洽詢前台'); return; }
