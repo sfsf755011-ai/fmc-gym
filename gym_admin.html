@@ -199,6 +199,7 @@ tr:hover td{background:var(--bg2)}
     <div class="nav-item" onclick="goPage('auditlog',this)"><span class="ni-icon">🕐</span> 操作紀錄</div>
     <div class="nav-item" id="shian-nav" onclick="goShian(this)"><span class="ni-icon">⭐</span> shian 專區</div>
     <div class="nav-item" onclick="goPage('salary',this)"><span class="ni-icon">💰</span> 薪資計算</div>
+    <div class="nav-item" onclick="goPage('bookings',this)"><span class="ni-icon">📋</span> 預約管理</div>
     <div class="sb-footer">
       <a class="client-link" href="gym_checkin_client.html" target="_blank">→ 開啟簽到頁面</a>
       <button class="logout-btn" onclick="doLogout()">登出</button>
@@ -1011,6 +1012,16 @@ tr:hover td{background:var(--bg2)}
       </div>
     </div>
 
+    <div id="page-bookings" class="page">
+      <div class="pg-title">預約管理</div>
+      <div class="pg-sub">學員預約表單紀錄（雙重備份：Formspree + Firebase）</div>
+      <div style="display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap;align-items:center">
+        <button onclick="loadBookings()" style="padding:8px 18px;background:var(--blue);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer">🔄 重新整理</button>
+        <span id="bookings-count" style="font-size:13px;color:var(--text2)"></span>
+      </div>
+      <div id="bookings-list"></div>
+    </div>
+
     <div id="page-settings" class="page">
       <div class="pg-title">設定</div>
       <div class="pg-sub">修改後台密碼、管理資料</div>
@@ -1461,6 +1472,45 @@ function goPage(p,el){
     if(p==='payment')renderPayment();
     if(p==='report')renderReport();
     if(p==='auditlog')renderAuditLog();
+    if(p==='bookings')loadBookings();
+  });
+}
+
+function loadBookings(){
+  var list=document.getElementById('bookings-list');
+  var cnt=document.getElementById('bookings-count');
+  list.innerHTML='<div style="color:var(--text2);font-size:13px">載入中...</div>';
+  db.ref('data/bookings').once('value',function(snap){
+    var raw=snap.val()||{};
+    var arr=Object.entries(raw).map(function(e){return Object.assign({_key:e[0]},e[1]);});
+    arr.sort(function(a,b){return (b.timestamp||'').localeCompare(a.timestamp||'');});
+    cnt.textContent='共 '+arr.length+' 筆';
+    if(!arr.length){list.innerHTML='<div style="color:var(--text2);font-size:13px;padding:20px 0">尚無預約紀錄</div>';return;}
+    var html='';
+    arr.forEach(function(b){
+      var dt=b.timestamp?new Date(b.timestamp).toLocaleString('zh-TW',{month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'}):'–';
+      var src=b.source==='booking_ipad'?'iPad':'手機';
+      html+='<div style="background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:10px">';
+      html+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">';
+      html+='<span style="font-size:15px;font-weight:700;color:var(--text)">'+(b['姓名']||b['name']||'–')+'</span>';
+      html+='<span style="font-size:11px;color:var(--text2);background:var(--bg);border:1px solid var(--border);padding:2px 8px;border-radius:99px">'+src+' · '+dt+'</span>';
+      html+='</div>';
+      var fields=[['LINE ID','LINE ID'],['電話','電話'],['性別','性別'],['年齡','年齡'],['偏好教練性別','偏好教練性別'],['運動目標','運動目標'],['過往嘗試方法','過往嘗試方法'],['備註','備註']];
+      fields.forEach(function(f){
+        var v=b[f[0]];
+        if(v)html+='<div style="font-size:12px;color:var(--text2);margin-top:3px"><span style="font-weight:600;color:var(--text)">'+f[1]+'：</span>'+v+'</div>';
+      });
+      if(b['可預約時段']){html+='<div style="font-size:12px;color:var(--text2);margin-top:3px"><span style="font-weight:600;color:var(--text)">可預約時段：</span>'+b['可預約時段']+'</div>';}
+      html+='<div style="margin-top:10px;text-align:right"><button onclick="deleteBooking(\''+b._key+'\')" style="padding:4px 12px;background:none;border:1px solid var(--border);border-radius:6px;font-size:12px;color:var(--text2);cursor:pointer">刪除</button></div>';
+      html+='</div>';
+    });
+    list.innerHTML=html;
+  });
+}
+function deleteBooking(key){
+  if(!confirm('確認刪除此預約記錄？'))return;
+  db.ref('data/bookings/'+key).remove(function(err){
+    if(err){alert('刪除失敗');}else{loadBookings();}
   });
 }
 

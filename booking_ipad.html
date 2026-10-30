@@ -364,21 +364,54 @@ form.addEventListener('submit',function(e){
   submitBtn.textContent='送出中...';
 
   var data=new FormData(form);
-  data.append('主旨','FMC iPad預約 - '+document.getElementById('fName').value.trim());
+  var name=document.getElementById('fName').value.trim();
+  data.append('主旨','FMC iPad預約 - '+name);
 
+  // 收集 Firebase 備份資料
+  var bookingRec={source:'booking_ipad',timestamp:new Date().toISOString()};
+  data.forEach(function(val,key){if(key!=='主旨')bookingRec[key]=val;});
+
+  var completed=0,anySuccess=false;
+  function checkDone(){
+    completed++;
+    if(completed<2)return;
+    if(anySuccess){
+      document.getElementById('formCard').style.display='none';
+      document.getElementById('sucScreen').style.display='flex';
+    } else {
+      topErr.style.display='block';
+      submitBtn.disabled=false;
+      submitBtn.textContent='送出預約';
+    }
+  }
+
+  // 管道一：Formspree
   fetch(FORMSPREE_ENDPOINT,{
     method:'POST',body:data,headers:{Accept:'application/json'}
   }).then(function(res){
-    if(res.ok){
-      document.getElementById('formCard').style.display='none';
-      document.getElementById('sucScreen').style.display='flex';
-    } else { throw new Error('failed'); }
-  }).catch(function(){
-    topErr.style.display='block';
-    submitBtn.disabled=false;
-    submitBtn.textContent='送出預約';
-  });
+    if(res.ok)anySuccess=true;
+    checkDone();
+  }).catch(function(){checkDone();});
+
+  // 管道二：Firebase 備份
+  try{
+    var fbConfig={
+      apiKey:"AIzaSyDucRW7PkE3yQUqq3k9a2qG3c47dMY9Dio",
+      authDomain:"fmc-gym.firebaseapp.com",
+      databaseURL:"https://fmc-gym-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId:"fmc-gym",storageBucket:"fmc-gym.firebasestorage.app",
+      messagingSenderId:"17890543331",appId:"1:17890543331:web:a714475fc7a584286a27d6"
+    };
+    if(!firebase.apps.length)firebase.initializeApp(fbConfig);
+    var fbDb=firebase.database();
+    fbDb.ref('data/bookings').push(bookingRec,function(err){
+      if(!err)anySuccess=true;
+      checkDone();
+    });
+  }catch(e){checkDone();}
 });
 </script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 </body>
 </html>
