@@ -300,8 +300,8 @@ tr:hover td{background:var(--bg2)}
             <button class="plan-btn plan-senior" id="add-plan-s1v1-20" onclick="selectAddPlan('s1v1-20',this)"><div class="plan-label">1v1・20 堂</div><div class="plan-price">NT$28,000</div></button>
             <button class="plan-btn plan-senior" id="add-plan-s1v2-20" onclick="selectAddPlan('s1v2-20',this)"><div class="plan-label">1v2・20 堂</div><div class="plan-price">NT$39,000</div></button>
             <div style="font-size:13px;font-weight:700;color:#0ea5e9;grid-column:1/-1;padding:6px 10px;background:rgba(14,165,233,.08);border-radius:var(--radius-sm);border-left:3px solid #0ea5e9;margin-top:6px;margin-bottom:6px">器械皮拉提斯</div>
-            <button class="plan-btn" id="add-plan-p-single" onclick="selectAddPlan('p-single',this)" style="grid-column:1/-1"><div class="plan-label">單堂課程</div><div class="plan-price">NT$2,500</div></button>
-            <button class="plan-btn" id="add-plan-p1v1-10" onclick="selectAddPlan('p1v1-10',this)" style="grid-column:1/-1"><div class="plan-label">1v1・10 堂</div><div class="plan-price">NT$21,999</div></button>
+            <button class="plan-btn" id="add-plan-p-single" onclick="selectAddPlan('p-single',this)" style="grid-column:1/-1"><div class="plan-label">單堂課程</div><div class="plan-price">NT$2,100</div></button>
+            <button class="plan-btn" id="add-plan-p1v1-10" onclick="selectAddPlan('p1v1-10',this)" style="grid-column:1/-1"><div class="plan-label">1v1・10 堂</div><div class="plan-price">NT$19,999</div></button>
             <div style="font-size:13px;font-weight:700;color:#a855f7;grid-column:1/-1;padding:6px 10px;background:rgba(168,85,247,.08);border-radius:var(--radius-sm);border-left:3px solid #a855f7;margin-top:6px;margin-bottom:6px">綜合方案（重訓＋器械皮拉提斯）</div>
             <button class="plan-btn" id="add-plan-combo-10-2" onclick="selectAddPlan('combo-10-2',this)" style="grid-column:1/-1"><div class="plan-label">10堂重訓 ＋ 2堂皮拉提斯</div><div class="plan-price">NT$20,999</div></button>
             <button class="plan-btn" id="add-plan-combo-20-4" onclick="selectAddPlan('combo-20-4',this)" style="grid-column:1/-1"><div class="plan-label">20堂重訓 ＋ 4堂皮拉提斯</div><div class="plan-price">NT$39,999</div></button>
@@ -382,8 +382,8 @@ tr:hover td{background:var(--bg2)}
             <button class="plan-btn plan-senior" id="plan-s1v1-20" onclick="selectPlan('s1v1-20',this)"><div class="plan-label">1v1・20 堂</div><div class="plan-price">NT$28,000</div></button>
             <button class="plan-btn plan-senior" id="plan-s1v2-20" onclick="selectPlan('s1v2-20',this)"><div class="plan-label">1v2・20 堂</div><div class="plan-price">NT$39,000</div></button>
             <div style="font-size:13px;font-weight:700;color:#0ea5e9;grid-column:1/-1;padding:6px 10px;background:rgba(14,165,233,.08);border-radius:var(--radius-sm);border-left:3px solid #0ea5e9;margin-top:6px;margin-bottom:6px">器械皮拉提斯</div>
-            <button class="plan-btn" id="plan-p-single" onclick="selectPlan('p-single',this)" style="grid-column:1/-1"><div class="plan-label">單堂課程</div><div class="plan-price">NT$2,500</div></button>
-            <button class="plan-btn" id="plan-p1v1-10" onclick="selectPlan('p1v1-10',this)" style="grid-column:1/-1"><div class="plan-label">1v1・10 堂</div><div class="plan-price">NT$21,999</div></button>
+            <button class="plan-btn" id="plan-p-single" onclick="selectPlan('p-single',this)" style="grid-column:1/-1"><div class="plan-label">單堂課程</div><div class="plan-price">NT$2,100</div></button>
+            <button class="plan-btn" id="plan-p1v1-10" onclick="selectPlan('p1v1-10',this)" style="grid-column:1/-1"><div class="plan-label">1v1・10 堂</div><div class="plan-price">NT$19,999</div></button>
             <div style="font-size:13px;font-weight:700;color:#a855f7;grid-column:1/-1;padding:6px 10px;background:rgba(168,85,247,.08);border-radius:var(--radius-sm);border-left:3px solid #a855f7;margin-top:6px;margin-bottom:6px">綜合方案（重訓＋器械皮拉提斯）</div>
             <button class="plan-btn" id="plan-combo-10-2" onclick="selectPlan('combo-10-2',this)" style="grid-column:1/-1"><div class="plan-label">10堂重訓 ＋ 2堂皮拉提斯</div><div class="plan-price">NT$20,999</div></button>
             <button class="plan-btn" id="plan-combo-20-4" onclick="selectPlan('combo-20-4',this)" style="grid-column:1/-1"><div class="plan-label">20堂重訓 ＋ 4堂皮拉提斯</div><div class="plan-price">NT$39,999</div></button>
@@ -4006,8 +4006,8 @@ var PLANS={
   'n1v2-30':     {label:'1v2・30堂',                 sessions:30, price:54000, type:'1v2'},
   's1v1-20':     {label:'長青1v1・20堂',             sessions:20, price:28000, type:'1v1'},
   's1v2-20':     {label:'長青1v2・20堂',             sessions:20, price:39000, type:'1v2'},
-  'p-single':    {label:'皮拉提斯・單堂',             sessions:1,  price:2500,  type:'1v1', category:'pilates'},
-  'p1v1-10':     {label:'皮拉提斯・1v1 10堂',        sessions:10, price:21999, type:'1v1', category:'pilates'},
+  'p-single':    {label:'皮拉提斯・單堂',             sessions:1,  price:2100,  type:'1v1', category:'pilates'},
+  'p1v1-10':     {label:'皮拉提斯・1v1 10堂',        sessions:10, price:19999, type:'1v1', category:'pilates'},
   'combo-10-2':  {label:'綜合・10重訓＋2皮拉提斯', sessions:10, pilateSessions:2,  price:20999, type:'1v1', category:'combo'},
   'combo-20-4':  {label:'綜合・20重訓＋4皮拉提斯', sessions:20, pilateSessions:4,  price:39999, type:'1v1', category:'combo'},
   'pilates-addon-4': {label:'加購皮拉提斯四堂',      sessions:4,  price:6999,  type:'1v1', category:'pilates-addon', pilatesBonus:200}
