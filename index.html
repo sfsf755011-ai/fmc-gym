@@ -1261,13 +1261,12 @@ function confirmStu(s) {
   hideKb();
   // Pilates mode: show pilates-specific session data
   if (sessionCategory === 'pilates') {
-    var pilPlanId = _getPilatesPlanId(s);
-    var pilContract = null;
     var pilCs = s.contracts || [];
+    var pilTotal = 0;
     for (var ci = 0; ci < pilCs.length; ci++) {
-      if (pilCs[ci].planId === pilPlanId) { pilContract = pilCs[ci]; break; }
+      if (_PILATES_PLAN_IDS.indexOf(pilCs[ci].planId) !== -1) pilTotal += (pilCs[ci].sessions || 0);
     }
-    var pilTotal = pilContract ? (pilContract.sessions || 1) : 1;
+    if (pilTotal === 0) pilTotal = 1;
     var pilUsed = (records || []).filter(function(r) {
       return r.student === s.name && _PILATES_PLAN_IDS.indexOf(r.planId) !== -1;
     }).length;
@@ -1654,10 +1653,10 @@ function submitCheckin() {
   }
   var isPilates = sessionSubType === 'pilates' && activeComboContract;
   if (sessionCategory === 'pilates' && !isPilates) {
-    // 獨立皮拉提斯方案：從記錄計算剩餘
-    var _pilPlanId = _getPilatesPlanId(stu);
-    var _pilContract = (stu.contracts||[]).filter(function(c){return c.planId===_pilPlanId;})[0];
-    var _pilTotal = _pilContract ? (_pilContract.sessions||1) : 1;
+    // 獨立皮拉提斯方案：合併所有皮拉提斯合約堂數計算剩餘
+    var _pilTotal = 0;
+    (stu.contracts||[]).forEach(function(c){ if(_PILATES_PLAN_IDS.indexOf(c.planId)!==-1) _pilTotal+=(c.sessions||0); });
+    if (_pilTotal===0) _pilTotal=1;
     var _pilUsed = (records||[]).filter(function(r){return r.student===stu.name && _PILATES_PLAN_IDS.indexOf(r.planId)!==-1;}).length;
     if (!stu || _pilUsed >= _pilTotal) { fail('皮拉提斯堂數已用完，請洽詢前台'); return; }
   } else if (isPilates) {
