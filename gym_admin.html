@@ -1480,7 +1480,7 @@ function loadBookings(){
   var list=document.getElementById('bookings-list');
   var cnt=document.getElementById('bookings-count');
   list.innerHTML='<div style="color:var(--text2);font-size:13px">載入中...</div>';
-  db.ref('data/bookings').once('value',function(snap){
+  fbdb.ref('data/bookings').once('value',function(snap){
     var raw=snap.val()||{};
     var arr=Object.entries(raw).map(function(e){return Object.assign({_key:e[0]},e[1]);});
     arr.sort(function(a,b){return (b.timestamp||'').localeCompare(a.timestamp||'');});
@@ -1509,7 +1509,7 @@ function loadBookings(){
 }
 function deleteBooking(key){
   if(!confirm('確認刪除此預約記錄？'))return;
-  db.ref('data/bookings/'+key).remove(function(err){
+  fbdb.ref('data/bookings/'+key).remove(function(err){
     if(err){alert('刪除失敗');}else{loadBookings();}
   });
 }
