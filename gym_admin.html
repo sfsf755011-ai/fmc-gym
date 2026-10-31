@@ -1490,21 +1490,38 @@ function loadBookings(){
     arr.forEach(function(b){
       var dt=b.timestamp?new Date(b.timestamp).toLocaleString('zh-TW',{month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'}):'–';
       var src=b.source==='booking_ipad'?'iPad':'手機';
+      var name=b['稱呼']||b['姓名']||b['name']||'–';
       html+='<div style="background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:10px">';
-      html+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">';
-      html+='<span style="font-size:15px;font-weight:700;color:var(--text)">'+(b['姓名']||b['name']||'–')+'</span>';
+      html+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">';
+      html+='<span style="font-size:16px;font-weight:700;color:var(--text)">'+name+'</span>';
       html+='<span style="font-size:11px;color:var(--text2);background:var(--bg);border:1px solid var(--border);padding:2px 8px;border-radius:99px">'+src+' · '+dt+'</span>';
       html+='</div>';
-      var fields=[['LINE ID','LINE ID'],['電話','電話'],['性別','性別'],['年齡','年齡'],['偏好教練性別','偏好教練性別'],['運動目標','運動目標'],['過往嘗試方法','過往嘗試方法'],['備註','備註']];
-      fields.forEach(function(f){
-        var v=b[f[0]];
-        if(v)html+='<div style="font-size:12px;color:var(--text2);margin-top:3px"><span style="font-weight:600;color:var(--text)">'+f[1]+'：</span>'+v+'</div>';
+      var rows=[
+        ['LINE ID', b['LINE ID']],
+        ['電話', b['電話']],
+        ['性別', b['性別']],
+        ['年齡', b['年齡']],
+        ['人數', b['人數']],
+        ['偏好教練性別', b['教練性別']||b['偏好教練性別']],
+        ['可預約時段', b['偏好時段']||b['可預約時段']],
+        ['運動目標', b['目標排序']||b['運動目標']],
+        ['不適狀況', b['不適狀況描述']],
+        ['過往嘗試方法', b['過往嘗試方法']],
+        ['備註', b['備註']],
+      ];
+      rows.forEach(function(r){
+        if(!r[1])return;
+        html+='<div style="font-size:13px;color:var(--text2);margin-top:5px;line-height:1.5">';
+        html+='<span style="font-weight:600;color:var(--text)">'+r[0]+'：</span>'+r[1];
+        html+='</div>';
       });
-      if(b['可預約時段']){html+='<div style="font-size:12px;color:var(--text2);margin-top:3px"><span style="font-weight:600;color:var(--text)">可預約時段：</span>'+b['可預約時段']+'</div>';}
-      html+='<div style="margin-top:10px;text-align:right"><button onclick="deleteBooking(\''+b._key+'\')" style="padding:4px 12px;background:none;border:1px solid var(--border);border-radius:6px;font-size:12px;color:var(--text2);cursor:pointer">刪除</button></div>';
+      html+='<div style="margin-top:12px;text-align:right"><button onclick="deleteBooking(\''+b._key+'\')" style="padding:4px 12px;background:none;border:1px solid var(--border);border-radius:6px;font-size:12px;color:var(--text2);cursor:pointer">刪除</button></div>';
       html+='</div>';
     });
     list.innerHTML=html;
+  },function(err){
+    list.innerHTML='<div style="color:#dc2626;font-size:13px;padding:10px 0">讀取失敗：'+err.message+'</div>';
+    cnt.textContent='';
   });
 }
 function deleteBooking(key){
