@@ -1497,8 +1497,8 @@ function loadBookings(){
       html+='<span style="font-size:11px;color:var(--text2);background:var(--bg);border:1px solid var(--border);padding:2px 8px;border-radius:99px">'+src+' · '+dt+'</span>';
       html+='</div>';
       var rows=[
-        ['LINE ID', b['LINE ID']],
-        ['電話', b['電話']],
+        ['LINE ID', b['LINE ID']||b['LINE_ID']],
+        ['電話', b['電話']||b['聯絡電話']],
         ['性別', b['性別']],
         ['年齡', b['年齡']],
         ['人數', b['人數']],

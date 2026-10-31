@@ -367,9 +367,18 @@ form.addEventListener('submit',function(e){
   var name=document.getElementById('fName').value.trim();
   data.append('主旨','FMC iPad預約 - '+name);
 
-  // 收集 Firebase 備份資料
+  // 收集 Firebase 備份資料（多選 checkbox 需特別處理）
   var bookingRec={source:'booking_ipad',timestamp:new Date().toISOString()};
-  data.forEach(function(val,key){if(key!=='主旨')bookingRec[key]=val;});
+  var multiKeys={};
+  data.forEach(function(val,key){
+    if(key==='主旨')return;
+    if(multiKeys[key]){
+      bookingRec[key]=bookingRec[key]+'、'+val;
+    } else {
+      bookingRec[key]=val;
+      multiKeys[key]=true;
+    }
+  });
 
   var completed=0,anySuccess=false;
   function checkDone(){
