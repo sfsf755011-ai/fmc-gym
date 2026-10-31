@@ -3634,6 +3634,18 @@ function saveEditStu(){
   var newTotal=_totalRaw!==''?parseInt(_totalRaw)||0:s.totalSessions;
   var newUsed=_usedRaw!==''?parseInt(_usedRaw)||0:s.usedSessions;
   if(newUsed>newTotal){toast('已上堂數不能超過總購堂數');return;}
+  // 同步 totalSessions 到合約的 giftSessions，確保前台顯示正確
+  // getPeriodInfo() 以合約的 sessions+giftSessions 計算，不用 totalSessions
+  if(s.contracts&&s.contracts.length){
+    var contractSum=(s.contracts||[]).reduce(function(sum,c){return sum+(c.sessions||0)+(c.giftSessions||0);},0);
+    var delta=newTotal-contractSum;
+    if(delta!==0){
+      var lc=s.contracts[s.contracts.length-1];
+      lc.giftSessions=Math.max(0,(lc.giftSessions||0)+delta);
+      var baseLabel=(lc.planLabel||'').replace(/＋贈\d+堂$/,'');
+      lc.planLabel=baseLabel+(lc.giftSessions>0?'＋贈'+lc.giftSessions+'堂':'');
+    }
+  }
   s.totalSessions=newTotal;s.usedSessions=newUsed;
   var _pRow=document.getElementById('edit-pilates-row');
   var _pUsedEl=document.getElementById('edit-pilates-used');
