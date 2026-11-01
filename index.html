@@ -13,8 +13,13 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'PingFang TC'
 .screen{display:none;flex-direction:column;height:100vh;height:100dvh;overflow:hidden}
 .screen.active{display:flex}
 /* WELCOME */
-#s-welcome{background:linear-gradient(160deg,#1a1a2a 0%,#111 60%);align-items:center;justify-content:center;text-align:center;padding:40px 28px;position:relative;overflow:hidden}
-.welcome-hexbg{position:absolute;inset:0;pointer-events:none;opacity:.08;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='104' viewBox='0 0 120 104'%3E%3Cpolygon points='60,2 118,30 118,74 60,102 2,74 2,30' fill='none' stroke='%23fff' stroke-width='1'/%3E%3C/svg%3E");background-size:120px 104px}
+#s-welcome{background:#111;align-items:center;justify-content:center;text-align:center;padding:40px 28px;position:relative;overflow:hidden}
+/* 背景輪播 */
+.welcome-slideshow{position:absolute;inset:0;z-index:0;overflow:hidden}
+.welcome-slide{position:absolute;inset:0;background-size:cover;background-position:center;opacity:0;transition:opacity 1.4s ease-in-out}
+.welcome-slide.active{opacity:1}
+.welcome-slideshow::after{content:'';position:absolute;inset:0;background:linear-gradient(to bottom,rgba(0,0,0,.6) 0%,rgba(0,0,0,.4) 40%,rgba(0,0,0,.65) 100%)}
+.welcome-hexbg{display:none}
 .welcome-inner{position:relative;z-index:1;width:100%;max-width:340px}
 #welcome-logo{width:110px;height:110px;object-fit:contain;margin-bottom:18px}
 #clock-display{font-size:64px;font-weight:200;letter-spacing:-.02em;font-variant-numeric:tabular-nums;color:#fff;line-height:1}
@@ -187,7 +192,11 @@ select.finput{-webkit-appearance:none;appearance:none;background-image:url("data
 
 <!-- WELCOME -->
 <div class="screen active" id="s-welcome">
-  <div class="welcome-hexbg"></div>
+  <div class="welcome-slideshow" aria-hidden="true">
+    <div class="welcome-slide active" style="background-image:url('gym_bg1.jpg')"></div>
+    <div class="welcome-slide" style="background-image:url('gym_bg3.jpg')"></div>
+    <div class="welcome-slide" style="background-image:url('gym_bg2.jpg')"></div>
+  </div>
   <div class="welcome-inner">
     <img id="welcome-logo" src="" alt="FMC">
     <div id="clock-display">00:00:00</div>
@@ -2076,6 +2085,16 @@ var dlogo = document.getElementById('daily-logo');
 if (dlogo) { var wlogo = document.getElementById('welcome-logo'); if(wlogo) dlogo.src = wlogo.src; }
 updateClock();
 setInterval(updateClock, 1000);
+// 背景輪播
+(function(){
+  var slides = document.querySelectorAll('.welcome-slide');
+  var cur = 0;
+  setInterval(function(){
+    slides[cur].classList.remove('active');
+    cur = (cur + 1) % slides.length;
+    slides[cur].classList.add('active');
+  }, 5000);
+})();
 // Start syncing data in background immediately - no waiting
 startRealtimeSync();
 </script>
