@@ -335,31 +335,29 @@ select.finput{-webkit-appearance:none;appearance:none;background-image:url("data
     </div>
   </div>
   <!-- 兩張大圖卡 -->
-  <div style="flex:1;display:flex;flex-direction:column;gap:10px;padding:12px 16px;overflow:hidden;background:#111">
+  <div style="flex:1;display:flex;flex-direction:column;gap:0;overflow:hidden">
     <!-- 重量訓練 -->
-    <button onclick="setSessionCategory('strength')" ontouchstart="" style="flex:1;position:relative;overflow:hidden;border:none;cursor:pointer;font-family:inherit;padding:0;background:none;display:block;border-radius:18px;-webkit-tap-highlight-color:transparent;transition:transform .15s,box-shadow .15s;box-shadow:0 4px 20px rgba(0,0,0,.5)" onmousedown="this.style.transform='scale(.97)'" onmouseup="this.style.transform=''" ontouchstart="this.style.transform='scale(.97)'" ontouchend="this.style.transform=''">
-      <div style="position:absolute;inset:0;background-image:url('session_strength.jpg');background-size:cover;background-position:center;border-radius:18px"></div>
-      <div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.75) 0%,rgba(0,0,0,.15) 55%,rgba(0,0,0,.0) 100%);border-radius:18px"></div>
-      <div style="position:relative;z-index:1;height:100%;display:flex;flex-direction:column;justify-content:flex-end;padding:24px 22px 20px">
-        <div style="font-size:11px;font-weight:700;letter-spacing:.18em;color:rgba(255,255,255,.6);text-transform:uppercase;margin-bottom:5px">Weight Training</div>
-        <div style="font-size:22px;font-weight:800;color:#fff;letter-spacing:.02em;margin-bottom:10px">私人客製化重量訓練</div>
-        <div style="display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.3);border-radius:99px;padding:6px 14px;width:fit-content">
-          <span style="font-size:13px;font-weight:600;color:#fff">點此選擇</span>
-          <span style="font-size:13px;color:rgba(255,255,255,.8)">→</span>
-        </div>
+    <button onclick="setSessionCategory('strength')" style="flex:1;position:relative;overflow:hidden;border:none;cursor:pointer;font-family:inherit;padding:0;background:none;display:block">
+      <div style="position:absolute;inset:0;background-image:url('session_strength.jpg');background-size:cover;background-position:center;transition:transform .3s"></div>
+      <div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.72) 0%,rgba(0,0,0,.2) 60%,rgba(0,0,0,.1) 100%)"></div>
+      <div style="position:relative;z-index:1;height:100%;display:flex;flex-direction:column;justify-content:flex-end;padding:28px 24px">
+        <div style="font-size:13px;font-weight:700;letter-spacing:.12em;color:rgba(255,255,255,.7);text-transform:uppercase;margin-bottom:6px">Weight Training</div>
+        <div style="font-size:24px;font-weight:800;color:#fff;letter-spacing:.02em">私人客製化重量訓練</div>
       </div>
     </button>
+    <!-- 分隔帶 -->
+    <div style="flex-shrink:0;height:6px;background:#111;display:flex;align-items:center;justify-content:center;gap:6px;overflow:visible;position:relative;z-index:2">
+      <div style="width:28px;height:1px;background:rgba(255,255,255,.25)"></div>
+      <div style="font-size:10px;font-weight:700;letter-spacing:.15em;color:rgba(255,255,255,.35);white-space:nowrap">TAP TO SELECT</div>
+      <div style="width:28px;height:1px;background:rgba(255,255,255,.25)"></div>
+    </div>
     <!-- 皮拉提斯 -->
-    <button onclick="setSessionCategory('pilates')" style="flex:1;position:relative;overflow:hidden;border:none;cursor:pointer;font-family:inherit;padding:0;background:none;display:block;border-radius:18px;-webkit-tap-highlight-color:transparent;transition:transform .15s,box-shadow .15s;box-shadow:0 4px 20px rgba(0,0,0,.5)" onmousedown="this.style.transform='scale(.97)'" onmouseup="this.style.transform=''" ontouchstart="this.style.transform='scale(.97)'" ontouchend="this.style.transform=''">
-      <div style="position:absolute;inset:0;background-image:url('session_pilates.jpg');background-size:cover;background-position:center;border-radius:18px"></div>
-      <div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.75) 0%,rgba(0,0,0,.15) 55%,rgba(0,0,0,.0) 100%);border-radius:18px"></div>
-      <div style="position:relative;z-index:1;height:100%;display:flex;flex-direction:column;justify-content:flex-end;padding:24px 22px 20px">
-        <div style="font-size:11px;font-weight:700;letter-spacing:.18em;color:rgba(255,255,255,.6);text-transform:uppercase;margin-bottom:5px">Pilates</div>
-        <div style="font-size:22px;font-weight:800;color:#fff;letter-spacing:.02em;margin-bottom:10px">私人客製化皮拉提斯課程</div>
-        <div style="display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.3);border-radius:99px;padding:6px 14px;width:fit-content">
-          <span style="font-size:13px;font-weight:600;color:#fff">點此選擇</span>
-          <span style="font-size:13px;color:rgba(255,255,255,.8)">→</span>
-        </div>
+    <button onclick="setSessionCategory('pilates')" style="flex:1;position:relative;overflow:hidden;border:none;cursor:pointer;font-family:inherit;padding:0;background:none;display:block">
+      <div style="position:absolute;inset:0;background-image:url('session_pilates.jpg');background-size:cover;background-position:center;transition:transform .3s"></div>
+      <div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.7) 0%,rgba(0,0,0,.2) 60%,rgba(0,0,0,.05) 100%)"></div>
+      <div style="position:relative;z-index:1;height:100%;display:flex;flex-direction:column;justify-content:flex-end;padding:28px 24px">
+        <div style="font-size:13px;font-weight:700;letter-spacing:.12em;color:rgba(255,255,255,.7);text-transform:uppercase;margin-bottom:6px">Pilates</div>
+        <div style="font-size:24px;font-weight:800;color:#fff;letter-spacing:.02em">私人客製化皮拉提斯課程</div>
       </div>
     </button>
   </div>
