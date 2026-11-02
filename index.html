@@ -389,13 +389,13 @@ select.finput option{background:#1e1e2e;color:#fff}
 <!-- TRIAL NAME INPUT -->
 <div class="screen" id="s-trial-name" style="flex-direction:column;background:#16161e">
   <!-- Header -->
-  <div style="background:#fff;padding:12px 16px 8px;border-bottom:1px solid #e0e0e0;flex-shrink:0">
+  <div style="background:rgba(28,28,36,.97);padding:12px 16px 8px;border-bottom:1px solid rgba(255,255,255,.15);flex-shrink:0">
     <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
       <img id="trial-name-logo" src="" alt="FMC" style="width:26px;height:26px;border-radius:50%;object-fit:cover">
-      <span style="font-size:13px;font-weight:700;color:#333">FMC・體驗課程</span>
-      <span id="trial-name-coach-label" style="font-size:12px;color:#888;margin-left:4px"></span>
+      <span style="font-size:13px;font-weight:700;color:#fff">FMC・體驗課程</span>
+      <span id="trial-name-coach-label" style="font-size:12px;color:rgba(255,255,255,.65);margin-left:4px"></span>
     </div>
-    <div class="lstep-bar" style="margin:0 0 4px">
+    <div class="lstep-bar" style="margin:0 0 4px;padding:0;background:transparent;border:none">
       <div class="lsdot done">✓</div><span class="lslbl">選教練</span>
       <div class="lsline"></div>
       <div class="lsdot active">2</div><span class="lslbl">輸入姓名</span>
@@ -404,12 +404,12 @@ select.finput option{background:#1e1e2e;color:#fff}
     </div>
   </div>
   <!-- Name input -->
-  <div style="flex:1;padding:24px 20px;background:#f0f2f7;display:flex;flex-direction:column;gap:12px">
-    <div id="trial-name-alert" style="display:none;color:#e53935;font-size:13px">⚠️ 請先輸入姓名再繼續</div>
-    <label style="font-size:13px;font-weight:600;color:#555">請輸入您的姓名</label>
+  <div style="flex:1;padding:24px 20px;background:#16161e;display:flex;flex-direction:column;gap:12px">
+    <div id="trial-name-alert" style="display:none;color:#ff6b6b;font-size:13px">⚠️ 請先輸入姓名再繼續</div>
+    <label style="font-size:13px;font-weight:700;color:#fff">請輸入您的姓名</label>
     <input id="trial-name-input" type="text" inputmode="text" lang="en" autocomplete="off" autocorrect="off" autocapitalize="words" spellcheck="false"
       placeholder="Name..."
-      style="font-size:22px;font-weight:700;color:#1a1a2e;letter-spacing:.05em;border:2px solid #3b82f6;border-radius:10px;padding:12px 16px;background:#fff;outline:none;width:100%;box-sizing:border-box"
+      style="font-size:22px;font-weight:700;color:#fff;letter-spacing:.05em;border:2px solid rgba(99,160,255,.7);border-radius:10px;padding:12px 16px;background:rgba(255,255,255,.08);outline:none;width:100%;box-sizing:border-box"
       oninput="document.getElementById('trial-name-alert').style.display='none'"
       onkeydown="if(event.key==='Enter'){submitTrialName();}">
   </div>
