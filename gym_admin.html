@@ -1515,7 +1515,21 @@ function loadBookings(){
         html+='<span style="font-weight:600;color:var(--text)">'+r[0]+'：</span>'+r[1];
         html+='</div>';
       });
-      html+='<div style="margin-top:12px;text-align:right"><button onclick="deleteBooking(\''+b._key+'\')" style="padding:4px 12px;background:none;border:1px solid var(--border);border-radius:6px;font-size:12px;color:var(--text2);cursor:pointer">刪除</button></div>';
+      var coachOpts='<option value="">— 尚未分配 —</option>';
+      coaches.forEach(function(c){
+        coachOpts+='<option value="'+c.name+'"'+(b.assignedCoach===c.name?' selected':'')+'>'+c.name+'</option>';
+      });
+      var assignedLabel=b.assignedCoach
+        ?'<span style="font-size:11px;background:var(--blue-bg);color:var(--blue-text);border:1px solid var(--blue);padding:2px 8px;border-radius:99px;font-weight:600">✓ '+b.assignedCoach+'</span>'
+        :'';
+      html+='<div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap">';
+      html+='<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">';
+      html+='<span style="font-size:12px;font-weight:700;color:var(--text2)">分配教練：</span>';
+      html+='<select id="assign-'+b._key+'" onchange="assignBookingCoach(\''+b._key+'\',this.value)" style="font-size:13px;padding:6px 24px 6px 10px;border-radius:7px;border:1px solid var(--border2);background:var(--bg);color:var(--text);cursor:pointer;-webkit-appearance:none;appearance:none">'+coachOpts+'</select>';
+      html+=assignedLabel;
+      html+='</div>';
+      html+='<button onclick="deleteBooking(\''+b._key+'\')" style="padding:4px 12px;background:none;border:1px solid var(--border);border-radius:6px;font-size:12px;color:var(--text2);cursor:pointer">刪除</button>';
+      html+='</div>';
       html+='</div>';
     });
     list.innerHTML=html;
@@ -1528,6 +1542,12 @@ function deleteBooking(key){
   if(!confirm('確認刪除此預約記錄？'))return;
   fbdb.ref('data/bookings/'+key).remove(function(err){
     if(err){alert('刪除失敗');}else{loadBookings();}
+  });
+}
+function assignBookingCoach(key,coachName){
+  fbdb.ref('data/bookings/'+key+'/assignedCoach').set(coachName||null,function(err){
+    if(err){toast('❌ 儲存失敗');}
+    else{toast(coachName?'✓ 已分配給 '+coachName:'已清除分配');loadBookings();}
   });
 }
 
