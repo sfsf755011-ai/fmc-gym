@@ -2294,7 +2294,7 @@ function renderSalary2(){
   var r=calcCoachSalary(coach,month,0,gbVal,trialCount);
   document.getElementById('salary2-total').textContent=fmtMoney(r.finalSalary);
   document.getElementById('salary2-metrics').innerHTML=
-    '<div style="background:rgba(255,255,255,.12);border-radius:10px;padding:12px"><div style="font-size:11px;color:rgba(255,255,255,.6);margin-bottom:4px">總堂數</div><div style="font-size:22px;font-weight:700">'+(r.totalSessions+trialCount)+' 堂</div></div>'
+    '<div style="background:rgba(255,255,255,.12);border-radius:10px;padding:12px"><div style="font-size:11px;color:rgba(255,255,255,.6);margin-bottom:4px">總堂數</div><div style="font-size:22px;font-weight:700">'+r.totalSessions+' 堂</div></div>'
     +'<div style="background:rgba(255,255,255,.12);border-radius:10px;padding:12px"><div style="font-size:11px;color:rgba(255,255,255,.6);margin-bottom:4px">計薪堂數</div><div style="font-size:22px;font-weight:700">'+r.paidSessions+' 堂</div></div>'
     +'<div style="background:rgba(255,255,255,.12);border-radius:10px;padding:12px"><div style="font-size:11px;color:rgba(255,255,255,.6);margin-bottom:4px">1v2 堂數</div><div style="font-size:22px;font-weight:700">'+r.v2Sessions+' 堂</div></div>'
     +'<div style="background:rgba(255,255,255,.12);border-radius:10px;padding:12px"><div style="font-size:11px;color:rgba(255,255,255,.6);margin-bottom:4px">當月業績</div><div style="font-size:22px;font-weight:700">'+fmtMoney(r.revenue)+'</div></div>';
@@ -2397,7 +2397,7 @@ function saveAdmin2Settings(){
     var r=calcCoachSalary(c,inp.month,0,inp.groupBonuses[c]||0,t);
     newResults[c]={
       coachName:r.coachName, month:inp.month, isStore2:true,
-      totalSessions:r.totalSessions+t, paidSessions:r.paidSessions, v2Sessions:r.v2Sessions,
+      totalSessions:r.totalSessions, paidSessions:r.paidSessions, v2Sessions:r.v2Sessions,
       trial:t, trialTotal:autoTrialTotal(COACH_DISPLAY[c],inp.month),
       revenue:Math.round(r.revenue),
       baseSalary:25200, allowance:r.allowance,
@@ -2456,7 +2456,7 @@ function renderAdmin2Table(){
     var p='padding:5px 8px;border-bottom:1px solid var(--border)';
     tbl+='<tr style="'+bg+'">';
     tbl+='<td style="'+p+';font-weight:700;white-space:nowrap">'+r.coachName+'</td>';
-    tbl+='<td style="'+p+';text-align:right">'+(r.totalSessions+t)+'</td>';
+    tbl+='<td style="'+p+';text-align:right">'+r.totalSessions+'</td>';
     tbl+='<td style="'+p+';text-align:right">'+r.paidSessions+'</td>';
     tbl+='<td style="'+p+';text-align:right">'+r.v2Sessions+'</td>';
     tbl+='<td style="'+p+';text-align:right">'+n(r.revenue)+'</td>';
@@ -3082,10 +3082,12 @@ function calcCoachSalary(coachKey, month, storeRev, groupBonus, trialCount){
     var s=students.find(function(st){return st.name===r.student;});
     return s&&(s.contracts||[]).some(function(c){return (c.planId&&c.planId.indexOf('1v2')!==-1)||(c.planLabel&&c.planLabel.indexOf('1v2')!==-1);});
   }).length;
-  var paidSessions=Math.max(0,totalSessions-30);
   var revenue=_mainRevenue(coachName,month)+_pilatesRevenue(coachKey,month);
   var template=SALARY_TEMPLATES[coachKey]||'senior';
   var allowance=PERSONAL_ALLOWANCE[coachKey]||PERSONAL_ALLOWANCE_DEFAULT;
+  // 二店教練的體驗成交不存在 data/records，需手動加入總堂數
+  if(isStore2) totalSessions+=(trialCount||0);
+  var paidSessions=Math.max(0,totalSessions-30);
   var commResult=calcCommission(paidSessions,template,totalSessions);
   var commission=commResult.total;
   var v2Bonus=v2Sessions*100;
