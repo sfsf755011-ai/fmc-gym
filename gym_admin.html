@@ -1935,7 +1935,7 @@ var SALARY_TEMPLATES = { jay: 'junior', dolly: 'junior', elly: 'junior' };
 var BASE_SALARY = 25200;
 var PERSONAL_ALLOWANCE = { apple: 4000 };
 var PERSONAL_ALLOWANCE_DEFAULT = 3500;
-var HEALTH_SUBSIDY = { jenny: -907, apple: -1333, jay: -481, yoyo: 3726, sherry: 2226 };
+var HEALTH_SUBSIDY = { apple: -1386, jenny: -943, jay: -500, yoyo: 3726, sherry: 2226, dolly: -500, elly: -500 };
 var STORE2_MANAGER_BONUS = { sherry: 1500 }; // 二店副店長加給
 
 var COMMISSION_JUNIOR = [
@@ -2246,7 +2246,7 @@ function renderSalary2(){
     ];
     if((cr.revenueBonus||0)>0) rows.push({name:'業績加成',amt:cr.revenueBonus,type:'green'});
     if((cr.revenuePenalty||0)>0) rows.push({name:'業績未達標',amt:-(cr.revenuePenalty),type:'red'});
-    if((cr.subsidy||0)!==0) rows.push({name:'健保/就保補助',amt:cr.subsidy||0,type:(cr.subsidy||0)>=0?'green':'red'});
+    if((cr.subsidy||0)!==0) rows.push({name:'健/就保自付額',amt:cr.subsidy||0,type:(cr.subsidy||0)>=0?'green':'red'});
     if((cr.groupBonus||0)>0) rows.push({name:'團體課程獎金',amt:cr.groupBonus,type:'green'});
     rows.push({name:'最終薪資',amt:cr.finalSalary||0,type:'total'});
     var _crTrialCount=cr.trial||0;
@@ -2273,7 +2273,7 @@ function renderSalary2(){
     if((cr.v2Sessions||0)>0)rows2s.push({name:'1v2加成（'+(cr.v2Sessions||0)+'堂 × $100）',amt:cr.v2Bonus||0,type:'green'});
     if((cr.revenueBonus||0)>0) rows2s.push({name:'業績加成',amt:cr.revenueBonus,type:'green'});
     if((cr.revenuePenalty||0)>0) rows2s.push({name:'業績未達標',amt:-(cr.revenuePenalty),type:'red'});
-    if((cr.subsidy||0)!==0) rows2s.push({name:'健保/就保補助',amt:cr.subsidy||0,type:(cr.subsidy||0)>=0?'green':'red'});
+    if((cr.subsidy||0)!==0) rows2s.push({name:'健/就保自付額',amt:cr.subsidy||0,type:(cr.subsidy||0)>=0?'green':'red'});
     if((cr.store2Bonus||0)>0) rows2s.push({name:'二店副店長加給',amt:cr.store2Bonus,type:'green'});
     if((cr.groupBonus||0)>0) rows2s.push({name:'團體課程獎金',amt:cr.groupBonus,type:'green'});
     rows2s.push({name:'最終薪資',amt:cr.finalSalary||0,type:'total'});
@@ -2333,7 +2333,7 @@ function renderSalary2(){
   if(r.v2Sessions>0)rows2.push({name:'1v2加成（'+r.v2Sessions+'堂 × $100）',amt:r.v2Bonus||0,type:'green'});
   if(r.revenueBonus>0) rows2.push({name:'業績加成（'+fmtMoney(r.revenue)+' × '+(getRevenueBonusRate(r.revenue)*100)+'%）',amt:r.revenueBonus,type:'green'});
   if(r.revenuePenalty>0) rows2.push({name:'業績未達標（計薪'+r.paidSessions+'堂 × -$50）',amt:-r.revenuePenalty,type:'red'});
-  if((r.subsidy||0)!==0) rows2.push({name:'健保/就保補助',amt:r.subsidy,type:r.subsidy>=0?'green':'red'});
+  if((r.subsidy||0)!==0) rows2.push({name:'健/就保自付額',amt:r.subsidy,type:r.subsidy>=0?'green':'red'});
   if((r.store2Bonus||0)>0) rows2.push({name:'二店副店長加給',amt:r.store2Bonus,type:'green'});
   if(gbVal>0) rows2.push({name:'團體課程獎金',amt:gbVal,type:'green'});
   rows2.push({name:'最終薪資',amt:r.finalSalary,type:'total'});
@@ -2676,7 +2676,7 @@ function _renderSalaryInner(){
       ];
       if((cr.revenueBonus||0)>0) rows.push({name:'業績加成',amt:cr.revenueBonus,type:'green'});
       if((cr.revenuePenalty||0)>0) rows.push({name:'業績未達標',amt:-(cr.revenuePenalty),type:'red'});
-      if((cr.subsidy||0)!==0) rows.push({name:'健保/就保補助',amt:cr.subsidy||0,type:(cr.subsidy||0)>=0?'green':'red'});
+      if((cr.subsidy||0)!==0) rows.push({name:'健/就保自付額',amt:cr.subsidy||0,type:(cr.subsidy||0)>=0?'green':'red'});
       if((cr.store2Bonus||0)>0) rows.push({name:'二店副店長加給',amt:cr.store2Bonus,type:'green'});
       if((cr.groupBonus||0)>0) rows.push({name:'團體課程獎金',amt:cr.groupBonus,type:'green'});
       if(!isSimpleCoach) rows.push({name:'店業績乘數（'+((cr.mult||1)*100).toFixed(1)+'%，調整額）',amt:cr.storeAdj||0,type:(cr.mult||1)>=1?'green':'red'});
@@ -2889,7 +2889,7 @@ function _renderSalaryInner(){
   if(pilatesAddonSessions>0)rows.push({name:'皮拉提斯加給（'+pilatesAddonSessions+'堂 × $200）',amt:pilatesAddonBonus,type:'green'});
   if(revenueBonus>0)rows.push({name:'業績加成（'+fmtMoney(revenue)+' × '+(bonusRate*100)+'%）',amt:revenueBonus,type:'green'});
   if(revenuePenalty>0)rows.push({name:'業績未達標（計薪'+paidSessions+'堂 × -$50）',amt:-revenuePenalty,type:'red'});
-  if(subsidy!==0)rows.push({name:'健保/就保補助',amt:subsidy,type:subsidy>0?'green':'red'});
+  if(subsidy!==0)rows.push({name:'健/就保自付額',amt:subsidy,type:subsidy>0?'green':'red'});
   if(store2Bonus>0)rows.push({name:'二店副店長加給',amt:store2Bonus,type:'green'});
   if(groupBonus>0)rows.push({name:'團體課程獎金',amt:groupBonus,type:'green'});
   if(!isSimpleCoach)rows.push({name:'店業績乘數（'+(mult*100).toFixed(1)+'%，調整額）',amt:Math.round(subtotal*mult-subtotal),type:mult>=1?'green':'red'});
