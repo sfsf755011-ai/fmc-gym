@@ -1936,16 +1936,19 @@ var BASE_SALARY = 25200;
 var PERSONAL_ALLOWANCE = { apple: 4000 };
 var PERSONAL_ALLOWANCE_DEFAULT = 3500;
 var HEALTH_SUBSIDY = { jenny: -907, apple: -1333, jay: -481, yoyo: 3726, sherry: 2226 };
+var STORE2_MANAGER_BONUS = { sherry: 1500 }; // 二店副店長加給
 
 var COMMISSION_JUNIOR = [
-  {from:1,to:10,rate:200},{from:11,to:20,rate:300},{from:21,to:40,rate:400},
-  {from:41,to:60,rate:450},{from:61,to:70,rate:500},{from:71,to:90,rate:525},
-  {from:91,to:9999,rate:550}
+  {from:31,to:40,rate:200},{from:41,to:50,rate:300},{from:51,to:60,rate:400},
+  {from:61,to:70,rate:450},{from:71,to:80,rate:450},{from:81,to:90,rate:500},
+  {from:91,to:100,rate:500},{from:101,to:110,rate:525},{from:111,to:120,rate:525},
+  {from:121,to:9999,rate:550}
 ];
 var COMMISSION_SENIOR = [
-  {from:1,to:10,rate:200},{from:11,to:20,rate:300},{from:21,to:40,rate:400},
-  {from:41,to:60,rate:450},{from:61,to:70,rate:500},{from:71,to:80,rate:535},
-  {from:81,to:90,rate:545},{from:91,to:9999,rate:555}
+  {from:31,to:40,rate:200},{from:41,to:50,rate:300},{from:51,to:60,rate:400},
+  {from:61,to:70,rate:450},{from:71,to:80,rate:450},{from:81,to:90,rate:500},
+  {from:91,to:100,rate:500},{from:101,to:110,rate:535},{from:111,to:120,rate:545},
+  {from:121,to:9999,rate:555}
 ];
 var REVENUE_BONUS = [
   {from:240001,rate:0.05},{from:200001,rate:0.045},{from:160001,rate:0.04},
@@ -2644,6 +2647,7 @@ function _renderSalaryInner(){
       if((cr.revenueBonus||0)>0) rows.push({name:'業績加成',amt:cr.revenueBonus,type:'green'});
       if((cr.revenuePenalty||0)>0) rows.push({name:'業績未達標',amt:-(cr.revenuePenalty),type:'red'});
       if((cr.subsidy||0)!==0) rows.push({name:'健保/就保補助',amt:cr.subsidy||0,type:(cr.subsidy||0)>=0?'green':'red'});
+      if((cr.store2Bonus||0)>0) rows.push({name:'二店副店長加給',amt:cr.store2Bonus,type:'green'});
       if((cr.groupBonus||0)>0) rows.push({name:'團體課程獎金',amt:cr.groupBonus,type:'green'});
       if(!isSimpleCoach) rows.push({name:'店業績乘數（'+((cr.mult||1)*100).toFixed(1)+'%，調整額）',amt:cr.storeAdj||0,type:(cr.mult||1)>=1?'green':'red'});
       rows.push({name:'最終薪資',amt:cr.finalSalary||0,type:'total'});
@@ -2762,6 +2766,7 @@ function _renderSalaryInner(){
   var revenueBonus=(revenue>=120001)?revenue*bonusRate:0; // float - don't round yet
   var revenuePenalty=(revenue>0&&revenue<120000)?paidSessions*50:0; // exact integer
   var subsidy=HEALTH_SUBSIDY[coachName]||0; // exact integer
+  var store2Bonus=STORE2_MANAGER_BONUS[coachName]||0;
   var _agbEl=document.getElementById('agb-'+coachName);
   var groupBonus=(_salaryAdmin&&_agbEl)
     ?parseInt(_agbEl.value)||0
@@ -2824,7 +2829,7 @@ function _renderSalaryInner(){
     return;
   }
 
-  subtotal=BASE_SALARY+allowance+commission+v2Bonus+pilatesAddonBonus+revenueBonus-revenuePenalty+subsidy+groupBonus;
+  subtotal=BASE_SALARY+allowance+commission+v2Bonus+pilatesAddonBonus+revenueBonus-revenuePenalty+subsidy+store2Bonus+groupBonus;
   finalSalary=Math.round(subtotal*mult);
 
   // Metrics
@@ -2855,6 +2860,7 @@ function _renderSalaryInner(){
   if(revenueBonus>0)rows.push({name:'業績加成（'+fmtMoney(revenue)+' × '+(bonusRate*100)+'%）',amt:revenueBonus,type:'green'});
   if(revenuePenalty>0)rows.push({name:'業績未達標（計薪'+paidSessions+'堂 × -$50）',amt:-revenuePenalty,type:'red'});
   if(subsidy!==0)rows.push({name:'健保/就保補助',amt:subsidy,type:subsidy>0?'green':'red'});
+  if(store2Bonus>0)rows.push({name:'二店副店長加給',amt:store2Bonus,type:'green'});
   if(groupBonus>0)rows.push({name:'團體課程獎金',amt:groupBonus,type:'green'});
   if(!isSimpleCoach)rows.push({name:'店業績乘數（'+(mult*100).toFixed(1)+'%，調整額）',amt:Math.round(subtotal*mult-subtotal),type:mult>=1?'green':'red'});
   rows.push({name:'最終薪資',amt:finalSalary,type:'total'});
@@ -3029,6 +3035,7 @@ function saveAdminSettings(){
         revenueBonus:Math.round(r.revenueBonus),
         revenuePenalty:Math.round(r.revenuePenalty),
         subsidy:r.subsidy,
+        store2Bonus:r.store2Bonus||0,
         groupBonus:inp.groupBonuses[c]||0,
         storeRev:inp.storeRev, mult:r.mult,
         storeAdj:Math.round(r.subtotal*r.mult-r.subtotal),
@@ -3089,14 +3096,15 @@ function calcCoachSalary(coachKey, month, storeRev, groupBonus, trialCount){
   var revenueBonus=(revenue>=120001)?revenue*bonusRate:0; // float - round at end
   var revenuePenalty=(revenue>0&&revenue<120000)?paidSessions*50:0;
   var subsidy=HEALTH_SUBSIDY[coachKey]||0;
-  var subtotal=BASE_SALARY+allowance+commission+v2Bonus+pilatesAddonBonus+revenueBonus-revenuePenalty+subsidy+groupBonus;
+  var store2Bonus=STORE2_MANAGER_BONUS[coachKey]||0;
+  var subtotal=BASE_SALARY+allowance+commission+v2Bonus+pilatesAddonBonus+revenueBonus-revenuePenalty+subsidy+groupBonus+store2Bonus;
   var finalSalary=Math.round(subtotal*mult);
   return {
     coachKey:coachKey, coachName:coachName, isStore2:isStore2,
     totalSessions:totalSessions, paidSessions:paidSessions, v2Sessions:v2Sessions,
     revenue:revenue, commission:commission, v2Bonus:v2Bonus,
     revenueBonus:revenueBonus, revenuePenalty:revenuePenalty,
-    subsidy:subsidy, allowance:allowance, groupBonus:groupBonus,
+    subsidy:subsidy, store2Bonus:store2Bonus, allowance:allowance, groupBonus:groupBonus,
     subtotal:subtotal, mult:mult, finalSalary:finalSalary
   };
 }
