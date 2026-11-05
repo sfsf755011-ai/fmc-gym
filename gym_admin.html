@@ -2949,7 +2949,8 @@ var COACH_DISPLAY = {apple:'apple教練',sherry:'sherry教練',jay:'jay教練',j
 function autoTrialCount(coachDisplayName, monthStr){
   var cn=(coachDisplayName||'').toLowerCase();
   return (trialCheckins||[]).filter(function(r){
-    return r.converted && r.date && r.date.startsWith(monthStr) && (r.coach||'').toLowerCase()===cn;
+    var countDate=r.convertedDate||r.date; // 優先用成交日，舊資料 fallback 到體驗日
+    return r.converted && countDate && countDate.startsWith(monthStr) && (r.coach||'').toLowerCase()===cn;
   }).length;
 }
 function autoTrialTotal(coachDisplayName, monthStr){
@@ -4887,14 +4888,18 @@ function toggleTrialStatus(idx,status){
   if(!trialCheckins[idx])return;
   var r=trialCheckins[idx];
   var wasConverted=r.converted;
-  if(status==='converted'){r.converted=true;r.notConverted=false;}
-  else if(status==='not_converted'){r.converted=false;r.notConverted=true;}
+  if(status==='converted'){
+    r.converted=true;r.notConverted=false;
+    // 記錄按下成交的日期，薪資以此月份計算（不是體驗當天）
+    if(!r.convertedDate) r.convertedDate=new Date().toISOString().slice(0,10);
+  } else if(status==='not_converted'){r.converted=false;r.notConverted=true;}
   else{r.converted=false;r.notConverted=false;}
   fbdb.ref('data/trialCheckins').set(trialCheckins,function(err){
     if(err){toast('儲存失敗，請重試');return;}
     if(status==='converted'&&!wasConverted){
-      // 寫進 records 讓薪資計算納入
-      var newRec={date:r.date,time:r.time||'',student:r.name,coach:r.coach,remainAfter:0,isTrial:true};
+      var convDate=r.convertedDate||r.date; // 以成交日計入薪資月份
+      // 寫進 records 讓薪資計算納入（date 用成交日）
+      var newRec={date:convDate,time:r.time||'',student:r.name,coach:r.coach,remainAfter:0,isTrial:true};
       fbdb.ref('data/records').once('value',function(snap){
         var arr=snap.val()||[];
         if(!Array.isArray(arr))arr=Object.values(arr);
