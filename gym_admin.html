@@ -4889,9 +4889,13 @@ function toggleTrialStatus(idx,status){
   var r=trialCheckins[idx];
   var wasConverted=r.converted;
   if(status==='converted'){
+    // 彈出日期選擇，預設今天，可修改為補登月份
+    var today=new Date().toISOString().slice(0,10);
+    var inputDate=prompt('成交計入日期（薪資月份以此為準）：', r.convertedDate||today);
+    if(inputDate===null)return; // 取消
+    if(!/^\d{4}-\d{2}-\d{2}$/.test(inputDate)){toast('日期格式錯誤，請用 YYYY-MM-DD');return;}
     r.converted=true;r.notConverted=false;
-    // 記錄按下成交的日期，薪資以此月份計算（不是體驗當天）
-    if(!r.convertedDate) r.convertedDate=new Date().toISOString().slice(0,10);
+    r.convertedDate=inputDate;
   } else if(status==='not_converted'){r.converted=false;r.notConverted=true;}
   else{r.converted=false;r.notConverted=false;}
   fbdb.ref('data/trialCheckins').set(trialCheckins,function(err){
