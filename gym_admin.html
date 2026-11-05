@@ -3111,7 +3111,7 @@ function saveAdminSettings(){
 }
 
 function calcCoachSalary(coachKey, month, storeRev, groupBonus, trialCount){
-  var isStore2=(ADMIN_COACHES_STORE2||[]).indexOf(coachKey)>=0; // 二店：無業績加減、無店業績乘數
+  var isStore2=(ADMIN_COACHES_STORE2||[]).indexOf(coachKey)>=0;
   var coachName=COACH_DISPLAY[coachKey];
   var mult=isStore2?1:getStoreMultiplier(storeRev);
   var _cnLower=coachName.toLowerCase();
@@ -3264,7 +3264,8 @@ function exportAdminExcel(){
   allRows.push(['【二店】']);
   allRows.push(['教練','總堂數','計薪堂數','1v2堂數','當月業績','底薪+加給','堂數抽成+1v2','個人業績加減','健保補助','團課獎金','店營收%','最終薪資']);
   results2.forEach(function(r){
-    allRows.push([r.coachName,r.totalSessions,r.paidSessions,r.v2Sessions,ri(r.revenue),ri(BASE_SALARY+r.allowance),ri(r.commission+(r.v2Bonus||0)),0,ri(r.subsidy),inp.groupBonuses[r.coachKey]||0,'100.0%',ri(r.finalSalary)]);
+    var revAdj2=ri(r.revenueBonus)-ri(r.revenuePenalty);
+    allRows.push([r.coachName,r.totalSessions,r.paidSessions,r.v2Sessions,ri(r.revenue),ri(BASE_SALARY+r.allowance),ri(r.commission+(r.v2Bonus||0)),revAdj2,ri(r.subsidy),inp.groupBonuses[r.coachKey]||0,'100.0%',ri(r.finalSalary)]);
   });
   // 空行
   allRows.push([]);
