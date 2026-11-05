@@ -1954,6 +1954,10 @@ var REVENUE_BONUS = [
   {from:240001,rate:0.05},{from:200001,rate:0.045},{from:160001,rate:0.04},
   {from:140000,rate:0.035},{from:120001,rate:0.02}
 ];
+var REVENUE_BONUS_STORE2 = [
+  {from:240001,rate:0.045},{from:200001,rate:0.04},{from:160001,rate:0.035},
+  {from:140001,rate:0.03},{from:100001,rate:0.02}
+];
 var STORE_MULTS = [
   {t:1000000,m:1.05},{t:950000,m:1.025},{t:850000,m:1.0},
   {t:750000,m:0.975},{t:0,m:0.95}
@@ -2514,6 +2518,10 @@ function getStoreMultiplier(rev){
 }
 function getRevenueBonusRate(rev){
   for(var i=0;i<REVENUE_BONUS.length;i++){if(rev>=REVENUE_BONUS[i].from)return REVENUE_BONUS[i].rate;}
+  return 0;
+}
+function getRevenueBonusRateStore2(rev){
+  for(var i=0;i<REVENUE_BONUS_STORE2.length;i++){if(rev>=REVENUE_BONUS_STORE2[i].from)return REVENUE_BONUS_STORE2[i].rate;}
   return 0;
 }
 function calcCommission(paidSessions, template, totalSessions){
@@ -3083,7 +3091,7 @@ function saveAdminSettings(){
       baseSalary:25200, allowance:r2.allowance,
       commission:Math.round(r2.commission),
       v2Bonus:r2.v2Bonus,
-      revenueBonus:0, revenuePenalty:0,
+      revenueBonus:Math.round(r2.revenueBonus), revenuePenalty:0,
       subsidy:r2.subsidy,
       groupBonus:inp.groupBonuses[c]||0,
       storeRev:0, mult:1,
@@ -3125,9 +3133,9 @@ function calcCoachSalary(coachKey, month, storeRev, groupBonus, trialCount){
   var _PILATES_IDS2=['p-single','p1v1-10','pilates-addon-4'];
   var pilatesAddonSessions=monthRecs.filter(function(r){return _PILATES_IDS2.indexOf(r.planId)!==-1;}).length;
   var pilatesAddonBonus=pilatesAddonSessions*200;
-  var bonusRate=getRevenueBonusRate(revenue);
-  var revenueBonus=(revenue>=120001)?revenue*bonusRate:0; // float - round at end
-  var revenuePenalty=(revenue>0&&revenue<120000)?paidSessions*50:0;
+  var bonusRate=isStore2?getRevenueBonusRateStore2(revenue):getRevenueBonusRate(revenue);
+  var revenueBonus=isStore2?(revenue>=100001?revenue*bonusRate:0):(revenue>=120001?revenue*bonusRate:0);
+  var revenuePenalty=isStore2?0:(revenue>0&&revenue<120000?paidSessions*50:0); // 二店暫無罰款
   var subsidy=HEALTH_SUBSIDY[coachKey]||0;
   var store2Bonus=STORE2_MANAGER_BONUS[coachKey]||0;
   var subtotal=BASE_SALARY+allowance+commission+v2Bonus+pilatesAddonBonus+revenueBonus-revenuePenalty+subsidy+groupBonus+store2Bonus;
