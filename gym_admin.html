@@ -2669,7 +2669,7 @@ function _renderSalaryInner(){
     var _rvDetails=_buildRevDetails(coachName,_rvCoachDisp,month,coachName==='shian');
     var _rvLiveTotal=_rvDetails.reduce(function(s,d){return s+d.amount;},0);
     // Compute live session counts to match history query
-    var _rvMonthRecs=records.filter(function(r){return r.date&&r.date.startsWith(month)&&r.coach===_rvCoachDisp;});
+    var _rvMonthRecs=records.filter(function(r){return r.date&&r.date.startsWith(month)&&(r.coach||'').toLowerCase()===_rvCoachDisp.toLowerCase();});
     var _rvLiveSessions=_rvMonthRecs.length;
     var _rvLiveV2=_rvMonthRecs.filter(function(r){
       if(r.planType)return r.planType==='1v2';
@@ -3075,7 +3075,8 @@ function calcCoachSalary(coachKey, month, storeRev, groupBonus, trialCount){
   var isStore2=(ADMIN_COACHES_STORE2||[]).indexOf(coachKey)>=0; // 二店：無業績加減、無店業績乘數
   var coachName=COACH_DISPLAY[coachKey];
   var mult=isStore2?1:getStoreMultiplier(storeRev);
-  var monthRecs=records.filter(function(r){return r.date&&r.date.startsWith(month)&&r.coach===coachName;});
+  var _cnLower=coachName.toLowerCase();
+  var monthRecs=records.filter(function(r){return r.date&&r.date.startsWith(month)&&(r.coach||'').toLowerCase()===_cnLower;});
   var totalSessions=monthRecs.length;
   var v2Sessions=monthRecs.filter(function(r){
     if(r.planType)return r.planType==='1v2';
