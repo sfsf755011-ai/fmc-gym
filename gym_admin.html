@@ -2249,15 +2249,37 @@ function renderSalary2(){
     if((cr.subsidy||0)!==0) rows.push({name:'健保/就保補助',amt:cr.subsidy||0,type:(cr.subsidy||0)>=0?'green':'red'});
     if((cr.groupBonus||0)>0) rows.push({name:'團體課程獎金',amt:cr.groupBonus,type:'green'});
     rows.push({name:'最終薪資',amt:cr.finalSalary||0,type:'total'});
+    var _crTrialCount=cr.trial||0;
+    var _crRegular=(cr.totalSessions||0)-_crTrialCount;
     document.getElementById('salary2-total').textContent='NT$'+(cr.finalSalary||0).toLocaleString();
     document.getElementById('salary2-metrics').innerHTML=
-      '<div style="background:rgba(255,255,255,.12);border-radius:10px;padding:12px"><div style="font-size:11px;color:rgba(255,255,255,.6);margin-bottom:4px">總堂數</div><div style="font-size:22px;font-weight:700">'+(cr.totalSessions||0)+' 堂</div></div>'
-      +'<div style="background:rgba(255,255,255,.12);border-radius:10px;padding:12px"><div style="font-size:11px;color:rgba(255,255,255,.6);margin-bottom:4px">計薪堂數</div><div style="font-size:22px;font-weight:700">'+(cr.paidSessions||0)+' 堂</div></div>'
+      '<div style="background:rgba(255,255,255,.12);border-radius:10px;padding:12px"><div style="font-size:11px;color:rgba(255,255,255,.6);margin-bottom:4px">簽到堂數</div><div style="font-size:22px;font-weight:700">'+_crRegular+' 堂</div><div style="font-size:10px;color:rgba(255,255,255,.45);margin-top:2px">含1v2</div></div>'
+      +'<div style="background:rgba(255,255,255,.12);border-radius:10px;padding:12px"><div style="font-size:11px;color:rgba(255,255,255,.6);margin-bottom:4px">體驗成交</div><div style="font-size:22px;font-weight:700">'+_crTrialCount+' 堂</div></div>'
       +'<div style="background:rgba(255,255,255,.12);border-radius:10px;padding:12px"><div style="font-size:11px;color:rgba(255,255,255,.6);margin-bottom:4px">1v2 堂數</div><div style="font-size:22px;font-weight:700">'+(cr.v2Sessions||0)+' 堂</div></div>'
       +'<div style="background:rgba(255,255,255,.12);border-radius:10px;padding:12px"><div style="font-size:11px;color:rgba(255,255,255,.6);margin-bottom:4px">當月業績</div><div style="font-size:22px;font-weight:700">NT$'+(cr.revenue||0).toLocaleString()+'</div></div>';
+    // Rebuild rows with commission tier detail
+    var _crTpl=SALARY_TEMPLATES[coach]||'senior';
+    var _crCommR=calcCommission(cr.paidSessions||0,_crTpl,cr.totalSessions||0);
+    var rows2s=[
+      {name:'底薪',amt:cr.baseSalary||25200,type:'normal'},
+      {name:'個人加給',amt:cr.allowance||0,type:'normal'},
+    ];
+    if((cr.paidSessions||0)>0){
+      rows2s.push({name:'堂數抽成小計（計薪 '+(cr.paidSessions||0)+' 堂）',amt:cr.commission||0,type:'bold'});
+      if(_crCommR.details&&_crCommR.details.length){_crCommR.details.forEach(function(d){rows2s.push({name:'　'+d.label+' × '+d.sessions+'堂 × $'+d.rate,amt:d.amount,type:'muted'});});}
+    } else {
+      rows2s.push({name:'堂數抽成（前30堂不計，共 '+(cr.totalSessions||0)+' 堂）',amt:0,type:'muted'});
+    }
+    if((cr.v2Sessions||0)>0)rows2s.push({name:'1v2加成（'+(cr.v2Sessions||0)+'堂 × $100）',amt:cr.v2Bonus||0,type:'green'});
+    if((cr.revenueBonus||0)>0) rows2s.push({name:'業績加成',amt:cr.revenueBonus,type:'green'});
+    if((cr.revenuePenalty||0)>0) rows2s.push({name:'業績未達標',amt:-(cr.revenuePenalty),type:'red'});
+    if((cr.subsidy||0)!==0) rows2s.push({name:'健保/就保補助',amt:cr.subsidy||0,type:(cr.subsidy||0)>=0?'green':'red'});
+    if((cr.store2Bonus||0)>0) rows2s.push({name:'二店副店長加給',amt:cr.store2Bonus,type:'green'});
+    if((cr.groupBonus||0)>0) rows2s.push({name:'團體課程獎金',amt:cr.groupBonus,type:'green'});
+    rows2s.push({name:'最終薪資',amt:cr.finalSalary||0,type:'total'});
     var bdHtml='';
-    rows.forEach(function(r){
-      var amtCls=r.type==='red'?'color:var(--red-text)':r.type==='green'?'color:var(--green-text)':'';
+    rows2s.forEach(function(r){
+      var amtCls=r.type==='red'?'color:var(--red-text)':r.type==='green'?'color:var(--green-text)':r.type==='muted'?'color:var(--text3)':'';
       var boldStyle=r.type==='bold'||r.type==='total'?'font-weight:700;':'';
       var borderStyle=r.type==='total'?'border-top:2px solid var(--border2);padding-top:10px;margin-top:4px;':'';
       bdHtml+='<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);'+borderStyle+boldStyle+'">'
@@ -2294,24 +2316,30 @@ function renderSalary2(){
   var r=calcCoachSalary(coach,month,0,gbVal,trialCount);
   document.getElementById('salary2-total').textContent=fmtMoney(r.finalSalary);
   document.getElementById('salary2-metrics').innerHTML=
-    '<div style="background:rgba(255,255,255,.12);border-radius:10px;padding:12px"><div style="font-size:11px;color:rgba(255,255,255,.6);margin-bottom:4px">總堂數</div><div style="font-size:22px;font-weight:700">'+r.totalSessions+' 堂</div></div>'
-    +'<div style="background:rgba(255,255,255,.12);border-radius:10px;padding:12px"><div style="font-size:11px;color:rgba(255,255,255,.6);margin-bottom:4px">計薪堂數</div><div style="font-size:22px;font-weight:700">'+r.paidSessions+' 堂</div></div>'
+    '<div style="background:rgba(255,255,255,.12);border-radius:10px;padding:12px"><div style="font-size:11px;color:rgba(255,255,255,.6);margin-bottom:4px">簽到堂數</div><div style="font-size:22px;font-weight:700">'+r.regularSessions+' 堂</div><div style="font-size:10px;color:rgba(255,255,255,.45);margin-top:2px">含1v2</div></div>'
+    +'<div style="background:rgba(255,255,255,.12);border-radius:10px;padding:12px"><div style="font-size:11px;color:rgba(255,255,255,.6);margin-bottom:4px">體驗成交</div><div style="font-size:22px;font-weight:700">'+r.trialCount+' 堂</div></div>'
     +'<div style="background:rgba(255,255,255,.12);border-radius:10px;padding:12px"><div style="font-size:11px;color:rgba(255,255,255,.6);margin-bottom:4px">1v2 堂數</div><div style="font-size:22px;font-weight:700">'+r.v2Sessions+' 堂</div></div>'
     +'<div style="background:rgba(255,255,255,.12);border-radius:10px;padding:12px"><div style="font-size:11px;color:rgba(255,255,255,.6);margin-bottom:4px">當月業績</div><div style="font-size:22px;font-weight:700">'+fmtMoney(r.revenue)+'</div></div>';
   var rows2=[
     {name:'底薪',amt:25200,type:'normal'},
     {name:'個人加給',amt:r.allowance||0,type:'normal'},
-    {name:'堂數抽成小計（計薪 '+r.paidSessions+' 堂）',amt:r.commission,type:'bold'},
-    {name:'1v2加成（'+r.v2Sessions+'堂 × $100）',amt:r.v2Bonus||0,type:'green'},
   ];
-  if(r.revenueBonus>0) rows2.push({name:'業績加成',amt:r.revenueBonus,type:'green'});
-  if(r.revenuePenalty>0) rows2.push({name:'業績未達標',amt:-r.revenuePenalty,type:'red'});
+  if(r.paidSessions>0){
+    rows2.push({name:'堂數抽成小計（計薪 '+r.paidSessions+' 堂）',amt:r.commission,type:'bold'});
+    if(r.commDetails&&r.commDetails.length){r.commDetails.forEach(function(d){rows2.push({name:'　'+d.label+' × '+d.sessions+'堂 × $'+d.rate,amt:d.amount,type:'muted'});});}
+  } else {
+    rows2.push({name:'堂數抽成（前30堂不計，共 '+r.totalSessions+' 堂）',amt:0,type:'muted'});
+  }
+  if(r.v2Sessions>0)rows2.push({name:'1v2加成（'+r.v2Sessions+'堂 × $100）',amt:r.v2Bonus||0,type:'green'});
+  if(r.revenueBonus>0) rows2.push({name:'業績加成（'+fmtMoney(r.revenue)+' × '+(getRevenueBonusRate(r.revenue)*100)+'%）',amt:r.revenueBonus,type:'green'});
+  if(r.revenuePenalty>0) rows2.push({name:'業績未達標（計薪'+r.paidSessions+'堂 × -$50）',amt:-r.revenuePenalty,type:'red'});
   if((r.subsidy||0)!==0) rows2.push({name:'健保/就保補助',amt:r.subsidy,type:r.subsidy>=0?'green':'red'});
+  if((r.store2Bonus||0)>0) rows2.push({name:'二店副店長加給',amt:r.store2Bonus,type:'green'});
   if(gbVal>0) rows2.push({name:'團體課程獎金',amt:gbVal,type:'green'});
   rows2.push({name:'最終薪資',amt:r.finalSalary,type:'total'});
   var bd2='';
   rows2.forEach(function(r2){
-    var amtCls=r2.type==='red'?'color:var(--red-text)':r2.type==='green'?'color:var(--green-text)':'';
+    var amtCls=r2.type==='red'?'color:var(--red-text)':r2.type==='green'?'color:var(--green-text)':r2.type==='muted'?'color:var(--text3)':'';
     var boldStyle=r2.type==='bold'||r2.type==='total'?'font-weight:700;':'';
     var borderStyle=r2.type==='total'?'border-top:2px solid var(--border2);padding-top:10px;margin-top:4px;':'';
     bd2+='<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);'+borderStyle+boldStyle+'">'
@@ -3086,6 +3114,7 @@ function calcCoachSalary(coachKey, month, storeRev, groupBonus, trialCount){
   var revenue=_mainRevenue(coachName,month)+_pilatesRevenue(coachKey,month);
   var template=SALARY_TEMPLATES[coachKey]||'senior';
   var allowance=PERSONAL_ALLOWANCE[coachKey]||PERSONAL_ALLOWANCE_DEFAULT;
+  var regularSessions=totalSessions; // 正課簽到堂數（含1v2），不含體驗
   // 二店教練的體驗成交不存在 data/records，需手動加入總堂數
   if(isStore2) totalSessions+=(trialCount||0);
   var paidSessions=Math.max(0,totalSessions-30);
@@ -3104,8 +3133,10 @@ function calcCoachSalary(coachKey, month, storeRev, groupBonus, trialCount){
   var finalSalary=Math.round(subtotal*mult);
   return {
     coachKey:coachKey, coachName:coachName, isStore2:isStore2,
-    totalSessions:totalSessions, paidSessions:paidSessions, v2Sessions:v2Sessions,
+    totalSessions:totalSessions, regularSessions:regularSessions, paidSessions:paidSessions, v2Sessions:v2Sessions,
+    trialCount:(trialCount||0),
     revenue:revenue, commission:commission, v2Bonus:v2Bonus,
+    commTierLabel:commResult.tierLabel, commRate:commResult.rate, commDetails:commResult.details,
     revenueBonus:revenueBonus, revenuePenalty:revenuePenalty,
     subsidy:subsidy, store2Bonus:store2Bonus, allowance:allowance, groupBonus:groupBonus,
     subtotal:subtotal, mult:mult, finalSalary:finalSalary
