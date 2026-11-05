@@ -2550,9 +2550,10 @@ function _pilatesFrac(contract){
 
 function _mainRevenue(coachDisplayName,monthStr,onlyCompany){
   // 自有學生業績，扣除綜合方案中皮拉提斯比例
+  var _cdnLower=(coachDisplayName||'').toLowerCase();
   var tot=0;
   students.forEach(function(s){
-    if(s.coach!==coachDisplayName)return;
+    if((s.coach||'').toLowerCase()!==_cdnLower)return;
     if(onlyCompany&&s.shianType!=='company')return;
     (s.contracts||[]).forEach(function(c){
       var frac=_pilatesFrac(c);
@@ -2583,9 +2584,10 @@ function _pilatesRevenue(pilatesCoachKey,monthStr){
 
 function _buildRevDetails(coachKey,coachDisplayName,monthStr,onlyCompany){
   var details=[];
+  var _bdnLower=(coachDisplayName||'').toLowerCase();
   // 1. 自有學生業績（扣除皮拉提斯比例）
   students.forEach(function(s){
-    if(s.coach!==coachDisplayName)return;
+    if((s.coach||'').toLowerCase()!==_bdnLower)return;
     if(onlyCompany&&s.shianType!=='company')return;
     (s.contracts||[]).forEach(function(c){
       var frac=_pilatesFrac(c);
@@ -3114,9 +3116,8 @@ function calcCoachSalary(coachKey, month, storeRev, groupBonus, trialCount){
   var revenue=_mainRevenue(coachName,month)+_pilatesRevenue(coachKey,month);
   var template=SALARY_TEMPLATES[coachKey]||'senior';
   var allowance=PERSONAL_ALLOWANCE[coachKey]||PERSONAL_ALLOWANCE_DEFAULT;
-  var regularSessions=totalSessions; // 正課簽到堂數（含1v2），不含體驗
-  // 二店教練的體驗成交不存在 data/records，需手動加入總堂數
-  if(isStore2) totalSessions+=(trialCount||0);
+  var regularSessions=totalSessions; // 正課簽到堂數（含1v2），體驗學員已包含在 data/records 中
+  // 注意：二店試課學員同時寫入 data/records，totalSessions 已含試課，不需另加 trialCount
   var paidSessions=Math.max(0,totalSessions-30);
   var commResult=calcCommission(paidSessions,template,totalSessions);
   var commission=commResult.total;
