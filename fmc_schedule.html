@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>FMC 行事曆</title>
+<style>
+:root{
+  --bg:#f1f5f9;--white:#fff;
+  --sl50:#f8fafc;--sl100:#f1f5f9;--sl200:#e2e8f0;--sl300:#cbd5e1;
+  --sl400:#94a3b8;--sl500:#64748b;--sl600:#475569;--sl700:#334155;--sl800:#1e293b;--sl900:#0f172a;
+  --green:#16a34a;--green-bg:#f0fdf4;--green-b:#bbf7d0;
+  --blue:#2563eb;--blue-bg:#eff6ff;--blue-b:#bfdbfe;
+  --red:#dc2626;--red-bg:#fef2f2;
+  --r:14px;--rs:10px;
+  --shadow:0 1px 3px rgba(0,0,0,.08);
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;background:var(--bg)}
+body{font-family:-apple-system,BlinkMacSystemFont,'PingFang TC','Microsoft JhengHei',sans-serif;color:var(--sl900)}
+
+.screen{display:none;min-height:100%;overflow-y:auto}
+.screen.active{display:block}
+
+/* coach select */
+#s-select{background:var(--sl800)}
+.sel-wrap{padding:calc(40px + env(safe-area-inset-top,0)) 20px 40px}
+.sel-logo{font-size:24px;font-weight:800;color:#fff;margin-bottom:4px}
+.sel-sub{font-size:13px;color:rgba(255,255,255,.45);margin-bottom:28px}
+.coach-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.coach-btn{background:rgba(255,255,255,.08);border:1.5px solid rgba(255,255,255,.12);border-radius:var(--r);padding:16px 12px;cursor:pointer;transition:.12s;display:flex;flex-direction:column;align-items:center;gap:6px}
+.coach-btn:active{background:rgba(255,255,255,.18);transform:scale(.97)}
+.coach-ava{width:46px;height:46px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:800;flex-shrink:0}
+.coach-name{font-size:15px;font-weight:700;color:#fff}
+
+/* header */
+.hdr{position:sticky;top:0;z-index:100;background:var(--sl800);padding:env(safe-area-inset-top,0) 0 0}
+.hdr-inner{height:52px;display:flex;align-items:center;gap:10px;padding:0 16px}
+.hdr-title{font-size:16px;font-weight:700;color:#fff;flex:1}
+.hdr-back{background:none;border:none;color:rgba(255,255,255,.7);font-size:24px;cursor:pointer;padding:4px;line-height:1}
+.hdr-action{background:none;border:none;color:rgba(255,255,255,.75);font-size:13px;font-weight:600;cursor:pointer;padding:6px 10px;border-radius:8px;white-space:nowrap}
+.hdr-action:active{background:rgba(255,255,255,.12)}
+.hdr-action.red{color:#fca5a5}
+.coach-pill{background:rgba(255,255,255,.12);color:rgba(255,255,255,.85);font-size:12px;font-weight:700;padding:4px 10px;border-radius:20px;border:1px solid rgba(255,255,255,.18);cursor:pointer}
+
+/* calendar header */
+.cal-nav{display:flex;align-items:center;justify-content:space-between;padding:10px 16px 6px;background:var(--sl800)}
+.cal-month{font-size:16px;font-weight:700;color:#fff}
+.cal-nav-btn{background:none;border:none;color:rgba(255,255,255,.65);font-size:22px;cursor:pointer;padding:4px 10px;line-height:1}
+
+/* calendar grid */
+.cal-grid-wrap{background:var(--sl800);padding:0 10px 10px}
+.cal-dow{display:grid;grid-template-columns:repeat(7,1fr);margin-bottom:4px}
+.cal-dow-cell{text-align:center;font-size:11px;font-weight:600;color:rgba(255,255,255,.35);padding:4px 0}
+.cal-dow-cell:first-child{color:rgba(248,113,113,.6)}
+.cal-dow-cell:last-child{color:rgba(96,165,250,.6)}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px}
+.cal-cell{min-height:46px;border-radius:10px;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:5px 2px 4px;cursor:pointer;position:relative;transition:.1s;background:rgba(255,255,255,.04)}
+.cal-cell:active{background:rgba(255,255,255,.12)}
+.cal-cell.other-month{opacity:.3}
+.cal-cell.today .cal-num{background:var(--blue);color:#fff;border-radius:50%;width:26px;height:26px;display:flex;align-items:center;justify-content:center}
+.cal-cell.selected{background:rgba(255,255,255,.12);outline:1.5px solid rgba(255,255,255,.35)}
+.cal-cell.sunday .cal-num{color:#f87171}
+.cal-cell.saturday .cal-num{color:#60a5fa}
+.cal-num{font-size:14px;font-weight:600;color:#fff;width:26px;height:26px;display:flex;align-items:center;justify-content:center}
+.cal-dots{display:flex;gap:2px;justify-content:center;margin-top:2px;min-height:6px}
+.cal-dot{width:5px;height:5px;border-radius:50%}
+.cal-total{font-size:9px;font-weight:700;color:rgba(255,255,255,.5);margin-top:1px}
+
+/* day panel */
+.day-panel{background:var(--bg);min-height:calc(100vh - 52px - env(safe-area-inset-top,0))}
+.day-title{font-size:14px;font-weight:700;color:var(--sl700);padding:12px 16px 6px;display:flex;align-items:center;justify-content:space-between}
+.day-title span{color:var(--sl400);font-size:12px;font-weight:500}
+
+/* timeline */
+.timeline{padding:0 16px 100px}
+.time-slot{display:flex;gap:10px;min-height:52px;position:relative}
+.time-slot:not(:last-child)::after{content:'';position:absolute;left:38px;top:52px;width:1px;height:calc(100% - 52px + 4px);background:var(--sl200)}
+.ts-time{width:38px;padding-top:12px;font-size:11px;font-weight:600;color:var(--sl400);text-align:right;flex-shrink:0}
+.ts-body{flex:1;padding:6px 0}
+.ts-count-badge{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:20px;font-size:12px;font-weight:700;margin-bottom:5px}
+.ts-count-0{background:var(--sl100);color:var(--sl400)}
+.ts-count-low{background:#fef9c3;color:#854d0e}
+.ts-count-mid{background:#fef3c7;color:#92400e}
+.ts-count-high{background:#dcfce7;color:#166534}
+.ts-count-full{background:#bbf7d0;color:#14532d}
+.ts-entries{display:flex;flex-direction:column;gap:4px}
+.ts-entry{display:flex;align-items:center;gap:7px;padding:5px 10px;border-radius:var(--rs);border:1px solid var(--sl200);background:var(--white);cursor:pointer}
+.ts-entry:active{background:var(--sl50)}
+.ts-entry-ava{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;flex-shrink:0}
+.ts-entry-info{flex:1;min-width:0}
+.ts-entry-coach{font-size:12px;font-weight:700;color:var(--sl700)}
+.ts-entry-detail{font-size:11px;color:var(--sl400);overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.ts-entry-count{font-size:13px;font-weight:800;color:var(--sl700);flex-shrink:0}
+.ts-add-btn{display:flex;align-items:center;gap:5px;padding:5px 10px;border-radius:var(--rs);border:1.5px dashed var(--sl300);background:transparent;color:var(--sl400);font-size:12px;font-weight:600;cursor:pointer;width:100%}
+.ts-add-btn:active{background:var(--sl100)}
+
+/* FAB */
+.fab{position:fixed;bottom:calc(16px + env(safe-area-inset-bottom,0));right:16px;height:52px;border-radius:26px;border:none;background:var(--sl800);color:#fff;font-size:14px;font-weight:700;padding:0 20px;cursor:pointer;display:flex;align-items:center;gap:8px;box-shadow:0 4px 14px rgba(0,0,0,.22);z-index:50;transition:.15s}
+.fab:active{transform:scale(.95)}
+
+/* modal */
+.overlay{display:none;position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.5);align-items:flex-end}
+.overlay.open{display:flex}
+.sheet{background:#fff;border-radius:20px 20px 0 0;padding:16px 16px calc(16px + env(safe-area-inset-bottom,0));width:100%;max-height:88vh;overflow-y:auto;animation:su .22s ease}
+@keyframes su{from{transform:translateY(100%)}to{transform:none}}
+.sheet-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.sheet-title{font-size:17px;font-weight:800;color:var(--sl900)}
+.sheet-close{background:none;border:none;font-size:20px;color:var(--sl400);cursor:pointer}
+
+/* form */
+.fg{margin-bottom:12px}
+.fl{display:block;font-size:11px;font-weight:700;color:var(--sl500);text-transform:uppercase;letter-spacing:.05em;margin-bottom:5px}
+.fi{width:100%;height:44px;border:1.5px solid var(--sl300);border-radius:var(--rs);padding:0 12px;font-size:15px;color:var(--sl900);background:var(--sl50)}
+.fi:focus{outline:none;border-color:var(--sl700);background:#fff}
+.fta{width:100%;border:1.5px solid var(--sl300);border-radius:var(--rs);padding:9px 12px;font-size:14px;color:var(--sl900);background:var(--sl50);min-height:70px;resize:vertical;line-height:1.65;font-family:inherit}
+.fta:focus{outline:none;border-color:var(--sl700);background:#fff}
+.fsel{width:100%;height:46px;border:1.5px solid var(--sl300);border-radius:var(--rs);padding:0 12px;font-size:15px;color:var(--sl900);background:var(--sl50);-webkit-appearance:none;appearance:none;cursor:pointer}
+.fsel:focus{outline:none;border-color:var(--sl700)}
+.btn{height:48px;border-radius:var(--rs);border:none;font-size:15px;font-weight:700;cursor:pointer;width:100%;display:flex;align-items:center;justify-content:center;gap:7px;transition:.15s}
+.btn:active{opacity:.8}
+.btn:disabled{opacity:.4;pointer-events:none}
+.btn-dark{background:var(--sl800);color:#fff}
+.btn-red{background:var(--red);color:#fff}
+
+/* count stepper */
+.stepper{display:flex;align-items:center;gap:12px}
+.step-btn{width:40px;height:40px;border-radius:50%;border:1.5px solid var(--sl300);background:var(--sl50);font-size:22px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--sl700);flex-shrink:0}
+.step-btn:active{background:var(--sl200)}
+.step-num{font-size:28px;font-weight:800;color:var(--sl900);min-width:48px;text-align:center}
+.step-label{font-size:12px;color:var(--sl400)}
+
+/* time picker */
+.time-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.time-chip{padding:9px 4px;border-radius:var(--rs);border:1.5px solid var(--sl300);font-size:13px;font-weight:600;text-align:center;cursor:pointer;background:var(--sl50);color:var(--sl600);transition:.1s}
+.time-chip.selected{background:var(--sl800);color:#fff;border-color:var(--sl800)}
+.time-chip:active{background:var(--sl200)}
+
+/* toast */
+#toast{position:fixed;bottom:calc(70px + env(safe-area-inset-bottom,0));left:50%;transform:translateX(-50%) translateY(16px);background:var(--sl800);color:#fff;padding:9px 18px;border-radius:10px;font-size:13px;font-weight:600;opacity:0;transition:.2s;z-index:999;pointer-events:none;white-space:nowrap}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* detail modal */
+.detail-row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--sl100);font-size:14px}
+.detail-row:last-child{border-bottom:none}
+.detail-label{color:var(--sl500)}
+.detail-val{font-weight:600;color:var(--sl800)}
+</style>
+</head>
+<body>
+
+<!-- coach select -->
+<div id="s-select" class="screen active">
+  <div class="sel-wrap">
+    <div class="sel-logo">FMC 行事曆</div>
+    <div class="sel-sub">請選擇你的名字</div>
+    <div class="coach-grid" id="coach-grid"></div>
+  </div>
+</div>
+
+<!-- main -->
+<div id="s-main" class="screen">
+  <div class="hdr">
+    <div class="hdr-inner">
+      <div class="hdr-title">行事曆</div>
+      <span class="coach-pill" id="main-coach-pill" onclick="switchCoach()"></span>
+    </div>
+    <div class="cal-nav">
+      <button class="cal-nav-btn" onclick="navMonth(-1)">‹</button>
+      <div class="cal-month" id="cal-month-label"></div>
+      <button class="cal-nav-btn" onclick="navMonth(1)">›</button>
+    </div>
+    <div class="cal-grid-wrap">
+      <div class="cal-dow" id="cal-dow"></div>
+      <div class="cal-grid" id="cal-grid"></div>
+    </div>
+  </div>
+  <div class="day-panel" id="day-panel">
+    <div style="text-align:center;padding:48px 20px;color:var(--sl400);font-size:14px">點選日期查看課表</div>
+  </div>
+  <button class="fab" id="main-fab" style="display:none" onclick="openAddModal()">＋ 新增課程</button>
+</div>
+
+<!-- entry detail modal -->
+<div class="overlay" id="modal-detail">
+  <div class="sheet">
+    <div class="sheet-hd">
+      <div class="sheet-title" id="detail-modal-title">課程詳情</div>
+      <button class="sheet-close" onclick="closeModal('modal-detail')">✕</button>
+    </div>
+    <div id="detail-modal-body"></div>
+    <div style="display:flex;gap:8px;margin-top:14px" id="detail-modal-actions"></div>
+  </div>
+</div>
+
+<!-- add/edit modal -->
+<div class="overlay" id="modal-add">
+  <div class="sheet">
+    <div class="sheet-hd">
+      <div class="sheet-title" id="add-modal-title">新增課程</div>
+      <button class="sheet-close" onclick="closeModal('modal-add')">✕</button>
+    </div>
+    <div class="fg">
+      <label class="fl">時段</label>
+      <div class="time-grid" id="time-chips"></div>
+    </div>
+    <div class="fg">
+      <label class="fl">上課人數</label>
+      <div class="stepper">
+        <button class="step-btn" onclick="stepCount(-1)">－</button>
+        <div>
+          <div class="step-num" id="step-num">1</div>
+          <div class="step-label" style="text-align:center">人</div>
+        </div>
+        <button class="step-btn" onclick="stepCount(1)">＋</button>
+      </div>
+    </div>
+    <div class="fg">
+      <label class="fl">備註（選填）</label>
+      <textarea class="fta" id="add-note" placeholder="課程內容、特殊說明…"></textarea>
+    </div>
+    <button class="btn btn-dark" id="add-save-btn" onclick="saveEntry()">💾 儲存</button>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+<script>
+var firebaseConfig = {
+  apiKey: "AIzaSyDucRW7PkE3yQUqq3k9a2qG3c47dMY9Dio",
+  authDomain: "fmc-gym.firebaseapp.com",
+  databaseURL: "https://fmc-gym-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "fmc-gym",
+  storageBucket: "fmc-gym.firebasestorage.app",
+  messagingSenderId: "17890543331",
+  appId: "1:17890543331:web:a714475fc7a584286a27d6"
+};
+firebase.initializeApp(firebaseConfig);
+var db = firebase.database();
+
+var COACHES = [
+  { id:'shian',  name:'Shian',  color:'#f59e0b' },
+  { id:'sherry', name:'Sherry', color:'#ec4899' },
+  { id:'apple',  name:'Apple',  color:'#10b981' },
+  { id:'yoyo',   name:'Yoyo',   color:'#06b6d4' },
+  { id:'dolly',  name:'Dolly',  color:'#8b5cf6' },
+  { id:'elly',   name:'Elly',   color:'#ef4444' },
+  { id:'jay',    name:'Jay',    color:'#3b82f6' },
+  { id:'jenny',  name:'Jenny',  color:'#f97316' },
+];
+
+var TIME_SLOTS = [
+  '07:00','08:00','09:00','10:00','11:00','12:00',
+  '13:00','14:00','15:00','16:00','17:00','18:00',
+  '19:00','20:00','21:00','22:00'
+];
+
+var currentCoach = null;
+var viewYear, viewMonth; // 0-indexed month
+var selectedDate = null; // 'YYYY-MM-DD'
+var dayData = {};  // { 'YYYY-MM-DD': { entryId: {...} } }
+var monthListener = null;
+var dayListener = null;
+var addCount = 1;
+var addTime = '09:00';
+var editingId = null;
+
+// ── INIT ──
+window.onload = function() {
+  var saved = localStorage.getItem('fmc-sched-coach');
+  buildCoachGrid();
+  var now = new Date();
+  viewYear = now.getFullYear(); viewMonth = now.getMonth();
+  if (saved) { currentCoach = saved; enterMain(); }
+};
+
+function buildCoachGrid() {
+  var g = document.getElementById('coach-grid');
+  g.innerHTML = COACHES.map(function(c) {
+    return '<div class="coach-btn" onclick="selectCoach(\''+c.id+'\')">'
+      + '<div class="coach-ava" style="background:'+c.color+'25;color:'+c.color+'">'+c.name[0]+'</div>'
+      + '<div class="coach-name">'+c.name+'</div></div>';
+  }).join('');
+}
+
+function selectCoach(id) {
+  currentCoach = id;
+  localStorage.setItem('fmc-sched-coach', id);
+  enterMain();
+}
+
+function switchCoach() {
+  if (confirm('切換教練？')) {
+    localStorage.removeItem('fmc-sched-coach');
+    currentCoach = null; selectedDate = null;
+    showScreen('s-select');
+  }
+}
+
+function coachById(id) { return COACHES.find(function(c){ return c.id===id; }) || { name: id, color:'#94a3b8' }; }
+
+function enterMain() {
+  var c = coachById(currentCoach);
+  document.getElementById('main-coach-pill').textContent = c.name;
+  showScreen('s-main');
+  renderCal();
+  subscribeMonth();
+}
+
+// ── CALENDAR ──
+function navMonth(dir) {
+  viewMonth += dir;
+  if (viewMonth < 0) { viewMonth = 11; viewYear--; }
+  if (viewMonth > 11) { viewMonth = 0; viewYear++; }
+  selectedDate = null;
+  document.getElementById('main-fab').style.display = 'none';
+  document.getElementById('day-panel').innerHTML = '<div style="text-align:center;padding:48px 20px;color:var(--sl400);font-size:14px">點選日期查看課表</div>';
+  renderCal();
+  subscribeMonth();
+}
+
+function renderCal() {
+  var months = ['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'];
+  document.getElementById('cal-month-label').textContent = viewYear + ' 年 ' + months[viewMonth];
+  var dows = ['日','一','二','三','四','五','六'];
+  document.getElementById('cal-dow').innerHTML = dows.map(function(d){ return '<div class="cal-dow-cell">'+d+'</div>'; }).join('');
+  var first = new Date(viewYear, viewMonth, 1).getDay();
+  var daysInMonth = new Date(viewYear, viewMonth+1, 0).getDate();
+  var today = new Date(); var todayStr = fmtDate(today);
+  var html = '';
+  for (var i = 0; i < first; i++) {
+    var prev = new Date(viewYear, viewMonth, -first+i+1);
+    html += '<div class="cal-cell other-month"><div class="cal-num">'+prev.getDate()+'</div></div>';
+  }
+  for (var d = 1; d <= daysInMonth; d++) {
+    var dt = new Date(viewYear, viewMonth, d);
+    var ds = fmtDate(dt);
+    var dow = dt.getDay();
+    var cls = 'cal-cell';
+    if (ds === todayStr) cls += ' today';
+    if (ds === selectedDate) cls += ' selected';
+    if (dow === 0) cls += ' sunday';
+    if (dow === 6) cls += ' saturday';
+    var dots = ''; var total = 0;
+    var entries = dayData[ds] || {};
+    Object.values(entries).forEach(function(e) { total += (e.count||0); });
+    var coaches = {};
+    Object.values(entries).forEach(function(e) { if (e.coach) coaches[e.coach] = true; });
+    var coachList = Object.keys(coaches).slice(0,3);
+    dots = coachList.map(function(cid) { return '<div class="cal-dot" style="background:'+coachById(cid).color+'"></div>'; }).join('');
+    var totalLabel = total > 0 ? total+'人' : '';
+    html += '<div class="'+cls+'" onclick="selectDate(\''+ds+'\')">'
+      + '<div class="cal-num">'+d+'</div>'
+      + '<div class="cal-dots">'+dots+'</div>'
+      + (totalLabel ? '<div class="cal-total">'+totalLabel+'</div>' : '')
+      + '</div>';
+  }
+  document.getElementById('cal-grid').innerHTML = html;
+}
+
+function subscribeMonth() {
+  var prefix = viewYear + '-' + String(viewMonth+1).padStart(2,'0');
+  if (monthListener) monthListener();
+  dayData = {};
+  monthListener = db.ref('schedule').orderByKey()
+    .startAt(prefix+'-01').endAt(prefix+'-31')
+    .on('value', function(snap) {
+      dayData = {};
+      snap.forEach(function(d) {
+        var entries = {};
+        d.forEach(function(e) { entries[e.key] = e.val(); });
+        dayData[d.key] = entries;
+      });
+      renderCal();
+      if (selectedDate) renderDay(selectedDate);
+    }, function(){});
+}
+
+function selectDate(ds) {
+  selectedDate = ds;
+  renderCal();
+  renderDay(ds);
+  document.getElementById('main-fab').style.display = 'flex';
+}
+
+function renderDay(ds) {
+  var parts = ds.split('-');
+  var dt = new Date(parseInt(parts[0]), parseInt(parts[1])-1, parseInt(parts[2]));
+  var weekdays = ['日','一','二','三','四','五','六'];
+  var title = parts[1]+'月'+parts[2]+'日（'+weekdays[dt.getDay()]+'）';
+  var entries = dayData[ds] || {};
+  var byTime = {};
+  Object.keys(entries).forEach(function(id) {
+    var e = entries[id]; var t = e.time || '00:00';
+    if (!byTime[t]) byTime[t] = [];
+    byTime[t].push({ id: id, data: e });
+  });
+  var totalDay = 0;
+  Object.values(entries).forEach(function(e){ totalDay += (e.count||0); });
+  var html = '<div class="day-title">'+title+'<span>共 '+totalDay+' 人次</span></div><div class="timeline">';
+  TIME_SLOTS.forEach(function(t) {
+    var items = byTime[t] || [];
+    var total = items.reduce(function(s,x){ return s+(x.data.count||0); }, 0);
+    var badgeCls = total === 0 ? 'ts-count-0' : total <= 2 ? 'ts-count-low' : total <= 4 ? 'ts-count-mid' : total <= 7 ? 'ts-count-high' : 'ts-count-full';
+    var badgeText = total === 0 ? '空' : total + ' 人';
+    html += '<div class="time-slot">'
+      + '<div class="ts-time">'+t+'</div>'
+      + '<div class="ts-body">'
+      + '<div class="ts-count-badge '+badgeCls+'">'+badgeText+'</div>'
+      + '<div class="ts-entries">';
+    items.forEach(function(item) {
+      var e = item.data; var c = coachById(e.coach);
+      html += '<div class="ts-entry" onclick="openEntryDetail(\''+item.id+'\',\''+ds+'\')">'
+        + '<div class="ts-entry-ava" style="background:'+c.color+'25;color:'+c.color+'">'+c.name[0]+'</div>'
+        + '<div class="ts-entry-info">'
+        + '<div class="ts-entry-coach">'+c.name+'</div>'
+        + (e.note ? '<div class="ts-entry-detail">'+esc(e.note)+'</div>' : '')
+        + '</div>'
+        + '<div class="ts-entry-count">'+( e.count||0)+'人</div>'
+        + '</div>';
+    });
+    html += '</div></div></div>';
+  });
+  html += '</div>';
+  document.getElementById('day-panel').innerHTML = html;
+}
+
+// ── ENTRY DETAIL ──
+function openEntryDetail(entryId, ds) {
+  var entries = dayData[ds] || {};
+  var e = entries[entryId];
+  if (!e) return;
+  var c = coachById(e.coach);
+  document.getElementById('detail-modal-title').textContent = e.time + '　' + c.name;
+  var html = '<div style="background:var(--sl50);border-radius:var(--rs);padding:12px 14px;border:1px solid var(--sl200);margin-bottom:12px">'
+    + '<div class="detail-row"><span class="detail-label">教練</span><span class="detail-val" style="color:'+c.color+'">'+c.name+'</span></div>'
+    + '<div class="detail-row"><span class="detail-label">時段</span><span class="detail-val">'+e.time+'</span></div>'
+    + '<div class="detail-row"><span class="detail-label">上課人數</span><span class="detail-val">'+( e.count||0)+' 人</span></div>'
+    + (e.note ? '<div class="detail-row"><span class="detail-label">備註</span><span class="detail-val" style="max-width:60%;text-align:right">'+esc(e.note)+'</span></div>' : '')
+    + '</div>';
+  document.getElementById('detail-modal-body').innerHTML = html;
+  var actionsHtml = '';
+  if (e.coach === currentCoach) {
+    actionsHtml = '<button class="btn btn-dark" style="flex:1" onclick="openEditEntry(\''+entryId+'\',\''+ds+'\')">✏️ 編輯</button>'
+      + '<button class="btn btn-red" style="flex:1" onclick="deleteEntry(\''+entryId+'\',\''+ds+'\')">刪除</button>';
+  }
+  document.getElementById('detail-modal-actions').innerHTML = actionsHtml;
+  openModal('modal-detail');
+}
+
+function openEditEntry(entryId, ds) {
+  var entries = dayData[ds] || {};
+  var e = entries[entryId];
+  if (!e) return;
+  editingId = entryId;
+  addCount = e.count || 1;
+  addTime = e.time || '09:00';
+  document.getElementById('add-modal-title').textContent = '✏️ 編輯課程';
+  document.getElementById('add-note').value = e.note || '';
+  document.getElementById('step-num').textContent = addCount;
+  buildTimeChips();
+  closeModal('modal-detail');
+  openModal('modal-add');
+}
+
+function deleteEntry(entryId, ds) {
+  if (!confirm('確定刪除這堂課？')) return;
+  db.ref('schedule/'+ds+'/'+entryId).remove(function(err) {
+    if (err) { showToast('刪除失敗'); return; }
+    showToast('已刪除');
+    closeModal('modal-detail');
+  });
+}
+
+// ── ADD / EDIT ──
+function openAddModal() {
+  if (!selectedDate) { showToast('請先選擇日期'); return; }
+  editingId = null;
+  addCount = 1; addTime = '09:00';
+  document.getElementById('add-modal-title').textContent = '＋ 新增課程';
+  document.getElementById('add-note').value = '';
+  document.getElementById('step-num').textContent = '1';
+  buildTimeChips();
+  openModal('modal-add');
+}
+
+function buildTimeChips() {
+  document.getElementById('time-chips').innerHTML = TIME_SLOTS.map(function(t) {
+    return '<div class="time-chip'+(t===addTime?' selected':'')+'" onclick="selectTime(\''+t+'\')">'+t+'</div>';
+  }).join('');
+}
+
+function selectTime(t) {
+  addTime = t;
+  document.querySelectorAll('.time-chip').forEach(function(el) {
+    el.classList.toggle('selected', el.textContent === t);
+  });
+}
+
+function stepCount(dir) {
+  addCount = Math.max(1, Math.min(30, addCount + dir));
+  document.getElementById('step-num').textContent = addCount;
+}
+
+function saveEntry() {
+  if (!selectedDate) return;
+  var btn = document.getElementById('add-save-btn');
+  btn.disabled = true; btn.textContent = '儲存中…';
+  var data = {
+    coach: currentCoach,
+    time: addTime,
+    count: addCount,
+    note: document.getElementById('add-note').value.trim(),
+    createdAt: Date.now()
+  };
+  var ref;
+  if (editingId) {
+    ref = db.ref('schedule/'+selectedDate+'/'+editingId);
+    ref.update(data, function(err) {
+      btn.disabled = false; btn.textContent = '💾 儲存';
+      if (err) { showToast('儲存失敗'); return; }
+      showToast('已更新'); closeModal('modal-add'); editingId = null;
+    });
+  } else {
+    ref = db.ref('schedule/'+selectedDate).push();
+    ref.set(data, function(err) {
+      btn.disabled = false; btn.textContent = '💾 儲存';
+      if (err) { showToast('儲存失敗'); return; }
+      showToast('已新增'); closeModal('modal-add');
+    });
+  }
+}
+
+// ── UTILS ──
+function fmtDate(d) {
+  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+}
+function esc(s) {
+  return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(function(el){ el.classList.remove('active'); });
+  document.getElementById(id).classList.add('active');
+}
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+document.querySelectorAll('.overlay').forEach(function(el) {
+  el.addEventListener('click', function(e) { if (e.target===el) el.classList.remove('open'); });
+});
+function showToast(msg) {
+  var t = document.getElementById('toast'); t.textContent = msg;
+  t.classList.add('show'); setTimeout(function(){ t.classList.remove('show'); }, 2200);
+}
+</script>
+</body>
+</html>
