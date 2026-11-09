@@ -166,15 +166,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang TC','Microsoft Jheng
 </head>
 <body>
 
-<!-- loading -->
-<div id="s-loading" class="screen active">
-  <div class="load-logo">FMC 開會分享</div>
-  <div class="load-sub">載入中…</div>
-  <div class="spin"></div>
-</div>
-
 <!-- coach select -->
-<div id="s-select" class="screen">
+<div id="s-select" class="screen active">
   <div class="select-wrap">
     <div class="select-logo">FMC 開會分享</div>
     <div class="select-sub">請選擇你的名字進入</div>
@@ -316,19 +309,12 @@ var currentEntryId = null;
 window.onload = function() {
   var saved = localStorage.getItem('fmc-meeting-coach');
   buildCoachGrid();
-  db.ref('meeting').once('value', function() {
-    showScreen('s-loading', false);
-    if (saved) {
-      currentCoach = saved;
-      enterFeed();
-    } else {
-      showScreen('s-select');
-    }
-  }, function() {
-    showScreen('s-loading', false);
-    if (saved) { currentCoach = saved; enterFeed(); }
-    else showScreen('s-select');
-  });
+  if (saved) {
+    currentCoach = saved;
+    enterFeed();
+  } else {
+    showScreen('s-select');
+  }
 };
 
 function buildCoachGrid() {
