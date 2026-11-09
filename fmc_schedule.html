@@ -131,10 +131,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang TC','Microsoft Jheng
 .step-label{font-size:12px;color:var(--sl400)}
 
 /* time picker */
-.time-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
-.time-chip{padding:9px 4px;border-radius:var(--rs);border:1.5px solid var(--sl300);font-size:13px;font-weight:600;text-align:center;cursor:pointer;background:var(--sl50);color:var(--sl600);transition:.1s}
+.time-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:5px}
+.time-chip{padding:7px 2px;border-radius:8px;border:1.5px solid var(--sl300);font-size:12px;font-weight:600;text-align:center;cursor:pointer;background:var(--sl50);color:var(--sl600);transition:.1s;user-select:none}
 .time-chip.selected{background:var(--sl800);color:#fff;border-color:var(--sl800)}
-.time-chip:active{background:var(--sl200)}
+.time-chip:active{transform:scale(.95)}
 
 /* toast */
 #toast{position:fixed;bottom:calc(70px + env(safe-area-inset-bottom,0));left:50%;transform:translateX(-50%) translateY(16px);background:var(--sl800);color:#fff;padding:9px 18px;border-radius:10px;font-size:13px;font-weight:600;opacity:0;transition:.2s;z-index:999;pointer-events:none;white-space:nowrap}
@@ -201,7 +201,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang TC','Microsoft Jheng
       <button class="sheet-close" onclick="closeModal('modal-add')">✕</button>
     </div>
     <div class="fg">
-      <label class="fl">時段</label>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:5px">
+        <label class="fl" style="margin:0">時段</label>
+        <span id="time-sel-count" style="font-size:12px;font-weight:600;color:var(--blue)"></span>
+      </div>
       <div class="time-grid" id="time-chips"></div>
     </div>
     <div class="fg">
@@ -252,9 +255,10 @@ var COACHES = [
 ];
 
 var TIME_SLOTS = [
-  '07:00','08:00','09:00','10:00','11:00','12:00',
-  '13:00','14:00','15:00','16:00','17:00','18:00',
-  '19:00','20:00','21:00','22:00'
+  '07:00','07:30','08:00','08:30','09:00','09:30','10:00','10:30',
+  '11:00','11:30','12:00','12:30','13:00','13:30','14:00','14:30',
+  '15:00','15:30','16:00','16:30','17:00','17:30','18:00','18:30',
+  '19:00','19:30','20:00','20:30','21:00','21:30','22:00','22:30'
 ];
 
 var currentCoach = null;
@@ -264,8 +268,9 @@ var dayData = {};  // { 'YYYY-MM-DD': { entryId: {...} } }
 var monthListener = null;
 var dayListener = null;
 var addCount = 1;
-var addTime = '09:00';
+var addTimes = [];
 var editingId = null;
+var editMode = false;
 
 // ── INIT ──
 window.onload = function() {
@@ -455,8 +460,9 @@ function openEditEntry(entryId, ds) {
   var e = entries[entryId];
   if (!e) return;
   editingId = entryId;
+  editMode = true;
   addCount = e.count || 1;
-  addTime = e.time || '09:00';
+  addTimes = [e.time || '09:00'];
   document.getElementById('add-modal-title').textContent = '✏️ 編輯課程';
   document.getElementById('add-note').value = e.note || '';
   document.getElementById('step-num').textContent = addCount;
@@ -478,7 +484,9 @@ function deleteEntry(entryId, ds) {
 function openAddModal() {
   if (!selectedDate) { showToast('請先選擇日期'); return; }
   editingId = null;
-  addCount = 1; addTime = '09:00';
+  editMode = false;
+  addCount = 1;
+  addTimes = [];
   document.getElementById('add-modal-title').textContent = '＋ 新增課程';
   document.getElementById('add-note').value = '';
   document.getElementById('step-num').textContent = '1';
@@ -487,16 +495,21 @@ function openAddModal() {
 }
 
 function buildTimeChips() {
+  var count = addTimes.length;
+  document.getElementById('time-sel-count').textContent = count > 0 ? '已選 ' + count + ' 個' : (editMode ? '' : '可複選');
   document.getElementById('time-chips').innerHTML = TIME_SLOTS.map(function(t) {
-    return '<div class="time-chip'+(t===addTime?' selected':'')+'" onclick="selectTime(\''+t+'\')">'+t+'</div>';
+    return '<div class="time-chip'+(addTimes.indexOf(t) !== -1 ? ' selected' : '')+'" onclick="selectTime(\''+t+'\')">'+t+'</div>';
   }).join('');
 }
 
 function selectTime(t) {
-  addTime = t;
-  document.querySelectorAll('.time-chip').forEach(function(el) {
-    el.classList.toggle('selected', el.textContent === t);
-  });
+  if (editMode) {
+    addTimes = [t];
+  } else {
+    var idx = addTimes.indexOf(t);
+    if (idx === -1) { addTimes.push(t); } else { addTimes.splice(idx, 1); }
+  }
+  buildTimeChips();
 }
 
 function stepCount(dir) {
@@ -506,29 +519,33 @@ function stepCount(dir) {
 
 function saveEntry() {
   if (!selectedDate) return;
+  if (addTimes.length === 0) { showToast('請選擇至少一個時段'); return; }
   var btn = document.getElementById('add-save-btn');
   btn.disabled = true; btn.textContent = '儲存中…';
-  var data = {
-    coach: currentCoach,
-    time: addTime,
-    count: addCount,
-    note: document.getElementById('add-note').value.trim(),
-    createdAt: Date.now()
-  };
-  var ref;
+  var note = document.getElementById('add-note').value.trim();
   if (editingId) {
-    ref = db.ref('schedule/'+selectedDate+'/'+editingId);
-    ref.update(data, function(err) {
+    var data = { coach: currentCoach, time: addTimes[0], count: addCount, note: note, createdAt: Date.now() };
+    db.ref('schedule/'+selectedDate+'/'+editingId).update(data, function(err) {
       btn.disabled = false; btn.textContent = '💾 儲存';
       if (err) { showToast('儲存失敗'); return; }
-      showToast('已更新'); closeModal('modal-add'); editingId = null;
+      showToast('已更新'); closeModal('modal-add'); editingId = null; editMode = false;
     });
   } else {
-    ref = db.ref('schedule/'+selectedDate).push();
-    ref.set(data, function(err) {
-      btn.disabled = false; btn.textContent = '💾 儲存';
-      if (err) { showToast('儲存失敗'); return; }
-      showToast('已新增'); closeModal('modal-add');
+    var pending = addTimes.length;
+    var hasError = false;
+    var timesSnap = addTimes.slice();
+    timesSnap.forEach(function(t) {
+      var data = { coach: currentCoach, time: t, count: addCount, note: note, createdAt: Date.now() };
+      db.ref('schedule/'+selectedDate).push(data, function(err) {
+        if (err) hasError = true;
+        pending--;
+        if (pending === 0) {
+          btn.disabled = false; btn.textContent = '💾 儲存';
+          if (hasError) { showToast('部分儲存失敗'); return; }
+          showToast('已新增 '+timesSnap.length+' 個時段');
+          closeModal('modal-add');
+        }
+      });
     });
   }
 }
