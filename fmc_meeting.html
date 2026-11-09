@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>FMC 開會分享</title>
+<style>
+:root{
+  --bg:#f1f5f9;--white:#fff;
+  --sl50:#f8fafc;--sl100:#f1f5f9;--sl200:#e2e8f0;--sl300:#cbd5e1;
+  --sl400:#94a3b8;--sl500:#64748b;--sl600:#475569;--sl700:#334155;--sl800:#1e293b;--sl900:#0f172a;
+  --green:#16a34a;--green-bg:#f0fdf4;--green-b:#bbf7d0;
+  --blue:#2563eb;--blue-bg:#eff6ff;--blue-b:#bfdbfe;
+  --purple:#7c3aed;--purple-bg:#f5f3ff;--purple-b:#ddd6fe;
+  --amber:#d97706;--amber-bg:#fffbeb;--amber-b:#fde68a;
+  --red:#dc2626;--red-bg:#fef2f2;--red-b:#fecaca;
+  --r:14px;--rs:10px;
+  --shadow:0 1px 3px rgba(0,0,0,.08),0 1px 2px rgba(0,0,0,.05);
+  --shadow-md:0 4px 6px rgba(0,0,0,.08);
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;background:var(--bg)}
+body{font-family:-apple-system,BlinkMacSystemFont,'PingFang TC','Microsoft JhengHei',sans-serif;color:var(--sl900)}
+
+/* screens */
+.screen{display:none;min-height:100%;overflow-y:auto}
+.screen.active{display:block}
+
+/* loading */
+#s-loading{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;background:var(--sl800);gap:14px}
+.load-logo{font-size:26px;font-weight:800;color:#fff;letter-spacing:-.5px}
+.load-sub{font-size:12px;color:rgba(255,255,255,.4)}
+.spin{width:26px;height:26px;border:3px solid rgba(255,255,255,.2);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* header */
+.hdr{position:sticky;top:0;z-index:100;background:var(--sl800);padding:env(safe-area-inset-top,0) 0 0}
+.hdr-inner{height:52px;display:flex;align-items:center;gap:10px;padding:0 16px}
+.hdr-title{font-size:16px;font-weight:700;color:#fff;flex:1}
+.hdr-back{background:none;border:none;color:rgba(255,255,255,.7);font-size:24px;cursor:pointer;padding:4px;line-height:1}
+.hdr-action{background:none;border:none;color:rgba(255,255,255,.75);font-size:13px;font-weight:600;cursor:pointer;padding:6px 10px;border-radius:8px;white-space:nowrap}
+.hdr-action:active{background:rgba(255,255,255,.1)}
+.hdr-action.red{color:var(--red-bg)}
+.coach-pill{background:rgba(255,255,255,.12);color:rgba(255,255,255,.85);font-size:12px;font-weight:700;padding:4px 10px;border-radius:20px;border:1px solid rgba(255,255,255,.18);cursor:pointer}
+
+/* coach select */
+#s-select{background:var(--sl800)}
+.select-wrap{padding:32px 20px 32px;padding-top:calc(32px + env(safe-area-inset-top,0))}
+.select-logo{font-size:24px;font-weight:800;color:#fff;margin-bottom:4px}
+.select-sub{font-size:13px;color:rgba(255,255,255,.45);margin-bottom:28px}
+.coach-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.coach-btn{
+  background:rgba(255,255,255,.08);border:1.5px solid rgba(255,255,255,.12);
+  border-radius:var(--r);padding:16px 12px;cursor:pointer;transition:.12s;
+  display:flex;flex-direction:column;align-items:center;gap:6px;
+}
+.coach-btn:active{background:rgba(255,255,255,.18);transform:scale(.97)}
+.coach-avatar{width:46px;height:46px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:800;color:var(--sl800);flex-shrink:0}
+.coach-name{font-size:15px;font-weight:700;color:#fff}
+
+/* feed */
+.feed-tabs{display:flex;background:var(--sl800);padding:0 16px}
+.ftab{flex:1;padding:9px 0;font-size:13px;font-weight:600;color:rgba(255,255,255,.4);text-align:center;border-bottom:2px solid transparent;cursor:pointer;transition:.15s}
+.ftab.active{color:#fff;border-bottom-color:#fff}
+.filter-row{display:flex;gap:6px;padding:10px 16px;overflow-x:auto;scrollbar-width:none;background:var(--sl800)}
+.filter-row::-webkit-scrollbar{display:none}
+.f-chip{padding:5px 12px;border-radius:20px;border:1.5px solid rgba(255,255,255,.18);font-size:12px;font-weight:600;color:rgba(255,255,255,.5);cursor:pointer;white-space:nowrap;transition:.12s}
+.f-chip.active{background:#fff;color:var(--sl800);border-color:#fff}
+
+/* cards */
+.content{padding:12px 14px 80px}
+.card{background:var(--white);border-radius:var(--r);border:1px solid var(--sl200);box-shadow:var(--shadow);overflow:hidden;margin-bottom:10px;cursor:pointer;transition:box-shadow .15s}
+.card:active{box-shadow:var(--shadow-md)}
+.card-top{padding:12px 14px 10px;display:flex;gap:10px;align-items:flex-start}
+.card-ava{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;flex-shrink:0}
+.card-meta{flex:1;min-width:0}
+.card-coach{font-size:13px;font-weight:700;color:var(--sl700)}
+.card-date{font-size:11px;color:var(--sl400);margin-top:1px}
+.card-type-badge{font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;white-space:nowrap}
+.badge-case{background:var(--blue-bg);color:var(--blue);border:1px solid var(--blue-b)}
+.badge-topic{background:var(--purple-bg);color:var(--purple);border:1px solid var(--purple-b)}
+.card-title{font-size:15px;font-weight:700;color:var(--sl900);padding:0 14px 6px;line-height:1.3}
+.card-desc{font-size:13px;color:var(--sl500);padding:0 14px 10px;line-height:1.6;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.card-media-row{display:flex;gap:5px;padding:0 14px 12px;overflow-x:auto;scrollbar-width:none}
+.card-media-row::-webkit-scrollbar{display:none}
+.card-media-thumb{width:60px;height:60px;border-radius:8px;object-fit:cover;flex-shrink:0;border:1px solid var(--sl200)}
+.card-media-thumb-v{position:relative;width:60px;height:60px;flex-shrink:0}
+.card-media-thumb-v video{width:60px;height:60px;border-radius:8px;object-fit:cover;border:1px solid var(--sl200)}
+.card-media-thumb-v span{position:absolute;bottom:3px;right:3px;background:rgba(0,0,0,.6);color:#fff;font-size:9px;font-weight:700;padding:1px 4px;border-radius:4px}
+.card-footer{padding:8px 14px 10px;border-top:1px solid var(--sl100);display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.tag-pill{font-size:11px;padding:2px 8px;border-radius:20px;border:1px solid var(--sl200);color:var(--sl500);background:var(--sl50)}
+
+/* fab */
+.fab-wrap{position:fixed;bottom:calc(16px + env(safe-area-inset-bottom,0));right:16px;display:flex;flex-direction:column;gap:9px;z-index:50}
+.fab{height:48px;border-radius:24px;border:none;cursor:pointer;display:flex;align-items:center;gap:8px;padding:0 18px;font-size:13px;font-weight:700;box-shadow:0 4px 12px rgba(0,0,0,.2);transition:.15s;white-space:nowrap}
+.fab:active{transform:scale(.95)}
+.fab-case{background:var(--blue);color:#fff}
+.fab-topic{background:var(--purple);color:#fff}
+
+/* modal */
+.overlay{display:none;position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.5);align-items:flex-end}
+.overlay.open{display:flex}
+.sheet{background:#fff;border-radius:20px 20px 0 0;padding:16px 16px calc(16px + env(safe-area-inset-bottom,0));width:100%;max-height:92vh;overflow-y:auto;animation:su .22s ease}
+@keyframes su{from{transform:translateY(100%)}to{transform:none}}
+.sheet-title{font-size:17px;font-weight:800;color:var(--sl900);margin-bottom:14px;display:flex;align-items:center;justify-content:space-between}
+.sheet-close{background:none;border:none;font-size:20px;color:var(--sl400);cursor:pointer;line-height:1}
+
+/* form */
+.fg{margin-bottom:12px}
+.fl{display:block;font-size:11px;font-weight:700;color:var(--sl500);text-transform:uppercase;letter-spacing:.05em;margin-bottom:5px}
+.fi{width:100%;height:44px;border:1.5px solid var(--sl300);border-radius:var(--rs);padding:0 12px;font-size:15px;color:var(--sl900);background:var(--sl50)}
+.fi:focus{outline:none;border-color:var(--sl700);background:#fff}
+.fta{width:100%;border:1.5px solid var(--sl300);border-radius:var(--rs);padding:9px 12px;font-size:14px;color:var(--sl900);background:var(--sl50);min-height:90px;resize:vertical;line-height:1.65;font-family:inherit}
+.fta:focus{outline:none;border-color:var(--sl700);background:#fff}
+.fta-sm{min-height:60px}
+
+/* upload */
+.up-area{border:2px dashed var(--sl300);border-radius:var(--rs);padding:16px;text-align:center;cursor:pointer;background:var(--sl50)}
+.up-area:active{background:var(--sl100)}
+.up-icon{font-size:24px;margin-bottom:4px}
+.up-text{font-size:12px;color:var(--sl400)}
+.up-previews{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.up-prev-wrap{position:relative;width:72px;height:72px;border-radius:8px;overflow:hidden;border:1px solid var(--sl200)}
+.up-prev-wrap img,.up-prev-wrap video{width:100%;height:100%;object-fit:cover;display:block}
+.up-rm{position:absolute;top:2px;right:2px;width:18px;height:18px;border-radius:50%;background:rgba(0,0,0,.7);color:#fff;border:none;font-size:10px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.up-prog{font-size:12px;color:var(--sl500);text-align:center;margin-top:6px}
+
+/* btn */
+.btn{height:48px;border-radius:var(--rs);border:none;font-size:15px;font-weight:700;cursor:pointer;width:100%;display:flex;align-items:center;justify-content:center;gap:7px;transition:.15s;margin-top:4px}
+.btn:active{opacity:.8}
+.btn:disabled{opacity:.4;pointer-events:none}
+.btn-blue{background:var(--blue);color:#fff}
+.btn-purple{background:var(--purple);color:#fff}
+.btn-outline{background:#fff;color:var(--sl700);border:1.5px solid var(--sl300)}
+
+/* detail screen */
+.detail-banner{background:var(--sl800);padding:14px 16px}
+.detail-banner-type{font-size:11px;font-weight:700;color:rgba(255,255,255,.45);text-transform:uppercase;letter-spacing:.07em;margin-bottom:4px}
+.detail-banner-title{font-size:20px;font-weight:800;color:#fff;line-height:1.25}
+.detail-banner-meta{font-size:12px;color:rgba(255,255,255,.45);margin-top:5px}
+.dcontent{padding:14px 14px 40px}
+.dsec{background:#fff;border-radius:var(--r);border:1px solid var(--sl200);box-shadow:var(--shadow);overflow:hidden;margin-bottom:10px}
+.dsec-hd{padding:9px 14px;background:var(--sl50);border-bottom:1px solid var(--sl200);font-size:12px;font-weight:700;color:var(--sl600);text-transform:uppercase;letter-spacing:.05em}
+.dsec-body{padding:12px 14px}
+.dtext{font-size:14px;color:var(--sl700);line-height:1.75;white-space:pre-wrap}
+.media-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.mthumb{position:relative;aspect-ratio:1;border-radius:8px;overflow:hidden;cursor:pointer}
+.mthumb img,.mthumb video{width:100%;height:100%;object-fit:cover;display:block}
+.mthumb .vbadge{position:absolute;bottom:4px;right:4px;background:rgba(0,0,0,.65);color:#fff;font-size:9px;font-weight:700;padding:1px 5px;border-radius:4px}
+
+/* empty */
+.empty{text-align:center;padding:48px 20px;color:var(--sl400)}
+.empty-icon{font-size:40px;margin-bottom:10px}
+.empty-t{font-size:14px}
+
+/* lightbox */
+#lb{display:none;position:fixed;inset:0;z-index:500;background:rgba(0,0,0,.93);align-items:center;justify-content:center}
+#lb.open{display:flex}
+#lb img,#lb video{max-width:95vw;max-height:85vh;border-radius:8px}
+#lb-x{position:absolute;top:calc(14px + env(safe-area-inset-top,0));right:14px;background:none;border:none;color:#fff;font-size:28px;cursor:pointer}
+
+/* toast */
+#toast{position:fixed;bottom:calc(70px + env(safe-area-inset-bottom,0));left:50%;transform:translateX(-50%) translateY(16px);background:var(--sl800);color:#fff;padding:9px 18px;border-radius:10px;font-size:13px;font-weight:600;opacity:0;transition:.2s;z-index:999;pointer-events:none;white-space:nowrap}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+</style>
+</head>
+<body>
+
+<!-- loading -->
+<div id="s-loading" class="screen active">
+  <div class="load-logo">FMC 開會分享</div>
+  <div class="load-sub">載入中…</div>
+  <div class="spin"></div>
+</div>
+
+<!-- coach select -->
+<div id="s-select" class="screen">
+  <div class="select-wrap">
+    <div class="select-logo">FMC 開會分享</div>
+    <div class="select-sub">請選擇你的名字進入</div>
+    <div class="coach-grid" id="coach-grid"></div>
+  </div>
+</div>
+
+<!-- feed -->
+<div id="s-feed" class="screen">
+  <div class="hdr">
+    <div class="hdr-inner">
+      <div class="hdr-title">開會分享</div>
+      <span class="coach-pill" id="feed-coach-pill" onclick="switchCoach()"></span>
+    </div>
+    <div class="feed-tabs">
+      <div class="ftab active" id="ftab-all" onclick="setFeedTab('all')">全部</div>
+      <div class="ftab" id="ftab-case" onclick="setFeedTab('case')">學生個案</div>
+      <div class="ftab" id="ftab-topic" onclick="setFeedTab('topic')">分享主題</div>
+    </div>
+    <div class="filter-row" id="filter-row"></div>
+  </div>
+  <div class="content" id="feed-list"></div>
+  <div class="fab-wrap" id="fab-wrap">
+    <button class="fab fab-topic" onclick="openTopicModal()">🎯 新增分享主題</button>
+    <button class="fab fab-case" onclick="openCaseModal()">👤 新增學生個案</button>
+  </div>
+</div>
+
+<!-- detail -->
+<div id="s-detail" class="screen">
+  <div class="hdr">
+    <div class="hdr-inner">
+      <button class="hdr-back" onclick="goBack()">‹</button>
+      <div class="hdr-title" id="detail-hdr-title">詳細內容</div>
+      <button class="hdr-action red" id="detail-del-btn" onclick="deleteEntry()" style="display:none">刪除</button>
+    </div>
+  </div>
+  <div class="detail-banner">
+    <div class="detail-banner-type" id="detail-type-label"></div>
+    <div class="detail-banner-title" id="detail-main-title"></div>
+    <div class="detail-banner-meta" id="detail-meta"></div>
+  </div>
+  <div class="dcontent" id="detail-content"></div>
+</div>
+
+<!-- modal: 學生個案 -->
+<div class="overlay" id="modal-case">
+  <div class="sheet">
+    <div class="sheet-title">
+      <span>👤 學生個案</span>
+      <button class="sheet-close" onclick="closeModal('modal-case')">✕</button>
+    </div>
+    <div class="fg"><label class="fl">學生姓名 / 代稱</label><input class="fi" id="c-name" type="text" placeholder="例：A同學、王小明"></div>
+    <div class="fg"><label class="fl">個案描述</label><textarea class="fta" id="c-desc" placeholder="背景、主訴、來訓目的…"></textarea></div>
+    <div class="fg"><label class="fl">評估</label><textarea class="fta" id="c-assess" placeholder="動作評估結果、功能性問題…"></textarea></div>
+    <div class="fg"><label class="fl">策略介入</label><textarea class="fta" id="c-strategy" placeholder="選用的介入方式、動作模式調整…"></textarea></div>
+    <div class="fg"><label class="fl">討論與結果</label><textarea class="fta" id="c-result" placeholder="討論重點、結果觀察、下一步…"></textarea></div>
+    <div class="fg">
+      <label class="fl">照片 / 影片（最多 4 個）</label>
+      <input type="file" id="c-files" accept="image/*,video/*" multiple style="display:none" onchange="handleFiles('c',this)">
+      <div class="up-area" onclick="document.getElementById('c-files').click()">
+        <div class="up-icon">📎</div><div class="up-text">點擊上傳照片或影片</div>
+      </div>
+      <div class="up-previews" id="c-previews"></div>
+      <div class="up-prog" id="c-prog"></div>
+    </div>
+    <button class="btn btn-blue" id="c-save-btn" onclick="saveCase()">💾 儲存個案</button>
+  </div>
+</div>
+
+<!-- modal: 分享主題 -->
+<div class="overlay" id="modal-topic">
+  <div class="sheet">
+    <div class="sheet-title">
+      <span>🎯 分享主題</span>
+      <button class="sheet-close" onclick="closeModal('modal-topic')">✕</button>
+    </div>
+    <div class="fg"><label class="fl">主題標題</label><input class="fi" id="t-title" type="text" placeholder="例：單側跑步訓練思路"></div>
+    <div class="fg"><label class="fl">主題描述</label><textarea class="fta" id="t-desc" placeholder="內容說明、重點整理…"></textarea></div>
+    <div class="fg">
+      <label class="fl">照片 / 影片（最多 4 個）</label>
+      <input type="file" id="t-files" accept="image/*,video/*" multiple style="display:none" onchange="handleFiles('t',this)">
+      <div class="up-area" onclick="document.getElementById('t-files').click()">
+        <div class="up-icon">📎</div><div class="up-text">點擊上傳照片或影片</div>
+      </div>
+      <div class="up-previews" id="t-previews"></div>
+      <div class="up-prog" id="t-prog"></div>
+    </div>
+    <button class="btn btn-purple" id="t-save-btn" onclick="saveTopic()">💾 儲存主題</button>
+  </div>
+</div>
+
+<!-- lightbox -->
+<div id="lb">
+  <button id="lb-x" onclick="closeLB()">✕</button>
+  <img id="lb-img" src="" style="display:none" alt="">
+  <video id="lb-vid" src="" controls style="display:none"></video>
+</div>
+
+<div id="toast"></div>
+
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+<script>
+var CLOUDINARY_CLOUD = 'ykzlgchn';
+var CLOUDINARY_PRESET = 'ml_default';
+
+var COACHES = [
+  { id:'shian',  name:'Shian',  color:'#f59e0b' },
+  { id:'sherry', name:'Sherry', color:'#ec4899' },
+  { id:'apple',  name:'Apple',  color:'#10b981' },
+  { id:'yoyo',   name:'Yoyo',   color:'#06b6d4' },
+  { id:'dolly',  name:'Dolly',  color:'#8b5cf6' },
+  { id:'elly',   name:'Elly',   color:'#ef4444' },
+  { id:'jay',    name:'Jay',    color:'#3b82f6' },
+  { id:'jenny',  name:'Jenny',  color:'#f97316' },
+];
+
+var firebaseConfig = {
+  apiKey: "AIzaSyDucRW7PkE3yQUqq3k9a2qG3c47dMY9Dio",
+  authDomain: "fmc-gym.firebaseapp.com",
+  databaseURL: "https://fmc-gym-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "fmc-gym",
+  storageBucket: "fmc-gym.firebasestorage.app",
+  messagingSenderId: "17890543331",
+  appId: "1:17890543331:web:a714475fc7a584286a27d6"
+};
+firebase.initializeApp(firebaseConfig);
+var db = firebase.database();
+
+var currentCoach = null;
+var feedTab = 'all';
+var filterCoach = '';
+var allEntries = [];
+var pendingUploads = { c: [], t: [] };
+var currentEntryId = null;
+
+// ── INIT ──
+window.onload = function() {
+  var saved = localStorage.getItem('fmc-meeting-coach');
+  buildCoachGrid();
+  db.ref('meeting').once('value', function() {
+    showScreen('s-loading', false);
+    if (saved) {
+      currentCoach = saved;
+      enterFeed();
+    } else {
+      showScreen('s-select');
+    }
+  }, function() {
+    showScreen('s-loading', false);
+    if (saved) { currentCoach = saved; enterFeed(); }
+    else showScreen('s-select');
+  });
+};
+
+function buildCoachGrid() {
+  var g = document.getElementById('coach-grid');
+  g.innerHTML = COACHES.map(function(c) {
+    return '<div class="coach-btn" onclick="selectCoach(\''+c.id+'\')">'
+      + '<div class="coach-avatar" style="background:'+c.color+'20;border:2px solid '+c.color+'40;color:'+c.color+'">'+c.name[0]+'</div>'
+      + '<div class="coach-name">'+c.name+'</div>'
+      + '</div>';
+  }).join('');
+}
+
+function selectCoach(id) {
+  currentCoach = id;
+  localStorage.setItem('fmc-meeting-coach', id);
+  enterFeed();
+}
+
+function switchCoach() {
+  if (confirm('切換教練？')) {
+    localStorage.removeItem('fmc-meeting-coach');
+    currentCoach = null;
+    showScreen('s-select');
+  }
+}
+
+function enterFeed() {
+  var c = coachById(currentCoach);
+  document.getElementById('feed-coach-pill').textContent = c ? c.name : currentCoach;
+  buildFilterRow();
+  subscribeEntries();
+  showScreen('s-feed');
+}
+
+function coachById(id) { return COACHES.find(function(c){ return c.id===id; }) || null; }
+function coachColor(id) { var c = coachById(id); return c ? c.color : '#94a3b8'; }
+function coachName(id) { var c = coachById(id); return c ? c.name : id; }
+
+// ── FILTER / TABS ──
+function buildFilterRow() {
+  var row = document.getElementById('filter-row');
+  var html = '<div class="f-chip active" id="fc-all" onclick="setFilterCoach(\'\')">全部</div>';
+  COACHES.forEach(function(c) {
+    html += '<div class="f-chip" id="fc-'+c.id+'" onclick="setFilterCoach(\''+c.id+'\')">'+c.name+'</div>';
+  });
+  row.innerHTML = html;
+}
+
+function setFeedTab(tab) {
+  feedTab = tab;
+  ['all','case','topic'].forEach(function(t) {
+    document.getElementById('ftab-'+t).classList.toggle('active', t===tab);
+  });
+  renderFeed();
+}
+
+function setFilterCoach(id) {
+  filterCoach = id;
+  document.querySelectorAll('.f-chip').forEach(function(el){ el.classList.remove('active'); });
+  document.getElementById('fc-'+(id||'all')).classList.add('active');
+  renderFeed();
+}
+
+// ── FIREBASE SUBSCRIBE ──
+function subscribeEntries() {
+  db.ref('meeting').orderByChild('createdAt').on('value', function(snap) {
+    allEntries = [];
+    snap.forEach(function(c){ allEntries.push({ id: c.key, data: c.val() }); });
+    allEntries.reverse();
+    renderFeed();
+  });
+}
+
+// ── RENDER FEED ──
+function renderFeed() {
+  var list = allEntries.filter(function(e) {
+    if (feedTab === 'case' && e.data.type !== 'case') return false;
+    if (feedTab === 'topic' && e.data.type !== 'topic') return false;
+    if (filterCoach && e.data.coach !== filterCoach) return false;
+    return true;
+  });
+  var el = document.getElementById('feed-list');
+  if (!list.length) {
+    el.innerHTML = '<div class="empty"><div class="empty-icon">🗒️</div><div class="empty-t">還沒有內容，趕快新增！</div></div>';
+    return;
+  }
+  el.innerHTML = list.map(function(e){ return renderCard(e); }).join('');
+}
+
+function renderCard(e) {
+  var d = e.data;
+  var color = coachColor(d.coach);
+  var isCase = d.type === 'case';
+  var title = isCase ? (d.name || '學生個案') : (d.title || '分享主題');
+  var desc = isCase ? (d.desc || '') : (d.topicDesc || '');
+  var media = d.media || [];
+  var mediaHtml = '';
+  if (media.length) {
+    mediaHtml = '<div class="card-media-row">';
+    media.slice(0, 4).forEach(function(m) {
+      if (m.type === 'video') {
+        mediaHtml += '<div class="card-media-thumb-v"><video src="'+m.url+'" muted playsinline preload="metadata"></video><span>▶</span></div>';
+      } else {
+        mediaHtml += '<img class="card-media-thumb" src="'+m.url+'" loading="lazy" alt="">';
+      }
+    });
+    mediaHtml += '</div>';
+  }
+  var tagsHtml = '';
+  if (isCase) {
+    var tags = [];
+    if (d.assess) tags.push('評估');
+    if (d.strategy) tags.push('策略介入');
+    if (d.result) tags.push('討論結果');
+    if (tags.length) tagsHtml = '<div class="card-footer">'+tags.map(function(t){ return '<span class="tag-pill">'+t+'</span>'; }).join('')+'</div>';
+  }
+  return '<div class="card" onclick="openDetail(\''+e.id+'\')">'
+    + '<div class="card-top">'
+    +   '<div class="card-ava" style="background:'+color+'20;border:1.5px solid '+color+'40;color:'+color+'">'+coachName(d.coach)[0]+'</div>'
+    +   '<div class="card-meta"><div class="card-coach">'+coachName(d.coach)+'</div><div class="card-date">'+fmtDate(d.createdAt)+'</div></div>'
+    +   '<span class="card-type-badge '+(isCase?'badge-case':'badge-topic')+'">'+(isCase?'學生個案':'分享主題')+'</span>'
+    + '</div>'
+    + '<div class="card-title">'+esc(title)+'</div>'
+    + (desc ? '<div class="card-desc">'+esc(desc)+'</div>' : '')
+    + mediaHtml
+    + tagsHtml
+    + '</div>';
+}
+
+// ── DETAIL ──
+function openDetail(id) {
+  var e = allEntries.find(function(x){ return x.id === id; });
+  if (!e) return;
+  currentEntryId = id;
+  var d = e.data;
+  var isCase = d.type === 'case';
+  document.getElementById('detail-hdr-title').textContent = isCase ? '學生個案' : '分享主題';
+  document.getElementById('detail-type-label').textContent = isCase ? '學生個案' : '分享主題';
+  document.getElementById('detail-main-title').textContent = isCase ? (d.name || '學生個案') : (d.title || '分享主題');
+  document.getElementById('detail-meta').textContent = coachName(d.coach) + '　' + fmtDate(d.createdAt);
+  document.getElementById('detail-del-btn').style.display = d.coach === currentCoach ? 'block' : 'none';
+  var html = '';
+  var media = d.media || [];
+  if (media.length) {
+    html += '<div class="dsec"><div class="dsec-hd">照片 / 影片</div><div class="dsec-body"><div class="media-grid">';
+    media.forEach(function(m) {
+      if (m.type === 'video') {
+        html += '<div class="mthumb" onclick="openLB(\'video\',\''+m.url+'\')">'
+          + '<video src="'+m.url+'" muted playsinline preload="metadata"></video>'
+          + '<span class="vbadge">▶</span></div>';
+      } else {
+        html += '<div class="mthumb" onclick="openLB(\'image\',\''+m.url+'\')">'
+          + '<img src="'+m.url+'" loading="lazy" alt=""></div>';
+      }
+    });
+    html += '</div></div></div>';
+  }
+  if (isCase) {
+    var secs = [
+      { key:'desc', label:'個案描述' },
+      { key:'assess', label:'評估' },
+      { key:'strategy', label:'策略介入' },
+      { key:'result', label:'討論與結果' }
+    ];
+    secs.forEach(function(s) {
+      if (d[s.key]) {
+        html += '<div class="dsec"><div class="dsec-hd">'+s.label+'</div><div class="dsec-body"><div class="dtext">'+esc(d[s.key])+'</div></div></div>';
+      }
+    });
+  } else {
+    if (d.topicDesc) {
+      html += '<div class="dsec"><div class="dsec-hd">主題描述</div><div class="dsec-body"><div class="dtext">'+esc(d.topicDesc)+'</div></div></div>';
+    }
+  }
+  document.getElementById('detail-content').innerHTML = html || '<div class="empty"><div class="empty-icon">📄</div><div class="empty-t">無內容</div></div>';
+  showScreen('s-detail');
+}
+
+function goBack() { showScreen('s-feed'); }
+
+function deleteEntry() {
+  if (!confirm('確定刪除這筆資料？')) return;
+  db.ref('meeting/'+currentEntryId).remove(function(err) {
+    if (err) { showToast('刪除失敗'); return; }
+    showToast('已刪除');
+    showScreen('s-feed');
+  });
+}
+
+// ── CASE FORM ──
+function openCaseModal() {
+  ['c-name','c-desc','c-assess','c-strategy','c-result'].forEach(function(id){ document.getElementById(id).value=''; });
+  pendingUploads.c = [];
+  document.getElementById('c-previews').innerHTML = '';
+  document.getElementById('c-prog').textContent = '';
+  document.getElementById('c-files').value = '';
+  openModal('modal-case');
+}
+
+async function saveCase() {
+  var name = document.getElementById('c-name').value.trim();
+  if (!name) { showToast('請填入學生姓名'); return; }
+  var btn = document.getElementById('c-save-btn');
+  btn.disabled = true; btn.textContent = pendingUploads.c.length ? '上傳中…' : '儲存中…';
+  try {
+    var media = await uploadAll('c');
+    var data = {
+      type: 'case', coach: currentCoach,
+      name: name,
+      desc: document.getElementById('c-desc').value.trim(),
+      assess: document.getElementById('c-assess').value.trim(),
+      strategy: document.getElementById('c-strategy').value.trim(),
+      result: document.getElementById('c-result').value.trim(),
+      media: media, createdAt: Date.now()
+    };
+    db.ref('meeting').push(data, function(err) {
+      btn.disabled = false; btn.textContent = '💾 儲存個案';
+      if (err) { showToast('儲存失敗'); return; }
+      showToast('個案已儲存');
+      closeModal('modal-case');
+    });
+  } catch(e) {
+    btn.disabled = false; btn.textContent = '💾 儲存個案';
+    showToast('上傳失敗，請重試');
+  }
+}
+
+// ── TOPIC FORM ──
+function openTopicModal() {
+  ['t-title','t-desc'].forEach(function(id){ document.getElementById(id).value=''; });
+  pendingUploads.t = [];
+  document.getElementById('t-previews').innerHTML = '';
+  document.getElementById('t-prog').textContent = '';
+  document.getElementById('t-files').value = '';
+  openModal('modal-topic');
+}
+
+async function saveTopic() {
+  var title = document.getElementById('t-title').value.trim();
+  if (!title) { showToast('請填入主題標題'); return; }
+  var btn = document.getElementById('t-save-btn');
+  btn.disabled = true; btn.textContent = pendingUploads.t.length ? '上傳中…' : '儲存中…';
+  try {
+    var media = await uploadAll('t');
+    var data = {
+      type: 'topic', coach: currentCoach,
+      title: title,
+      topicDesc: document.getElementById('t-desc').value.trim(),
+      media: media, createdAt: Date.now()
+    };
+    db.ref('meeting').push(data, function(err) {
+      btn.disabled = false; btn.textContent = '💾 儲存主題';
+      if (err) { showToast('儲存失敗'); return; }
+      showToast('主題已儲存');
+      closeModal('modal-topic');
+    });
+  } catch(e) {
+    btn.disabled = false; btn.textContent = '💾 儲存主題';
+    showToast('上傳失敗，請重試');
+  }
+}
+
+// ── UPLOAD ──
+function handleFiles(prefix, input) {
+  var files = Array.from(input.files);
+  var remaining = 4 - pendingUploads[prefix].length;
+  files.slice(0, remaining).forEach(function(f) {
+    pendingUploads[prefix].push({ file: f, url: URL.createObjectURL(f) });
+  });
+  if (files.length > remaining) showToast('最多 4 個媒體');
+  renderPreviews(prefix);
+  input.value = '';
+}
+
+function renderPreviews(prefix) {
+  var el = document.getElementById(prefix+'-previews');
+  el.innerHTML = pendingUploads[prefix].map(function(item, i) {
+    var isVid = item.file.type.startsWith('video/');
+    return '<div class="up-prev-wrap">'
+      + (isVid ? '<video src="'+item.url+'" muted playsinline></video>' : '<img src="'+item.url+'" alt="">')
+      + '<button class="up-rm" onclick="rmUpload(\''+prefix+'\','+i+')">✕</button>'
+      + '</div>';
+  }).join('');
+}
+
+function rmUpload(prefix, i) { pendingUploads[prefix].splice(i,1); renderPreviews(prefix); }
+
+async function uploadAll(prefix) {
+  var results = [];
+  for (var i = 0; i < pendingUploads[prefix].length; i++) {
+    document.getElementById(prefix+'-prog').textContent = '上傳 '+(i+1)+' / '+pendingUploads[prefix].length+'…';
+    var item = pendingUploads[prefix][i];
+    var r = await uploadOne(item.file);
+    results.push(r);
+  }
+  document.getElementById(prefix+'-prog').textContent = '';
+  return results;
+}
+
+function uploadOne(file) {
+  return new Promise(function(resolve, reject) {
+    var fd = new FormData();
+    fd.append('file', file);
+    fd.append('upload_preset', CLOUDINARY_PRESET);
+    var rt = file.type.startsWith('video/') ? 'video' : 'image';
+    var xhr = new XMLHttpRequest();
+    xhr.open('POST', 'https://api.cloudinary.com/v1_1/'+CLOUDINARY_CLOUD+'/'+rt+'/upload');
+    xhr.onload = function() {
+      var r = JSON.parse(xhr.responseText);
+      if (r.secure_url) resolve({ url: r.secure_url, type: rt });
+      else reject(new Error('failed'));
+    };
+    xhr.onerror = function() { reject(new Error('network')); };
+    xhr.send(fd);
+  });
+}
+
+// ── UTILS ──
+function showScreen(id, show) {
+  if (show === false) { document.getElementById(id).classList.remove('active'); return; }
+  document.querySelectorAll('.screen').forEach(function(el){ el.classList.remove('active'); });
+  document.getElementById(id).classList.add('active');
+}
+
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+document.querySelectorAll('.overlay').forEach(function(el) {
+  el.addEventListener('click', function(e) { if (e.target===el) el.classList.remove('open'); });
+});
+
+function showToast(msg) {
+  var t = document.getElementById('toast'); t.textContent = msg;
+  t.classList.add('show'); setTimeout(function(){ t.classList.remove('show'); }, 2200);
+}
+
+function fmtDate(ts) {
+  if (!ts) return '';
+  var d = new Date(ts);
+  return d.getFullYear()+'/'+String(d.getMonth()+1).padStart(2,'0')+'/'+String(d.getDate()).padStart(2,'0')
+    + ' '+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');
+}
+
+function esc(s) {
+  if (!s) return '';
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function openLB(type, url) {
+  var img = document.getElementById('lb-img'), vid = document.getElementById('lb-vid');
+  if (type==='video') { vid.src=url; vid.style.display='block'; img.style.display='none'; }
+  else { img.src=url; img.style.display='block'; vid.style.display='none'; vid.pause(); vid.src=''; }
+  document.getElementById('lb').classList.add('open');
+}
+function closeLB() {
+  document.getElementById('lb').classList.remove('open');
+  var v = document.getElementById('lb-vid'); v.pause(); v.src='';
+}
+</script>
+</body>
+</html>
