@@ -202,6 +202,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang TC','Microsoft Jheng
     <div class="hdr-inner">
       <button class="hdr-back" onclick="goBack()">‹</button>
       <div class="hdr-title" id="detail-hdr-title">詳細內容</div>
+      <button class="hdr-action" id="detail-edit-btn" onclick="openEditModal()" style="display:none">編輯</button>
       <button class="hdr-action red" id="detail-del-btn" onclick="deleteEntry()" style="display:none">刪除</button>
     </div>
   </div>
@@ -217,7 +218,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang TC','Microsoft Jheng
 <div class="overlay" id="modal-case">
   <div class="sheet">
     <div class="sheet-title">
-      <span>👤 學生個案</span>
+      <span id="c-modal-title">👤 學生個案</span>
       <button class="sheet-close" onclick="closeModal('modal-case')">✕</button>
     </div>
     <div class="fg"><label class="fl">學生姓名 / 代稱</label><input class="fi" id="c-name" type="text" placeholder="例：A同學、王小明"></div>
@@ -242,7 +243,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang TC','Microsoft Jheng
 <div class="overlay" id="modal-topic">
   <div class="sheet">
     <div class="sheet-title">
-      <span>🎯 分享主題</span>
+      <span id="t-modal-title">🎯 分享主題</span>
       <button class="sheet-close" onclick="closeModal('modal-topic')">✕</button>
     </div>
     <div class="fg"><label class="fl">主題標題</label><input class="fi" id="t-title" type="text" placeholder="例：單側跑步訓練思路"></div>
@@ -303,7 +304,9 @@ var feedTab = 'all';
 var filterCoach = '';
 var allEntries = [];
 var pendingUploads = { c: [], t: [] };
+var existingMedia = { c: [], t: [] };
 var currentEntryId = null;
+var editingEntryId = null;
 
 // ── INIT ──
 window.onload = function() {
@@ -455,7 +458,9 @@ function openDetail(id) {
   document.getElementById('detail-type-label').textContent = isCase ? '學生個案' : '分享主題';
   document.getElementById('detail-main-title').textContent = isCase ? (d.name || '學生個案') : (d.title || '分享主題');
   document.getElementById('detail-meta').textContent = coachName(d.coach) + '　' + fmtDate(d.createdAt);
-  document.getElementById('detail-del-btn').style.display = d.coach === currentCoach ? 'block' : 'none';
+  var isMine = d.coach === currentCoach;
+  document.getElementById('detail-edit-btn').style.display = isMine ? 'block' : 'none';
+  document.getElementById('detail-del-btn').style.display = isMine ? 'block' : 'none';
   var html = '';
   var media = d.media || [];
   if (media.length) {
@@ -504,13 +509,75 @@ function deleteEntry() {
   });
 }
 
+// ── EDIT ──
+function openEditModal() {
+  var e = allEntries.find(function(x){ return x.id === currentEntryId; });
+  if (!e) return;
+  var d = e.data;
+  editingEntryId = currentEntryId;
+  if (d.type === 'case') {
+    document.getElementById('c-modal-title').textContent = '✏️ 編輯學生個案';
+    document.getElementById('c-name').value = d.name || '';
+    document.getElementById('c-desc').value = d.desc || '';
+    document.getElementById('c-assess').value = d.assess || '';
+    document.getElementById('c-strategy').value = d.strategy || '';
+    document.getElementById('c-result').value = d.result || '';
+    pendingUploads.c = [];
+    existingMedia.c = d.media || [];
+    renderExistingMedia('c');
+    document.getElementById('c-prog').textContent = '';
+    document.getElementById('c-files').value = '';
+    document.getElementById('c-save-btn').textContent = '💾 儲存修改';
+    openModal('modal-case');
+  } else {
+    document.getElementById('t-modal-title').textContent = '✏️ 編輯分享主題';
+    document.getElementById('t-title').value = d.title || '';
+    document.getElementById('t-desc').value = d.topicDesc || '';
+    pendingUploads.t = [];
+    existingMedia.t = d.media || [];
+    renderExistingMedia('t');
+    document.getElementById('t-prog').textContent = '';
+    document.getElementById('t-files').value = '';
+    document.getElementById('t-save-btn').textContent = '💾 儲存修改';
+    openModal('modal-topic');
+  }
+}
+
+function renderExistingMedia(prefix) {
+  var el = document.getElementById(prefix+'-previews');
+  var existing = existingMedia[prefix].map(function(m, i) {
+    var isVid = m.type === 'video';
+    return '<div class="up-prev-wrap" style="position:relative">'
+      + (isVid ? '<video src="'+m.url+'" muted playsinline></video>' : '<img src="'+m.url+'" alt="">')
+      + '<button class="up-rm" onclick="rmExisting(\''+prefix+'\','+i+')" style="background:rgba(220,38,38,.8)">✕</button>'
+      + '</div>';
+  }).join('');
+  var pending = pendingUploads[prefix].map(function(item, i) {
+    var isVid = item.file.type.startsWith('video/');
+    return '<div class="up-prev-wrap">'
+      + (isVid ? '<video src="'+item.url+'" muted playsinline></video>' : '<img src="'+item.url+'" alt="">')
+      + '<button class="up-rm" onclick="rmUpload(\''+prefix+'\','+i+')">✕</button>'
+      + '</div>';
+  }).join('');
+  el.innerHTML = existing + pending;
+}
+
+function rmExisting(prefix, i) {
+  existingMedia[prefix].splice(i, 1);
+  renderExistingMedia(prefix);
+}
+
 // ── CASE FORM ──
 function openCaseModal() {
+  editingEntryId = null;
+  existingMedia.c = [];
+  document.getElementById('c-modal-title').textContent = '👤 學生個案';
   ['c-name','c-desc','c-assess','c-strategy','c-result'].forEach(function(id){ document.getElementById(id).value=''; });
   pendingUploads.c = [];
   document.getElementById('c-previews').innerHTML = '';
   document.getElementById('c-prog').textContent = '';
   document.getElementById('c-files').value = '';
+  document.getElementById('c-save-btn').textContent = '💾 儲存個案';
   openModal('modal-case');
 }
 
@@ -520,7 +587,8 @@ async function saveCase() {
   var btn = document.getElementById('c-save-btn');
   btn.disabled = true; btn.textContent = pendingUploads.c.length ? '上傳中…' : '儲存中…';
   try {
-    var media = await uploadAll('c');
+    var newMedia = await uploadAll('c');
+    var media = existingMedia.c.concat(newMedia);
     var data = {
       type: 'case', coach: currentCoach,
       name: name,
@@ -528,27 +596,43 @@ async function saveCase() {
       assess: document.getElementById('c-assess').value.trim(),
       strategy: document.getElementById('c-strategy').value.trim(),
       result: document.getElementById('c-result').value.trim(),
-      media: media, createdAt: Date.now()
+      media: media
     };
-    db.ref('meeting').push(data, function(err) {
-      btn.disabled = false; btn.textContent = '💾 儲存個案';
-      if (err) { showToast('儲存失敗'); return; }
-      showToast('個案已儲存');
-      closeModal('modal-case');
-    });
+    var isEdit = !!editingEntryId;
+    var ref = isEdit ? db.ref('meeting/'+editingEntryId) : db.ref('meeting').push();
+    if (isEdit) {
+      var orig = allEntries.find(function(x){ return x.id===editingEntryId; });
+      if (orig) { data.createdAt = orig.data.createdAt; data.updatedAt = Date.now(); }
+      ref.update(data, function(err) {
+        btn.disabled = false; btn.textContent = '💾 儲存修改';
+        if (err) { showToast('儲存失敗'); return; }
+        showToast('已更新'); closeModal('modal-case'); openDetail(editingEntryId); editingEntryId=null;
+      });
+    } else {
+      data.createdAt = Date.now();
+      ref.set(data, function(err) {
+        btn.disabled = false; btn.textContent = '💾 儲存個案';
+        if (err) { showToast('儲存失敗'); return; }
+        showToast('個案已儲存'); closeModal('modal-case');
+      });
+    }
   } catch(e) {
-    btn.disabled = false; btn.textContent = '💾 儲存個案';
+    btn.disabled = false;
     showToast('上傳失敗：' + e.message);
   }
 }
 
 // ── TOPIC FORM ──
 function openTopicModal() {
+  editingEntryId = null;
+  existingMedia.t = [];
+  document.getElementById('t-modal-title').textContent = '🎯 分享主題';
   ['t-title','t-desc'].forEach(function(id){ document.getElementById(id).value=''; });
   pendingUploads.t = [];
   document.getElementById('t-previews').innerHTML = '';
   document.getElementById('t-prog').textContent = '';
   document.getElementById('t-files').value = '';
+  document.getElementById('t-save-btn').textContent = '💾 儲存主題';
   openModal('modal-topic');
 }
 
@@ -558,21 +642,34 @@ async function saveTopic() {
   var btn = document.getElementById('t-save-btn');
   btn.disabled = true; btn.textContent = pendingUploads.t.length ? '上傳中…' : '儲存中…';
   try {
-    var media = await uploadAll('t');
+    var newMedia = await uploadAll('t');
+    var media = existingMedia.t.concat(newMedia);
     var data = {
       type: 'topic', coach: currentCoach,
       title: title,
       topicDesc: document.getElementById('t-desc').value.trim(),
-      media: media, createdAt: Date.now()
+      media: media
     };
-    db.ref('meeting').push(data, function(err) {
-      btn.disabled = false; btn.textContent = '💾 儲存主題';
-      if (err) { showToast('儲存失敗'); return; }
-      showToast('主題已儲存');
-      closeModal('modal-topic');
-    });
+    var isEdit = !!editingEntryId;
+    var ref = isEdit ? db.ref('meeting/'+editingEntryId) : db.ref('meeting').push();
+    if (isEdit) {
+      var orig = allEntries.find(function(x){ return x.id===editingEntryId; });
+      if (orig) { data.createdAt = orig.data.createdAt; data.updatedAt = Date.now(); }
+      ref.update(data, function(err) {
+        btn.disabled = false; btn.textContent = '💾 儲存修改';
+        if (err) { showToast('儲存失敗'); return; }
+        showToast('已更新'); closeModal('modal-topic'); openDetail(editingEntryId); editingEntryId=null;
+      });
+    } else {
+      data.createdAt = Date.now();
+      ref.set(data, function(err) {
+        btn.disabled = false; btn.textContent = '💾 儲存主題';
+        if (err) { showToast('儲存失敗'); return; }
+        showToast('主題已儲存'); closeModal('modal-topic');
+      });
+    }
   } catch(e) {
-    btn.disabled = false; btn.textContent = '💾 儲存主題';
+    btn.disabled = false;
     showToast('上傳失敗：' + e.message);
   }
 }
@@ -590,14 +687,7 @@ function handleFiles(prefix, input) {
 }
 
 function renderPreviews(prefix) {
-  var el = document.getElementById(prefix+'-previews');
-  el.innerHTML = pendingUploads[prefix].map(function(item, i) {
-    var isVid = item.file.type.startsWith('video/');
-    return '<div class="up-prev-wrap">'
-      + (isVid ? '<video src="'+item.url+'" muted playsinline></video>' : '<img src="'+item.url+'" alt="">')
-      + '<button class="up-rm" onclick="rmUpload(\''+prefix+'\','+i+')">✕</button>'
-      + '</div>';
-  }).join('');
+  renderExistingMedia(prefix);
 }
 
 function rmUpload(prefix, i) { pendingUploads[prefix].splice(i,1); renderPreviews(prefix); }
