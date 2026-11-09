@@ -538,7 +538,7 @@ async function saveCase() {
     });
   } catch(e) {
     btn.disabled = false; btn.textContent = '💾 儲存個案';
-    showToast('上傳失敗，請重試');
+    showToast('上傳失敗：' + e.message);
   }
 }
 
@@ -573,7 +573,7 @@ async function saveTopic() {
     });
   } catch(e) {
     btn.disabled = false; btn.textContent = '💾 儲存主題';
-    showToast('上傳失敗，請重試');
+    showToast('上傳失敗：' + e.message);
   }
 }
 
@@ -623,11 +623,17 @@ function uploadOne(file) {
     var xhr = new XMLHttpRequest();
     xhr.open('POST', 'https://api.cloudinary.com/v1_1/'+CLOUDINARY_CLOUD+'/'+rt+'/upload');
     xhr.onload = function() {
-      var r = JSON.parse(xhr.responseText);
-      if (r.secure_url) resolve({ url: r.secure_url, type: rt });
-      else reject(new Error('failed'));
+      try {
+        var r = JSON.parse(xhr.responseText);
+        if (r.secure_url) {
+          resolve({ url: r.secure_url, type: rt });
+        } else {
+          var msg = (r.error && r.error.message) ? r.error.message : JSON.stringify(r);
+          reject(new Error(msg));
+        }
+      } catch(e) { reject(new Error('回應解析失敗')); }
     };
-    xhr.onerror = function() { reject(new Error('network')); };
+    xhr.onerror = function() { reject(new Error('網路錯誤')); };
     xhr.send(fd);
   });
 }
