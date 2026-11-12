@@ -915,10 +915,10 @@ function renderAssessView(d) {
   var gptJ = sum.gptJudge || sum.gpt || '';
   var sopMap = {L:'左承重',R:'右承重',CL:'混亂左側化',CR:'混亂右側化',PEC:'雙邊 Pec'};
   var gptMap2 = {L:'左承重',R:'右承重',PEC:'雙邊 pec'};
-  var combinedText = { 'typical-L':'✅ 典型左承重', 'typical-R':'✅ 典型右承重', 'confused-L':'⚠️ 混亂左承重（SOP左 × GPT右）', 'confused-R':'⚠️ 混亂右承重（SOP右 × GPT左）' }[sum.combined] || '';
+  var combinedText = { 'typical-L':'✅ 典型左承重', 'typical-R':'✅ 典型右承重', 'confused-R':'⚠️ 混亂右承重（SOP左 × GPT右）', 'confused-L':'⚠️ 混亂左承重（SOP右 × GPT左）' }[sum.combined] || '';
   if (!combinedText && sopJ && gptJ) {
     if (sopJ === gptJ) combinedText = (sopJ==='L'?'✅ 典型左承重':'✅ 典型右承重');
-    else combinedText = (sopJ==='L'?'⚠️ 混亂左承重（SOP左 × GPT右）':'⚠️ 混亂右承重（SOP右 × GPT左）');
+    else combinedText = (gptJ==='R'?'⚠️ 混亂右承重（SOP左 × GPT右）':'⚠️ 混亂左承重（SOP右 × GPT左）');
   }
   html += '<div class="detail-section"><div class="detail-section-hd">評估判斷</div><div class="detail-section-body">';
   html += '<div class="detail-row"><span class="detail-label">SOP 判斷</span><span class="detail-val '+(sopJ==='L'?'left':sopJ==='R'?'right':'')+'">'+( sopMap[sopJ]||'—')+'</span></div>';
@@ -1242,10 +1242,10 @@ function atAutoJudge() {
     text = '✅ 典型'+dir+'承重';
     color = '#6ee7b7'; bg = 'rgba(16,185,129,.18)'; border = '#10b981';
   } else if (sop === 'L' && gpt === 'R') {
-    text = '⚠️ 混亂左承重　（SOP左 × GPT右）';
+    text = '⚠️ 混亂右承重　（SOP左 × GPT右）';
     color = '#fbbf24'; bg = 'rgba(245,158,11,.15)'; border = '#f59e0b';
   } else {
-    text = '⚠️ 混亂右承重　（SOP右 × GPT左）';
+    text = '⚠️ 混亂左承重　（SOP右 × GPT左）';
     color = '#fbbf24'; bg = 'rgba(245,158,11,.15)'; border = '#f59e0b';
   }
   res.textContent = text;
@@ -1318,7 +1318,7 @@ function collectAssessData() {
   var combined = '';
   if (sop && gpt) {
     if (sop === gpt) combined = sop === 'L' ? 'typical-L' : 'typical-R';
-    else combined = sop === 'L' ? 'confused-L' : 'confused-R';
+    else combined = gpt === 'R' ? 'confused-R' : 'confused-L';
   }
   return {
     tests: tests,
