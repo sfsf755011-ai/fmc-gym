@@ -159,8 +159,8 @@ body::before {
 
 <div class="section-tabs">
   <button class="active" onclick="showSection('supine',this)">A. 仰臥技術</button>
-  <button onclick="showSection('sidelying',this)">B. 側臥技術（即將新增）</button>
-  <button onclick="showSection('upright',this)">C. 直立技術（即將新增）</button>
+  <button onclick="showSection('sidelying',this)">B. 側臥技術</button>
+  <button onclick="showSection('upright',this)">C. 直立技術</button>
 </div>
 
 <!-- ===== SECTION A: SUPINE ===== -->
@@ -1046,13 +1046,1373 @@ body::before {
 
 </div><!-- end sidelying -->
 
-<!-- ===== SECTION C: UPRIGHT (placeholder) ===== -->
+<!-- ===== SECTION C: UPRIGHT ===== -->
 <div id="upright" class="panel">
-  <div class="tip-box" style="text-align:center; padding:40px;">
-    <strong>C. 直立技術</strong>（Upright Techniques）正在翻譯中，即將新增。<br>
-    包含：跪姿 G-DiRT（pp.39–54）、坐姿 G-DiRT（pp.55–60）、站姿接地（pp.61–70）、站姿 G-DiRT（pp.71–98）
+
+  <div class="sub-tabs">
+    <button class="active" onclick="showSub('up-kneeling',this,'upright')">i. 跪姿 G-DiRT</button>
+    <button onclick="showSub('up-seated',this,'upright')">ii. 坐姿 G-DiRT</button>
+    <button onclick="showSub('up-stground',this,'upright')">iii. 站姿接地</button>
+    <button onclick="showSub('up-stgdirt',this,'upright')">iv. 站姿 G-DiRT</button>
   </div>
-</div>
+
+  <!-- C.i KNEELING G-DiRT -->
+  <div id="up-kneeling" class="panel active">
+    <div class="subsection-banner">
+      <h2>C.i. 跪姿 G-DiRT 技術（Kneeling G-DiRT Techniques）</h2>
+      <p>附錄頁面 39–54｜16個動作 ｜ G-DiRT = 接地橫膈膜重置技術®</p>
+    </div>
+    <div class="tip-box">
+      📋 <strong>G-DiRT 通用設置：</strong>跪坐，腳踝下方墊一個軟墊，感受坐骨落在腳跟上，允許背部微微圓拱、頸部自然放鬆，透過鼻子呼吸。
+    </div>
+
+    <div class="ex-card">
+      <div class="ex-card-hdr noshift">
+        <div class="ex-num">跪姿 G-DiRT 雙側 No. 1 ｜ 附錄 p.39</div>
+        <div class="ex-title-zh">跪姿 G-DiRT 入門</div>
+        <div class="ex-title-en">Kneeling G-DiRT Primer</div>
+      </div>
+      <div class="ex-body">
+        <ol class="ex-steps">
+          <li>跪坐，腳踝下方墊一個軟墊，感受坐骨落在腳跟上。</li>
+          <li>允許背部微微圓拱、頸部自然放鬆下垂。</li>
+          <li>感受每次吸氣時，空氣向後背中段（mid back）擴張。</li>
+          <li>感受重量負荷於坐骨之上。</li>
+          <li>維持此姿勢約1分鐘，之後休息。</li>
+        </ol>
+        <div class="ex-checks">
+          <p>☐ 氣球（Balloon）：依動作治療師指示</p>
+          <p>☐ 視覺（Vision）：依動作治療師指示</p>
+          <p>☐ PADA：每輪中途可考慮輕咬牙合板並吞嚥一次</p>
+          <p>☐ ALF：考慮舌頭放回ALF「基底位置」並用鼻子呼吸</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="ex-card">
+      <div class="ex-card-hdr noshift">
+        <div class="ex-num">跪姿 G-DiRT 雙側 No. 2 ｜ 附錄 p.40</div>
+        <div class="ex-title-zh">跪姿 G-DiRT 入門搭配左臂伸展轉向</div>
+        <div class="ex-title-en">Kneeling G-DiRT Primer with Left Arm Reach Turn</div>
+      </div>
+      <div class="ex-body">
+        <ol class="ex-steps">
+          <li>跪坐，腳踝下方墊一個軟墊，背部後方放置枕頭支撐。</li>
+          <li>允許背部微微圓拱。</li>
+          <li><strong>左臂</strong>向前伸展，同時將胸廓向右轉動，使<strong>右側腹肌收縮</strong>，右側肩膀自然降低。</li>
+          <li>完全呼氣後暫停3–5秒。</li>
+          <li>按照治療師的指示重複。</li>
+        </ol>
+        <div class="ex-checks">
+          <p>☐ 視覺（Vision）：依動作治療師指示</p>
+          <p>☐ PADA：每輪中途可考慮輕咬牙合板並吞嚥一次</p>
+          <p>☐ ALF：考慮舌頭放回ALF「基底位置」並用鼻子呼吸</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="ex-card">
+      <div class="ex-card-hdr noshift">
+        <div class="ex-num">跪姿 G-DiRT 雙側 No. 3 ｜ 附錄 p.41</div>
+        <div class="ex-title-zh">跪姿 G-DiRT 入門搭配右臂伸展轉向</div>
+        <div class="ex-title-en">Kneeling G-DiRT Primer with Right Arm Reach Turn</div>
+      </div>
+      <div class="ex-body">
+        <ol class="ex-steps">
+          <li>跪坐，腳踝下方墊一個軟墊，背部後方放置枕頭支撐。</li>
+          <li>允許背部微微圓拱。</li>
+          <li><strong>右臂</strong>向前伸展，同時將胸廓向左轉動，使<strong>左側腹肌收縮</strong>，左側肩膀自然降低。</li>
+          <li>完全呼氣後暫停3–5秒。</li>
+          <li>按照治療師的指示重複。</li>
+        </ol>
+        <div class="ex-checks">
+          <p>☐ 視覺（Vision）：依動作治療師指示</p>
+          <p>☐ PADA：每輪中途可考慮輕咬牙合板並吞嚥一次</p>
+          <p>☐ ALF：考慮舌頭放回ALF「基底位置」並用鼻子呼吸</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="ex-card">
+      <div class="ex-card-hdr noshift">
+        <div class="ex-num">跪姿 G-DiRT 雙側 No. 4 ｜ 附錄 p.42</div>
+        <div class="ex-title-zh">跪姿 G-DiRT 水平推牆</div>
+        <div class="ex-title-en">Kneeling G-DiRT Horizontal Push</div>
+      </div>
+      <div class="ex-body">
+        <ol class="ex-steps">
+          <li>面對牆壁跪坐，腳踝下方墊一個軟墊。</li>
+          <li>雙手在<strong>肩膀高度</strong>伸直抵住牆面，手臂伸展。</li>
+          <li>完全呼氣時，雙手用力推牆，肩胛骨向前展開，腹肌收縮，下肋骨向內收。</li>
+          <li>維持暫停3–5秒（不吸氣）。</li>
+          <li>按照治療師的指示重複。</li>
+        </ol>
+        <div class="ex-checks">
+          <p>☐ 視覺（Vision）：依動作治療師指示</p>
+          <p>☐ PADA：每輪中途可考慮輕咬牙合板並吞嚥一次</p>
+          <p>☐ ALF：考慮舌頭放回ALF「基底位置」並用鼻子呼吸</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="ex-card">
+      <div class="ex-card-hdr noshift">
+        <div class="ex-num">跪姿 G-DiRT 雙側 No. 5 ｜ 附錄 p.43</div>
+        <div class="ex-title-zh">跪姿 G-DiRT 上推牆</div>
+        <div class="ex-title-en">Kneeling G-DiRT Uphill Push</div>
+      </div>
+      <div class="ex-body">
+        <ol class="ex-steps">
+          <li>面對牆壁跪坐，腳踝下方墊一個軟墊。</li>
+          <li>雙手在<strong>肩膀上方約15公分</strong>伸直抵住牆面，手臂伸展。</li>
+          <li>完全呼氣時，雙手用力推牆，肩胛骨向前展開，腹肌收縮，下肋骨向內收。</li>
+          <li>維持暫停3–5秒（不吸氣）。</li>
+          <li>按照治療師的指示重複。</li>
+        </ol>
+        <div class="ex-checks">
+          <p>☐ 視覺（Vision）：依動作治療師指示</p>
+          <p>☐ PADA：每輪中途可考慮輕咬牙合板並吞嚥一次</p>
+          <p>☐ ALF：考慮舌頭放回ALF「基底位置」並用鼻子呼吸</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="ex-card">
+      <div class="ex-card-hdr gdirt-r">
+        <div class="ex-num">跪姿右半球 G-DiRT No. 1 ｜ 附錄 p.44</div>
+        <div class="ex-title-zh">跪姿右半球 G-DiRT 右臂水平推牆</div>
+        <div class="ex-title-en">Kneeling Right G-DiRT with Right Horizontal Push</div>
+      </div>
+      <div class="ex-body">
+        <ol class="ex-steps">
+          <li>跪坐，腳踝下方墊一個軟墊，將<strong>右側臀部與大腿向後移動</strong>到左腿後方，使重量更多落在<strong>右側</strong>。</li>
+          <li>右臂向前伸展，左臂微微向後；感受右側腹肌收縮、右側肩膀自然降低。</li>
+          <li>右手在肩膀高度抵住牆面。</li>
+          <li>完全呼氣時，右手用力推牆；維持暫停3–5秒。</li>
+          <li>按照治療師的指示重複。</li>
+        </ol>
+        <div class="ex-checks">
+          <p>☐ 視覺（Vision）：依動作治療師指示</p>
+          <p>☐ PADA：每輪中途可考慮輕咬牙合板並吞嚥一次</p>
+          <p>☐ ALF：考慮舌頭放回ALF「基底位置」並用鼻子呼吸</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="ex-card">
+      <div class="ex-card-hdr gdirt-r">
+        <div class="ex-num">跪姿右半球 G-DiRT No. 2 ｜ 附錄 p.45</div>
+        <div class="ex-title-zh">跪姿右半球 G-DiRT 右臂上推牆</div>
+        <div class="ex-title-en">Kneeling Right G-DiRT with Right Uphill Push</div>
+      </div>
+      <div class="ex-body">
+        <ol class="ex-steps">
+          <li>跪坐，將<strong>右側臀部與大腿向後移動</strong>到左腿後方，使重量更多落在右側。</li>
+          <li>右臂向前伸展，左臂微微向後；感受右側腹肌收縮、右側肩膀自然降低。</li>
+          <li>右手在<strong>肩膀上方約15公分</strong>抵住牆面。</li>
+          <li>完全呼氣時，右手用力推牆；維持暫停3–5秒。</li>
+          <li>按照治療師的指示重複。</li>
+        </ol>
+        <div class="ex-checks">
+          <p>☐ 視覺（Vision）：依動作治療師指示</p>
+          <p>☐ PADA：每輪中途可考慮輕咬牙合板並吞嚥一次</p>
+          <p>☐ ALF：考慮舌頭放回ALF「基底位置」並用鼻子呼吸</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="ex-card">
+      <div class="ex-card-hdr gdirt-r">
+        <div class="ex-num">跪姿右半球 G-DiRT No. 3 ｜ 附錄 p.46</div>
+        <div class="ex-title-zh">跪姿右半球 G-DiRT 右臂伸展</div>
+        <div class="ex-title-en">Kneeling Right G-DiRT with Right Arm Reach</div>
+      </div>
+      <div class="ex-body">
+        <ol class="ex-steps">
+          <li>跪坐，將<strong>右側臀部與大腿向後移動</strong>到左腿後方，使重量更多落在右側。</li>
+          <li>右臂向前伸展，左臂微微向後；感受右側腹肌收縮、右側肩膀微微降低。</li>
+          <li>完全呼氣後暫停3–5秒。</li>
+          <li>按照治療師的指示重複。</li>
+        </ol>
+        <div class="ex-checks">
+          <p>☐ 視覺（Vision）：依動作治療師指示</p>
+          <p>☐ PADA：每輪中途可考慮輕咬牙合板並吞嚥一次</p>
+          <p>☐ ALF：考慮舌頭放回ALF「基底位置」並用鼻子呼吸</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="ex-card">
+      <div class="ex-card-hdr gdirt-r">
+        <div class="ex-num">跪姿右半球 G-DiRT No. 4 ｜ 附錄 p.47</div>
+        <div class="ex-title-zh">跪姿右半球 G-DiRT 右臂伸展指尖輕敲</div>
+        <div class="ex-title-en">Kneeling Right G-DiRT with Right Arm Reach Finger Tap</div>
+      </div>
+      <div class="ex-body">
+        <ol class="ex-steps">
+          <li>維持跪姿右半球姿勢（右臀後移，重量落在右側）。</li>
+          <li>右臂向前伸展，將右手輕放在約肩膀高度的凳子或椅子上。</li>
+          <li>輕輕敲打<strong>右手指尖</strong>，將意識帶到<strong>右側視野</strong>。</li>
+          <li>完全呼氣後暫停3–5秒。</li>
+          <li>按照治療師的指示重複。</li>
+        </ol>
+        <div class="ex-checks">
+          <p>☐ 視覺（Vision）：依動作治療師指示</p>
+          <p>☐ PADA：每輪中途可考慮輕咬牙合板並吞嚥一次</p>
+          <p>☐ ALF：考慮舌頭放回ALF「基底位置」並用鼻子呼吸</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="ex-card">
+      <div class="ex-card-hdr gdirt-r">
+        <div class="ex-num">跪姿右半球 G-DiRT No. 5 ｜ 附錄 p.48</div>
+        <div class="ex-title-zh">跪姿右半球 G-DiRT 右臂指尖輕敲・頭轉左・眼看右</div>
+        <div class="ex-title-en">Kneeling R G-DiRT with R Arm Reach Finger Tap Head Turn L, Eyes R</div>
+      </div>
+      <div class="ex-body">
+        <ol class="ex-steps">
+          <li>維持跪姿右半球姿勢，輕敲右手指尖。</li>
+          <li>將頭部向<strong>左</strong>旋轉至約<strong>10點鐘方向</strong>，同時保持雙眼固定在<strong>12點鐘方向</strong>（不隨頭轉動）。</li>
+          <li>保持視線固定20秒，然後將頭部轉回12點鐘方向，再維持20秒。</li>
+          <li>重複3–5次。</li>
+        </ol>
+        <div class="ex-checks">
+          <p>☐ 視覺（Vision）：依動作治療師指示</p>
+          <p>☐ PADA：每輪中途可考慮輕咬牙合板並吞嚥一次</p>
+          <p>☐ ALF：考慮舌頭放回ALF「基底位置」並用鼻子呼吸</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="ex-card">
+      <div class="ex-card-hdr gdirt-l">
+        <div class="ex-num">跪姿左半球 G-DiRT No. 1 ｜ 附錄 p.49</div>
+        <div class="ex-title-zh">跪姿左半球 G-DiRT 左臂水平推牆</div>
+        <div class="ex-title-en">Kneeling Left G-DiRT with Left Horizontal Push</div>
+      </div>
+      <div class="ex-body">
+        <ol class="ex-steps">
+          <li>跪坐，腳踝下方墊一個軟墊，將<strong>左側臀部與大腿向後移動</strong>到右腿後方，使重量更多落在<strong>左側</strong>。</li>
+          <li>左臂向前伸展，右臂微微向後；感受左側腹肌收縮、左側肩膀自然降低。</li>
+          <li>左手在肩膀高度抵住牆面。</li>
+          <li>完全呼氣時，左手用力推牆；維持暫停3–5秒。</li>
+          <li>按照治療師的指示重複。</li>
+        </ol>
+        <div class="ex-checks">
+          <p>☐ 視覺（Vision）：依動作治療師指示</p>
+          <p>☐ PADA：每輪中途可考慮輕咬牙合板並吞嚥一次</p>
+          <p>☐ ALF：考慮舌頭放回ALF「基底位置」並用鼻子呼吸</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="ex-card">
+      <div class="ex-card-hdr gdirt-l">
+        <div class="ex-num">跪姿左半球 G-DiRT No. 2 ｜ 附錄 p.50</div>
+        <div class="ex-title-zh">跪姿左半球 G-DiRT 左臂上推牆</div>
+        <div class="ex-title-en">Kneeling Left G-DiRT with Left Uphill Push</div>
+      </div>
+      <div class="ex-body">
+        <ol class="ex-steps">
+          <li>跪坐，將<strong>左側臀部與大腿向後移動</strong>到右腿後方，使重量更多落在左側。</li>
+          <li>左臂向前伸展，右臂微微向後；感受左側腹肌收縮、左側肩膀自然降低。</li>
+          <li>左手在<strong>肩膀上方約15公分</strong>抵住牆面。</li>
+          <li>完全呼氣時，左手用力推牆；維持暫停3–5秒。</li>
+          <li>按照治療師的指示重複。</li>
+        </ol>
+        <div class="ex-checks">
+          <p>☐ 視覺（Vision）：依動作治療師指示</p>
+          <p>☐ PADA：每輪中途可考慮輕咬牙合板並吞嚥一次</p>
+          <p>☐ ALF：考慮舌頭放回ALF「基底位置」並用鼻子呼吸</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="ex-card">
+      <div class="ex-card-hdr gdirt-l">
+        <div class="ex-num">跪姿左半球 G-DiRT No. 3 ｜ 附錄 p.51</div>
+        <div class="ex-title-zh">跪姿左半球 G-DiRT 左臂伸展</div>
+        <div class="ex-title-en">Kneeling Left G-DiRT with Left Arm Reach</div>
+      </div>
+      <div class="ex-body">
+        <ol class="ex-steps">
+          <li>跪坐，將<strong>左側臀部與大腿向後移動</strong>到右腿後方，使重量更多落在左側。</li>
+          <li>左臂向前伸展，右臂微微向後；感受左側腹肌收縮、左側肩膀微微降低。</li>
+          <li>完全呼氣後暫停3–5秒。</li>
+          <li>按照治療師的指示重複。</li>
+        </ol>
+        <div class="ex-checks">
+          <p>☐ 視覺（Vision）：依動作治療師指示</p>
+          <p>☐ PADA：每輪中途可考慮輕咬牙合板並吞嚥一次</p>
+          <p>☐ ALF：考慮舌頭放回ALF「基底位置」並用鼻子呼吸</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="ex-card">
+      <div class="ex-card-hdr gdirt-l">
+        <div class="ex-num">跪姿左半球 G-DiRT No. 4 ｜ 附錄 p.52</div>
+        <div class="ex-title-zh">跪姿左半球 G-DiRT 左臂伸展指尖輕敲</div>
+        <div class="ex-title-en">Kneeling Left G-DiRT with Left Arm Reach Finger Tap</div>
+      </div>
+      <div class="ex-body">
+        <ol class="ex-steps">
+          <li>維持跪姿左半球姿勢（左臀後移，重量落在左側）。</li>
+          <li>左臂向前伸展，將左手輕放在約肩膀高度的凳子或椅子上。</li>
+          <li>輕輕敲打<strong>左手指尖</strong>，將意識帶到<strong>左側視野</strong>。</li>
+          <li>完全呼氣後暫停3–5秒。</li>
+          <li>按照治療師的指示重複。</li>
+        </ol>
+        <div class="ex-checks">
+          <p>☐ 視覺（Vision）：依動作治療師指示</p>
+          <p>☐ PADA：每輪中途可考慮輕咬牙合板並吞嚥一次</p>
+          <p>☐ ALF：考慮舌頭放回ALF「基底位置」並用鼻子呼吸</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="ex-card">
+      <div class="ex-card-hdr gdirt-l">
+        <div class="ex-num">跪姿左半球 G-DiRT No. 5 ｜ 附錄 p.53</div>
+        <div class="ex-title-zh">跪姿左半球 G-DiRT 左臂指尖輕敲・頭轉右・眼看左</div>
+        <div class="ex-title-en">Kneeling Left G-DiRT with L Arm Reach Finger Tap Head Turn R, Eyes L</div>
+      </div>
+      <div class="ex-body">
+        <ol class="ex-steps">
+          <li>維持跪姿左半球姿勢，輕敲左手指尖。</li>
+          <li>將頭部向<strong>右</strong>旋轉至約<strong>2點鐘方向</strong>，同時保持雙眼固定在<strong>12點鐘方向</strong>（不隨頭轉動）。</li>
+          <li>保持視線固定20秒，然後將頭部轉回12點鐘方向，再維持20秒。</li>
+          <li>重複3–5次。</li>
+        </ol>
+        <div class="ex-checks">
+          <p>☐ 視覺（Vision）：依動作治療師指示</p>
+          <p>☐ PADA：每輪中途可考慮輕咬牙合板並吞嚥一次</p>
+          <p>☐ ALF：考慮舌頭放回ALF「基底位置」並用鼻子呼吸</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="ex-card">
+      <div class="ex-card-hdr noshift">
+        <div class="ex-num">跪姿 G-DiRT 交替 No. 1 ｜ 附錄 p.54</div>
+        <div class="ex-title-zh">跪姿 G-DiRT 步態訓練</div>
+        <div class="ex-title-en">Kneeling G-DiRT Gait Training</div>
+      </div>
+      <div class="ex-body">
+        <ol class="ex-steps">
+          <li>面對牆壁跪坐，腳踝下方墊一個軟墊，雙手在肩膀高度抵住牆面。</li>
+          <li>將<strong>左側臀部與左膝向後移動</strong>到右膝後方，使重心落在<strong>左側坐骨</strong>。</li>
+          <li>同時：<strong>左手</strong>用力推牆，吸氣，感受左側腹肌收縮。</li>
+          <li>呼氣：將<strong>右側臀部向後移動</strong>，同時右手推牆，重心轉移至右側。</li>
+          <li>吸氣：感受重量負荷於右側坐骨。</li>
+          <li>呼氣：再次將左側臀部向後移動，左手推牆，重心轉回左側。</li>
+          <li>如此交替進行，模擬步態節律。</li>
+          <li>按照治療師的指示重複。</li>
+        </ol>
+        <div class="ex-checks">
+          <p>☐ 視覺（Vision）：依動作治療師指示</p>
+          <p>☐ PADA：每輪中途可考慮輕咬牙合板並吞嚥一次</p>
+          <p>☐ ALF：考慮舌頭放回ALF「基底位置」並用鼻子呼吸</p>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- end up-kneeling -->
+
+  <!-- C.ii SEATED G-DiRT -->
+  <div id="up-seated" class="panel">
+    <div class="subsection-banner">
+      <h2>C.ii. 坐姿 G-DiRT 技術（Seated G-DiRT Techniques）</h2>
+      <p>附錄頁面 55–60｜6個動作 ｜ G-DiRT = 接地橫膈膜重置技術®</p>
+    </div>
+    <div class="tip-box">
+      📋 <strong>G-DiRT 通用設置：</strong>坐在有椅背的椅子上，右側或左側靠近門框或柱子，大腿間夾軟墊，背後放舒適枕頭，雙腳踩地。
+    </div>
+
+    <div class="ex-card">
+      <div class="ex-card-hdr gdirt-r">
+        <div class="ex-num">坐姿右半球 G-DiRT No. 1 ｜ 附錄 p.55</div>
+        <div class="ex-title-zh">坐姿右半球 G-DiRT 後推</div>
+        <div class="ex-title-en">Seated Right G-DiRT Post Push</div>
+      </div>
+      <div class="ex-body">
+        <ol class="ex-steps">
+          <li>坐在有椅背的椅子上，右側靠近門框或柱子；大腿間夾一個4–6公分的軟墊，背後放舒適枕頭。</li>
+          <li>右手肘彎曲90度置於體側，將右手掌根<strong>推壓門框或柱子</strong>，使右側後方肋骨架往後推入枕頭，激活右側腹肌。</li>
+          <li>雙腳踩地，大腿夾緊軟墊。</li>
+          <li>透過鼻子呼吸，每次完全呼氣後暫停3–5秒；每輪3–5次呼吸。</li>
+          <li>按照治療師的指示重複。</li>
+        </ol>
+        <div class="ex-checks">
+          <p>☐ 氣球（Balloon）：依動作治療師指示</p>
+          <p>☐ 視覺（Vision）：依動作治療師指示</p>
+          <p>☐ PADA：每輪中途可考慮輕咬牙合板並吞嚥一次</p>
+          <p>☐ ALF：考慮舌頭放回ALF「基底位置」並用鼻子呼吸</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="ex-card">
+      <div class="ex-card-hdr gdirt-r">
+        <div class="ex-num">坐姿右半球 G-DiRT No. 2 ｜ 附錄 p.56</div>
+        <div class="ex-title-zh">坐姿右半球 G-DiRT 後推搭配左臂伸展轉向</div>
+        <div class="ex-title-en">Seated R G-DiRT Post Push with Left Arm Reach Turn</div>
+      </div>
+      <div class="ex-body">
+        <ol class="ex-steps">
+          <li>維持坐姿右半球姿勢（右側推門框，右後肋骨壓枕頭）。</li>
+          <li>同時將<strong>胸骨轉向右側</strong>，壓縮<strong>右下肋骨</strong>；在完全呼氣時，<strong>左臂</strong>向前伸展。</li>
+          <li>完全呼氣後暫停3–5秒。</li>
+          <li>按照治療師的指示重複。</li>
+        </ol>
+        <div class="ex-checks">
+          <p>☐ 氣球（Balloon）：依動作治療師指示</p>
+          <p>☐ 視覺（Vision）：依動作治療師指示</p>
+          <p>☐ PADA：每輪中途可考慮輕咬牙合板並吞嚥一次</p>
+          <p>☐ ALF：考慮舌頭放回ALF「基底位置」並用鼻子呼吸</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="ex-card">
+      <div class="ex-card-hdr gdirt-r">
+        <div class="ex-num">坐姿右半球 G-DiRT No. 3 ｜ 附錄 p.57</div>
+        <div class="ex-title-zh">坐姿右半球 G-DiRT 後推搭配左臂伸展不轉向</div>
+        <div class="ex-title-en">Seated R G-DiRT Post Push with L Arm Reach No Turn</div>
+      </div>
+      <div class="ex-body">
+        <ol class="ex-steps">
+          <li>維持坐姿右半球姿勢（右側推門框，右後肋骨壓枕頭）。</li>
+          <li><strong>左臂</strong>向前伸展，<strong>不讓左側肩膀向前移動</strong>。</li>
+          <li>完全呼氣時，壓縮右側肋骨架，胸廓微微向右滑動。</li>
+          <li>完全呼氣後暫停3–5秒。</li>
+          <li>按照治療師的指示重複。</li>
+        </ol>
+        <div class="ex-checks">
+          <p>☐ 氣球（Balloon）：依動作治療師指示</p>
+          <p>☐ 視覺（Vision）：依動作治療師指示</p>
+          <p>☐ PADA：每輪中途可考慮輕咬牙合板並吞嚥一次</p>
+          <p>☐ ALF：考慮舌頭放回ALF「基底位置」並用鼻子呼吸</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="ex-card">
+      <div class="ex-card-hdr gdirt-l">
+        <div class="ex-num">坐姿左半球 G-DiRT No. 1 ｜ 附錄 p.58</div>
+        <div class="ex-title-zh">坐姿左半球 G-DiRT 後推</div>
+        <div class="ex-title-en">Seated Left G-DiRT Post Push</div>
+      </div>
+      <div class="ex-body">
+        <ol class="ex-steps">
+          <li>坐在有椅背的椅子上，<strong>左側</strong>靠近門框或柱子；大腿間夾一個4–6公分的軟墊，背後放舒適枕頭。</li>
+          <li>左手肘彎曲90度置於體側，將左手掌根<strong>推壓門框或柱子</strong>，使左側後方肋骨架往後推入枕頭，激活左側腹肌。</li>
+          <li>雙腳踩地，大腿夾緊軟墊。</li>
+          <li>透過鼻子呼吸，每次完全呼氣後暫停3–5秒；每輪3–5次呼吸。</li>
+          <li>按照治療師的指示重複。</li>
+        </ol>
+        <div class="ex-checks">
+          <p>☐ 氣球（Balloon）：依動作治療師指示</p>
+          <p>☐ 視覺（Vision）：依動作治療師指示</p>
+          <p>☐ PADA：每輪中途可考慮輕咬牙合板並吞嚥一次</p>
+          <p>☐ ALF：考慮舌頭放回ALF「基底位置」並用鼻子呼吸</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="ex-card">
+      <div class="ex-card-hdr gdirt-l">
+        <div class="ex-num">坐姿左半球 G-DiRT No. 2 ｜ 附錄 p.59</div>
+        <div class="ex-title-zh">坐姿左半球 G-DiRT 後推搭配右臂伸展轉向</div>
+        <div class="ex-title-en">Seated Left G-DiRT Post Push with Right Arm Reach Turn</div>
+      </div>
+      <div class="ex-body">
+        <ol class="ex-steps">
+          <li>維持坐姿左半球姿勢（左側推門框，左後肋骨壓枕頭）。</li>
+          <li>同時將<strong>胸骨轉向左側</strong>，壓縮<strong>左下肋骨</strong>；在完全呼氣時，<strong>右臂</strong>向前伸展。</li>
+          <li>完全呼氣後暫停3–5秒。</li>
+          <li>按照治療師的指示重複。</li>
+        </ol>
+        <div class="ex-checks">
+          <p>☐ 氣球（Balloon）：依動作治療師指示</p>
+          <p>☐ 視覺（Vision）：依動作治療師指示</p>
+          <p>☐ PADA：每輪中途可考慮輕咬牙合板並吞嚥一次</p>
+          <p>☐ ALF：考慮舌頭放回ALF「基底位置」並用鼻子呼吸</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="ex-card">
+      <div class="ex-card-hdr gdirt-l">
+        <div class="ex-num">坐姿左半球 G-DiRT No. 3 ｜ 附錄 p.60</div>
+        <div class="ex-title-zh">坐姿左半球 G-DiRT 後推搭配右臂伸展不轉向</div>
+        <div class="ex-title-en">Seated Left G-DiRT Post Push with Right Reach No Turn</div>
+      </div>
+      <div class="ex-body">
+        <ol class="ex-steps">
+          <li>維持坐姿左半球姿勢（左側推門框，左後肋骨壓枕頭）。</li>
+          <li><strong>右臂</strong>向前伸展，<strong>不讓右側肩膀向前移動</strong>。</li>
+          <li>完全呼氣時，壓縮左側肋骨架，胸廓微微向左滑動。</li>
+          <li>完全呼氣後暫停3–5秒。</li>
+          <li>按照治療師的指示重複。</li>
+        </ol>
+        <div class="ex-checks">
+          <p>☐ 氣球（Balloon）：依動作治療師指示</p>
+          <p>☐ 視覺（Vision）：依動作治療師指示</p>
+          <p>☐ PADA：每輪中途可考慮輕咬牙合板並吞嚥一次</p>
+          <p>☐ ALF：考慮舌頭放回ALF「基底位置」並用鼻子呼吸</p>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- end up-seated -->
+
+  <!-- C.iii STANDING GROUNDING -->
+  <div id="up-stground" class="panel">
+    <div class="subsection-banner">
+      <h2>C.iii. 站姿接地技術（Standing Grounding Techniques）</h2>
+      <p>附錄頁面 61–70｜10個動作</p>
+    </div>
+    <div class="tip-box">
+      📋 <strong>通用設置：</strong>各動作依指示採用右腳後退、左腳後退或雙腳平步站姿，依指示使用½–1英吋（約1–2.5公分）墊塊，膝關節微彎，全腳底踩地。
+    </div>
+
+    <div class="ex-card">
+      <div class="ex-card-hdr right">
+        <div class="ex-num">站姿右腳後退接地 No. 1 ｜ 附錄 p.61</div>
+        <div class="ex-title-zh">站姿右腳後退下坡壓縮搭配右胸椎壓縮與左臂伸展轉向</div>
+        <div class="ex-title-en">Standing R Step Back Downhill Compression with R Thoracic Compression and L Arm Reach Turn</div>
+      </div>
+      <div class="ex-body">
+        <ol class="ex-steps">
+          <li><strong>右腳</strong>向後踏，右腳整個腳底踩地，重量均勻分布；<strong>左腳</strong>踩在½–1英吋（約1–2.5公分）的墊塊上；右膝微彎。</li>
+          <li>右手放在右側臀部後方，向上拉住桌子、台面或門把的底部，直至<strong>右側肋骨架產生壓縮感</strong>。</li>
+          <li>同時<strong>左臂</strong>向前伸展，將肋骨架向右轉動，完全呼氣時壓縮<strong>右側下肋骨</strong>；暫停3–5秒。</li>
+          <li>維持此姿勢，透過鼻子呼吸3–5次，每次完全呼氣後暫停3–5秒；共完成5輪。</li>
+        </ol>
+        <div class="ex-checks">
+          <p>☐ 氣球（Balloon）：依動作治療師指示</p>
+          <p>☐ 視覺（Vision）：依動作治療師指示</p>
+          <p>☐ PADA：每輪中途可考慮輕咬牙合板並吞嚥一次</p>
+          <p>☐ ALF：考慮舌頭放回ALF「基底位置」並用鼻子呼吸</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="ex-card">
+      <div class="ex-card-hdr right">
+        <div class="ex-num">站姿右腳後退接地 No. 3 ｜ 附錄 p.62</div>
+        <div class="ex-title-zh">站姿右腳後退水平壓縮搭配右胸椎壓縮與左臂伸展轉向</div>
+        <div class="ex-title-en">Standing R Step Back Level Compression with R Thoracic Compression and L Arm Reach Turn</div>
+      </div>
+      <div class="ex-body">
+        <ol class="ex-steps">
+          <li><strong>右腳</strong>向後踏，右腳整個腳底踩地；<strong>左腳</strong>向前踏，腳踩在平地（不墊高）；右膝微彎。</li>
+          <li>右手放在右側臀部後方，向上拉住桌子、台面或門把的底部，直至<strong>右側肋骨架產生壓縮感</strong>。</li>
+          <li>同時<strong>左臂</strong>向前伸展，將肋骨架向右轉動，完全呼氣時壓縮右側下肋骨；暫停3–5秒。</li>
+          <li>透過鼻子呼吸3–5次，每次完全呼氣後暫停3–5秒；共完成5輪。</li>
+        </ol>
+        <div class="ex-checks">
+          <p>☐ 氣球（Balloon）：依動作治療師指示</p>
+          <p>☐ 視覺（Vision）：依動作治療師指示</p>
+          <p>☐ PADA：每輪中途可考慮輕咬牙合板並吞嚥一次</p>
+          <p>☐ ALF：考慮舌頭放回ALF「基底位置」並用鼻子呼吸</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="ex-card">
+      <div class="ex-card-hdr right">
+        <div class="ex-num">站姿右腳後退接地 No. 4 ｜ 附錄 p.63</div>
+        <div class="ex-title-zh">站姿右腳後退下坡壓縮搭配右胸椎壓縮</div>
+        <div class="ex-title-en">Standing R Step Back Downhill Compression with R Thoracic Compression</div>
+      </div>
+      <div class="ex-body">
+        <ol class="ex-steps">
+          <li><strong>右腳</strong>向後踏，右腳整個腳底踩地；<strong>左腳</strong>踩在½–1英吋的墊塊上；右膝微彎。</li>
+          <li>右手放在右側臀部後方，向上拉住桌子、台面或門把的底部，直至<strong>右側肋骨架產生壓縮感</strong>，完全呼氣時持續壓縮。</li>
+          <li>維持此姿勢，透過鼻子呼吸3–5次，每次完全呼氣後暫停3–5秒；共完成5輪。</li>
+        </ol>
+        <div class="ex-checks">
+          <p>☐ 氣球（Balloon）：依動作治療師指示</p>
+          <p>☐ 視覺（Vision）：依動作治療師指示</p>
+          <p>☐ PADA：每輪中途可考慮輕咬牙合板並吞嚥一次</p>
+          <p>☐ ALF：考慮舌頭放回ALF「基底位置」並用鼻子呼吸</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="ex-card">
+      <div class="ex-card-hdr right">
+        <div class="ex-num">站姿右腳後退接地 No. 7 ｜ 附錄 p.64</div>
+        <div class="ex-title-zh">站姿右腳後退下坡壓縮</div>
+        <div class="ex-title-en">Standing R Step Back Downhill Compression</div>
+      </div>
+      <div class="ex-body">
+        <ol class="ex-steps">
+          <li><strong>右腳</strong>向後踏，右腳整個腳底踩地；<strong>左腳</strong>踩在½–1英吋的墊塊上；右膝微彎。</li>
+          <li>維持此姿勢，透過鼻子呼吸3–5次，每次完全呼氣後暫停3–5秒；共完成5輪。</li>
+        </ol>
+        <div class="ex-checks">
+          <p>☐ 氣球（Balloon）：依動作治療師指示</p>
+          <p>☐ 視覺（Vision）：依動作治療師指示</p>
+          <p>☐ PADA：每輪中途可考慮輕咬牙合板並吞嚥一次</p>
+          <p>☐ ALF：考慮舌頭放回ALF「基底位置」並用鼻子呼吸</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="ex-card">
+      <div class="ex-card-hdr right">
+        <div class="ex-num">站姿平步右接地 No. 1 ｜ 附錄 p.65</div>
+        <div class="ex-title-zh">站姿平步右下坡壓縮搭配右胸椎壓縮與左臂伸展轉向</div>
+        <div class="ex-title-en">Standing Even Step Downhill Compression R with R Thoracic Compression and L Arm Reach Turn</div>
+      </div>
+      <div class="ex-body">
+        <ol class="ex-steps">
+          <li>雙腳平行站立，<strong>左腳</strong>踩在½–1英吋的墊塊上，<strong>右腳</strong>踩在平地；重量均勻分布於右腳；右膝微彎。</li>
+          <li>右手放在右側臀部後方，向上拉住桌子、台面或門把的底部，直至<strong>右側肋骨架產生壓縮感</strong>。</li>
+          <li>同時<strong>左臂</strong>向前伸展，將肋骨架向右轉動，完全呼氣時壓縮右側下肋骨；暫停3–5秒。</li>
+          <li>透過鼻子呼吸3–5次，每次完全呼氣後暫停3–5秒；共完成5輪。</li>
+        </ol>
+        <div class="ex-checks">
+          <p>☐ 氣球（Balloon）：依動作治療師指示</p>
+          <p>☐ 視覺（Vision）：依動作治療師指示</p>
+          <p>☐ PADA：每輪中途可考慮輕咬牙合板並吞嚥一次</p>
+          <p>☐ ALF：考慮舌頭放回ALF「基底位置」並用鼻子呼吸</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="ex-card">
+      <div class="ex-card-hdr left">
+        <div class="ex-num">站姿左腳後退接地 No. 1 ｜ 附錄 p.66</div>
+        <div class="ex-title-zh">站姿左腳後退下坡壓縮搭配左胸椎壓縮與右臂伸展轉向</div>
+        <div class="ex-title-en">Standing L Step Back Downhill Compression with L Thoracic Compression and R Arm Reach Turn</div>
+      </div>
+      <div class="ex-body">
+        <ol class="ex-steps">
+          <li><strong>左腳</strong>向後踏，左腳整個腳底踩地，重量均勻分布；<strong>右腳</strong>踩在½–1英吋的墊塊上；左膝微彎。</li>
+          <li>左手放在左側臀部後方，向上拉住桌子、台面或門把的底部，直至<strong>左側肋骨架產生壓縮感</strong>。</li>
+          <li>同時<strong>右臂</strong>向前伸展，將肋骨架向左轉動，完全呼氣時壓縮<strong>左側下肋骨</strong>；暫停3–5秒。</li>
+          <li>維持此姿勢，透過鼻子呼吸3–5次，每次完全呼氣後暫停3–5秒；共完成5輪。</li>
+        </ol>
+        <div class="ex-checks">
+          <p>☐ 氣球（Balloon）：依動作治療師指示</p>
+          <p>☐ 視覺（Vision）：依動作治療師指示</p>
+          <p>☐ PADA：每輪中途可考慮輕咬牙合板並吞嚥一次</p>
+          <p>☐ ALF：考慮舌頭放回ALF「基底位置」並用鼻子呼吸</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="ex-card">
+      <div class="ex-card-hdr left">
+        <div class="ex-num">站姿左腳後退接地 No. 2 ｜ 附錄 p.67</div>
+        <div class="ex-title-zh">站姿左腳後退上坡壓縮搭配左胸椎壓縮與右臂伸展轉向</div>
+        <div class="ex-title-en">Standing L Step Back Uphill Compression with L Thoracic Compression and R Arm Reach Turn</div>
+      </div>
+      <div class="ex-body">
+        <ol class="ex-steps">
+          <li><strong>左腳</strong>踩在½–1英吋的墊塊上（較高）；<strong>右腳</strong>向前踏，踩在平地；左膝微彎。</li>
+          <li>左手向上拉住桌子、台面或門把的底部，直至<strong>左側肋骨架產生壓縮感</strong>。</li>
+          <li>同時<strong>右臂</strong>向前伸展，將肋骨架向左轉動，完全呼氣時壓縮左側下肋骨；暫停3–5秒。</li>
+          <li>透過鼻子呼吸3–5次，每次完全呼氣後暫停3–5秒；共完成5輪。</li>
+        </ol>
+        <div class="ex-checks">
+          <p>☐ 氣球（Balloon）：依動作治療師指示</p>
+          <p>☐ 視覺（Vision）：依動作治療師指示</p>
+          <p>☐ PADA：每輪中途可考慮輕咬牙合板並吞嚥一次</p>
+          <p>☐ ALF：考慮舌頭放回ALF「基底位置」並用鼻子呼吸</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="ex-card">
+      <div class="ex-card-hdr left">
+        <div class="ex-num">站姿左腳後退接地 No. 4 ｜ 附錄 p.68</div>
+        <div class="ex-title-zh">站姿左腳後退下坡壓縮搭配左胸椎壓縮</div>
+        <div class="ex-title-en">Standing L Step Back Downhill Compression with L Thoracic Compression</div>
+      </div>
+      <div class="ex-body">
+        <ol class="ex-steps">
+          <li><strong>左腳</strong>向後踏，左腳整個腳底踩地；<strong>右腳</strong>踩在½–1英吋的墊塊上；左膝微彎。</li>
+          <li>左手向上拉住桌子、台面或門把的底部，直至<strong>左側肋骨架產生壓縮感</strong>，完全呼氣時持續壓縮。</li>
+          <li>維持此姿勢，透過鼻子呼吸3–5次，每次完全呼氣後暫停3–5秒；共完成5輪。</li>
+        </ol>
+        <div class="ex-checks">
+          <p>☐ 氣球（Balloon）：依動作治療師指示</p>
+          <p>☐ 視覺（Vision）：依動作治療師指示</p>
+          <p>☐ PADA：每輪中途可考慮輕咬牙合板並吞嚥一次</p>
+          <p>☐ ALF：考慮舌頭放回ALF「基底位置」並用鼻子呼吸</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="ex-card">
+      <div class="ex-card-hdr left">
+        <div class="ex-num">站姿左腳後退接地 No. 7 ｜ 附錄 p.69</div>
+        <div class="ex-title-zh">站姿左腳後退下坡壓縮</div>
+        <div class="ex-title-en">Standing L Step Back Downhill Compression</div>
+      </div>
+      <div class="ex-body">
+        <ol class="ex-steps">
+          <li><strong>左腳</strong>向後踏，左腳整個腳底踩地；<strong>右腳</strong>踩在½–1英吋的墊塊上；左膝微彎。</li>
+          <li>維持此姿勢，透過鼻子呼吸3–5次，每次完全呼氣後暫停3–5秒；共完成5輪。</li>
+        </ol>
+        <div class="ex-checks">
+          <p>☐ 氣球（Balloon）：依動作治療師指示</p>
+          <p>☐ 視覺（Vision）：依動作治療師指示</p>
+          <p>☐ PADA：每輪中途可考慮輕咬牙合板並吞嚥一次</p>
+          <p>☐ ALF：考慮舌頭放回ALF「基底位置」並用鼻子呼吸</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="ex-card">
+      <div class="ex-card-hdr left">
+        <div class="ex-num">站姿平步左接地 No. 1 ｜ 附錄 p.70</div>
+        <div class="ex-title-zh">站姿平步左下坡壓縮搭配左胸椎壓縮與右臂伸展轉向</div>
+        <div class="ex-title-en">Standing Even Step Downhill Compression L with L Thoracic Compression and R Arm Reach Turn</div>
+      </div>
+      <div class="ex-body">
+        <ol class="ex-steps">
+          <li>雙腳平行站立，<strong>右腳</strong>踩在½–1英吋的墊塊上，<strong>左腳</strong>踩在平地；重量均勻分布於左腳；左膝微彎。</li>
+          <li>左手放在左側臀部後方，向上拉住桌子、台面或門把的底部，直至<strong>左側肋骨架產生壓縮感</strong>。</li>
+          <li>同時<strong>右臂</strong>向前伸展，將肋骨架向左轉動，完全呼氣時壓縮左側下肋骨；暫停3–5秒。</li>
+          <li>透過鼻子呼吸3–5次，每次完全呼氣後暫停3–5秒；共完成5輪。</li>
+        </ol>
+        <div class="ex-checks">
+          <p>☐ 氣球（Balloon）：依動作治療師指示</p>
+          <p>☐ 視覺（Vision）：依動作治療師指示</p>
+          <p>☐ PADA：每輪中途可考慮輕咬牙合板並吞嚥一次</p>
+          <p>☐ ALF：考慮舌頭放回ALF「基底位置」並用鼻子呼吸</p>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- end up-stground -->
+
+  <!-- C.iv STANDING G-DiRT -->
+  <div id="up-stgdirt" class="panel">
+    <div class="subsection-banner">
+      <h2>C.iv. 站姿 G-DiRT 技術（Standing G-DiRT Techniques）</h2>
+      <p>附錄頁面 71–98｜28個動作 ｜ G-DiRT = 接地橫膈膜重置技術®</p>
+    </div>
+    <div class="tip-box">
+      📋 <strong>G-DiRT 通用設置：</strong>將平台放在負重腿旁，毛巾捲夾在負重大腿與同側下肋骨架之間，彎曲對側膝蓋下沉，使75–90%體重落在負重腳，舌頭抵住上顎，透過鼻子呼吸。
+    </div>
+
+    <div class="ex-card">
+      <div class="ex-card-hdr gdirt-r">
+        <div class="ex-num">站姿右半球 G-DiRT No. 1 ｜ 附錄 p.71</div>
+        <div class="ex-title-zh">站姿右半球 G-DiRT 入門搭配左臂伸展轉向</div>
+        <div class="ex-title-en">Standing R Hemisphere G-DiRT Primer with Left Arm Reach Turn</div>
+      </div>
+      <div class="ex-body">
+        <ol class="ex-steps">
+          <li>將一個平台（踏板）放在右側大腿中段旁；<strong>右腳踩上平台</strong>，重量均勻分布於右腳。</li>
+          <li>毛巾捲夾在<strong>右大腿與右下肋骨架</strong>之間。</li>
+          <li>彎曲<strong>左膝</strong>下沉，使約75–90%的體重落在<strong>右腳</strong>。</li>
+          <li><strong>左臂</strong>向前伸展，以強化氣流流向左側後背中段。</li>
+          <li>放鬆，透過鼻子呼吸，舌頭抵住上顎；維持約1分鐘後休息。</li>
+        </ol>
+        <div class="ex-checks">
+          <p>☐ 視覺（Vision）：依動作治療師指示</p>
+          <p>☐ PADA：每輪中途可考慮輕咬牙合板並吞嚥一次</p>
+          <p>☐ ALF：考慮舌頭放回ALF「基底位置」並用鼻子呼吸</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="ex-card">
+      <div class="ex-card-hdr gdirt-r">
+        <div class="ex-num">站姿右半球 G-DiRT No. 2 ｜ 附錄 p.72</div>
+        <div class="ex-title-zh">站姿右半球 G-DiRT 右胸椎壓縮推拉</div>
+        <div class="ex-title-en">Standing R Hemisphere G-DiRT Right Thoracic Compression Push Pull</div>
+      </div>
+      <div class="ex-body">
+        <ol class="ex-steps">
+          <li>維持站姿右半球姿勢（右腳踩平台、毛巾夾住，左膝下沉，75–90%體重在右腳）。</li>
+          <li><strong>右手</strong>向下推壓平台邊緣，同時<strong>左手</strong>向上拉起平台邊緣，幫助壓縮並對齊<strong>右側身體</strong>於右腳上方。</li>
+          <li>透過鼻子呼吸，舌頭抵住上顎；維持約1分鐘。</li>
+        </ol>
+        <div class="ex-checks">
+          <p>☐ 氣球（Balloon）：依動作治療師指示</p>
+          <p>☐ 視覺（Vision）：依動作治療師指示</p>
+          <p>☐ PADA：每輪中途可考慮輕咬牙合板並吞嚥一次</p>
+          <p>☐ ALF：考慮舌頭放回ALF「基底位置」並用鼻子呼吸</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="ex-card">
+      <div class="ex-card-hdr gdirt-r">
+        <div class="ex-num">站姿右半球 G-DiRT No. 3 ｜ 附錄 p.73</div>
+        <div class="ex-title-zh">站姿右半球 G-DiRT 右臂水平推壓</div>
+        <div class="ex-title-en">Standing R Hemisphere G-DiRT with R Horizontal Push</div>
+      </div>
+      <div class="ex-body">
+        <ol class="ex-steps">
+          <li>維持站姿右半球姿勢（右腳踩平台，左膝下沉，75–90%體重在右腳）。</li>
+          <li><strong>右臂</strong>向前伸展，將右手掌根靠在約肩膀高度的凳子或椅子上。</li>
+          <li>右手用力推壓，感受<strong>右側腹肌收縮</strong>。</li>
+          <li>透過鼻子吸氣與呼氣，完全呼氣後暫停3–5秒。</li>
+          <li>按照治療師的指示重複。</li>
+        </ol>
+        <div class="ex-checks">
+          <p>☐ 視覺（Vision）：依動作治療師指示</p>
+          <p>☐ PADA：每輪中途可考慮輕咬牙合板並吞嚥一次</p>
+          <p>☐ ALF：考慮舌頭放回ALF「基底位置」並用鼻子呼吸</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="ex-card">
+      <div class="ex-card-hdr gdirt-r">
+        <div class="ex-num">站姿右半球 G-DiRT No. 4 ｜ 附錄 p.74</div>
+        <div class="ex-title-zh">站姿右半球 G-DiRT 右臂上推牆</div>
+        <div class="ex-title-en">Standing R Hemisphere G-DiRT with Right Uphill Push</div>
+      </div>
+      <div class="ex-body">
+        <ol class="ex-steps">
+          <li>維持站姿右半球姿勢（右腳踩平台，左膝下沉，75–90%體重在右腳）。</li>
+          <li><strong>右臂</strong>向前伸展，右手靠在牆面<strong>肩膀上方約15公分</strong>處。</li>
+          <li>右手用力推牆，感受右側腹肌收縮。</li>
+          <li>透過鼻子吸氣與呼氣，完全呼氣後暫停3–5秒。</li>
+          <li>按照治療師的指示重複。</li>
+        </ol>
+        <div class="ex-checks">
+          <p>☐ 視覺（Vision）：依動作治療師指示</p>
+          <p>☐ PADA：每輪中途可考慮輕咬牙合板並吞嚥一次</p>
+          <p>☐ ALF：考慮舌頭放回ALF「基底位置」並用鼻子呼吸</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="ex-card">
+      <div class="ex-card-hdr gdirt-r">
+        <div class="ex-num">站姿右半球 G-DiRT No. 5 ｜ 附錄 p.75</div>
+        <div class="ex-title-zh">站姿右半球 G-DiRT 右臂伸展</div>
+        <div class="ex-title-en">Standing R Hemisphere G-DiRT with R Arm Reach</div>
+      </div>
+      <div class="ex-body">
+        <ol class="ex-steps">
+          <li>維持站姿右半球姿勢（右腳踩平台，左膝下沉，75–90%體重在右腳）。</li>
+          <li><strong>左手</strong>向上拉起平台邊緣，幫助壓縮並對齊右側身體。</li>
+          <li><strong>右臂</strong>向前伸展，以激活右側腹肌並讓氣流流向右側後背中段。</li>
+          <li>透過鼻子呼吸，舌頭抵住上顎；維持約1分鐘。</li>
+        </ol>
+        <div class="ex-checks">
+          <p>☐ 視覺（Vision）：依動作治療師指示</p>
+          <p>☐ PADA：每輪中途可考慮輕咬牙合板並吞嚥一次</p>
+          <p>☐ ALF：考慮舌頭放回ALF「基底位置」並用鼻子呼吸</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="ex-card">
+      <div class="ex-card-hdr gdirt-r">
+        <div class="ex-num">站姿右半球 G-DiRT No. 6 ｜ 附錄 p.76</div>
+        <div class="ex-title-zh">站姿右半球 Un-G-DiRT 右胸椎壓縮邊緣拉</div>
+        <div class="ex-title-en">Standing R Hemisphere Un-G-DiRT Right Thoracic Compression Edge Pull</div>
+      </div>
+      <div class="ex-body">
+        <ol class="ex-steps">
+          <li>維持站姿右半球姿勢，稍微下沉（初始增加右腿負荷）。</li>
+          <li>將<strong>左手</strong>移至右腳稍前方位置，向上拉起平台邊緣，壓縮並負荷<strong>右側肋骨架</strong>。</li>
+          <li>同時，<strong>右手</strong>橫越右腳向側方拉起平台邊緣，將負荷轉移至<strong>下沉的左腿</strong>，約達65–80%。</li>
+          <li>透過鼻子呼吸，舌頭抵住上顎；維持約1分鐘。</li>
+        </ol>
+        <div class="ex-checks">
+          <p>☐ 視覺（Vision）：依動作治療師指示</p>
+          <p>☐ PADA：每輪中途可考慮輕咬牙合板並吞嚥一次</p>
+          <p>☐ ALF：考慮舌頭放回ALF「基底位置」並用鼻子呼吸</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="ex-card">
+      <div class="ex-card-hdr gdirt-r">
+        <div class="ex-num">站姿右半球 G-DiRT No. 7 ｜ 附錄 p.77</div>
+        <div class="ex-title-zh">站姿右半球 G-DiRT 視野右臂指尖輕敲</div>
+        <div class="ex-title-en">Standing R Hemisphere G-DiRT in Your Eye with R Arm Reach Finger Tap</div>
+      </div>
+      <div class="ex-body">
+        <ol class="ex-steps">
+          <li>維持站姿右半球姿勢（右腳踩平台，左膝下沉，75–90%體重在右腳）。</li>
+          <li><strong>右臂</strong>向前伸展，將右手輕放在約肩膀高度的凳子或椅子上。</li>
+          <li>輕輕敲打<strong>右手指尖</strong>，將意識帶到<strong>右側視野</strong>。</li>
+          <li>透過鼻子吸氣與呼氣，完全呼氣後暫停3–5秒。</li>
+          <li>按照治療師的指示重複。</li>
+        </ol>
+        <div class="ex-checks">
+          <p>☐ 視覺（Vision）：依動作治療師指示</p>
+          <p>☐ PADA：每輪中途可考慮輕咬牙合板並吞嚥一次</p>
+          <p>☐ ALF：考慮舌頭放回ALF「基底位置」並用鼻子呼吸</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="ex-card">
+      <div class="ex-card-hdr gdirt-r">
+        <div class="ex-num">站姿右半球 G-DiRT No. 8 ｜ 附錄 p.78</div>
+        <div class="ex-title-zh">站姿右半球 G-DiRT 視野右臂指尖輕敲轉頭</div>
+        <div class="ex-title-en">Standing R Hemisphere G-DiRT in Your Eye with R Arm Reach Finger Tap with Head Turn</div>
+      </div>
+      <div class="ex-body">
+        <ol class="ex-steps">
+          <li>維持站姿右半球姿勢，右臂向前伸展，以強化氣流流向右側後背中段，右手輕放在凳子上。</li>
+          <li>輕輕敲打右手指尖。</li>
+          <li>將頭部向<strong>左</strong>旋轉至約<strong>10點鐘方向</strong>，同時保持雙眼固定在<strong>12點鐘方向</strong>。</li>
+          <li>保持視線固定20秒，然後將頭部轉回12點鐘方向，再維持20秒。</li>
+          <li>重複3–5次。</li>
+        </ol>
+        <div class="ex-checks">
+          <p>☐ 視覺（Vision）：依動作治療師指示</p>
+          <p>☐ PADA：每輪中途可考慮輕咬牙合板並吞嚥一次</p>
+          <p>☐ ALF：考慮舌頭放回ALF「基底位置」並用鼻子呼吸</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="ex-card">
+      <div class="ex-card-hdr gdirt-r">
+        <div class="ex-num">站姿右半球 G-DiRT No. 9 ｜ 附錄 p.79</div>
+        <div class="ex-title-zh">站姿右半球門框 G-DiRT 搭配左臂伸展轉向</div>
+        <div class="ex-title-en">Standing R Hemisphere Doorframe G-DiRT with Left Arm Reach Turn</div>
+      </div>
+      <div class="ex-body">
+        <ol class="ex-steps">
+          <li>站在門框內，背部與一側門框之間夾一個枕頭；<strong>右腳</strong>靠近門框中央，腳尖朝向門框。</li>
+          <li><strong>左腳</strong>向前踏，微微將臀部向右轉。</li>
+          <li><strong>右手</strong>推壓前方門框，允許背部微微圓拱，溫和地向後靠入枕頭，頸部放鬆微彎。</li>
+          <li>完全呼氣時，<strong>胸骨轉向右側</strong>，壓縮右側下肋骨，同時<strong>左臂</strong>向前伸展，進一步向後靠入枕頭。</li>
+          <li>暫停3–5秒；透過鼻子呼吸，每次完全呼氣後暫停3–5秒；每輪3–5次呼吸。</li>
+        </ol>
+        <div class="ex-checks">
+          <p>☐ 視覺（Vision）：依動作治療師指示</p>
+          <p>☐ PADA：每輪中途可考慮輕咬牙合板並吞嚥一次</p>
+          <p>☐ ALF：考慮舌頭放回ALF「基底位置」並用鼻子呼吸</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="ex-card">
+      <div class="ex-card-hdr gdirt-r">
+        <div class="ex-num">站姿右半球 G-DiRT No. 10 ｜ 附錄 p.80</div>
+        <div class="ex-title-zh">站姿右半球門框 G-DiRT</div>
+        <div class="ex-title-en">Standing R Hemisphere Doorframe G-DiRT</div>
+      </div>
+      <div class="ex-body">
+        <ol class="ex-steps">
+          <li>站在門框內，背部與一側門框之間夾一個枕頭；右腳靠近門框中央，左腳向前踏，微微將臀部向右轉。</li>
+          <li>右手推壓前方門框，允許背部微微圓拱，向後靠入枕頭，頸部放鬆微彎。</li>
+          <li>完全呼氣時，<strong>胸骨轉向右側</strong>，壓縮右側下肋骨，進一步向後靠入枕頭。</li>
+          <li>暫停3–5秒；透過鼻子呼吸，每次完全呼氣後暫停3–5秒；每輪3–5次呼吸。</li>
+        </ol>
+        <div class="ex-checks">
+          <p>☐ 視覺（Vision）：依動作治療師指示</p>
+          <p>☐ PADA：每輪中途可考慮輕咬牙合板並吞嚥一次</p>
+          <p>☐ ALF：考慮舌頭放回ALF「基底位置」並用鼻子呼吸</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="ex-card">
+      <div class="ex-card-hdr gdirt-r">
+        <div class="ex-num">站姿右半球 G-DiRT No. 11 ｜ 附錄 p.81</div>
+        <div class="ex-title-zh">站姿右半球門框 G-DiRT 搭配左臂伸展不轉向</div>
+        <div class="ex-title-en">Standing R Hemisphere Doorframe G-DiRT with Left Arm Reach No Turn</div>
+      </div>
+      <div class="ex-body">
+        <ol class="ex-steps">
+          <li>維持站姿右半球門框姿勢（枕頭、右腳靠門框，右手推門框）。</li>
+          <li>完全呼氣時，<strong>胸骨轉向右側</strong>，壓縮右側下肋骨，同時<strong>左臂</strong>向前伸展，<strong>不轉動上身</strong>。</li>
+          <li>暫停3–5秒；按照治療師的指示重複。</li>
+        </ol>
+        <div class="ex-checks">
+          <p>☐ 視覺（Vision）：依動作治療師指示</p>
+          <p>☐ PADA：每輪中途可考慮輕咬牙合板並吞嚥一次</p>
+          <p>☐ ALF：考慮舌頭放回ALF「基底位置」並用鼻子呼吸</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="ex-card">
+      <div class="ex-card-hdr gdirt-r">
+        <div class="ex-num">站姿右半球 G-DiRT No. 12 ｜ 附錄 p.82</div>
+        <div class="ex-title-zh">站姿右半球門柱推拉 G-DiRT 上拉</div>
+        <div class="ex-title-en">Standing Right Hemisphere Post Push Pull G-DiRT with Uphill Pull</div>
+      </div>
+      <div class="ex-body">
+        <ol class="ex-steps">
+          <li><strong>右腳</strong>腳尖朝向門柱；<strong>右手</strong>在肩膀高度抵住門柱。</li>
+          <li><strong>左手</strong>穿過門框，抓住門柱對面一側，位置在右手<strong>上方約30度</strong>。</li>
+          <li>左腳向前踏，使臀部微微向右轉；約80%體重落在<strong>右腳</strong>。</li>
+          <li>頸部放鬆，眼睛對齊地平線。</li>
+          <li>完全呼氣時：右手用力推壓門柱，左手向後拉門柱邊緣，壓縮並對齊右側身體於右腳上方，感受右側下胸壁壓縮、外側右臀受到負荷。</li>
+          <li>每次呼吸持續加深壓縮；舌頭抵住上顎；每次完全呼氣後暫停3–5秒；每輪3–5次呼吸。</li>
+        </ol>
+        <div class="ex-checks">
+          <p>☐ 視覺（Vision）：依動作治療師指示</p>
+          <p>☐ PADA：每輪中途可考慮輕咬牙合板並吞嚥一次</p>
+          <p>☐ ALF：考慮舌頭放回ALF「基底位置」並用鼻子呼吸</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="ex-card">
+      <div class="ex-card-hdr gdirt-r">
+        <div class="ex-num">站姿右半球 G-DiRT No. 13 ｜ 附錄 p.83</div>
+        <div class="ex-title-zh">站姿右半球門柱推拉 G-DiRT</div>
+        <div class="ex-title-en">Standing Right Hemisphere Post Push Pull G-DiRT</div>
+      </div>
+      <div class="ex-body">
+        <ol class="ex-steps">
+          <li><strong>右腳</strong>腳尖朝向門柱；右手在肩膀高度抵住門柱。</li>
+          <li><strong>左手</strong>穿過門框，抓住門柱對面一側，位置在右手<strong>正上方</strong>（非30度角）。</li>
+          <li>左腳向前踏，臀部微微向右轉；約80%體重在右腳。</li>
+          <li>完全呼氣時：右手推壓門柱，左手拉門柱邊緣，壓縮並對齊右側身體。</li>
+          <li>每次完全呼氣後暫停3–5秒；每輪3–5次呼吸。</li>
+        </ol>
+        <div class="ex-checks">
+          <p>☐ 視覺（Vision）：依動作治療師指示</p>
+          <p>☐ PADA：每輪中途可考慮輕咬牙合板並吞嚥一次</p>
+          <p>☐ ALF：考慮舌頭放回ALF「基底位置」並用鼻子呼吸</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="ex-card">
+      <div class="ex-card-hdr gdirt-r">
+        <div class="ex-num">站姿右半球 G-DiRT No. 14 ｜ 附錄 p.84</div>
+        <div class="ex-title-zh">站姿右半球門柱推拉 G-DiRT 平行拉</div>
+        <div class="ex-title-en">Standing Right Hemisphere Post Push Pull G-DiRT with Parallel Pull</div>
+      </div>
+      <div class="ex-body">
+        <ol class="ex-steps">
+          <li><strong>右腳</strong>腳尖朝向門柱；右手在肩膀高度抵住門柱。</li>
+          <li><strong>左手</strong>穿過門框，抓住門柱對面一側，位置與右手<strong>平行等高</strong>。</li>
+          <li>左腳向前踏，臀部微微向右轉；約80%體重在右腳。</li>
+          <li>完全呼氣時：右手推壓門柱，左手拉門柱邊緣，壓縮並對齊右側身體。</li>
+          <li>每次完全呼氣後暫停3–5秒；每輪3–5次呼吸。</li>
+        </ol>
+        <div class="ex-checks">
+          <p>☐ 視覺（Vision）：依動作治療師指示</p>
+          <p>☐ PADA：每輪中途可考慮輕咬牙合板並吞嚥一次</p>
+          <p>☐ ALF：考慮舌頭放回ALF「基底位置」並用鼻子呼吸</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="ex-card">
+      <div class="ex-card-hdr gdirt-l">
+        <div class="ex-num">站姿左半球 G-DiRT No. 1 ｜ 附錄 p.85</div>
+        <div class="ex-title-zh">站姿左半球 G-DiRT 入門搭配右臂伸展轉向</div>
+        <div class="ex-title-en">Standing L Hemisphere G-DiRT Primer with Right Arm Reach Turn</div>
+      </div>
+      <div class="ex-body">
+        <ol class="ex-steps">
+          <li>將一個平台放在<strong>左側</strong>大腿中段旁；<strong>左腳踩上平台</strong>，重量均勻分布於左腳。</li>
+          <li>毛巾捲夾在<strong>左大腿與左下肋骨架</strong>之間。</li>
+          <li>彎曲<strong>右膝</strong>下沉，使約75–90%的體重落在<strong>左腳</strong>。</li>
+          <li><strong>右臂</strong>向前伸展，以強化氣流流向左側後背中段。</li>
+          <li>放鬆，透過鼻子呼吸，舌頭抵住上顎；維持約1分鐘後休息。</li>
+        </ol>
+        <div class="ex-checks">
+          <p>☐ 視覺（Vision）：依動作治療師指示</p>
+          <p>☐ PADA：每輪中途可考慮輕咬牙合板並吞嚥一次</p>
+          <p>☐ ALF：考慮舌頭放回ALF「基底位置」並用鼻子呼吸</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="ex-card">
+      <div class="ex-card-hdr gdirt-l">
+        <div class="ex-num">站姿左半球 G-DiRT No. 2 ｜ 附錄 p.86</div>
+        <div class="ex-title-zh">站姿左半球 G-DiRT 左胸椎壓縮推拉</div>
+        <div class="ex-title-en">Standing L Hemisphere G-DiRT Left Thoracic Compression Push Pull</div>
+      </div>
+      <div class="ex-body">
+        <ol class="ex-steps">
+          <li>維持站姿左半球姿勢（左腳踩平台、毛巾夾住，右膝下沉，75–90%體重在左腳）。</li>
+          <li><strong>左手</strong>向下推壓平台邊緣，同時<strong>右手</strong>向上拉起平台邊緣，幫助壓縮並對齊<strong>左側身體</strong>於左腳上方。</li>
+          <li>透過鼻子呼吸，舌頭抵住上顎；維持約1分鐘。</li>
+        </ol>
+        <div class="ex-checks">
+          <p>☐ 氣球（Balloon）：依動作治療師指示</p>
+          <p>☐ 視覺（Vision）：依動作治療師指示</p>
+          <p>☐ PADA：每輪中途可考慮輕咬牙合板並吞嚥一次</p>
+          <p>☐ ALF：考慮舌頭放回ALF「基底位置」並用鼻子呼吸</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="ex-card">
+      <div class="ex-card-hdr gdirt-l">
+        <div class="ex-num">站姿左半球 G-DiRT No. 3 ｜ 附錄 p.87</div>
+        <div class="ex-title-zh">站姿左半球 G-DiRT 左臂水平推壓</div>
+        <div class="ex-title-en">Standing L Hemisphere G-DiRT with L Horizontal Push</div>
+      </div>
+      <div class="ex-body">
+        <ol class="ex-steps">
+          <li>維持站姿左半球姿勢（左腳踩平台，右膝下沉，75–90%體重在左腳）。</li>
+          <li><strong>左臂</strong>向前伸展，將左手掌根靠在約肩膀高度的凳子或椅子上。</li>
+          <li>左手用力推壓，感受<strong>左側腹肌收縮</strong>。</li>
+          <li>透過鼻子吸氣與呼氣，完全呼氣後暫停3–5秒。</li>
+          <li>按照治療師的指示重複。</li>
+        </ol>
+        <div class="ex-checks">
+          <p>☐ 視覺（Vision）：依動作治療師指示</p>
+          <p>☐ PADA：每輪中途可考慮輕咬牙合板並吞嚥一次</p>
+          <p>☐ ALF：考慮舌頭放回ALF「基底位置」並用鼻子呼吸</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="ex-card">
+      <div class="ex-card-hdr gdirt-l">
+        <div class="ex-num">站姿左半球 G-DiRT No. 4 ｜ 附錄 p.88</div>
+        <div class="ex-title-zh">站姿左半球 G-DiRT 左臂上推牆</div>
+        <div class="ex-title-en">Standing L Hemisphere G-DiRT with Left Uphill Push</div>
+      </div>
+      <div class="ex-body">
+        <ol class="ex-steps">
+          <li>維持站姿左半球姿勢（左腳踩平台，右膝下沉，75–90%體重在左腳）。</li>
+          <li><strong>左臂</strong>向前伸展，左手靠在牆面<strong>肩膀上方約15公分</strong>處。</li>
+          <li>左手用力推牆，感受左側腹肌收縮。</li>
+          <li>透過鼻子吸氣與呼氣，完全呼氣後暫停3–5秒。</li>
+          <li>按照治療師的指示重複。</li>
+        </ol>
+        <div class="ex-checks">
+          <p>☐ 視覺（Vision）：依動作治療師指示</p>
+          <p>☐ PADA：每輪中途可考慮輕咬牙合板並吞嚥一次</p>
+          <p>☐ ALF：考慮舌頭放回ALF「基底位置」並用鼻子呼吸</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="ex-card">
+      <div class="ex-card-hdr gdirt-l">
+        <div class="ex-num">站姿左半球 G-DiRT No. 5 ｜ 附錄 p.89</div>
+        <div class="ex-title-zh">站姿左半球 G-DiRT 左臂伸展</div>
+        <div class="ex-title-en">Standing L Hemisphere G-DiRT with L Arm Reach</div>
+      </div>
+      <div class="ex-body">
+        <ol class="ex-steps">
+          <li>維持站姿左半球姿勢（左腳踩平台，右膝下沉，75–90%體重在左腳）。</li>
+          <li><strong>右手</strong>向上拉起平台邊緣，幫助壓縮並對齊左側身體。</li>
+          <li><strong>左臂</strong>向前伸展，以激活左側腹肌並讓氣流流向左側後背中段。</li>
+          <li>透過鼻子呼吸，舌頭抵住上顎；維持約1分鐘。</li>
+        </ol>
+        <div class="ex-checks">
+          <p>☐ 視覺（Vision）：依動作治療師指示</p>
+          <p>☐ PADA：每輪中途可考慮輕咬牙合板並吞嚥一次</p>
+          <p>☐ ALF：考慮舌頭放回ALF「基底位置」並用鼻子呼吸</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="ex-card">
+      <div class="ex-card-hdr gdirt-l">
+        <div class="ex-num">站姿左半球 G-DiRT No. 6 ｜ 附錄 p.90</div>
+        <div class="ex-title-zh">站姿左半球 Un-G-DiRT 左胸椎壓縮邊緣拉</div>
+        <div class="ex-title-en">Standing L Hemisphere Un-G-DiRT Left Thoracic Compression Edge Pull</div>
+      </div>
+      <div class="ex-body">
+        <ol class="ex-steps">
+          <li>維持站姿左半球姿勢，稍微下沉（初始增加左腿負荷）。</li>
+          <li>將<strong>右手</strong>移至左腳稍前方位置，向上拉起平台邊緣，壓縮並負荷<strong>左側肋骨架</strong>。</li>
+          <li>同時，<strong>左手</strong>橫越左腳向側方拉起平台邊緣，將負荷轉移至<strong>下沉的右腿</strong>，約達65–80%。</li>
+          <li>透過鼻子呼吸，舌頭抵住上顎；維持約1分鐘。</li>
+        </ol>
+        <div class="ex-checks">
+          <p>☐ 視覺（Vision）：依動作治療師指示</p>
+          <p>☐ PADA：每輪中途可考慮輕咬牙合板並吞嚥一次</p>
+          <p>☐ ALF：考慮舌頭放回ALF「基底位置」並用鼻子呼吸</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="ex-card">
+      <div class="ex-card-hdr gdirt-l">
+        <div class="ex-num">站姿左半球 G-DiRT No. 7 ｜ 附錄 p.91</div>
+        <div class="ex-title-zh">站姿左半球 G-DiRT 視野左臂指尖輕敲</div>
+        <div class="ex-title-en">Standing L Hemisphere G-DiRT in Your Eye with L Arm Reach Finger Tap</div>
+      </div>
+      <div class="ex-body">
+        <ol class="ex-steps">
+          <li>維持站姿左半球姿勢（左腳踩平台，右膝下沉，75–90%體重在左腳）。</li>
+          <li><strong>左臂</strong>向前伸展，將左手輕放在約肩膀高度的凳子或椅子上。</li>
+          <li>輕輕敲打<strong>左手指尖</strong>，將意識帶到<strong>左側視野</strong>。</li>
+          <li>透過鼻子吸氣與呼氣，完全呼氣後暫停3–5秒。</li>
+          <li>按照治療師的指示重複。</li>
+        </ol>
+        <div class="ex-checks">
+          <p>☐ 視覺（Vision）：依動作治療師指示</p>
+          <p>☐ PADA：每輪中途可考慮輕咬牙合板並吞嚥一次</p>
+          <p>☐ ALF：考慮舌頭放回ALF「基底位置」並用鼻子呼吸</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="ex-card">
+      <div class="ex-card-hdr gdirt-l">
+        <div class="ex-num">站姿左半球 G-DiRT No. 8 ｜ 附錄 p.92</div>
+        <div class="ex-title-zh">站姿左半球 G-DiRT 視野左臂指尖輕敲轉頭</div>
+        <div class="ex-title-en">Standing L Hemisphere G-DiRT in Your Eye with L Arm Reach Finger Tap with Head Turn</div>
+      </div>
+      <div class="ex-body">
+        <ol class="ex-steps">
+          <li>維持站姿左半球姿勢，左臂向前伸展，以強化氣流流向左側後背中段，左手輕放在凳子上。</li>
+          <li>輕輕敲打左手指尖。</li>
+          <li>將頭部向<strong>右</strong>旋轉至約<strong>2點鐘方向</strong>，同時保持雙眼固定在<strong>12點鐘方向</strong>。</li>
+          <li>保持視線固定20秒，然後將頭部轉回12點鐘方向，再維持20秒。</li>
+          <li>重複3–5次。</li>
+        </ol>
+        <div class="ex-checks">
+          <p>☐ 視覺（Vision）：依動作治療師指示</p>
+          <p>☐ PADA：每輪中途可考慮輕咬牙合板並吞嚥一次</p>
+          <p>☐ ALF：考慮舌頭放回ALF「基底位置」並用鼻子呼吸</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="ex-card">
+      <div class="ex-card-hdr gdirt-l">
+        <div class="ex-num">站姿左半球 G-DiRT No. 9 ｜ 附錄 p.93</div>
+        <div class="ex-title-zh">站姿左半球門框 G-DiRT 搭配右臂伸展轉向</div>
+        <div class="ex-title-en">Standing L Hemisphere Doorframe G-DiRT with Right Arm Reach Turn</div>
+      </div>
+      <div class="ex-body">
+        <ol class="ex-steps">
+          <li>站在門框內，背部與一側門框之間夾一個枕頭；<strong>左腳</strong>靠近門框中央，腳尖朝向門框。</li>
+          <li><strong>右腳</strong>向前踏，微微將臀部向左轉。</li>
+          <li><strong>左手</strong>推壓前方門框，允許背部微微圓拱，向後靠入枕頭，頸部放鬆微彎。</li>
+          <li>完全呼氣時，<strong>胸骨轉向左側</strong>，壓縮左側下肋骨，同時<strong>右臂</strong>向前伸展，進一步向後靠入枕頭。</li>
+          <li>暫停3–5秒；透過鼻子呼吸，每次完全呼氣後暫停3–5秒；每輪3–5次呼吸。</li>
+        </ol>
+        <div class="ex-checks">
+          <p>☐ 視覺（Vision）：依動作治療師指示</p>
+          <p>☐ PADA：每輪中途可考慮輕咬牙合板並吞嚥一次</p>
+          <p>☐ ALF：考慮舌頭放回ALF「基底位置」並用鼻子呼吸</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="ex-card">
+      <div class="ex-card-hdr gdirt-l">
+        <div class="ex-num">站姿左半球 G-DiRT No. 10 ｜ 附錄 p.94</div>
+        <div class="ex-title-zh">站姿左半球門框 G-DiRT</div>
+        <div class="ex-title-en">Standing L Hemisphere Doorframe G-DiRT</div>
+      </div>
+      <div class="ex-body">
+        <ol class="ex-steps">
+          <li>站在門框內，背部與一側門框之間夾一個枕頭；左腳靠近門框中央，右腳向前踏，微微將臀部向左轉。</li>
+          <li>左手推壓前方門框，允許背部微微圓拱，向後靠入枕頭，頸部放鬆微彎。</li>
+          <li>完全呼氣時，<strong>胸骨轉向左側</strong>，壓縮左側下肋骨，進一步向後靠入枕頭。</li>
+          <li>暫停3–5秒；透過鼻子呼吸，每次完全呼氣後暫停3–5秒；每輪3–5次呼吸。</li>
+        </ol>
+        <div class="ex-checks">
+          <p>☐ 視覺（Vision）：依動作治療師指示</p>
+          <p>☐ PADA：每輪中途可考慮輕咬牙合板並吞嚥一次</p>
+          <p>☐ ALF：考慮舌頭放回ALF「基底位置」並用鼻子呼吸</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="ex-card">
+      <div class="ex-card-hdr gdirt-l">
+        <div class="ex-num">站姿左半球 G-DiRT No. 11 ｜ 附錄 p.95</div>
+        <div class="ex-title-zh">站姿左半球門框 G-DiRT 搭配右臂伸展不轉向</div>
+        <div class="ex-title-en">Standing L Hemisphere Doorframe G-DiRT with Right Arm Reach No Turn</div>
+      </div>
+      <div class="ex-body">
+        <ol class="ex-steps">
+          <li>維持站姿左半球門框姿勢（枕頭、左腳靠門框，左手推門框）。</li>
+          <li>完全呼氣時，<strong>胸骨轉向左側</strong>，壓縮左側下肋骨，同時<strong>右臂</strong>向前伸展，<strong>不轉動上身</strong>。</li>
+          <li>暫停3–5秒；按照治療師的指示重複。</li>
+        </ol>
+        <div class="ex-checks">
+          <p>☐ 視覺（Vision）：依動作治療師指示</p>
+          <p>☐ PADA：每輪中途可考慮輕咬牙合板並吞嚥一次</p>
+          <p>☐ ALF：考慮舌頭放回ALF「基底位置」並用鼻子呼吸</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="ex-card">
+      <div class="ex-card-hdr gdirt-l">
+        <div class="ex-num">站姿左半球 G-DiRT No. 12 ｜ 附錄 p.96</div>
+        <div class="ex-title-zh">站姿左半球門柱推拉 G-DiRT 上拉</div>
+        <div class="ex-title-en">Standing Left Hemisphere Post Push Pull G-DiRT with Uphill Pull</div>
+      </div>
+      <div class="ex-body">
+        <ol class="ex-steps">
+          <li><strong>左腳</strong>腳尖朝向門柱；<strong>左手</strong>在肩膀高度抵住門柱。</li>
+          <li><strong>右手</strong>穿過門框，抓住門柱對面一側，位置在左手<strong>上方約30度</strong>。</li>
+          <li>右腳向前踏，使臀部微微向左轉；約80%體重落在<strong>左腳</strong>。</li>
+          <li>頸部放鬆，眼睛對齊地平線。</li>
+          <li>完全呼氣時：左手用力推壓門柱，右手向後拉門柱邊緣，壓縮並對齊左側身體於左腳上方，感受左側下胸壁壓縮、外側左臀受到負荷。</li>
+          <li>每次呼吸持續加深壓縮；舌頭抵住上顎；每次完全呼氣後暫停3–5秒；每輪3–5次呼吸。</li>
+        </ol>
+        <div class="ex-checks">
+          <p>☐ 視覺（Vision）：依動作治療師指示</p>
+          <p>☐ PADA：每輪中途可考慮輕咬牙合板並吞嚥一次</p>
+          <p>☐ ALF：考慮舌頭放回ALF「基底位置」並用鼻子呼吸</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="ex-card">
+      <div class="ex-card-hdr gdirt-l">
+        <div class="ex-num">站姿左半球 G-DiRT No. 13 ｜ 附錄 p.97</div>
+        <div class="ex-title-zh">站姿左半球門柱推拉 G-DiRT</div>
+        <div class="ex-title-en">Standing Left Hemisphere Post Push Pull G-DiRT</div>
+      </div>
+      <div class="ex-body">
+        <ol class="ex-steps">
+          <li><strong>左腳</strong>腳尖朝向門柱；左手在肩膀高度抵住門柱。</li>
+          <li><strong>右手</strong>穿過門框，抓住門柱對面一側，位置在左手<strong>正上方</strong>（非30度角）。</li>
+          <li>右腳向前踏，臀部微微向左轉；約80%體重在左腳。</li>
+          <li>完全呼氣時：左手推壓門柱，右手拉門柱邊緣，壓縮並對齊左側身體。</li>
+          <li>每次完全呼氣後暫停3–5秒；每輪3–5次呼吸。</li>
+        </ol>
+        <div class="ex-checks">
+          <p>☐ 視覺（Vision）：依動作治療師指示</p>
+          <p>☐ PADA：每輪中途可考慮輕咬牙合板並吞嚥一次</p>
+          <p>☐ ALF：考慮舌頭放回ALF「基底位置」並用鼻子呼吸</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="ex-card">
+      <div class="ex-card-hdr gdirt-l">
+        <div class="ex-num">站姿左半球 G-DiRT No. 14 ｜ 附錄 p.98</div>
+        <div class="ex-title-zh">站姿左半球門柱推拉 G-DiRT 平行拉</div>
+        <div class="ex-title-en">Standing Left Hemisphere Post Push Pull G-DiRT with Parallel Pull</div>
+      </div>
+      <div class="ex-body">
+        <ol class="ex-steps">
+          <li><strong>左腳</strong>腳尖朝向門柱；左手在肩膀高度抵住門柱。</li>
+          <li><strong>右手</strong>穿過門框，抓住門柱對面一側，位置與左手<strong>平行等高</strong>。</li>
+          <li>右腳向前踏，臀部微微向左轉；約80%體重在左腳。</li>
+          <li>完全呼氣時：左手推壓門柱，右手拉門柱邊緣，壓縮並對齊左側身體。</li>
+          <li>每次完全呼氣後暫停3–5秒；每輪3–5次呼吸。</li>
+        </ol>
+        <div class="ex-checks">
+          <p>☐ 視覺（Vision）：依動作治療師指示</p>
+          <p>☐ PADA：每輪中途可考慮輕咬牙合板並吞嚥一次</p>
+          <p>☐ ALF：考慮舌頭放回ALF「基底位置」並用鼻子呼吸</p>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- end up-stgdirt -->
+
+</div><!-- end upright -->
 
 <script>
 function showSection(id, btn) {
