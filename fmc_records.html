@@ -548,9 +548,15 @@ var assessCurPage = 0;
 var _currentAssessId = null;
 var _currentNoteId = null;
 var _fromMyRecords = false;
+var _directCoach = new URLSearchParams(location.search).get('coach') || '';
 
 // ── INIT ──
 window.addEventListener('load', function() {
+  if (_directCoach) {
+    lineProfile = { userId: 'direct-' + _directCoach, displayName: _directCoach, pictureUrl: '' };
+    loadAppData();
+    return;
+  }
   liff.init({ liffId: LIFF_ID })
     .then(function() {
       if (!liff.isLoggedIn()) {
@@ -566,7 +572,6 @@ window.addEventListener('load', function() {
     })
     .catch(function(err) {
       console.error('LIFF init error', err);
-      // fallback: dev mode without LINE
       lineProfile = { userId: 'dev-test', displayName: 'Dev Test', pictureUrl: '' };
       loadAppData();
     });
@@ -591,6 +596,19 @@ function loadAppData() {
 
 function checkUserRole() {
   var uid = lineProfile.userId;
+
+  if (_directCoach) {
+    var matchedName = _directCoach;
+    allStudents.forEach(function(s) {
+      if (s && s.coach && s.coach.toLowerCase().indexOf(_directCoach.toLowerCase()) !== -1) {
+        matchedName = s.coach;
+      }
+    });
+    currentUser = { role: 'coach', coachKey: _directCoach, coachName: matchedName };
+    showCoachHome();
+    return;
+  }
+
   // Check coaches table
   fbdb.ref('data/app_coaches').once('value', function(snap) {
     var coaches = snap.val() || {};
@@ -613,7 +631,6 @@ function checkUserRole() {
       showMyRecords(matched);
       return;
     }
-    // Not found — check if first-time coach registration
     showNotLinked();
   });
 }
@@ -632,6 +649,7 @@ function showCoachHome() {
   }
   buildCoachFilter();
   renderStudentList(allStudents);
+  if (_directCoach) setCoachFilter(currentUser.coachName);
 }
 
 var activeCoachFilter = '';
