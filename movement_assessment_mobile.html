@@ -990,6 +990,7 @@ function takeScreenshot(){
     document.body.removeChild(overlay);
     if(document.exitFullscreen)document.exitFullscreen().catch(function(){});
     else if(document.webkitExitFullscreen)document.webkitExitFullscreen();
+    setTimeout(setHeaderHeight,150);
   };
 
   var indicator=document.createElement('span');
