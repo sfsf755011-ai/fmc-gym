@@ -283,19 +283,19 @@ body{
       <div class="prog-pill active" onclick="goPage(0)" id="pp0"></div>
       <div class="prog-pill" onclick="goPage(1)" id="pp1"></div>
       <div class="prog-pill" onclick="goPage(2)" id="pp2"></div>
-      <div class="prog-pill" onclick="goPage(3)" id="pp3"></div>
     </div>
     <div class="prog-labels">
-      <span class="prog-label active" id="pl0">旋轉組</span>
-      <span class="prog-label" id="pl1">外展組</span>
-      <span class="prog-label" id="pl2">接地</span>
-      <span class="prog-label" id="pl3">總結</span>
+      <span class="prog-label active" id="pl0">SOP</span>
+      <span class="prog-label" id="pl1">GPT</span>
+      <span class="prog-label" id="pl2">總結</span>
     </div>
   </div>
 </div>
 
-<!-- PAGE 1: 頸旋轉 / 骨盆旋轉 / 肩外展 -->
+<!-- PAGES (SOP 全測 / GPT 接地 / 總結) -->
 <div class="pages-container">
+
+<!-- PAGE 0: SOP – 全部測試 -->
 <div class="page active" id="page-0">
 
   <div class="sec-label">偏側化主要依據　軸心旋轉</div>
@@ -365,11 +365,6 @@ body{
       <div class="desc-body"><input class="desc-inp" type="text" placeholder="敘述補充…" oninput="save()"></div>
     </div>
   </div>
-
-</div>
-
-<!-- PAGE 2: 肩外旋 / 肩內旋 / 直腿抬高 / 髖伸 -->
-<div class="page" id="page-1">
 
   <div class="sec-label">矢狀面代償 ★ ／ 輔助判斷 ▲</div>
 
@@ -463,8 +458,8 @@ body{
 
 </div>
 
-<!-- PAGE 3: 接地功能 -->
-<div class="page" id="page-2">
+<!-- PAGE 1: GPT – 接地功能 -->
+<div class="page" id="page-1">
 
   <div class="g-card">
     <div class="g-head">
@@ -553,8 +548,8 @@ body{
 
 </div>
 
-<!-- PAGE 4: 總結 -->
-<div class="page" id="page-3">
+<!-- PAGE 2: 總結 -->
+<div class="page" id="page-2">
 
   <div class="sum-card">
     <div class="sum-hd">各項判讀總覽</div>
@@ -569,47 +564,26 @@ body{
     <div class="sum-hd">評估總結</div>
     <div class="sum-body">
       <div class="vfield">
-        <label class="vlabel">結構側化方向</label>
-        <select class="vsel" id="sel-lat" onchange="styleSelect(this);updateComparison();save()">
+        <label class="vlabel">根據 SOP 的判斷</label>
+        <select class="vsel" id="sel-sop" onchange="styleSelect(this);atAutoJudge();save()">
           <option value="">— 選擇 —</option>
-          <option value="L">左側　Left</option>
-          <option value="R">右側　Right</option>
-          <option value="CL">混亂左側化</option>
-          <option value="CR">混亂右側化</option>
-          <option value="PEC">雙邊 Pec</option>
+          <option value="L">左承重　Left</option>
+          <option value="R">右承重　Right</option>
         </select>
       </div>
       <div class="vfield">
-        <label class="vlabel">GPT 測試結果</label>
-        <select class="vsel" id="sel-gpt" onchange="styleSelect(this);updateComparison();save()">
+        <label class="vlabel">根據 GPT 的判斷</label>
+        <select class="vsel" id="sel-gpt-sum" onchange="styleSelect(this);atAutoJudge();save()">
           <option value="">— 選擇 —</option>
-          <option value="L">左側神經優勢</option>
-          <option value="R">右側神經優勢</option>
-          <option value="PEC">雙邊 pec（皆小於 3 分）</option>
+          <option value="L">左承重　Left</option>
+          <option value="R">右承重　Right</option>
         </select>
       </div>
 
-      <!-- 自動對比結果 -->
-      <div id="comparison-box" style="display:none;margin-top:10px;border-radius:12px;padding:14px 16px;background:var(--comp-bg,#1e293b);border:1.5px solid var(--comp-border,#334155)">
-        <div style="font-size:11px;color:#94a3b8;font-weight:600;letter-spacing:.05em;margin-bottom:6px">結構 × GPT 對比判讀</div>
-        <div id="comparison-result" style="font-size:15px;font-weight:700;line-height:1.5"></div>
-      </div>
-
-      <div class="vfield" style="margin-top:12px">
-        <label class="vlabel">體腔壓縮策略 - 重置身體腔體狀態</label>
-        <select class="vsel" id="sel-compress" onchange="styleSelect(this);save()">
-          <option value="">— 選擇 —</option>
-          <option value="L">左側壓縮</option>
-          <option value="R">右側壓縮</option>
-        </select>
-      </div>
-      <div class="vfield">
-        <label class="vlabel">ghope 促進側 - 同側的接地動作品質</label>
-        <select class="vsel" id="sel-ghope" onchange="styleSelect(this);save()">
-          <option value="">— 選擇 —</option>
-          <option value="L">左側 ghope</option>
-          <option value="R">右側 ghope</option>
-        </select>
+      <!-- 自動綜合判斷 -->
+      <div id="combined-box" style="display:none;border-radius:12px;padding:14px 16px;background:rgba(30,41,59,.8);border:1.5px solid #334155">
+        <div style="font-size:11px;color:#94a3b8;font-weight:600;letter-spacing:.05em;margin-bottom:6px">綜合判斷</div>
+        <div id="combined-result" style="font-size:15px;font-weight:700;line-height:1.5"></div>
       </div>
     </div>
   </div>
@@ -635,7 +609,7 @@ body{
     <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M9 2L4 7l5 5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
     上一頁
   </button>
-  <span class="nav-page-num" id="nav-num">1 / 4</span>
+  <span class="nav-page-num" id="nav-num">1 / 3</span>
   <button class="nav-btn primary" id="btn-next" onclick="goPage(curPage+1)">
     下一頁
     <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M5 2l5 5-5 5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -761,51 +735,29 @@ function styleSelect(sel){
   else if(v==='PEC')sel.classList.add('sel-PEC');
 }
 
-// ── 結構 × GPT 對比判讀 ──
-function updateComparison(){
-  var lat=document.getElementById('sel-lat').value;
-  var gpt=document.getElementById('sel-gpt').value;
-  var box=document.getElementById('comparison-box');
-  var res=document.getElementById('comparison-result');
-  if(!lat||!gpt){box.style.display='none';return;}
+// ── SOP × GPT 自動綜合判斷 ──
+function atAutoJudge(){
+  var sop=(document.getElementById('sel-sop')||{}).value;
+  var gpt=(document.getElementById('sel-gpt-sum')||{}).value;
+  var box=document.getElementById('combined-box');
+  if(!box)return;
+  if(!sop||!gpt){box.style.display='none';return;}
   box.style.display='block';
-
-  var structLeft=(lat==='L'||lat==='CL');
-  var structRight=(lat==='R'||lat==='CR');
-  var structPec=(lat==='PEC');
-  var gptLeft=(gpt==='L');
-  var gptRight=(gpt==='R');
-  var gptPec=(gpt==='PEC');
-
-  var text='',color='#f8fafc',bg='',border='';
-
-  if(structPec&&gptPec){
-    text='⛔ 禁止 ghope　先做雙邊減壓或側臥測試';
-    color='#fca5a5';bg='rgba(239,68,68,.12)';border='#ef4444';
-  }else if(structPec&&gptLeft){
-    text='🔒 左側死鎖需減壓　（結構雙邊 Pec × GPT 左優勢）';
-    color='#fcd34d';bg='rgba(245,158,11,.12)';border='#f59e0b';
-  }else if(structPec&&gptRight){
-    text='🔒 右側死鎖需減壓　（結構雙邊 Pec × GPT 右優勢）';
-    color='#fcd34d';bg='rgba(245,158,11,.12)';border='#f59e0b';
-  }else if((structLeft&&gptLeft)||(structRight&&gptRight)){
-    var dir=structLeft?'左':'右';
-    text='✅ 典型'+dir+'承重';
+  var text,color,bg,border;
+  if(sop===gpt){
+    text='✅ 典型'+(sop==='L'?'左':'右')+'承重';
     color='#6ee7b7';bg='rgba(16,185,129,.12)';border='#10b981';
-  }else if(structLeft&&gptRight){
-    text='⚠️ 假性左承重　（結構左 × GPT 右優勢）';
-    color='#fbbf24';bg='rgba(245,158,11,.12)';border='#f59e0b';
-  }else if(structRight&&gptLeft){
-    text='⚠️ 假性右承重　（結構右 × GPT 左優勢）';
+  }else if(sop==='L'&&gpt==='R'){
+    text='⚠️ 混亂右承重　（SOP左 × GPT右）';
     color='#fbbf24';bg='rgba(245,158,11,.12)';border='#f59e0b';
   }else{
-    text='— 無法判讀此組合 —';
-    color='#94a3b8';bg='';border='#334155';
+    text='⚠️ 混亂左承重　（SOP右 × GPT左）';
+    color='#fbbf24';bg='rgba(245,158,11,.12)';border='#f59e0b';
   }
-  res.textContent=text;
-  res.style.color=color;
-  box.style.background=bg||'rgba(30,41,59,.8)';
-  box.style.borderColor=border||'#334155';
+  var res=document.getElementById('combined-result');
+  if(res){res.textContent=text;res.style.color=color;}
+  box.style.background=bg;
+  box.style.borderColor=border;
 }
 
 // ── Desc toggle ──
@@ -817,7 +769,7 @@ function toggleDesc(btn){
 
 // ── Page nav ──
 function goPage(n){
-  if(n<0||n>3)return;
+  if(n<0||n>2)return;
   document.getElementById('page-'+curPage).classList.remove('active');
   document.getElementById('pp'+curPage).classList.remove('active');
   document.getElementById('pl'+curPage).classList.remove('active');
@@ -826,18 +778,18 @@ function goPage(n){
   document.getElementById('pp'+curPage).classList.add('active');
   document.getElementById('pl'+curPage).classList.add('active');
   // mark done pills
-  for(var i=0;i<4;i++){
+  for(var i=0;i<3;i++){
     var pp=document.getElementById('pp'+i);
     pp.classList.remove('done');
     if(i<curPage)pp.classList.add('done');
   }
   document.getElementById('btn-prev').disabled=(curPage===0);
-  document.getElementById('btn-next').disabled=(curPage===3);
-  if(curPage===3)document.getElementById('btn-next').style.display='none';
+  document.getElementById('btn-next').disabled=(curPage===2);
+  if(curPage===2)document.getElementById('btn-next').style.display='none';
   else document.getElementById('btn-next').style.display='';
-  document.getElementById('nav-num').textContent=(curPage+1)+' / 4';
+  document.getElementById('nav-num').textContent=(curPage+1)+' / 3';
   window.scrollTo(0,0);
-  if(curPage===3)refreshResultsGrid();
+  if(curPage===2)refreshResultsGrid();
 }
 
 // ── localStorage save/restore ──
@@ -853,7 +805,7 @@ function save(){
       if(el.id)data[el.id]=el.value;
     });
     // selects
-    ['sel-lat','sel-gpt','sel-compress','sel-ghope'].forEach(function(id){
+    ['sel-sop','sel-gpt-sum'].forEach(function(id){
       var el=document.getElementById(id);if(el)data[id]=el.value;
     });
     // desc-open state
@@ -879,11 +831,11 @@ function restore(){
       if(el.id&&data[el.id]!==undefined)el.value=data[el.id];
     });
     // selects
-    ['sel-lat','sel-gpt','sel-compress','sel-ghope'].forEach(function(id){
+    ['sel-sop','sel-gpt-sum'].forEach(function(id){
       var el=document.getElementById(id);
       if(el&&data[id]){el.value=data[id];styleSelect(el);}
     });
-    updateComparison();
+    atAutoJudge();
     // desc open state
     if(data._openDescs){
       data._openDescs.split(',').forEach(function(testId){
