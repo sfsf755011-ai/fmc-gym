@@ -585,6 +585,23 @@ body{
         <div style="font-size:11px;color:#94a3b8;font-weight:600;letter-spacing:.05em;margin-bottom:6px">綜合判斷</div>
         <div id="combined-result" style="font-size:15px;font-weight:700;line-height:1.5"></div>
       </div>
+
+      <div class="vfield" style="margin-top:12px">
+        <label class="vlabel">壓縮接地策略</label>
+        <select class="vsel" id="sel-compress" onchange="styleSelect(this);save()">
+          <option value="">— 選擇 —</option>
+          <option value="L">左側</option>
+          <option value="R">右側</option>
+        </select>
+      </div>
+      <div class="vfield">
+        <label class="vlabel">ghope 接地優化策略</label>
+        <select class="vsel" id="sel-ghope" onchange="styleSelect(this);save()">
+          <option value="">— 選擇 —</option>
+          <option value="L">左側</option>
+          <option value="R">右側</option>
+        </select>
+      </div>
     </div>
   </div>
 
@@ -693,36 +710,42 @@ function refreshResultsGrid(){
     const postBadge=document.getElementById('post-'+id);
     const preText=preBadge?preBadge.textContent:'–';
     const postText=postBadge?postBadge.textContent:'–';
+    if(preText==='–'&&postText==='–')return; // 未填則不顯示
     const preCls=preBadge?preBadge.className.replace('badge','').trim():'';
     const postCls=postBadge?postBadge.className.replace('badge','').trim():'';
     html+='<div class="result-row"><span class="result-name">'+TEST_NAMES[id]+'</span>';
     html+='<div class="result-badges">';
-    html+='<span class="r-badge '+preCls+'">前 '+preText+'</span>';
-    html+='<span class="r-badge '+postCls+'">後 '+postText+'</span>';
+    if(preText!=='–')html+='<span class="r-badge '+preCls+'">前 '+preText+'</span>';
+    if(postText!=='–')html+='<span class="r-badge '+postCls+'">後 '+postText+'</span>';
     html+='</div></div>';
   });
-  // Grounding (接地) rows
+  // Grounding (接地) rows — 只在有值時顯示
   var objLPre=parseFloat((document.getElementById('obj-L-pre')||{}).value||'');
   var objRPre=parseFloat((document.getElementById('obj-R-pre')||{}).value||'');
   var objLPost=parseFloat((document.getElementById('obj-L-post')||{}).value||'');
   var objRPost=parseFloat((document.getElementById('obj-R-post')||{}).value||'');
-  var gPreCls=(!isNaN(objLPre)&&!isNaN(objRPre))?(objLPre>objRPre?'bL':objRPre>objLPre?'bR':'bN'):'';
-  var gPostCls=(!isNaN(objLPost)&&!isNaN(objRPost))?(objLPost>objRPost?'bL':objRPost>objLPost?'bR':'bN'):'';
-  var gPreText=(!isNaN(objLPre)&&!isNaN(objRPre))?('左'+objLPre+' / 右'+objRPre):'–';
-  var gPostText=(!isNaN(objLPost)&&!isNaN(objRPost))?('左'+objLPost+' / 右'+objRPost):'–';
-  html+='<div class="result-row"><span class="result-name">接地　神經偏好</span>';
-  html+='<div class="result-badges">';
-  html+='<span class="r-badge '+gPreCls+'">前 '+gPreText+'</span>';
-  html+='<span class="r-badge '+gPostCls+'">後 '+gPostText+'</span>';
-  html+='</div></div>';
-  var nrPre=document.getElementById('neuro-result-pre');
-  var nrPost=document.getElementById('neuro-result-post');
-  if(nrPre&&nrPre.classList.contains('has-val')){
-    html+='<div style="padding:8px 12px;font-size:12px;color:#166534;line-height:1.5;background:var(--gl);border-radius:9px;border:1px solid var(--gm)">前測：'+nrPre.textContent+'</div>';
+  var hasGPre=!isNaN(objLPre)&&!isNaN(objRPre);
+  var hasGPost=!isNaN(objLPost)&&!isNaN(objRPost);
+  if(hasGPre||hasGPost){
+    var gPreCls=hasGPre?(objLPre>objRPre?'bL':objRPre>objLPre?'bR':'bN'):'';
+    var gPostCls=hasGPost?(objLPost>objRPost?'bL':objRPost>objLPost?'bR':'bN'):'';
+    var gPreText=hasGPre?('左'+objLPre+' / 右'+objRPre):'–';
+    var gPostText=hasGPost?('左'+objLPost+' / 右'+objRPost):'–';
+    html+='<div class="result-row"><span class="result-name">接地　神經偏好</span>';
+    html+='<div class="result-badges">';
+    if(hasGPre)html+='<span class="r-badge '+gPreCls+'">前 '+gPreText+'</span>';
+    if(hasGPost)html+='<span class="r-badge '+gPostCls+'">後 '+gPostText+'</span>';
+    html+='</div></div>';
+    var nrPre=document.getElementById('neuro-result-pre');
+    var nrPost=document.getElementById('neuro-result-post');
+    if(nrPre&&nrPre.classList.contains('has-val')){
+      html+='<div style="padding:8px 12px;font-size:12px;color:#166534;line-height:1.5;background:var(--gl);border-radius:9px;border:1px solid var(--gm)">前測：'+nrPre.textContent+'</div>';
+    }
+    if(nrPost&&nrPost.classList.contains('has-val')){
+      html+='<div style="padding:8px 12px;font-size:12px;color:#166534;line-height:1.5;background:var(--gl);border-radius:9px;border:1px solid var(--gm);margin-top:4px">後測：'+nrPost.textContent+'</div>';
+    }
   }
-  if(nrPost&&nrPost.classList.contains('has-val')){
-    html+='<div style="padding:8px 12px;font-size:12px;color:#166534;line-height:1.5;background:var(--gl);border-radius:9px;border:1px solid var(--gm);margin-top:4px">後測：'+nrPost.textContent+'</div>';
-  }
+  if(!html)html='<div style="padding:12px;font-size:13px;color:var(--sl400);text-align:center">尚未填入任何測量數據</div>';
   grid.innerHTML=html;
 }
 
@@ -805,7 +828,7 @@ function save(){
       if(el.id)data[el.id]=el.value;
     });
     // selects
-    ['sel-sop','sel-gpt-sum'].forEach(function(id){
+    ['sel-sop','sel-gpt-sum','sel-compress','sel-ghope'].forEach(function(id){
       var el=document.getElementById(id);if(el)data[id]=el.value;
     });
     // desc-open state
@@ -831,7 +854,7 @@ function restore(){
       if(el.id&&data[el.id]!==undefined)el.value=data[el.id];
     });
     // selects
-    ['sel-sop','sel-gpt-sum'].forEach(function(id){
+    ['sel-sop','sel-gpt-sum','sel-compress','sel-ghope'].forEach(function(id){
       var el=document.getElementById(id);
       if(el&&data[id]){el.value=data[id];styleSelect(el);}
     });
@@ -872,7 +895,8 @@ function takeScreenshot(){
     var t=String(now.getHours()).padStart(2,'0')+String(now.getMinutes()).padStart(2,'0');
     var dataUrl=canvas.toDataURL('image/png');
     var isIOS=/iPad|iPhone|iPod/.test(navigator.userAgent)&&!window.MSStream;
-    if(isIOS){
+    var isLINE=/Line\//i.test(navigator.userAgent);
+    if(isIOS||isLINE){
       var ov=document.getElementById('sc-overlay');
       document.getElementById('sc-img').src=dataUrl;
       ov.style.display='flex';
