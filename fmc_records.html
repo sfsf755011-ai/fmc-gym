@@ -426,27 +426,24 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang TC','Microsoft Jheng
   <div class="content" id="note-view-content"></div>
 </div>
 
-<!-- ── MODAL: 新增評估 ── -->
-<div class="modal-overlay" id="modal-assess">
-  <div class="modal-sheet">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
-      <span class="modal-title" style="margin:0">新增動作評估</span>
-      <button class="modal-close" onclick="closeModal('modal-assess')">✕</button>
+<!-- ── SCREEN: 新增評估 (Full-screen) ── -->
+<div id="screen-assess-form" class="screen" style="display:none">
+  <div class="top-header">
+    <div class="top-header-inner">
+      <button class="top-back" onclick="closeAssessForm()">✕</button>
+      <div class="top-title">動作評估</div>
+      <input type="date" id="assess-date" style="background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:8px;color:#fff;padding:4px 8px;font-size:12px;min-width:0;max-width:140px">
     </div>
-    <div class="form-group">
-      <label class="form-label">日期</label>
-      <input class="form-inp" type="date" id="assess-date">
-    </div>
-    <!-- assess header progress -->
-    <div style="margin-bottom:10px">
+    <div style="padding:4px 16px 8px">
       <div class="prog-row" id="ap-prog-row"></div>
       <div class="prog-labels" id="ap-prog-labels"></div>
     </div>
-    <!-- assess pages -->
+  </div>
+  <div class="content">
     <div class="assess-pages" id="assess-form-pages"></div>
     <div class="assess-nav">
       <button class="nav-btn-sm" id="ap-prev" onclick="assessGoPage(assessCurPage-1)" disabled>‹ 上一頁</button>
-      <span class="nav-page-num" id="ap-num">1 / 4</span>
+      <span class="nav-page-num" id="ap-num">1 / 3</span>
       <button class="nav-btn-sm primary" id="ap-next" onclick="assessGoPage(assessCurPage+1)">下一頁 ›</button>
     </div>
     <button class="btn btn-green" id="ap-save-btn" style="display:none;margin-top:8px" onclick="saveAssessment()">💾 儲存評估</button>
@@ -769,13 +766,17 @@ function loadAssessments() {
       list.forEach(function(item) {
         var d = item.data;
         var summary = d.summary || {};
-        var latLabel = { L:'左側', R:'右側', CL:'混亂左側', CR:'混亂右側', PEC:'雙邊Pec' }[summary.laterality] || '—';
+        var sopJ = summary.sopJudge || summary.laterality || '';
+        var gptJ = summary.gptJudge || summary.gpt || '';
+        var sopLabel = { L:'左承重', R:'右承重', CL:'混亂左', CR:'混亂右', PEC:'雙邊Pec' }[sopJ] || '—';
+        var gptLabel = { L:'左承重', R:'右承重', PEC:'雙邊Pec' }[gptJ] || '—';
+        var combinedLabel = { 'typical-L':'典型左承重', 'typical-R':'典型右承重', 'confused-L':'混亂左承重', 'confused-R':'混亂右承重' }[summary.combined] || '';
         html += '<div class="timeline-item" onclick="openAssessView(\''+item.id+'\')">'
           + '<div class="tl-dot tl-dot-assess">📋</div>'
           + '<div class="tl-info">'
           +   '<div class="tl-title">動作評估</div>'
           +   '<div class="tl-sub">'+(d.date||'')+(d.coachName?' · '+d.coachName:'')+'</div>'
-          +   '<div class="tl-preview">偏側化：'+latLabel+'　GPT：'+({ L:'左側優勢', R:'右側優勢', PEC:'雙邊Pec' }[summary.gpt]||'—')+'</div>'
+          +   '<div class="tl-preview">SOP：'+sopLabel+'　GPT：'+gptLabel+(combinedLabel?' → '+combinedLabel:'')+'</div>'
           + '</div>'
           + '<span style="color:var(--sl300);font-size:16px">›</span>'
           + '</div>';
@@ -835,12 +836,10 @@ function openAssessView(assessId) {
 
 var TESTS_CFG = {
   'cervical-rot': { name:'頸旋轉', ref:'>30°', leftLat:function(L,R){return R<L;} },
-  'pelvis-rot':   { name:'骨盆旋轉', ref:'>70°', leftLat:function(L,R){return R<L;} },
   'shoulder-abd': { name:'肩外展', ref:'>45°', leftLat:function(L,R){return R<L;} },
+  'pelvis-rot':   { name:'骨盆旋轉', ref:'>70°', leftLat:function(L,R){return R<L;} },
   'shoulder-er':  { name:'肩外旋', ref:'>70°', leftLat:function(L,R){return R<L;} },
-  'shoulder-ir':  { name:'肩內旋', ref:'>70°', leftLat:function(L,R){return L<R;} },
-  'slr':          { name:'直腿抬高', ref:'>70°', leftLat:function(L,R){return R<L;} },
-  'hip-ext':      { name:'髖伸', ref:'−5~0°', leftLat:function(L,R){return R<L;} }
+  'shoulder-ir':  { name:'肩內旋', ref:'>70°', leftLat:function(L,R){return L<R;} }
 };
 
 function latLabel(lat) {
@@ -912,16 +911,23 @@ function renderAssessView(d) {
   html += '</div></div>';
 
   // summary
-  var latMap = {L:'左側',R:'右側',CL:'混亂左側化',CR:'混亂右側化',PEC:'雙邊 Pec'};
-  var gptMap = {L:'左側神經優勢',R:'右側神經優勢',PEC:'雙邊 pec'};
-  var compMap = {L:'左側壓縮',R:'右側壓縮'};
-  var ghopeMap = {L:'左側 ghope',R:'右側 ghope'};
-  html += '<div class="detail-section"><div class="detail-section-hd">評估總結</div><div class="detail-section-body">';
-  html += '<div class="detail-row"><span class="detail-label">結構側化方向</span><span class="detail-val '+(sum.laterality==='L'||sum.laterality==='CL'?'left':sum.laterality==='R'||sum.laterality==='CR'?'right':'')+'">'+( latMap[sum.laterality]||'—')+'</span></div>';
-  html += '<div class="detail-row"><span class="detail-label">GPT 測試</span><span class="detail-val">'+( gptMap[sum.gpt]||'—')+'</span></div>';
-  html += '<div class="detail-row"><span class="detail-label">壓縮腔體策略</span><span class="detail-val">'+( compMap[sum.compress]||'—')+'</span></div>';
-  html += '<div class="detail-row"><span class="detail-label">ghope 促進側</span><span class="detail-val">'+( ghopeMap[sum.ghope]||'—')+'</span></div>';
-  if (sum.notes) html += '<div style="margin-top:10px"><div style="font-size:12px;font-weight:600;color:var(--sl500);margin-bottom:4px">回家作業 / 總結</div><div class="notes-display">'+sum.notes+'</div></div>';
+  var sopJ = sum.sopJudge || sum.laterality || '';
+  var gptJ = sum.gptJudge || sum.gpt || '';
+  var sopMap = {L:'左承重',R:'右承重',CL:'混亂左側化',CR:'混亂右側化',PEC:'雙邊 Pec'};
+  var gptMap2 = {L:'左承重',R:'右承重',PEC:'雙邊 pec'};
+  var combinedText = { 'typical-L':'✅ 典型左承重', 'typical-R':'✅ 典型右承重', 'confused-L':'⚠️ 混亂左承重（SOP左 × GPT右）', 'confused-R':'⚠️ 混亂右承重（SOP右 × GPT左）' }[sum.combined] || '';
+  if (!combinedText && sopJ && gptJ) {
+    if (sopJ === gptJ) combinedText = (sopJ==='L'?'✅ 典型左承重':'✅ 典型右承重');
+    else combinedText = (sopJ==='L'?'⚠️ 混亂左承重（SOP左 × GPT右）':'⚠️ 混亂右承重（SOP右 × GPT左）');
+  }
+  html += '<div class="detail-section"><div class="detail-section-hd">評估判斷</div><div class="detail-section-body">';
+  html += '<div class="detail-row"><span class="detail-label">SOP 判斷</span><span class="detail-val '+(sopJ==='L'?'left':sopJ==='R'?'right':'')+'">'+( sopMap[sopJ]||'—')+'</span></div>';
+  html += '<div class="detail-row"><span class="detail-label">GPT 判斷</span><span class="detail-val '+(gptJ==='L'?'left':gptJ==='R'?'right':'')+'">'+( gptMap2[gptJ]||'—')+'</span></div>';
+  if (combinedText) {
+    var isBad = combinedText.indexOf('⚠️') !== -1;
+    html += '<div style="margin-top:8px;padding:10px 12px;border-radius:9px;background:'+(isBad?'var(--amber-bg)':'var(--green-bg)')+';border:1px solid '+(isBad?'var(--amber-b)':'var(--green-b)')+';font-size:14px;font-weight:700;color:'+(isBad?'var(--amber)':'var(--green)')+'">'+combinedText+'</div>';
+  }
+  if (sum.notes) html += '<div style="margin-top:10px"><div style="font-size:12px;font-weight:600;color:var(--sl500);margin-bottom:4px">備註 / 回家作業</div><div class="notes-display">'+sum.notes+'</div></div>';
   html += '</div></div>';
 
   el.innerHTML = html;
@@ -1032,12 +1038,15 @@ function loadMyAssessments() {
     var html = '<div class="card">';
     list.forEach(function(item) {
       var d = item.data; var summary = d.summary || {};
-      var latLabel2 = { L:'左側', R:'右側', CL:'混亂左側', CR:'混亂右側', PEC:'雙邊Pec' }[summary.laterality] || '—';
+      var sopJ2 = summary.sopJudge || summary.laterality || '';
+      var gptJ2 = summary.gptJudge || summary.gpt || '';
+      var sopLabel2 = { L:'左承重', R:'右承重', CL:'混亂左', CR:'混亂右', PEC:'雙邊Pec' }[sopJ2] || '—';
+      var gptLabel2 = { L:'左承重', R:'右承重', PEC:'雙邊Pec' }[gptJ2] || '—';
       html += '<div class="timeline-item" onclick="openMyAssessView(\''+item.id+'\')">'
         + '<div class="tl-dot tl-dot-assess">📋</div>'
         + '<div class="tl-info"><div class="tl-title">動作評估</div>'
         +   '<div class="tl-sub">'+(d.date||'')+(d.coachName?' · '+d.coachName:'')+'</div>'
-        +   '<div class="tl-preview">偏側化：'+latLabel2+'</div></div>'
+        +   '<div class="tl-preview">SOP：'+sopLabel2+'　GPT：'+gptLabel2+'</div></div>'
         + '<span style="color:var(--sl300);font-size:16px">›</span></div>';
     });
     document.getElementById('my-tab-assess-content').innerHTML = html + '</div>';
@@ -1079,18 +1088,14 @@ function showNotLinked() {
 
 // ── ASSESSMENT FORM ──
 var assessPages = [
-  { label:'旋轉組', tests: [
+  { label:'SOP', tests: [
     { id:'cervical-rot', name:'CV. Rota　頸旋轉', ref:'>30°', cls:'is-key', min:0, max:90, unit:'°' },
+    { id:'shoulder-abd', name:'SH. Abd　肩外展', ref:'>45°', cls:'is-key', min:0, max:180, unit:'°' },
     { id:'pelvis-rot', name:'PV. Rota　骨盆旋轉', ref:'>70°', cls:'is-key', min:0, max:180, unit:'°' },
-    { id:'shoulder-abd', name:'SH. Abd　肩外展', ref:'>45°', cls:'is-key', min:0, max:180, unit:'°' }
-  ]},
-  { label:'外展組', tests: [
     { id:'shoulder-er', name:'▲ SH. ER　肩外旋', ref:'>70°', cls:'is-sub', min:0, max:180, unit:'°' },
-    { id:'shoulder-ir', name:'★ SH. IR　肩內旋', ref:'>70°', cls:'is-sag', min:0, max:180, unit:'°' },
-    { id:'slr', name:'★ SLR　直腿抬高', ref:'>70°', cls:'is-sag', min:0, max:120, unit:'°' },
-    { id:'hip-ext', name:'★ HP. Exten　髖伸', ref:'−5~0°', cls:'is-sag', min:-30, max:60, unit:'°' }
+    { id:'shoulder-ir', name:'★ SH. IR　肩內旋', ref:'>70°', cls:'is-sag', min:0, max:180, unit:'°' }
   ]},
-  { label:'接地', grounding: true },
+  { label:'GPT', grounding: true },
   { label:'總結', summary: true }
 ];
 
@@ -1157,17 +1162,17 @@ function buildGroundingForm() {
 
 function buildSummaryForm() {
   return '<div class="sum-card"><div class="sum-hd">各項判讀總覽</div><div class="sum-body"><div class="results-grid" id="ap-results-grid"></div></div></div>'
-    + '<div class="sum-card"><div class="sum-hd">評估總結</div><div class="sum-body">'
-    + '<div class="vfield"><label class="vlabel">結構側化方向</label>'
-    + '<select class="vsel" id="ap-sel-lat" onchange="atStyleSel(this)"><option value="">— 選擇 —</option><option value="L">左側　Left</option><option value="R">右側　Right</option><option value="CL">混亂左側化</option><option value="CR">混亂右側化</option><option value="PEC">雙邊 Pec</option></select></div>'
-    + '<div class="vfield"><label class="vlabel">GPT 測試結果</label>'
-    + '<select class="vsel" id="ap-sel-gpt" onchange="atStyleSel(this)"><option value="">— 選擇 —</option><option value="L">左側神經優勢</option><option value="R">右側神經優勢</option><option value="PEC">雙邊 pec</option></select></div>'
-    + '<div class="vfield"><label class="vlabel">壓縮腔體策略</label>'
-    + '<select class="vsel" id="ap-sel-compress" onchange="atStyleSel(this)"><option value="">— 選擇 —</option><option value="L">左側壓縮</option><option value="R">右側壓縮</option></select></div>'
-    + '<div class="vfield"><label class="vlabel">ghope 促進側</label>'
-    + '<select class="vsel" id="ap-sel-ghope" onchange="atStyleSel(this)"><option value="">— 選擇 —</option><option value="L">左側 ghope</option><option value="R">右側 ghope</option></select></div>'
+    + '<div class="sum-card"><div class="sum-hd">評估判斷</div><div class="sum-body">'
+    + '<div class="vfield"><label class="vlabel">根據 SOP 的判斷</label>'
+    + '<select class="vsel" id="ap-sel-sop" onchange="atStyleSel(this);atAutoJudge()"><option value="">— 選擇 —</option><option value="L">左承重</option><option value="R">右承重</option></select></div>'
+    + '<div class="vfield"><label class="vlabel">根據 GPT 的判斷</label>'
+    + '<select class="vsel" id="ap-sel-gpt" onchange="atStyleSel(this);atAutoJudge()"><option value="">— 選擇 —</option><option value="L">左承重</option><option value="R">右承重</option></select></div>'
+    + '<div id="ap-combined-box" style="display:none;border-radius:12px;padding:12px 14px;margin-bottom:12px;border:1.5px solid var(--sl300);background:var(--sl800)">'
+    + '<div style="font-size:10px;color:rgba(255,255,255,.5);font-weight:600;letter-spacing:.05em;text-transform:uppercase;margin-bottom:5px">SOP × GPT 綜合判斷</div>'
+    + '<div id="ap-combined-result" style="font-size:15px;font-weight:700;line-height:1.5"></div>'
+    + '</div>'
     + '</div></div>'
-    + '<div class="sum-card"><div class="sum-hd">回家作業與總結</div><div class="sum-body">'
+    + '<div class="sum-card"><div class="sum-hd">備註 / 回家作業</div><div class="sum-body">'
     + '<textarea class="notes-ta" id="ap-notes" placeholder="回家作業、介入方向、目前階段判斷…"></textarea>'
     + '</div></div>';
 }
@@ -1224,14 +1229,40 @@ function atStyleSel(sel) {
   else if (v==='PEC') sel.classList.add('sel-PEC');
 }
 
+function atAutoJudge() {
+  var sop = (document.getElementById('ap-sel-sop')||{}).value;
+  var gpt = (document.getElementById('ap-sel-gpt')||{}).value;
+  var box = document.getElementById('ap-combined-box');
+  var res = document.getElementById('ap-combined-result');
+  if (!sop || !gpt || !box || !res) return;
+  box.style.display = 'block';
+  var text, color, bg, border;
+  if (sop === gpt) {
+    var dir = sop === 'L' ? '左' : '右';
+    text = '✅ 典型'+dir+'承重';
+    color = '#6ee7b7'; bg = 'rgba(16,185,129,.18)'; border = '#10b981';
+  } else if (sop === 'L' && gpt === 'R') {
+    text = '⚠️ 混亂左承重　（SOP左 × GPT右）';
+    color = '#fbbf24'; bg = 'rgba(245,158,11,.15)'; border = '#f59e0b';
+  } else {
+    text = '⚠️ 混亂右承重　（SOP右 × GPT左）';
+    color = '#fbbf24'; bg = 'rgba(245,158,11,.15)'; border = '#f59e0b';
+  }
+  res.textContent = text;
+  res.style.color = color;
+  box.style.background = bg;
+  box.style.borderColor = border;
+}
+
 function atToggleDesc(btn) {
   var card = btn.closest('.test-card');
   var shown = card.classList.toggle('show-desc');
   if (shown) setTimeout(function(){ var i=card.querySelector('.desc-inp'); if(i) i.focus(); }, 50);
 }
 
+var AP_TOTAL = 3;
 function assessGoPage(n) {
-  if (n < 0 || n > 3) return;
+  if (n < 0 || n >= AP_TOTAL) return;
   document.getElementById('ap-page-'+assessCurPage).classList.remove('active');
   document.getElementById('ap-pp'+assessCurPage).classList.remove('active');
   document.getElementById('ap-pl'+assessCurPage).classList.remove('active');
@@ -1239,16 +1270,18 @@ function assessGoPage(n) {
   document.getElementById('ap-page-'+assessCurPage).classList.add('active');
   document.getElementById('ap-pp'+assessCurPage).classList.add('active');
   document.getElementById('ap-pl'+assessCurPage).classList.add('active');
-  for (var i = 0; i < 4; i++) {
+  for (var i = 0; i < AP_TOTAL; i++) {
     var pp = document.getElementById('ap-pp'+i); if (!pp) continue;
     pp.classList.remove('done');
     if (i < assessCurPage) pp.classList.add('done');
   }
   document.getElementById('ap-prev').disabled = (assessCurPage === 0);
-  document.getElementById('ap-next').style.display = assessCurPage === 3 ? 'none' : '';
-  document.getElementById('ap-save-btn').style.display = assessCurPage === 3 ? 'flex' : 'none';
-  document.getElementById('ap-num').textContent = (assessCurPage+1)+' / 4';
-  if (assessCurPage === 3) atRefreshGrid();
+  var isLast = assessCurPage === AP_TOTAL - 1;
+  document.getElementById('ap-next').style.display = isLast ? 'none' : '';
+  document.getElementById('ap-save-btn').style.display = isLast ? 'flex' : 'none';
+  document.getElementById('ap-num').textContent = (assessCurPage+1)+' / '+AP_TOTAL;
+  if (isLast) atRefreshGrid();
+  document.getElementById('screen-assess-form').scrollTop = 0;
 }
 
 function collectAssessData() {
@@ -1280,14 +1313,20 @@ function collectAssessData() {
       grounding[ph][side] = sd;
     });
   });
+  var sop = (document.getElementById('ap-sel-sop')||{}).value || '';
+  var gpt = (document.getElementById('ap-sel-gpt')||{}).value || '';
+  var combined = '';
+  if (sop && gpt) {
+    if (sop === gpt) combined = sop === 'L' ? 'typical-L' : 'typical-R';
+    else combined = sop === 'L' ? 'confused-L' : 'confused-R';
+  }
   return {
     tests: tests,
     grounding: grounding,
     summary: {
-      laterality: (document.getElementById('ap-sel-lat')||{}).value || '',
-      gpt: (document.getElementById('ap-sel-gpt')||{}).value || '',
-      compress: (document.getElementById('ap-sel-compress')||{}).value || '',
-      ghope: (document.getElementById('ap-sel-ghope')||{}).value || '',
+      sopJudge: sop,
+      gptJudge: gpt,
+      combined: combined,
       notes: (document.getElementById('ap-notes')||{}).value || ''
     }
   };
@@ -1300,19 +1339,26 @@ function resetAssessForm() {
   document.querySelectorAll('#assess-form-pages .abadge').forEach(function(el) { el.className='abadge'; el.textContent='–'; });
   document.querySelectorAll('#assess-form-pages .g-result').forEach(function(el) { el.className='g-result'; el.innerHTML='<strong>輸入客觀分數後顯示大腦偏好</strong>'; });
   document.querySelectorAll('#assess-form-pages .assess-page').forEach(function(el, i) { el.classList.toggle('active', i===0); });
-  document.querySelectorAll('#assess-form-pages .prog-pill').forEach(function(el, i) { el.classList.toggle('active', i===0); el.classList.remove('done'); });
-  document.querySelectorAll('#assess-form-pages .prog-lbl').forEach(function(el, i) { el.classList.toggle('active', i===0); });
+  document.querySelectorAll('#ap-prog-row .prog-pill').forEach(function(el, i) { el.classList.toggle('active', i===0); el.classList.remove('done'); });
+  document.querySelectorAll('#ap-prog-labels .prog-lbl').forEach(function(el, i) { el.classList.toggle('active', i===0); });
+  var cbox = document.getElementById('ap-combined-box');
+  if (cbox) cbox.style.display = 'none';
   document.getElementById('ap-prev').disabled = true;
   document.getElementById('ap-next').style.display = '';
   document.getElementById('ap-save-btn').style.display = 'none';
-  document.getElementById('ap-num').textContent = '1 / 4';
+  document.getElementById('ap-num').textContent = '1 / '+AP_TOTAL;
 }
 
 function openAssessModal() {
   document.getElementById('assess-date').value = today();
-  if (!document.getElementById('ap-page-0').children.length) buildAssessForm();
+  var pg = document.getElementById('ap-page-0');
+  if (!pg || !pg.children.length) buildAssessForm();
   resetAssessForm();
-  openModal('modal-assess');
+  showScreen('assess-form');
+}
+
+function closeAssessForm() {
+  showScreen('student');
 }
 
 function saveAssessment() {
@@ -1325,10 +1371,13 @@ function saveAssessment() {
   data.createdAt = Date.now();
   var key = getStudentKey(currentStudentIdx);
   var ref = fbdb.ref('data/assessments/'+key).push();
+  var btn = document.getElementById('ap-save-btn');
+  if (btn) { btn.disabled = true; btn.textContent = '儲存中…'; }
   ref.set(data, function(err) {
+    if (btn) { btn.disabled = false; btn.innerHTML = '💾 儲存評估'; }
     if (err) { showToast('儲存失敗'); return; }
     showToast('評估已儲存');
-    closeModal('modal-assess');
+    showScreen('student');
     loadAssessments();
   });
 }
