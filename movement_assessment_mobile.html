@@ -236,6 +236,14 @@ body{
 }
 .btn-screenshot:active{background:var(--sl700)}
 
+.btn-reset{
+  width:100%;height:44px;border-radius:var(--r);border:1.5px solid var(--aRbr);
+  background:transparent;color:var(--aR);font-size:14px;font-weight:600;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;
+  margin-top:8px;
+}
+.btn-reset:active{background:var(--aRbg)}
+
 /* ── BOTTOM NAV ── */
 .bottom-nav{
   position:fixed;bottom:0;left:0;right:0;z-index:200;
@@ -617,6 +625,11 @@ body{
     儲存評估截圖
   </button>
 
+  <button class="btn-reset" onclick="resetAssessment()">
+    <svg width="15" height="15" viewBox="0 0 15 15" fill="none"><path d="M2 7.5a5.5 5.5 0 1 1 1.1 3.3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M2 11V7.5h3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    評估重置
+  </button>
+
 </div>
 </div><!-- /pages-container -->
 
@@ -874,6 +887,27 @@ function restore(){
     });
     calcNeuro();
   }catch(e){}
+}
+
+// ── Reset ──
+function resetAssessment(){
+  if(!confirm('確定要清除所有評估數據嗎？'))return;
+  try{localStorage.removeItem(STORAGE_KEY);}catch(e){}
+  document.querySelectorAll('input[type="number"]').forEach(function(el){el.value='';});
+  document.querySelectorAll('input[type="text"], textarea').forEach(function(el){el.value='';});
+  ['sel-sop','sel-gpt-sum','sel-compress','sel-ghope'].forEach(function(id){
+    var el=document.getElementById(id);
+    if(el){el.value='';el.className='vsel';}
+  });
+  document.querySelectorAll('[data-test]').forEach(function(card){
+    var inp=card.querySelector('input[type="number"]');
+    if(inp)calc(inp);
+    card.classList.remove('show-desc');
+  });
+  document.getElementById('combined-box').style.display='none';
+  calcNeuro();
+  refreshResultsGrid();
+  goPage(0);
 }
 
 // ── Screenshot ──
