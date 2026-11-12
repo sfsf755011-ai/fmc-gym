@@ -1,0 +1,590 @@
+<title>AIA 步態與接地 ── 附錄</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;700&family=Noto+Sans+TC:wght@400;600;700&display=swap">
+<style>
+/* === 附錄 色彩系統（與主章節一致） === */
+:root {
+  --bg: #f0f4f8; --bg2: #ffffff; --fg: #1a2340; --fg2: #3a4560;
+  --hdr: #1a2744; --hdr2: #243260; --accent: #2558d8; --accent2: #1a3fa0;
+  --border: #d0d8e8; --tag-bg: #e8eef8;
+  --note-bg: #fff8e8; --note-border: #d4a800;
+  --nav-hover: rgba(255,255,255,0.15);
+  --ex-hdr: #2d4a8a; --ex-hdr-r: #8a2d3c; --gdirt-hdr: #1a5240;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0f1520; --bg2: #1a2235; --fg: #e0e8f0; --fg2: #a0b0c8;
+    --hdr: #2a3a5a; --hdr2: #1e2d4a; --accent: #4a7af0; --accent2: #6090ff;
+    --border: #2a3a55; --tag-bg: #1e2d4a;
+    --note-bg: #1e1a08; --note-border: #a08000;
+    --ex-hdr: #3a5aa0; --ex-hdr-r: #a04050; --gdirt-hdr: #1a6a52;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0f1520; --bg2: #1a2235; --fg: #e0e8f0; --fg2: #a0b0c8;
+  --hdr: #2a3a5a; --hdr2: #1e2d4a; --accent: #4a7af0; --accent2: #6090ff;
+  --border: #2a3a55; --tag-bg: #1e2d4a;
+  --note-bg: #1e1a08; --note-border: #a08000;
+  --ex-hdr: #3a5aa0; --ex-hdr-r: #a04050; --gdirt-hdr: #1a6a52;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  background: var(--bg); color: var(--fg);
+  font-family: 'Noto Serif TC', serif;
+  font-size: 15px; line-height: 1.8;
+  padding-left: max(16px, env(safe-area-inset-left,0px));
+  padding-right: max(16px, env(safe-area-inset-right,0px));
+  padding-block: 0;
+}
+
+/* === 頂部導航 === */
+.top-nav {
+  background: var(--hdr); color: #fff;
+  display: flex; gap: 8px; align-items: center;
+  padding: 8px 16px; flex-wrap: wrap;
+  position: sticky; top: env(safe-area-inset-top,0px); z-index: 100;
+  margin: 0 -16px;
+}
+body::before {
+  content: ""; position: fixed; inset: 0 0 auto;
+  height: env(safe-area-inset-top,0px); background: var(--hdr); z-index: 101;
+}
+.top-nav .brand { color: #fff; font-weight: 700; font-size:.85rem; font-family:'Noto Sans TC',sans-serif; margin-right:8px; white-space:nowrap; }
+.top-nav a { font-family:'Noto Sans TC',sans-serif; font-size:0.82rem; text-decoration:none; color:rgba(255,255,255,0.75); padding:4px 10px; border-radius:4px; transition:background .15s; }
+.top-nav a:hover { background:var(--nav-hover); color:#fff; }
+.top-nav a.active { background:var(--accent); color:#fff; font-weight:600; }
+@media (max-width:600px) { .top-nav .brand{display:none;} }
+
+/* === 頁面標題 === */
+.page-header {
+  background: var(--hdr); color: #fff;
+  padding: 24px 32px 20px; margin: 0 -16px 24px;
+  border-bottom: 4px solid var(--accent);
+}
+.page-header h1 { font-size:1.4rem; font-weight:700; margin-bottom:4px; }
+.page-header .subtitle { font-family:'Noto Sans TC',sans-serif; font-size:0.82rem; opacity:0.75; }
+
+/* === 章節 Tabs === */
+.section-tabs {
+  display: flex; gap: 6px; flex-wrap: wrap;
+  margin-bottom: 20px; border-bottom: 2px solid var(--border);
+  padding-bottom: 0;
+}
+.section-tabs button {
+  font-family:'Noto Sans TC',sans-serif; font-size:0.88rem; font-weight:600;
+  padding: 8px 16px; border: none; cursor: pointer; border-radius: 6px 6px 0 0;
+  background: var(--tag-bg); color: var(--fg2); transition: all .2s;
+  margin-bottom: -2px; border-bottom: 2px solid transparent;
+}
+.section-tabs button.active { background: var(--bg2); color: var(--accent); border-color: var(--accent); }
+.section-tabs button:hover:not(.active) { background: var(--bg2); }
+
+/* === 子章節 Tabs === */
+.sub-tabs { display: flex; gap: 6px; margin-bottom: 16px; }
+.sub-tabs button {
+  font-family:'Noto Sans TC',sans-serif; font-size:0.82rem;
+  padding: 5px 12px; border: 1px solid var(--border); cursor: pointer;
+  border-radius: 20px; background: var(--bg); color: var(--fg2); transition: all .15s;
+}
+.sub-tabs button.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+/* === 子章節說明橫幅 === */
+.subsection-banner {
+  background: var(--hdr2); color: #fff;
+  padding: 12px 20px; border-radius: 8px; margin-bottom: 20px;
+  border-left: 5px solid var(--accent);
+  font-family:'Noto Sans TC',sans-serif;
+}
+.subsection-banner h2 { font-size:1.1rem; font-weight:700; margin-bottom:2px; }
+.subsection-banner p { font-size:0.82rem; opacity:0.8; }
+
+/* === 動作卡片 === */
+.ex-card {
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: 10px; overflow: hidden; margin-bottom: 16px;
+}
+.ex-card-hdr {
+  background: var(--ex-hdr); color: #fff;
+  padding: 12px 20px;
+}
+.ex-card-hdr.right { background: var(--ex-hdr); }
+.ex-card-hdr.left { background: var(--ex-hdr-r); }
+.ex-card-hdr.noshift { background: #3a5a3a; }
+.ex-card-hdr.gdirt-r { background: var(--gdirt-hdr); }
+.ex-card-hdr.gdirt-l { background: #3a3a1a; }
+.ex-num { font-family:'Noto Sans TC',sans-serif; font-size:0.72rem; font-weight:600; opacity:0.8; margin-bottom:3px; letter-spacing:.08em; text-transform:uppercase; }
+.ex-title-zh { font-size:1.08rem; font-weight:700; line-height:1.3; }
+.ex-title-en { font-size:0.78rem; opacity:0.75; margin-top:2px; font-family:'Noto Sans TC',sans-serif; }
+
+.ex-body { padding: 16px 20px; }
+.ex-steps { padding-left: 20px; margin-bottom: 14px; }
+.ex-steps li { margin-bottom: 6px; color: var(--fg); }
+.ex-steps li strong { color: var(--accent); }
+
+.ex-checks {
+  background: var(--note-bg); border-left: 3px solid var(--note-border);
+  border-radius: 0 6px 6px 0; padding: 10px 14px;
+  font-family:'Noto Sans TC',sans-serif; font-size:0.82rem;
+}
+.ex-checks p { margin-bottom: 3px; color: var(--fg2); }
+.ex-checks p:last-child { margin-bottom:0; }
+
+/* === 面板 === */
+.panel { display: none; }
+.panel.active { display: block; }
+
+/* === 跑馬燈提示 === */
+.tip-box {
+  background: var(--tag-bg); border: 1px solid var(--border);
+  border-radius: 8px; padding: 10px 16px; margin-bottom: 20px;
+  font-family:'Noto Sans TC',sans-serif; font-size:0.85rem; color: var(--fg2);
+}
+</style>
+
+<nav class="top-nav">
+  <span class="brand">AIA 步態與接地</span>
+  <a href="aia-ch12.html">第一・二章</a>
+  <a href="aia-ch3.html">第三章</a>
+  <a href="aia-ch456.html">第四至六章</a>
+  <a href="aia-ch710.html">第七至十章</a>
+  <a href="aia-app1.html" class="active">附錄</a>
+</nav>
+
+<div class="page-header">
+  <h1>附錄一：步態與接地動作手冊</h1>
+  <div class="subtitle">AIA Gait &amp; Grounding — Appendix 1: Exercise Compendium ｜ 中文翻譯版</div>
+</div>
+
+<div class="section-tabs">
+  <button class="active" onclick="showSection('supine',this)">A. 仰臥技術</button>
+  <button onclick="showSection('sidelying',this)">B. 側臥技術（即將新增）</button>
+  <button onclick="showSection('upright',this)">C. 直立技術（即將新增）</button>
+</div>
+
+<!-- ===== SECTION A: SUPINE ===== -->
+<div id="supine" class="panel active">
+
+  <div class="sub-tabs">
+    <button class="active" onclick="showSub('sup-ground',this,'supine')">i. 接地技術</button>
+    <button onclick="showSub('sup-gdirt',this,'supine')">ii. G-DiRT 技術</button>
+  </div>
+
+  <!-- A.i SUPINE GROUNDING -->
+  <div id="sup-ground" class="panel active">
+    <div class="subsection-banner">
+      <h2>A.i. 仰臥接地技術（Supine Grounding Techniques）</h2>
+      <p>附錄頁面 7–16｜10個動作</p>
+    </div>
+    <div class="tip-box">
+      📋 <strong>通用設置：</strong>仰躺，髖關節與膝關節屈曲約100度，頸部中段放不要太厚的小毛巾捲（頸椎支撐），大腿之間夾約10–15公分的毛巾捲，雙腳貼牆。
+    </div>
+
+    <!-- Ex 1 -->
+    <div class="ex-card">
+      <div class="ex-card-hdr right">
+        <div class="ex-num">仰臥右移接地 No. 3 ｜ 附錄 p.7</div>
+        <div class="ex-title-zh">仰臥右移搭配左臂上抬轉向</div>
+        <div class="ex-title-en">Supine Shift R with L Arm Reach Turn</div>
+      </div>
+      <div class="ex-body">
+        <ol class="ex-steps">
+          <li>仰躺，髖關節與膝關節屈曲約100度，頸部中段放小毛巾捲（支撐但不要太厚），大腿之間夾約10–15公分的毛巾捲，如圖示。</li>
+          <li>頸部舒適休息的同時，夾緊大腿毛巾捲，以雙腳整個腳面貼緊牆面進行接地。</li>
+          <li>維持大腿夾緊與腳踩牆接地，呼氣並用大腿後側與臀部的力量將臀部微微抬離床面，同時保持下背部貼著床面。</li>
+          <li>維持毛巾夾緊、腳踩牆接地、臀部微微抬起，抬高<strong>左大腿</strong>朝向天花板、降低<strong>右大腿</strong>朝向地板，將骨盆向右移。</li>
+          <li>在維持以上動作的同時，胸骨轉向<strong>右側</strong>並壓縮右側下肋骨，呼氣時<strong>左臂</strong>向天花板伸展。暫停3–5秒。</li>
+          <li>維持此建立好的姿勢，用鼻子反覆呼吸3–5次，每次呼氣後記得暫停3–5秒。</li>
+          <li>重複以上動作，共完成5輪。</li>
+        </ol>
+        <div class="ex-checks">
+          <p>☐ 氣球（Balloon）：依動作治療師指示</p>
+          <p>☐ 視覺（Vision）：依動作治療師指示</p>
+          <p>☐ PADA：每輪中途可考慮輕咬牙合板並吞嚥一次</p>
+          <p>☐ ALF：考慮舌頭放回ALF「基底位置」並用鼻子呼吸</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Ex 2 -->
+    <div class="ex-card">
+      <div class="ex-card-hdr right">
+        <div class="ex-num">仰臥右移接地 No. 7 ｜ 附錄 p.8</div>
+        <div class="ex-title-zh">仰臥右移搭配右臂下降伸展與左臂上抬轉向</div>
+        <div class="ex-title-en">Supine Shift Right with R Arm Descending Reach and L Arm Reach Turn</div>
+      </div>
+      <div class="ex-body">
+        <ol class="ex-steps">
+          <li>仰躺，髖關節與膝關節屈曲約100度，頸部中段放小毛巾捲，大腿之間夾約10–15公分的毛巾捲，如圖示。</li>
+          <li>頸部舒適休息，夾緊大腿毛巾捲，以雙腳整個腳面貼緊牆面進行接地。</li>
+          <li>維持大腿夾緊與腳踩牆接地，呼氣並用大腿後側與臀部將臀部微微抬離床面，同時保持下背部貼著床面。</li>
+          <li>維持毛巾夾緊、腳踩牆接地、臀部微微抬起，骨盆向右移（抬高左大腿、降低右大腿）。</li>
+          <li>維持毛巾夾緊、腳踩牆、臀部抬起、骨盆右移，<strong>右臂</strong>向雙腳接地的牆面伸展，啟動右側腹肌。</li>
+          <li>在維持以上動作的同時，胸骨轉向<strong>右側</strong>並壓縮右側下肋骨，呼氣時<strong>左臂</strong>向天花板伸展。暫停3–5秒。</li>
+          <li>維持此姿勢，用鼻子呼吸3–5次，每次呼氣後暫停3–5秒。</li>
+          <li>重複以上動作，共完成5輪。</li>
+        </ol>
+        <div class="ex-checks">
+          <p>☐ 氣球（Balloon）：依動作治療師指示</p>
+          <p>☐ 視覺（Vision）：依動作治療師指示</p>
+          <p>☐ PADA：每輪中途可考慮輕咬牙合板並吞嚥一次</p>
+          <p>☐ ALF：考慮舌頭放回ALF「基底位置」並用鼻子呼吸</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Ex 3 -->
+    <div class="ex-card">
+      <div class="ex-card-hdr right">
+        <div class="ex-num">仰臥右移接地 No. 11 ｜ 附錄 p.9</div>
+        <div class="ex-title-zh">仰臥右移搭配右臂下降伸展與抗阻左側下頜推移</div>
+        <div class="ex-title-en">Supine Shift R with R Arm Descending Reach and Resisted L Lateral Trusion</div>
+      </div>
+      <div class="ex-body">
+        <ol class="ex-steps">
+          <li>仰躺，髖關節與膝關節屈曲約100度，頸部中段放小毛巾捲，大腿之間夾約10–15公分的毛巾捲，如圖示。</li>
+          <li>頸部舒適休息，夾緊大腿毛巾捲，以雙腳整個腳面貼緊牆面進行接地。</li>
+          <li>維持大腿夾緊與腳踩牆接地，呼氣並將臀部微微抬離床面，保持下背部貼著床面。</li>
+          <li>維持毛巾夾緊、腳踩牆、臀部微微抬起，骨盆向右移（抬高左大腿、降低右大腿）。</li>
+          <li>維持毛巾夾緊、腳踩牆、臀部抬起、骨盆右移，右臂向雙腳接地的牆面伸展，啟動右側腹肌。</li>
+          <li>在維持以上動作的同時，將<strong>左手兩根手指</strong>放在左側下頜緣（如圖）。嘴唇合攏但牙齒分開，下巴微微前突，然後用兩根手指輕輕<strong>向左推下頜</strong>（不允許移動）。暫停3–5秒。</li>
+          <li>維持此姿勢，用鼻子呼吸3–5次，每次呼氣後暫停3–5秒。</li>
+          <li>重複以上動作，共完成5輪。</li>
+        </ol>
+        <div class="ex-checks">
+          <p>☐ 氣球（Balloon）：依動作治療師指示</p>
+          <p>☐ 視覺（Vision）：依動作治療師指示</p>
+          <p>☐ PADA：每輪中途可考慮輕咬牙合板並吞嚥一次</p>
+          <p>☐ ALF：考慮舌頭放回ALF「基底位置」並用鼻子呼吸</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Ex 4 -->
+    <div class="ex-card">
+      <div class="ex-card-hdr left">
+        <div class="ex-num">仰臥左移接地 No. 2 ｜ 附錄 p.10</div>
+        <div class="ex-title-zh">仰臥左移搭配右臂上抬轉向</div>
+        <div class="ex-title-en">Supine Shift L with R Arm Reach Turn</div>
+      </div>
+      <div class="ex-body">
+        <ol class="ex-steps">
+          <li>仰躺，髖關節與膝關節屈曲約100度，頸部中段放小毛巾捲，大腿之間夾約10–15公分的毛巾捲，如圖示。</li>
+          <li>頸部舒適休息，夾緊大腿毛巾捲，以雙腳整個腳面貼緊牆面進行接地。</li>
+          <li>維持大腿夾緊與腳踩牆接地，呼氣並將臀部微微抬離床面，保持下背部貼著床面。</li>
+          <li>維持毛巾夾緊、腳踩牆、臀部微微抬起，骨盆向<strong>左移</strong>（抬高右大腿、降低左大腿）。</li>
+          <li>在維持以上動作的同時，胸骨轉向<strong>左側</strong>並壓縮左側下肋骨，呼氣時<strong>右臂</strong>向天花板伸展。暫停3–5秒。</li>
+          <li>維持此姿勢，用鼻子呼吸3–5次，每次呼氣後暫停3–5秒。</li>
+          <li>重複以上動作，共完成5輪。</li>
+        </ol>
+        <div class="ex-checks">
+          <p>☐ 氣球（Balloon）：依動作治療師指示</p>
+          <p>☐ 視覺（Vision）：依動作治療師指示</p>
+          <p>☐ PADA：每輪中途可考慮輕咬牙合板並吞嚥一次</p>
+          <p>☐ ALF：考慮舌頭放回ALF「基底位置」並用鼻子呼吸</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Ex 5 -->
+    <div class="ex-card">
+      <div class="ex-card-hdr left">
+        <div class="ex-num">仰臥左移接地 No. 6 ｜ 附錄 p.11</div>
+        <div class="ex-title-zh">仰臥左移搭配左臂下降伸展與右臂上抬轉向</div>
+        <div class="ex-title-en">Supine Shift L with L Arm Descending Reach and R Arm Reach Turn</div>
+      </div>
+      <div class="ex-body">
+        <ol class="ex-steps">
+          <li>仰躺，髖關節與膝關節屈曲約100度，頸部中段放小毛巾捲，大腿之間夾約10–15公分的毛巾捲，如圖示。</li>
+          <li>頸部舒適休息，夾緊大腿毛巾捲，以雙腳整個腳面貼緊牆面進行接地。</li>
+          <li>維持大腿夾緊與腳踩牆接地，呼氣並將臀部微微抬離床面，保持下背部貼著床面。</li>
+          <li>維持毛巾夾緊、腳踩牆、臀部微微抬起，骨盆向<strong>左移</strong>（抬高右大腿、降低左大腿）。</li>
+          <li>維持毛巾夾緊、腳踩牆、臀部抬起、骨盆左移，<strong>左臂</strong>向雙腳接地的牆面伸展，啟動左側腹肌。</li>
+          <li>在維持以上動作的同時，胸骨轉向<strong>左側</strong>並壓縮左側下肋骨，呼氣時<strong>右臂</strong>向天花板伸展。暫停3–5秒。</li>
+          <li>維持此姿勢，用鼻子呼吸3–5次，每次呼氣後暫停3–5秒。</li>
+          <li>重複以上動作，共完成5輪。</li>
+        </ol>
+        <div class="ex-checks">
+          <p>☐ 氣球（Balloon）：依動作治療師指示</p>
+          <p>☐ 視覺（Vision）：依動作治療師指示</p>
+          <p>☐ PADA：每輪中途可考慮輕咬牙合板並吞嚥一次</p>
+          <p>☐ ALF：考慮舌頭放回ALF「基底位置」並用鼻子呼吸</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Ex 6 -->
+    <div class="ex-card">
+      <div class="ex-card-hdr left">
+        <div class="ex-num">仰臥左移接地 No. 10 ｜ 附錄 p.12</div>
+        <div class="ex-title-zh">仰臥左移搭配左臂下降伸展與抗阻右側下頜推移</div>
+        <div class="ex-title-en">Supine Shift L with L Arm Descending Reach and Resisted R Lateral Trusion</div>
+      </div>
+      <div class="ex-body">
+        <ol class="ex-steps">
+          <li>仰躺，髖關節與膝關節屈曲約100度，頸部中段放小毛巾捲，大腿之間夾約10–15公分的毛巾捲，如圖示。</li>
+          <li>頸部舒適休息，夾緊大腿毛巾捲，以雙腳整個腳面貼緊牆面進行接地。</li>
+          <li>維持大腿夾緊與腳踩牆接地，呼氣並將臀部微微抬離床面，保持下背部貼著床面。</li>
+          <li>維持毛巾夾緊、腳踩牆、臀部微微抬起，骨盆向<strong>左移</strong>（抬高右大腿、降低左大腿）。</li>
+          <li>維持毛巾夾緊、腳踩牆、臀部抬起、骨盆左移，左臂向雙腳接地的牆面伸展，啟動左側腹肌。</li>
+          <li>在維持以上動作的同時，將<strong>右手兩根手指</strong>放在右側下頜緣（如圖）。嘴唇合攏但牙齒分開，下巴微微前突，然後用兩根手指輕輕<strong>向左推下頜</strong>（不允許移動）。暫停3–5秒。</li>
+          <li>維持此姿勢，用鼻子呼吸3–5次，每次呼氣後暫停3–5秒。</li>
+          <li>重複以上動作，共完成5輪。</li>
+        </ol>
+        <div class="ex-checks">
+          <p>☐ 氣球（Balloon）：依動作治療師指示</p>
+          <p>☐ 視覺（Vision）：依動作治療師指示</p>
+          <p>☐ PADA：每輪中途可考慮輕咬牙合板並吞嚥一次</p>
+          <p>☐ ALF：考慮舌頭放回ALF「基底位置」並用鼻子呼吸</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Ex 7 -->
+    <div class="ex-card">
+      <div class="ex-card-hdr noshift">
+        <div class="ex-num">仰臥不移重心接地 No. 2 ｜ 附錄 p.13</div>
+        <div class="ex-title-zh">仰臥不移重心搭配右臂上抬轉向</div>
+        <div class="ex-title-en">Supine No Shift with R Arm Reach Turn</div>
+      </div>
+      <div class="ex-body">
+        <ol class="ex-steps">
+          <li>仰躺，髖關節與膝關節屈曲約100度，頸部中段放小毛巾捲，大腿之間夾約10–15公分的毛巾捲，如圖示。</li>
+          <li>頸部舒適休息，夾緊大腿毛巾捲，以雙腳整個腳面貼緊牆面進行接地。</li>
+          <li>維持大腿夾緊與腳踩牆接地，呼氣並將臀部微微抬離床面，保持下背部貼著床面。</li>
+          <li>在維持以上動作的同時，胸骨轉向<strong>左側</strong>並壓縮左側下肋骨，呼氣時<strong>右臂</strong>向天花板伸展。暫停3–5秒。</li>
+          <li>維持此姿勢，用鼻子呼吸3–5次，每次呼氣後暫停3–5秒。</li>
+          <li>重複以上動作，共完成5輪。</li>
+        </ol>
+        <div class="ex-checks">
+          <p>☐ 氣球（Balloon）：依動作治療師指示</p>
+          <p>☐ 視覺（Vision）：依動作治療師指示</p>
+          <p>☐ PADA：每輪中途可考慮輕咬牙合板並吞嚥一次</p>
+          <p>☐ ALF：考慮舌頭放回ALF「基底位置」並用鼻子呼吸</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Ex 8 -->
+    <div class="ex-card">
+      <div class="ex-card-hdr noshift">
+        <div class="ex-num">仰臥不移重心接地 No. 3 ｜ 附錄 p.14</div>
+        <div class="ex-title-zh">仰臥不移重心搭配左臂上抬轉向</div>
+        <div class="ex-title-en">Supine No Shift with L Arm Reach Turn</div>
+      </div>
+      <div class="ex-body">
+        <ol class="ex-steps">
+          <li>仰躺，髖關節與膝關節屈曲約100度，頸部中段放小毛巾捲，大腿之間夾約10–15公分的毛巾捲，如圖示。</li>
+          <li>頸部舒適休息，夾緊大腿毛巾捲，以雙腳整個腳面貼緊牆面進行接地。</li>
+          <li>維持大腿夾緊與腳踩牆接地，呼氣並將臀部微微抬離床面，保持下背部貼著床面。</li>
+          <li>在維持以上動作的同時，胸骨轉向<strong>右側</strong>並壓縮右側下肋骨，呼氣時<strong>左臂</strong>向天花板伸展。暫停3–5秒。</li>
+          <li>維持此姿勢，用鼻子呼吸3–5次，每次呼氣後暫停3–5秒。</li>
+          <li>重複以上動作，共完成5輪。</li>
+        </ol>
+        <div class="ex-checks">
+          <p>☐ 氣球（Balloon）：依動作治療師指示</p>
+          <p>☐ 視覺（Vision）：依動作治療師指示</p>
+          <p>☐ PADA：每輪中途可考慮輕咬牙合板並吞嚥一次</p>
+          <p>☐ ALF：考慮舌頭放回ALF「基底位置」並用鼻子呼吸</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Ex 9 -->
+    <div class="ex-card">
+      <div class="ex-card-hdr noshift">
+        <div class="ex-num">仰臥不移重心接地 No. 6 ｜ 附錄 p.15</div>
+        <div class="ex-title-zh">仰臥不移重心搭配左臂下降伸展與右臂上抬轉向</div>
+        <div class="ex-title-en">Supine No Shift with L Arm Descending Reach and R Arm Reach Turn</div>
+      </div>
+      <div class="ex-body">
+        <ol class="ex-steps">
+          <li>仰躺，髖關節與膝關節屈曲約100度，頸部中段放小毛巾捲，大腿之間夾約10–15公分的毛巾捲，如圖示。</li>
+          <li>頸部舒適休息，夾緊大腿毛巾捲，以雙腳整個腳面貼緊牆面進行接地。</li>
+          <li>維持大腿夾緊與腳踩牆接地，呼氣並將臀部微微抬離床面，保持下背部貼著床面。</li>
+          <li>在維持毛巾夾緊、腳踩牆、臀部抬起的情況下，<strong>左臂</strong>向雙腳接地的牆面伸展，啟動左側腹肌。</li>
+          <li>在維持以上動作的同時，胸骨轉向<strong>左側</strong>並壓縮左側下肋骨，呼氣時<strong>右臂</strong>向天花板伸展。暫停3–5秒。</li>
+          <li>維持此姿勢，用鼻子呼吸3–5次，每次呼氣後暫停3–5秒。</li>
+          <li>重複以上動作，共完成5輪。</li>
+        </ol>
+        <div class="ex-checks">
+          <p>☐ 氣球（Balloon）：依動作治療師指示</p>
+          <p>☐ 視覺（Vision）：依動作治療師指示</p>
+          <p>☐ PADA：每輪中途可考慮輕咬牙合板並吞嚥一次</p>
+          <p>☐ ALF：考慮舌頭放回ALF「基底位置」並用鼻子呼吸</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Ex 10 -->
+    <div class="ex-card">
+      <div class="ex-card-hdr noshift">
+        <div class="ex-num">仰臥不移重心接地 No. 7 ｜ 附錄 p.16</div>
+        <div class="ex-title-zh">仰臥不移重心搭配右臂下降伸展與左臂上抬轉向</div>
+        <div class="ex-title-en">Supine No Shift with R Arm Descending Reach and L Arm Reach Turn</div>
+      </div>
+      <div class="ex-body">
+        <ol class="ex-steps">
+          <li>仰躺，髖關節與膝關節屈曲約100度，頸部中段放小毛巾捲，大腿之間夾約10–15公分的毛巾捲，如圖示。</li>
+          <li>頸部舒適休息，夾緊大腿毛巾捲，以雙腳整個腳面貼緊牆面進行接地。</li>
+          <li>維持大腿夾緊與腳踩牆接地，呼氣並將臀部微微抬離床面，保持下背部貼著床面。</li>
+          <li>在維持毛巾夾緊、腳踩牆、臀部抬起的情況下，<strong>右臂</strong>向雙腳接地的牆面伸展，啟動右側腹肌。</li>
+          <li>在維持以上動作的同時，胸骨轉向<strong>右側</strong>並壓縮右側下肋骨，呼氣時<strong>左臂</strong>向天花板伸展。暫停3–5秒。</li>
+          <li>維持此姿勢，用鼻子呼吸3–5次，每次呼氣後暫停3–5秒。</li>
+          <li>重複以上動作，共完成5輪。</li>
+        </ol>
+        <div class="ex-checks">
+          <p>☐ 氣球（Balloon）：依動作治療師指示</p>
+          <p>☐ 視覺（Vision）：依動作治療師指示</p>
+          <p>☐ PADA：每輪中途可考慮輕咬牙合板並吞嚥一次</p>
+          <p>☐ ALF：考慮舌頭放回ALF「基底位置」並用鼻子呼吸</p>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- end sup-ground -->
+
+  <!-- A.ii SUPINE G-DiRT -->
+  <div id="sup-gdirt" class="panel">
+    <div class="subsection-banner">
+      <h2>A.ii. 仰臥 G-DiRT 技術（Supine G-DiRT Techniques）</h2>
+      <p>附錄頁面 17–20｜4個動作 ｜ G-DiRT = 接地橫膈膜重置技術®</p>
+    </div>
+    <div class="tip-box">
+      📋 <strong>G-DiRT 通用設置：</strong>單膝彎曲（如說明），另腿伸直，骨盆後傾使下背部貼平床面，舌頭抵住上顎，透過鼻子完全呼氣。
+    </div>
+
+    <!-- Ex 11 -->
+    <div class="ex-card">
+      <div class="ex-card-hdr gdirt-r">
+        <div class="ex-num">仰臥右半球 G-DiRT No. 1 ｜ 附錄 p.17</div>
+        <div class="ex-title-zh">仰臥右半球 G-DiRT 搭配抗阻左側下頜推移</div>
+        <div class="ex-title-en">Supine Right G-DiRT with Resisted L Lateral Trusion</div>
+      </div>
+      <div class="ex-body">
+        <ol class="ex-steps">
+          <li><strong>右膝彎曲</strong>、左腿伸直，骨盆後傾，將下背部平貼於床面。</li>
+          <li>在骨盆後傾的同時，舌頭抵住上顎，透過<strong>鼻子完全呼氣</strong>。</li>
+          <li>下巴微微後傾，注意不要皺起額頭。</li>
+          <li>同時完成步驟1–3後，<strong>雙眼向下看</strong>，注意不要讓頭頸部失去後傾。</li>
+          <li>保持向下凝視，嘴唇併攏、舌頭抵住上顎，下頜微微前突。然後將<strong>兩根手指放在下巴左側</strong>，向右輕推下頜（不允許移動），以此在右耳前方激活深層右側下頜肌群進行<strong>等長收縮</strong>。暫停3–5秒。</li>
+          <li>在<strong>不吸氣</strong>的情況下維持此姿勢5秒。5秒結束後，放鬆並吸氣。按照治療師的指示重複。</li>
+        </ol>
+        <div class="ex-checks">
+          <p>☐ 視覺（Vision）：依動作治療師指示</p>
+          <p>☐ PADA：每輪中途可考慮輕咬牙合板並吞嚥一次</p>
+          <p>☐ ALF：考慮舌頭放回ALF「基底位置」並用鼻子呼吸</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Ex 12 -->
+    <div class="ex-card">
+      <div class="ex-card-hdr gdirt-r">
+        <div class="ex-num">仰臥右半球 G-DiRT No. 2 ｜ 附錄 p.18</div>
+        <div class="ex-title-zh">仰臥右半球 G-DiRT「右眼視角」搭配右臂上抬與抗阻左側下頜推移</div>
+        <div class="ex-title-en">Supine Right G-DiRT in Your Eye with R Arm Reach and Resisted L Lateral Trusion</div>
+      </div>
+      <div class="ex-body">
+        <ol class="ex-steps">
+          <li><strong>右膝彎曲</strong>、左腿伸直，骨盆後傾，將下背部平貼於床面。</li>
+          <li>在骨盆後傾的同時，舌頭抵住上顎，透過鼻子完全呼氣。</li>
+          <li>下巴微微後傾，注意不要皺起額頭。</li>
+          <li>同時完成步驟1–3後，雙眼向下看，注意不要讓頭頸部失去後傾。</li>
+          <li>保持向下凝視，嘴唇併攏、舌頭抵住上顎，下頜微微前突。然後將兩根手指放在下巴左側，向右輕推下頜（不允許移動），激活深層右側下頜肌群進行等長收縮。</li>
+          <li>當<strong>右手</strong>向天花板伸展時，讓眼睛「注意」在<strong>右側視野</strong>中擺動的右手指尖。</li>
+          <li>在不吸氣的情況下維持此姿勢5秒。5秒結束後，放鬆並吸氣。按照治療師的指示重複。</li>
+        </ol>
+        <div class="ex-checks">
+          <p>☐ 視覺（Vision）：依動作治療師指示</p>
+          <p>☐ PADA：每輪中途可考慮輕咬牙合板並吞嚥一次</p>
+          <p>☐ ALF：考慮舌頭放回ALF「基底位置」並用鼻子呼吸</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Ex 13 -->
+    <div class="ex-card">
+      <div class="ex-card-hdr gdirt-l" style="background:#4a3a60;">
+        <div class="ex-num">仰臥左半球 G-DiRT No. 1 ｜ 附錄 p.19</div>
+        <div class="ex-title-zh">仰臥左半球 G-DiRT 搭配抗阻右側下頜推移</div>
+        <div class="ex-title-en">Supine Left G-DiRT with Resisted R Lateral Trusion</div>
+      </div>
+      <div class="ex-body">
+        <ol class="ex-steps">
+          <li><strong>左膝彎曲</strong>、右腿伸直，骨盆後傾，將下背部平貼於床面。</li>
+          <li>在骨盆後傾的同時，舌頭抵住上顎，透過鼻子完全呼氣。</li>
+          <li>下巴微微後傾，注意不要皺起額頭。</li>
+          <li>同時完成步驟1–3後，雙眼向下看，注意不要讓頭頸部失去後傾。</li>
+          <li>保持向下凝視，嘴唇併攏、舌頭抵住上顎，下頜微微前突。然後將<strong>兩根手指放在下巴右側</strong>，向左輕推下頜（不允許移動），以此在左耳前方激活深層左側下頜肌群進行<strong>等長收縮</strong>。暫停3–5秒。</li>
+          <li>在不吸氣的情況下維持此姿勢5秒。5秒結束後，放鬆並吸氣。按照治療師的指示重複。</li>
+        </ol>
+        <div class="ex-checks">
+          <p>☐ 視覺（Vision）：依動作治療師指示</p>
+          <p>☐ PADA：每輪中途可考慮輕咬牙合板並吞嚥一次</p>
+          <p>☐ ALF：考慮舌頭放回ALF「基底位置」並用鼻子呼吸</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Ex 14 -->
+    <div class="ex-card">
+      <div class="ex-card-hdr gdirt-l" style="background:#4a3a60;">
+        <div class="ex-num">仰臥左半球 G-DiRT No. 2 ｜ 附錄 p.20</div>
+        <div class="ex-title-zh">仰臥左半球 G-DiRT「左眼視角」搭配左臂上抬與抗阻右側下頜推移</div>
+        <div class="ex-title-en">Supine Left G-DiRT in Your Eye with L Arm Reach and Resisted R Lateral Trusion</div>
+      </div>
+      <div class="ex-body">
+        <ol class="ex-steps">
+          <li><strong>左膝彎曲</strong>、右腿伸直，骨盆後傾，將下背部平貼於床面。</li>
+          <li>在骨盆後傾的同時，舌頭抵住上顎，透過鼻子完全呼氣。</li>
+          <li>下巴微微後傾，注意不要皺起額頭。</li>
+          <li>同時完成步驟1–3後，雙眼向下看，注意不要讓頭頸部失去後傾。</li>
+          <li>保持向下凝視，嘴唇併攏、舌頭抵住上顎，下頜微微前突。然後將兩根手指放在下巴右側，向左輕推下頜（不允許移動），激活深層左側下頜肌群進行等長收縮。</li>
+          <li>當<strong>左手</strong>向天花板伸展時，讓眼睛「注意」在<strong>左側視野</strong>中擺動的左手指尖。</li>
+          <li>在不吸氣的情況下維持此姿勢5秒。5秒結束後，放鬆並吸氣。按照治療師的指示重複。</li>
+        </ol>
+        <div class="ex-checks">
+          <p>☐ 視覺（Vision）：依動作治療師指示</p>
+          <p>☐ PADA：每輪中途可考慮輕咬牙合板並吞嚥一次</p>
+          <p>☐ ALF：考慮舌頭放回ALF「基底位置」並用鼻子呼吸</p>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- end sup-gdirt -->
+
+</div><!-- end supine -->
+
+<!-- ===== SECTION B: SIDELYING (placeholder) ===== -->
+<div id="sidelying" class="panel">
+  <div class="tip-box" style="text-align:center; padding:40px;">
+    <strong>B. 側臥技術</strong>（Sidelying Techniques）正在翻譯中，即將新增。<br>
+    包含：接地技術（附錄 pp.21–30）、G-HOPE 技術（附錄 pp.31–38）
+  </div>
+</div>
+
+<!-- ===== SECTION C: UPRIGHT (placeholder) ===== -->
+<div id="upright" class="panel">
+  <div class="tip-box" style="text-align:center; padding:40px;">
+    <strong>C. 直立技術</strong>（Upright Techniques）正在翻譯中，即將新增。<br>
+    包含：跪姿 G-DiRT（pp.39–54）、坐姿 G-DiRT（pp.55–60）、站姿接地（pp.61–70）、站姿 G-DiRT（pp.71–98）
+  </div>
+</div>
+
+<script>
+function showSection(id, btn) {
+  document.querySelectorAll('.section-tabs button').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('#supine,#sidelying,#upright').forEach(p => p.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+function showSub(id, btn, parent) {
+  const parentEl = document.getElementById(parent);
+  parentEl.querySelectorAll('.sub-tabs button').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  parentEl.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+</script>
