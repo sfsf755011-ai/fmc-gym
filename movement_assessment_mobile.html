@@ -920,38 +920,101 @@ function resetAssessment(){
 
 // ── Screenshot ──
 function takeScreenshot(){
-  var header=document.getElementById('app-header');
-  var bottomNav=document.querySelector('.bottom-nav');
+  refreshResultsGrid();
 
-  // 隱藏 UI 元素，讓畫面乾淨
-  header.style.display='none';
-  bottomNav.style.display='none';
-  document.body.style.paddingTop='0';
-  document.body.style.paddingBottom='0';
+  var clientName=(document.getElementById('client-name')||{}).value||'';
+  var now=new Date();
+  var dateStr=now.getFullYear()+'/'+(now.getMonth()+1).toString().padStart(2,'0')+'/'+now.getDate().toString().padStart(2,'0');
+  var subhead='font-size:10px;color:#94a3b8;font-weight:600;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px';
+  var val='font-size:15px;font-weight:700;color:#1e293b';
 
-  // 嘗試全螢幕
+  // ── Slide 1: 判讀總覽 ──
+  var grid=document.getElementById('results-grid');
+  var slide1=document.createElement('div');
+  slide1.innerHTML=
+    '<div style="font-size:11px;color:#94a3b8;letter-spacing:.06em;margin-bottom:12px">動作評估'+(clientName?' · '+clientName:'')+'　'+dateStr+'</div>'+
+    '<div style="background:#fff;border-radius:14px;border:1px solid #e2e8f0;overflow:hidden">'+
+    '<div style="padding:10px 14px;background:#1e293b;font-size:14px;font-weight:700;color:#fff">各項判讀總覽</div>'+
+    '<div style="padding:14px">'+(grid?grid.innerHTML:'')+'</div>'+
+    '</div>';
+
+  // ── Slide 2: 評估總結 + 回家作業 ──
+  function selText(id){var el=document.getElementById(id);return(el&&el.selectedIndex>0)?el.options[el.selectedIndex].text:'—';}
+  var cbEl=document.getElementById('combined-box');
+  var crEl=document.getElementById('combined-result');
+  var cbText=(cbEl&&cbEl.style.display!=='none'&&crEl)?crEl.textContent:'—';
+  var cbColor=(crEl&&cbEl&&cbEl.style.display!=='none')?crEl.style.color:'#1e293b';
+  var notes=(document.getElementById('eval-notes')||{}).value||'';
+
+  function row(label,text,color){
+    return '<div style="margin-bottom:12px"><div style="'+subhead+'">'+label+'</div>'+
+      '<div style="'+val+';'+(color?'color:'+color:'')+'">'+text+'</div></div>';
+  }
+  var slide2=document.createElement('div');
+  slide2.innerHTML=
+    '<div style="font-size:11px;color:#94a3b8;letter-spacing:.06em;margin-bottom:12px">評估總結'+(clientName?' · '+clientName:'')+'　'+dateStr+'</div>'+
+    '<div style="background:#fff;border-radius:14px;border:1px solid #e2e8f0;padding:16px;margin-bottom:10px">'+
+    row('根據 SOP 的判斷',selText('sel-sop'))+
+    row('根據 GPT 的判斷',selText('sel-gpt-sum'))+
+    '<div style="border-radius:10px;padding:12px 14px;background:rgba(30,41,59,.06);border:1px solid #e2e8f0;margin-bottom:12px">'+
+      '<div style="'+subhead+'">綜合判斷</div>'+
+      '<div style="font-size:15px;font-weight:700;color:'+cbColor+'">'+cbText+'</div>'+
+    '</div>'+
+    row('壓縮接地策略',selText('sel-compress'))+
+    row('ghope 接地優化策略',selText('sel-ghope'))+
+    '</div>'+
+    (notes?
+      '<div style="background:#fff;border-radius:14px;border:1px solid #e2e8f0;padding:16px">'+
+      '<div style="'+subhead+'">回家作業與總結</div>'+
+      '<div style="font-size:14px;color:#1e293b;line-height:1.75;white-space:pre-wrap;margin-top:6px">'+notes+'</div>'+
+      '</div>':'');
+
+  var slides=[slide1,slide2];
+  var cur=0;
+
+  // ── 覆蓋層 ──
+  var overlay=document.createElement('div');
+  overlay.style.cssText='position:fixed;inset:0;z-index:99999;background:#f1f5f9;display:flex;flex-direction:column;overflow:hidden;';
+
+  var content=document.createElement('div');
+  content.style.cssText='flex:1;overflow-y:auto;padding:16px 14px;-webkit-overflow-scrolling:touch;';
+  content.appendChild(slide1);
+
+  var nav=document.createElement('div');
+  nav.style.cssText='flex-shrink:0;display:flex;align-items:center;gap:10px;padding:10px 16px;padding-bottom:calc(10px + env(safe-area-inset-bottom,0px));background:#fff;border-top:1px solid #e2e8f0;';
+
+  var closeBtn=document.createElement('button');
+  closeBtn.textContent='✕ 結束';
+  closeBtn.style.cssText='flex:1;height:44px;border:1.5px solid #cbd5e1;border-radius:9px;background:#fff;color:#334155;font-size:14px;font-weight:600;cursor:pointer;';
+  closeBtn.onclick=function(){
+    document.body.removeChild(overlay);
+    if(document.exitFullscreen)document.exitFullscreen().catch(function(){});
+    else if(document.webkitExitFullscreen)document.webkitExitFullscreen();
+  };
+
+  var indicator=document.createElement('span');
+  indicator.textContent='1 / 2';
+  indicator.style.cssText='font-size:12px;color:#94a3b8;font-weight:600;white-space:nowrap;min-width:36px;text-align:center;';
+
+  var nextBtn=document.createElement('button');
+  nextBtn.textContent='下一張 →';
+  nextBtn.style.cssText='flex:1;height:44px;border:none;border-radius:9px;background:#1e293b;color:#fff;font-size:14px;font-weight:600;cursor:pointer;';
+  nextBtn.onclick=function(){
+    cur=1-cur;
+    content.innerHTML='';
+    content.appendChild(slides[cur]);
+    indicator.textContent=(cur+1)+' / 2';
+    nextBtn.textContent=cur===0?'下一張 →':'← 上一張';
+    content.scrollTop=0;
+  };
+
+  nav.appendChild(closeBtn);nav.appendChild(indicator);nav.appendChild(nextBtn);
+  overlay.appendChild(content);overlay.appendChild(nav);
+  document.body.appendChild(overlay);
+
   var el=document.documentElement;
   if(el.requestFullscreen)el.requestFullscreen().catch(function(){});
   else if(el.webkitRequestFullscreen)el.webkitRequestFullscreen();
-
-  window.scrollTo(0,0);
-
-  // 右下角顯示「結束截圖」按鈕
-  var exitBtn=document.createElement('button');
-  exitBtn.textContent='✕ 結束截圖';
-  exitBtn.style.cssText='position:fixed;bottom:env(safe-area-inset-bottom,16px);right:16px;z-index:99999;background:rgba(15,23,42,.75);color:#fff;border:none;border-radius:20px;padding:10px 18px;font-size:14px;font-weight:600;cursor:pointer;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)';
-  exitBtn.onclick=function(){
-    header.style.display='';
-    bottomNav.style.display='';
-    document.body.style.paddingTop='';
-    document.body.style.paddingBottom='';
-    document.body.removeChild(exitBtn);
-    if(document.exitFullscreen)document.exitFullscreen().catch(function(){});
-    else if(document.webkitExitFullscreen)document.webkitExitFullscreen();
-    setHeaderHeight();
-    window.scrollTo(0,0);
-  };
-  document.body.appendChild(exitBtn);
 }
 
 // ── Adjust header height ──
