@@ -202,7 +202,7 @@ tr:hover td{background:var(--bg2)}
     <div class="nav-item" onclick="goPage('salary2',this)"><span class="ni-icon">💼</span> 二店薪資</div>
     <div class="nav-item" onclick="goPage('bookings',this)"><span class="ni-icon">📋</span> 預約管理</div>
     <div class="sb-footer">
-      <a class="client-link" href="gym_checkin_client.html" target="_blank">→ 開啟簽到頁面</a>
+      <a class="client-link" href="index.html" target="_blank">→ 開啟簽到頁面</a>
       <button class="logout-btn" onclick="doLogout()">登出</button>
       <div id="version-label" style="text-align:center;font-size:11px;color:var(--text3);padding:6px 0 2px;letter-spacing:.05em;cursor:default" onclick="versionClick()">v250826c</div>
     </div>
@@ -1763,11 +1763,6 @@ function checkShianPw(){
   }
 }
 
-function setShianType(type, btn){
-  document.querySelectorAll('#edit-shian-type-row .pill').forEach(b=>b.classList.remove('active'));
-  btn.classList.add('active');
-}
-
 function switchShianTab(type, btn){
   _shianType=type;
   document.querySelectorAll('#page-shian .tab').forEach(b=>b.classList.remove('active'));
@@ -1777,7 +1772,6 @@ function switchShianTab(type, btn){
 }
 
 function getShianStudents(type){
-  console.log('[shian] students coach values:', students.slice(0,5).map(s=>s.coach));
   const all=students.filter(s=>s.coach&&s.coach.toLowerCase()==='shian教練');
   if(type==='all') return all;
   return all.filter(s=>(s.shianType||'self')===type);
@@ -2630,13 +2624,11 @@ function renderSalary(){
   try{ _renderSalaryInner(); } catch(e){ console.error('[renderSalary ERROR]', e); }
 }
 function _renderSalaryInner(){
-  console.log('[salary] coach='+_salaryCoach+' admin='+_salaryAdmin+' savedResult='+(!!window._savedCoachResult));
-  if(!_salaryCoach){console.log('[salary] no coach, return');return;}
+  if(!_salaryCoach){return;}
   var coachName=_salaryAdmin?document.getElementById('salary-coach-sel').value:_salaryCoach;
   var isSimpleCoach=(coachName==='dolly'||coachName==='elly'); // 二店教練：無店業績乘數、無個人業績加減
   var month=document.getElementById('salary-month').value;
-  if(!month){console.log('[salary] no month, return');return;}
-  console.log('[salary] coachName='+coachName+' month='+month);
+  if(!month){return;}
 
   // Non-admin: read from saved coachResults instead of recalculating (skip for shian who is admin-owner)
   if(!_salaryAdmin && window._savedCoachResult && coachName!=='shian'){
@@ -2812,7 +2804,6 @@ function _renderSalaryInner(){
   var subtotal, finalSalary;
 
   if(coachName==='shian'){
-    console.log('[salary] shian branch monthRecs='+monthRecs.length);
     // shian 特殊計算：公司學生每堂課程單價 × 60%，無底薪、無業績加成
     // 店長加給：從2026-03起$10000，每年3月+$1000
     var baseYear=2026; var baseMonth=3; var baseAmt=10000;
@@ -4503,12 +4494,10 @@ function confirmDeleteContract(stuId, contractIndex){
 }
 
 function deleteContract(stuId, contractIndex){
-  toast('🔍 開始刪除... stuId='+stuId+' idx='+contractIndex);
   var s=students.find(function(st){return String(st.id)===String(stuId);});
   if(!s){toast('找不到學員，請重新整理後再試');return;}
   var contracts=s.contracts||[];
   var c=contracts[contractIndex];
-  toast('✓ 找到學員: '+s.name+' 方案數:'+contracts.length);
   if(!c){toast('找不到方案 index='+contractIndex);return;}
 
   var fromDate=c.date||'2000-01-01';
@@ -4519,9 +4508,7 @@ function deleteContract(stuId, contractIndex){
     }
   }
 
-  toast('🔍 讀取 Firebase 紀錄中...');
   fbdb.ref('data/records').once('value',function(snap){
-    toast('✓ Firebase 回應，開始處理...');
     var raw=snap.val();
     var recArr=[];
     if(raw){

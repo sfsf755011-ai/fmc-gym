@@ -341,7 +341,7 @@ select.finput option{background:#1e1e2e;color:#fff}
   <!-- 兩張大圖卡 -->
   <div style="flex:1;display:flex;flex-direction:column;gap:12px;padding:14px 16px;overflow:hidden;background:#16161e">
     <!-- 重量訓練 -->
-    <button onclick="setSessionCategory('strength')" ontouchstart="" style="flex:1;position:relative;overflow:hidden;border:2px solid rgba(255,255,255,.35);border-radius:20px;cursor:pointer;font-family:inherit;padding:0;background:none;display:block;box-shadow:0 4px 24px rgba(0,0,0,.5);-webkit-tap-highlight-color:transparent;transition:transform .12s,border-color .12s" onmousedown="this.style.transform='scale(.97)';this.style.borderColor='rgba(255,255,255,.8)'" onmouseup="this.style.transform='';this.style.borderColor='rgba(255,255,255,.35)'" ontouchstart="this.style.transform='scale(.97)';this.style.borderColor='rgba(255,255,255,.8)'" ontouchend="this.style.transform='';this.style.borderColor='rgba(255,255,255,.35)'">
+    <button onclick="setSessionCategory('strength')" style="flex:1;position:relative;overflow:hidden;border:2px solid rgba(255,255,255,.35);border-radius:20px;cursor:pointer;font-family:inherit;padding:0;background:none;display:block;box-shadow:0 4px 24px rgba(0,0,0,.5);-webkit-tap-highlight-color:transparent;transition:transform .12s,border-color .12s" onmousedown="this.style.transform='scale(.97)';this.style.borderColor='rgba(255,255,255,.8)'" onmouseup="this.style.transform='';this.style.borderColor='rgba(255,255,255,.35)'" ontouchstart="this.style.transform='scale(.97)';this.style.borderColor='rgba(255,255,255,.8)'" ontouchend="this.style.transform='';this.style.borderColor='rgba(255,255,255,.35)'">
       <div style="position:absolute;inset:0;background-image:url('session_strength.jpg');background-size:cover;background-position:center;border-radius:18px"></div>
       <div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.75) 0%,rgba(0,0,0,.15) 55%,rgba(0,0,0,.0) 100%);border-radius:18px"></div>
       <div style="position:relative;z-index:1;height:100%;display:flex;flex-direction:column;justify-content:flex-end;padding:24px 22px 20px">
@@ -351,7 +351,7 @@ select.finput option{background:#1e1e2e;color:#fff}
       </div>
     </button>
     <!-- 皮拉提斯 -->
-    <button onclick="setSessionCategory('pilates')" ontouchstart="" style="flex:1;position:relative;overflow:hidden;border:2px solid rgba(255,255,255,.35);border-radius:20px;cursor:pointer;font-family:inherit;padding:0;background:none;display:block;box-shadow:0 4px 24px rgba(0,0,0,.5);-webkit-tap-highlight-color:transparent;transition:transform .12s,border-color .12s" onmousedown="this.style.transform='scale(.97)';this.style.borderColor='rgba(255,255,255,.8)'" onmouseup="this.style.transform='';this.style.borderColor='rgba(255,255,255,.35)'" ontouchstart="this.style.transform='scale(.97)';this.style.borderColor='rgba(255,255,255,.8)'" ontouchend="this.style.transform='';this.style.borderColor='rgba(255,255,255,.35)'">
+    <button onclick="setSessionCategory('pilates')" style="flex:1;position:relative;overflow:hidden;border:2px solid rgba(255,255,255,.35);border-radius:20px;cursor:pointer;font-family:inherit;padding:0;background:none;display:block;box-shadow:0 4px 24px rgba(0,0,0,.5);-webkit-tap-highlight-color:transparent;transition:transform .12s,border-color .12s" onmousedown="this.style.transform='scale(.97)';this.style.borderColor='rgba(255,255,255,.8)'" onmouseup="this.style.transform='';this.style.borderColor='rgba(255,255,255,.35)'" ontouchstart="this.style.transform='scale(.97)';this.style.borderColor='rgba(255,255,255,.8)'" ontouchend="this.style.transform='';this.style.borderColor='rgba(255,255,255,.35)'">
       <div style="position:absolute;inset:0;background-image:url('session_pilates.jpg');background-size:cover;background-position:center;border-radius:18px"></div>
       <div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.7) 0%,rgba(0,0,0,.15) 55%,rgba(0,0,0,.0) 100%);border-radius:18px"></div>
       <div style="position:relative;z-index:1;height:100%;display:flex;flex-direction:column;justify-content:flex-end;padding:24px 22px 20px">
@@ -1679,8 +1679,7 @@ function submitCheckin() {
 
   // ── 體驗課程分支 ──
   if (sessionType === 'trial') {
-    var trialRec = {date:todayStr(), time:nowStr(), name:trialName, coach:selCoach.name, trialType:trialType||'', revenue:trialRevenue||0, converted:false};
-    var _sigData2 = getCompressedSig();
+    var trialRec = {date:todayStr(), time:nowStr(), name:trialName, coach:selCoach.name, trialType:trialType||'', revenue:trialRevenue||0, converted:false, sig:getCompressedSig()};
     db.ref('data/trialCheckins').once('value', function(snap) {
       var arr = snap.val() || [];
       if (!Array.isArray(arr)) arr = Object.values(arr);
