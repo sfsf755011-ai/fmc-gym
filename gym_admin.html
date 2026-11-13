@@ -4191,8 +4191,9 @@ function deleteStu(){
   var id=s.id;
   if(!confirm('確定要刪除「'+s.name+'」的所有資料嗎？此操作無法還原'))return;
   logAction('刪除學員',s.name,s.coach,'共 '+s.totalSessions+' 堂，已上 '+s.usedSessions+' 堂');
+  var delIdx=students.findIndex(function(st){return String(st.id)===String(id);});
   students=students.filter(function(st){return String(st.id)!==String(id);});
-  fbdb.ref('data/students').set(students,function(err){if(err)console.error('Delete error:',err);});
+  if(delIdx>=0)fbdb.ref('data/students/'+delIdx).remove(function(err){if(err)console.error('Delete error:',err);});
   try{save('gym_students',students);}catch(e){}
   toast('已刪除：'+s.name);
   filterEditStudents();document.getElementById('edit-stu-form').style.display='none';

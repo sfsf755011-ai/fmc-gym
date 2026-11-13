@@ -1328,7 +1328,9 @@ function confirmStu(s) {
     }
     if (pilTotal === 0) pilTotal = 1;
     var pilUsed = (records || []).filter(function(r) {
-      return r.student === s.name && _PILATES_PLAN_IDS.indexOf(r.planId) !== -1;
+      var nameMatch = r.student === s.name;
+      var idMatch = r.stuId && String(r.stuId) === String(s.id);
+      return (idMatch || nameMatch) && _PILATES_PLAN_IDS.indexOf(r.planId) !== -1;
     }).length;
     var pilRemain = Math.max(0, pilTotal - pilUsed);
     document.getElementById('stu-fdetail').textContent = selCoach.name + '・皮拉提斯 剩餘 ' + pilRemain + ' 堂（已上 ' + pilUsed + ' / 共 ' + pilTotal + ' 堂）';
@@ -1716,7 +1718,7 @@ function submitCheckin() {
     var _pilTotal = 0;
     (stu.contracts||[]).forEach(function(c){ if(_PILATES_PLAN_IDS.indexOf(c.planId)!==-1) _pilTotal+=(c.sessions||0); });
     if (_pilTotal===0) _pilTotal=1;
-    var _pilUsed = (records||[]).filter(function(r){return r.student===stu.name && _PILATES_PLAN_IDS.indexOf(r.planId)!==-1;}).length;
+    var _pilUsed = (records||[]).filter(function(r){var nm=r.student===stu.name;var im=r.stuId&&String(r.stuId)===String(stu.id);return (im||nm)&&_PILATES_PLAN_IDS.indexOf(r.planId)!==-1;}).length;
     if (!stu || _pilUsed >= _pilTotal) { fail('皮拉提斯堂數已用完，請洽詢前台'); return; }
   } else if (isPilates) {
     if (!stu || getPilatesRemaining(stu) <= 0) { fail('皮拉提斯堂數已用完，請洽詢前台'); return; }
@@ -1758,7 +1760,7 @@ function submitCheckin() {
         stu.usedPilateSessions = newUsed;
         var nr = getPilatesRemaining(stu);
         var pilatesCoachName = activeComboContract.pilatesCoach ? (activeComboContract.pilatesCoach + '教練') : selCoach.name;
-        var rec = {date:todayStr(), time:nowStr(), student:stu.name, coach:pilatesCoachName, remainAfter:nr, planType:'pilates', sessionType:'pilates'};
+        var rec = {date:todayStr(), time:nowStr(), student:stu.name, stuId:stu.id, coach:pilatesCoachName, remainAfter:nr, planType:'pilates', sessionType:'pilates'};
         var _sigData = getCompressedSig();
         var _sigDate = rec.date, _sigTime = rec.time, _sigStuId = stu.id;
         for (var k = 0; k < students.length; k++) {
@@ -1798,7 +1800,7 @@ function submitCheckin() {
           if (String(students[k].id) === String(stu.id)) { students[k] = stu; break; }
         }
         var _planType=(stu.contracts||[]).some(function(c){return (c.planId&&c.planId.indexOf('1v2')!==-1)||(c.planLabel&&c.planLabel.indexOf('1v2')!==-1);})? '1v2':'1v1';
-        var rec = {date:todayStr(), time:nowStr(), student:stu.name, coach:selCoach.name, remainAfter:nr, planType:_planType};
+        var rec = {date:todayStr(), time:nowStr(), student:stu.name, stuId:stu.id, coach:selCoach.name, remainAfter:nr, planType:_planType};
         if (sessionCategory === 'pilates') rec.planId = _getPilatesPlanId(stu);
         var _sigData = getCompressedSig();
         var _sigDate = rec.date, _sigTime = rec.time, _sigStuId = stu.id;
