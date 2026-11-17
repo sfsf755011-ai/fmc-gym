@@ -1991,6 +1991,7 @@ function kbDel() {
 }
 
 function showQKb() {
+  if (!isTouchDevice()) return;
   var kb = document.getElementById('query-kb');
   if (kb) { kb.style.display = 'block'; kb.style.position = 'fixed'; kb.style.bottom = '80px'; kb.style.left = '0'; kb.style.right = '0'; kb.style.zIndex = '100'; }
   var body = document.querySelector('#s-query .pbody');
@@ -2015,7 +2016,11 @@ function qKbDel() {
   qSearch();
 }
 
+function isTouchDevice() {
+  return ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
+}
 function showKb() {
+  if (!isTouchDevice()) return;
   var kb = document.getElementById('custom-kb');
   if (kb) kb.style.display = 'block';
   // Give enough padding so results show above keyboard
