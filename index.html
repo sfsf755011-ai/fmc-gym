@@ -2019,6 +2019,23 @@ function qKbDel() {
 function isTouchDevice() {
   return ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
 }
+// 電腦版：移除 readonly，讓實體鍵盤可以直接輸入，並綁定 oninput 觸發搜尋
+if (!isTouchDevice()) {
+  var _niEl = document.getElementById('name-input');
+  if (_niEl) {
+    _niEl.removeAttribute('readonly');
+    _niEl.style.caretColor = '';
+    _niEl.style.cursor = '';
+    _niEl.addEventListener('input', function() { searchStu(this.value); });
+  }
+  var _qnEl = document.getElementById('q-name');
+  if (_qnEl) {
+    _qnEl.removeAttribute('readonly');
+    _qnEl.style.caretColor = '';
+    _qnEl.style.cursor = '';
+    // q-name 的 oninput 在 renderQCoach() 裡已綁，這裡不重複
+  }
+}
 function showKb() {
   if (!isTouchDevice()) return;
   var kb = document.getElementById('custom-kb');
