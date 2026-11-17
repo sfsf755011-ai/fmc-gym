@@ -478,11 +478,11 @@ tr:hover td{background:var(--bg2)}
             <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:10px">
               <div>
                 <label class="form-label" style="margin-top:0">總購堂數</label>
-                <input class="form-input" id="edit-total-sessions" type="number" min="0">
+                <input class="form-input" id="edit-total-sessions" type="number" min="0" oninput="this.dataset.dirty='1';updateEditRemain()">
               </div>
               <div>
                 <label class="form-label" style="margin-top:0">已上堂數</label>
-                <input class="form-input" id="edit-used-sessions" type="number" min="0">
+                <input class="form-input" id="edit-used-sessions" type="number" min="0" oninput="this.dataset.dirty='1';updateEditRemain()">
               </div>
               <div>
                 <label class="form-label" style="margin-top:0">剩餘堂數</label>
@@ -1304,6 +1304,29 @@ function fbLoadAll(cb) {
     if (cb) cb();
   });
 }
+// ── 第三層保護：實時同步學員堂數 ──
+// 後台開著不重整時，前台簽到會更新 Firebase，這個監聽讓後台記憶體自動同步
+var _studentsListenerActive = false;
+function startStudentsRealtime() {
+  if (_studentsListenerActive) return;
+  _studentsListenerActive = true;
+  fbdb.ref('data/students').on('value', function(snap) {
+    var rawStu = snap.val();
+    if (!rawStu) return;
+    function toArr(v) { if (!v) return []; if (Array.isArray(v)) return v; return Object.values(v); }
+    var stuMap = {};
+    toArr(rawStu).forEach(function(s) { if (s && s.id != null) stuMap[s.id] = s; });
+    students = Object.values(stuMap);
+    // 同步教練名稱大小寫
+    if (coaches && coaches.length) {
+      students.forEach(function(s) {
+        if (!s.coach) return;
+        var matched = coaches.find(function(c){ return c.name.toLowerCase() === s.coach.toLowerCase(); });
+        if (matched && matched.name !== s.coach) s.coach = matched.name;
+      });
+    }
+  });
+}
 // ══ End Firebase ══
 
 const COLORS=[
@@ -1490,6 +1513,7 @@ function doLogin(){
       errEl.style.display='none';
       document.getElementById('login-screen').style.display='none';
       document.getElementById('app').classList.add('visible');
+      startStudentsRealtime();
       renderDashboard();
       setInterval(()=>{
         const el=document.getElementById('sb-time');
@@ -4098,6 +4122,25 @@ function loadEditStu(){
   renderContractSig(s);
   renderEditCheckinHistory(s);
   form.style.display='block';
+  // 開啟編輯表單時，立即從 Firebase 讀取最新堂數，防止後台覆蓋前台剛完成的簽到扣堂
+  var _editIdx=students.findIndex(function(st){return String(st.id)===String(s.id);});
+  if(_editIdx>=0){
+    fbdb.ref('data/students/'+_editIdx).once('value',function(snap){
+      var latest=snap.val();
+      if(!latest)return;
+      if(latest.usedSessions!==undefined){
+        s.usedSessions=latest.usedSessions;
+        var el=document.getElementById('edit-used-sessions');
+        if(el)el.value=latest.usedSessions;
+      }
+      if(latest.usedPilateSessions!==undefined){
+        s.usedPilateSessions=latest.usedPilateSessions;
+        var el2=document.getElementById('edit-pilates-used');
+        if(el2&&document.getElementById('edit-pilates-row').style.display!=='none')el2.value=latest.usedPilateSessions;
+      }
+      updateEditRemain();
+    });
+  }
 }
 function updateEditRemain(){
   var totalStr=document.getElementById('edit-total-sessions').value;
@@ -4146,8 +4189,11 @@ function saveEditStu(){
   var coach=document.getElementById('edit-stu-coach').value;
   if(!name){toast('學員姓名不能為空');return;}
   var oldName=s.name;var oldCoach=s.coach;
-  var _totalRaw=document.getElementById('edit-total-sessions').value;
-  var _usedRaw=document.getElementById('edit-used-sessions').value;
+  var _totalEl=document.getElementById('edit-total-sessions');
+  var _usedEl=document.getElementById('edit-used-sessions');
+  var _totalRaw=_totalEl.value;
+  var _usedRaw=_usedEl.value;
+  var _sessionsDirty=_totalEl.dataset.dirty==='1'||_usedEl.dataset.dirty==='1';
   var newTotal=_totalRaw!==''?parseInt(_totalRaw)||0:s.totalSessions;
   var newUsed=_usedRaw!==''?parseInt(_usedRaw)||0:s.usedSessions;
   if(newUsed>newTotal){toast('已上堂數不能超過總購堂數');return;}
@@ -4179,7 +4225,7 @@ function saveEditStu(){
   if(oldName!==name){records.forEach(function(r){if(r.student===oldName)r.student=name;});fbSaveRecords();}
   s.name=name;s.coach=coach;
   logAction('編輯學員',name,coach,'姓名：'+oldName+'→'+name+'，教練：'+oldCoach+'→'+coach+'，堂數：總'+s.totalSessions+'/已上'+s.usedSessions+'/剩'+(s.totalSessions-s.usedSessions));
-  fbSaveSingleStudent(s, true); // admin explicitly edited session counts
+  fbSaveSingleStudent(s, _sessionsDirty); // only skip fresh-read if admin explicitly changed session counts
   try{save('gym_students',students);save('gym_records',records);}catch(e){}
   toast('✓ 學員資料已更新：'+name);
   filterEditStudents();
@@ -4525,23 +4571,37 @@ function deleteContract(stuId, contractIndex){
     var newRecArr=recArr.filter(function(r){
       return !(r.student===s.name&&r.date>=fromDate&&r.date<toDate);
     });
-    // Update student first, then records
-    s.contracts.splice(contractIndex,1);
-    s.totalSessions=Math.max(0,(s.totalSessions||0)-contractSessions);
-    s.usedSessions=Math.max(0,(s.usedSessions||0)-strengthDel);
-    if(pilatesDel>0)s.usedPilateSessions=Math.max(0,(s.usedPilateSessions||0)-pilatesDel);
-    logAction('刪除方案',s.name,s.coach,(c.planLabel||c.sessions+'堂合約')+'・移除 '+toDelArr.length+' 筆簽到紀錄');
-    fbSaveSingleStudent(s, true); // explicitly recalculated session counts
-    try{save('gym_students',students);}catch(e){}
-    renderEditContracts(s);
-    var usedEl=document.getElementById('edit-used-sessions');
-    var totalEl=document.getElementById('edit-total-sessions');
-    if(usedEl)usedEl.value=s.usedSessions||0;
-    if(totalEl)totalEl.value=s.totalSessions||0;
-    toast('✓ 方案已刪除，共移除 '+toDelArr.length+' 筆簽到記錄');
-    // Write records async (don't block UI on this)
-    if(toDelArr.length>0){
-      fbdb.ref('data/records').set(newRecArr.length>0?newRecArr:null);
+    // 刪除方案：先從 Firebase 讀最新 usedSessions，避免用 stale 記憶體值計算
+    var _delIdx=students.findIndex(function(st){return String(st.id)===String(s.id);});
+    var _applyDelete=function(freshUsed,freshPilUsed){
+      s.contracts.splice(contractIndex,1);
+      s.totalSessions=Math.max(0,(s.totalSessions||0)-contractSessions);
+      s.usedSessions=Math.max(0,freshUsed-strengthDel);
+      if(pilatesDel>0)s.usedPilateSessions=Math.max(0,freshPilUsed-pilatesDel);
+      logAction('刪除方案',s.name,s.coach,(c.planLabel||c.sessions+'堂合約')+'・移除 '+toDelArr.length+' 筆簽到紀錄');
+      fbSaveSingleStudent(s, true); // explicitly recalculated session counts
+      try{save('gym_students',students);}catch(e){}
+      renderEditContracts(s);
+      var usedEl=document.getElementById('edit-used-sessions');
+      var totalEl=document.getElementById('edit-total-sessions');
+      if(usedEl)usedEl.value=s.usedSessions||0;
+      if(totalEl)totalEl.value=s.totalSessions||0;
+      toast('✓ 方案已刪除，共移除 '+toDelArr.length+' 筆簽到記錄');
+      // Write records async (don't block UI on this)
+      if(toDelArr.length>0){
+        fbdb.ref('data/records').set(newRecArr.length>0?newRecArr:null);
+      }
+    };
+    if(_delIdx>=0){
+      fbdb.ref('data/students/'+_delIdx).once('value',function(snap){
+        var latest=snap.val()||{};
+        _applyDelete(
+          typeof latest.usedSessions==='number'?latest.usedSessions:(s.usedSessions||0),
+          typeof latest.usedPilateSessions==='number'?latest.usedPilateSessions:(s.usedPilateSessions||0)
+        );
+      },function(){ _applyDelete(s.usedSessions||0,s.usedPilateSessions||0); });
+    } else {
+      _applyDelete(s.usedSessions||0,s.usedPilateSessions||0);
     }
   });
 }
