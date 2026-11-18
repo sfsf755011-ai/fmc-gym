@@ -1,0 +1,175 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box}body{margin:0;padding:0;font:14px sans-serif;background:#fff;color:#000}img{max-width:100%}</style></head><body>
+<title>AIA 步態與接地 ── 第九章</title>
+<style>
+  :root {
+    --bg:#f0f4f8;--surface:#fff;--hdr:#1a2744;--accent:#2558d8;--txt:#1a2030;
+    --muted:#5a6478;--border:#dde3ee;--max:800px;
+    --nav-bg:#1a2744;--nav-hover:#2558d8;
+    font-family:'Noto Serif TC',Georgia,serif;
+  }
+  @media(prefers-color-scheme:dark){:root:not([data-theme="light"]){
+    --bg:#0f1420;--surface:#1a2030;--hdr:#a8c0f8;--accent:#6b96f8;
+    --txt:#d8e0f0;--muted:#8090b0;--border:#2a3550;--nav-bg:#111826;color-scheme:dark;
+  }}
+  :root[data-theme="dark"]{
+    --bg:#0f1420;--surface:#1a2030;--hdr:#a8c0f8;--accent:#6b96f8;
+    --txt:#d8e0f0;--muted:#8090b0;--border:#2a3550;--nav-bg:#111826;color-scheme:dark;
+  }
+  body{background:var(--bg);color:var(--txt);margin:0;padding:0;line-height:1.75;}
+  .top-nav{background:var(--nav-bg);position:sticky;top:0;z-index:100;
+    display:flex;flex-wrap:wrap;align-items:center;
+    border-bottom:2px solid var(--accent);overflow-x:auto;
+    padding-left:max(16px,env(safe-area-inset-left,0px));
+    padding-right:max(16px,env(safe-area-inset-right,0px));}
+  .top-nav .brand{color:#fff;font-weight:700;font-size:.85rem;padding:.6rem 1rem .6rem 0;
+    font-family:'Noto Sans TC',system-ui,sans-serif;white-space:nowrap;}
+  .top-nav a{color:#b8cce8;text-decoration:none;font-size:.8rem;padding:.6rem .6rem;
+    font-family:'Noto Sans TC',system-ui,sans-serif;transition:.15s;white-space:nowrap;}
+  .top-nav a:hover{background:var(--nav-hover);color:#fff;}
+  .top-nav a.active{background:var(--accent);color:#fff;font-weight:600;}
+  .layout{display:flex;min-height:calc(100vh - 42px);}
+  .sidebar{width:190px;min-width:190px;flex-shrink:0;background:var(--surface);
+    border-right:1px solid var(--border);position:sticky;top:42px;
+    height:calc(100vh - 42px);overflow-y:auto;padding:.8rem 0;}
+  .sidebar-title{font-family:'Noto Sans TC',system-ui,sans-serif;font-size:.7rem;
+    font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;
+    padding:.4rem 1rem .8rem;}
+  .sidebar a{display:block;padding:.35rem 1rem;font-size:.78rem;color:var(--txt);
+    text-decoration:none;font-family:'Noto Sans TC',system-ui,sans-serif;
+    transition:.1s;border-left:3px solid transparent;line-height:1.3;}
+  .sidebar a:hover{background:var(--bg);color:var(--accent);}
+  .sidebar a.h2-link{font-weight:600;color:var(--hdr);font-size:.8rem;}
+  .sidebar a.h3-link{padding-left:1.5rem;font-size:.73rem;color:var(--muted);}
+  .sidebar a.active{border-left-color:var(--accent);color:var(--accent);background:var(--bg);}
+  .main{flex:1;min-width:0;padding:0 max(16px,env(safe-area-inset-right,0px)) 4rem max(24px,env(safe-area-inset-left,0px));}
+  .main-inner{max-width:var(--max);margin:0 auto;}
+  h1{color:var(--hdr);font-size:1.6rem;font-weight:700;line-height:1.3;margin:0 0 .4rem;padding-top:2rem;text-wrap:balance;}
+  h2{color:var(--hdr);font-size:1.15rem;font-weight:700;margin:2.5rem 0 .8rem;
+    padding:.5rem .8rem;border-left:4px solid var(--accent);background:var(--surface);
+    scroll-margin-top:50px;}
+  h3{color:var(--accent);font-size:1rem;font-weight:700;margin:1.5rem 0 .5rem;scroll-margin-top:50px;}
+  h4{font-size:.95rem;font-weight:700;margin:1.2rem 0 .4rem;color:var(--hdr);}
+  p{margin:.8rem 0;font-size:1rem;}
+  .subtitle{color:var(--muted);font-size:.9rem;margin:0 0 2rem;font-family:'Noto Sans TC',system-ui,sans-serif;}
+  .divider{border:none;border-top:1px solid var(--border);margin:2rem 0;}
+  .highlight{background:var(--surface);border-left:4px solid var(--accent);padding:.8rem 1rem;margin:1rem 0;border-radius:0 6px 6px 0;}
+  .term{font-weight:700;color:var(--accent);}
+  figure{margin:1.5rem 0;text-align:center;}
+  figure img{max-width:100%;border-radius:8px;box-shadow:0 2px 12px rgba(0,0,0,.12);}
+  figcaption{font-size:.8rem;color:var(--muted);margin-top:.5rem;font-family:'Noto Sans TC',system-ui,sans-serif;font-style:italic;}
+  ul,ol{padding-left:1.4rem;margin:.6rem 0;}
+  li{margin:.35rem 0;}
+  .box{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:1rem 1.2rem;margin:1.2rem 0;}
+  .box-title{font-weight:700;font-size:.9rem;color:var(--hdr);margin-bottom:.5rem;font-family:'Noto Sans TC',system-ui,sans-serif;}
+  .section-block{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:20px 24px;margin-bottom:20px;}
+  .fig-box{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:12px;margin:16px 0;text-align:center;}
+  .fig-box img{max-width:100%;border-radius:4px;}
+  .fig-box .fig-cap{font-family:'Noto Sans TC',sans-serif;font-size:.82rem;color:var(--muted);font-style:italic;margin-top:6px;}
+  .note-box{background:#fff8e8;border-left:4px solid #d4a800;border-radius:0 8px 8px 0;padding:12px 16px;margin:16px 0;font-size:.9rem;}
+  @media(prefers-color-scheme:dark){:root:not([data-theme="light"]) .note-box{background:#1e1a08;border-left-color:#a08000;}}
+  :root[data-theme="dark"] .note-box{background:#1e1a08;border-left-color:#a08000;}
+  .test-card{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:16px;margin-bottom:14px;}
+  .test-card .test-name{font-family:'Noto Sans TC',sans-serif;font-weight:700;font-size:.95rem;color:var(--accent);margin-bottom:8px;}
+  .badge{background:var(--accent);color:white;font-family:'Noto Sans TC',sans-serif;font-size:.75rem;font-weight:700;padding:2px 10px;border-radius:20px;}
+  .lgpt-card{background:var(--surface);border:2px solid var(--accent);border-radius:10px;padding:20px;margin-bottom:20px;}
+  .chapter-banner{background:var(--hdr);color:#fff;padding:20px 24px;border-radius:8px;margin-bottom:28px;border-left:5px solid var(--accent);}
+  .chapter-banner h2{font-size:1.2rem;font-weight:700;color:#fff;}
+  .two-col{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+  .three-col{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;}
+  .grounding-list{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:16px 0;}
+  .grounding-item{background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:12px;font-size:.9rem;}
+  .grounding-item .gi-num{font-family:'Noto Sans TC',sans-serif;font-weight:700;font-size:.8rem;color:var(--accent);margin-bottom:4px;}
+  table{width:100%;border-collapse:collapse;font-size:.85rem;}
+  th{background:var(--hdr);color:#fff;padding:8px 10px;font-family:'Noto Sans TC',sans-serif;font-size:.8rem;}
+  td{padding:7px 9px;border:1px solid var(--border);vertical-align:top;}
+  tr:nth-child(even) td{background:var(--bg);}
+  .ref-list{counter-reset:ref;}
+  .ref-list li{margin:.6rem 0;font-size:.9rem;line-height:1.5;}
+  @media(max-width:700px){.sidebar{display:none;} h1{font-size:1.3rem;} h2{font-size:1rem;} .two-col,.three-col,.grounding-list{grid-template-columns:1fr;}}
+</style>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;700&family=Noto+Sans+TC:wght@400;600;700&display=swap">
+<nav class="top-nav"><span class="brand">AIA 步態與接地</span><a href="aia-ch1.html">第一章</a><a href="aia-ch2.html">第二章</a><a href="aia-ch3.html">第三章</a><a href="aia-ch4.html">第四章</a><a href="aia-ch5.html">第五章</a><a href="aia-ch6.html">第六章</a><a href="aia-ch7.html">第七章</a><a href="aia-ch8.html">第八章</a><a href="aia-ch9.html" class="active">第九章</a><a href="aia-ch10.html">第十章</a></nav>
+<div class="layout">
+  <nav class="sidebar"><div class="sidebar-title">本章內容</div>
+
+  </nav>
+  <main class="main"><div class="main-inner">
+<h1>第九章：參考文獻（References）</h1>
+<p class="subtitle">AIA Gait &amp; Grounding — Chapter 9: References</p>
+
+<ol class="ref-list">
+  <li>Kirimoto H, Seki Y, et al. <em>Differential roles of periodontal mechanoreceptors of working-side posterior teeth in triggering nonworking-side temporalis activities.</em> J Med Dent Sci. 2003 Mar; 50(1):47-52.</li>
+  <li>Ohlendorf D, Seebach K, et al. <em>The effects of a temporarily manipulated dental occlusion on the position of the spine: a comparison during standing and walking.</em> Spine J. 2014 Oct 1; 14(10):2384-91.</li>
+  <li>Bindayel NA. The impact of postural changes on dental occlusion. Pakistan Oral &amp; Dental Journal. 2017; 37(4):583-588.</li>
+  <li>Korbmacher H, Koch L, et al. Associations between orthopaedic disturbances and unilateral crossbite in children with asymmetry of the upper cervical spine. Eur J Orthod. 2007 Feb; 29(1):100-104.</li>
+  <li>Marchena-Rodriguez A, Moreno-Morales N, et al. Relationship between foot pressure and dental malocclusions in children aged 6 to 9 years. Medicine. 2018; 97:19.</li>
+  <li>Valentino B, Fabozzo A, et al. The functional relationship between the occlusal plane and the plantar arches - An EMG study. Surg Radiol Anat. 1991; 13:171-174.</li>
+  <li>Springate SD. A re-investigation of the relationship between head posture and craniofacial growth. Eur J Orthod. 2012 Aug;34(4):397-409.</li>
+  <li>Sakaguchi K, Mehta NR, Abdallah EF, Forgione AG, Hirayama H, Kawasaki T, Yokoyama A. Examination of the relationship between mandibular position and body posture. Cranio. 2007 Oct;25(4):237-49. doi: 10.1179/crn.2007.037. PMID: 17983123.</li>
+  <li>Ung N, Koenig J, Shapiro PA, Shapiro G, Trask G. A quantitative assessment of respiratory patterns and their effects on dentofacial development. Am J Orthod Dentofacial Orthop. 1990 Dec;98(6):523-32.</li>
+  <li>Yeampattanaporn O, Mekhora K, Jalayondeja W, Wongsathikun J. Immediate effects of breathing re-education on respiratory function and range of motion in chronic neck pain. J Med Assoc Thai. 2014 Jul;97 Suppl 7:S55-9. PMID: 25141528.</li>
+  <li>Moskalenko YE, Kravchenko TI, Gaidar BV, et al. Periodic mobility of cranial bones in humans. Human Physiology. 1999;25(1):51-58.</li>
+  <li>Moskalenko YE, Frymann VM, Weinstein GB, et al. Slow rhythmic oscillations within the human cranium: phenomenology, origin, and informational significance. Human Physiology. 2001;27(2):171-178.</li>
+  <li>Moskalenko YE, Frymann VM, Kravchenko T. A modern conceptualization of the functioning of the primary respiratory mechanism. In King HH. (Ed) Proceedings of international research conference: Osteopathy in Pediatrics at the Osteopathic Center for Children in San Diego, CA 2002. American Academy of Osteopathy, Indianapolis, IN, 2005;12-31.</li>
+  <li>James G, Strokon D. Cranial Strains and Malocclusions V Part 1. IJO. 2006; 17(2).</li>
+  <li>Rothbart BA. Vertical facial dimensions linked to abnormal foot motion. J Am Podiatr Med Assoc. 2008 May-Jun;98(3):189-96. doi: 10.7547/0980189. PMID: 18487592.</li>
+  <li>Obayashi et al. Effects of respiratory-muscle exercise on spinal curvature. Journal of Sport Rehabilitation, 2012; 21:63-68.</li>
+  <li>Rocabado M, Tapia V. Radiographic study of the craniocervical relation in patients under orthodontic treatment and the incidence of related symptoms. Cranio 1987;5:36-42.</li>
+  <li>Rothbart B. Prescriptive proprioceptive insoles and dental orthotics change the frontal plane position of the atlas (C1), mastoid, molar, temporal, and sphenoid bones: A preliminary study. J Craniomandibular and Sleep Practice. 2013; 31:1-9.</li>
+  <li>Rothbart, B. Malocclusion Driven by the Feet. Positive Health. September 2008; Vol 151.</li>
+  <li>Valentino B, Melito F. Functional relationship between the muscles of mastication and the muscles of the leg: an electromyographic study. Surg Radiol Anat. 1991; 13(1):33-37.</li>
+  <li>Sidlauskiene M, Smailiene D, et al. Relationships between malocclusion, body posture, and nasopharyngeal pathology in pre-orthodontic children. Med Sci Monit. 2015 Jun; 21:1765-73.</li>
+  <li>Hudson AL, Butler JE, et al. Role of the diaphragm in trunk rotation in humans. JN Physiol. Oct 2011;106(4):1622-28.</li>
+  <li>Kolar P, Sulc J, et al. Postural function of the diaphragm in persons with and without chronic low back pain. Journal of Orthopaedic and Sports Physical Therapy. Apr 2012;42(4):352-62.</li>
+  <li>Jackson LR, Purvis J, Brown T. The effects of postural and anatomical alignment on speed, power and athletic performance in male collegiate athletes: a randomized controlled trial. IJSPT. August 2019;14(4):623-636.</li>
+  <li>Haddad J, et al. Adaptations in interlimb and intralimb coordination to asymmetrical loading in human walking. Elsevier. 2006;23:429-434.</li>
+  <li>Bruijin SM, et al. Coordination of leg swing, thorax rotation, and pelvis rotations during gait: the organization of total body angular momentum. Gait &amp; Posture. 2008(27):455-462.</li>
+  <li>Killeen T, et al. Increasing cognitive load attenuates right arm swing in healthy human walking. Royal Society Open Science. 2017</li>
+  <li>Meyen P, et al. The how and why of arm swing during human walking. Gait Posture. 2013;38(4):555-562.</li>
+  <li>Perry SD, et al. The role of plantar cutaneous mechanoreceptors in the control of compensatory stepping reactions evoked by unpredictable, multi-directional perturbation. Brain Res. 2000;877(2):401-406.</li>
+  <li>Sanna A, et al. Chest wall kinematics and respiratory muscle action in walking healthy humans. J Appl Physiol. 1999;87:938-946.</li>
+  <li>Perry, J. Gait analysis: Normal and pathological function, 2nd ed. c 2010 Slack inc.</li>
+  <li>Polk JD, et al. Limb dominance, foot orientation and functional asymmetry during walking gait. Gait and Posture, 2017; 52:140-146.</li>
+  <li>Eils E, et al. Reduced plantar sensation causes a cautious walking pattern. Gait Posture. 2004;20(1):54-60.</li>
+  <li>Fallon JB, et al. Evidence for strong synaptic coupling between single tactile afferents from the sole of the foot and motoneurons supplying leg muscles. J Neurophysiol. 2005;94:3795-3804.</li>
+  <li>Cassart M, Pettiaux N, Gevenois PA, Paiva M, Estenne M. Effect of chronic hyperinflation on diaphragm length and surface area. Am J Respir Crit Care Med. 1997 Aug;156(2 Pt 1):504-8.</li>
+  <li>Estenne M, Derom E, De Troyer A. Neck and abdominal muscle activity in patients with severe thoracic scoliosis. Am J Respir Crit Care Med. 1998 Aug;158(2):452-7.</li>
+  <li>Hudson AL, Butler JE, et al. Role of the diaphragm in trunk rotation in humans. JN Physiol. Oct 2011;106(4):1622-28.</li>
+  <li>Obayashi et al. Effects of respiratory-muscle exercise on spinal curvature. Journal of Sport Rehabilitation, 201</li>
+  <li>Kolar P, Sulc J, et al. Postural function of the diaphragm in persons with and without chronic low back pain. Journal of Orthopaedic and Sports Physical Therapy. Apr 2012;42(4):352-62.</li>
+  <li>Jackson LR, Purvis J, Brown T. The effects of postural and anatomical alignment on speed, power and athletic performance in male collegiate athletes: a randomized controlled trial. IJSPT. August 2019;14(4):623-636.</li>
+  <li>De Troyer A, Wilson TA. Action of the diaphragm on the rib cage. Journal of Applied Physiology. 2016; 121(2):391-400.</li>
+  <li>Haddad J, et al. Adaptations in interlimb and intralimb coordination to asymmetrical loading in human walking. Elsevier. 2006;23:429-434.</li>
+  <li>Hohne A, et al. Reduced plantar cutaneous sensation modifies gait dynamics, lower-limb kinematics and muscle activity during walking. Eur J Appl Physiol. 2012;112: 3829-3838.</li>
+  <li>Sanna A, et al. Chest wall kinematics and respiratory muscle action in walking healthy humans. J Appl Physiol. 1999;87:938-946.</li>
+  <li>Amaricai E, et al. Do different dental conditions influence the static plantar pressure and stabilometer in young adults? PLOS One. Feb 11, 2022.</li>
+  <li>Day LB, MacNeilage PF. Postural asymmetries and language lateralization in humans (Homo sapiens). J Comp Psychol. 1996 Mar;110(1):88-96.</li>
+  <li>Previc, F. H. (1998). The neuropsychology of 3-D space. <em>Psychological Bulletin, 124</em>(2), 123–164.</li>
+  <li>Hellige JB. Hemispheric asymmetry for visual information processing. Acta Neurobiol Exp (Wars). 1996;56(1):485-97.</li>
+  <li>Forrester JV, The Eye, Basic Sciences in Practice, Fourth Ed. 2016</li>
+  <li>Warren WH, The Senses: A Comprehensive Reference, 2008. Elsevier Press.</li>
+  <li>Lee DG. Biomechanics of the thorax - research evidence and clinical expertise. J Man Manip Ther. 2015 Jul;23(3):128-38.</li>
+  <li>Bruijin SM, et al. Coordination of leg swing, thorax rotation, and pelvis rotations during gait: the organization of total body angular momentum. Gait &amp; Posture. 2008(27):455-462.</li>
+  <li>James G, Strokon D. Cranial strains and malocclusion. International Journal of Orthodontics 2006. Vol 17 (1-3).</li>
+  <li>James, G.A., Strokon, D. "An Introduction To Cranial Movement and Orthodontics." Int. J. Orthodontics 16:1:23-29:2005.</li>
+  <li>AIA Foundations for Cranial Movement. Anderson, J. Cantrell, M. 2023</li>
+</ol>
+
+  </div></main>
+</div>
+<script>
+(function(){
+  var links=document.querySelectorAll('.sidebar a');
+  if(!links.length) return;
+  var observer=new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      if(e.isIntersecting){
+        var id=e.target.id;
+        links.forEach(function(l){l.classList.toggle('active',l.getAttribute('href')==='#'+id);});
+      }
+    });
+  },{rootMargin:'-10% 0px -80% 0px'});
+  document.querySelectorAll('h2[id],h3[id]').forEach(function(h){observer.observe(h);});
+})();
+</script>
+</body></html>

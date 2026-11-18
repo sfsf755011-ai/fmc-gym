@@ -1,0 +1,188 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box}body{margin:0;padding:0;font:14px sans-serif;background:#fff;color:#000}img{max-width:100%}</style></head><body>
+<title>AIA 步態與接地 ── 第八章</title>
+<style>
+  :root {
+    --bg:#f0f4f8;--surface:#fff;--hdr:#1a2744;--accent:#2558d8;--txt:#1a2030;
+    --muted:#5a6478;--border:#dde3ee;--max:800px;
+    --nav-bg:#1a2744;--nav-hover:#2558d8;
+    font-family:'Noto Serif TC',Georgia,serif;
+  }
+  @media(prefers-color-scheme:dark){:root:not([data-theme="light"]){
+    --bg:#0f1420;--surface:#1a2030;--hdr:#a8c0f8;--accent:#6b96f8;
+    --txt:#d8e0f0;--muted:#8090b0;--border:#2a3550;--nav-bg:#111826;color-scheme:dark;
+  }}
+  :root[data-theme="dark"]{
+    --bg:#0f1420;--surface:#1a2030;--hdr:#a8c0f8;--accent:#6b96f8;
+    --txt:#d8e0f0;--muted:#8090b0;--border:#2a3550;--nav-bg:#111826;color-scheme:dark;
+  }
+  body{background:var(--bg);color:var(--txt);margin:0;padding:0;line-height:1.75;}
+  .top-nav{background:var(--nav-bg);position:sticky;top:0;z-index:100;
+    display:flex;flex-wrap:wrap;align-items:center;
+    border-bottom:2px solid var(--accent);overflow-x:auto;
+    padding-left:max(16px,env(safe-area-inset-left,0px));
+    padding-right:max(16px,env(safe-area-inset-right,0px));}
+  .top-nav .brand{color:#fff;font-weight:700;font-size:.85rem;padding:.6rem 1rem .6rem 0;
+    font-family:'Noto Sans TC',system-ui,sans-serif;white-space:nowrap;}
+  .top-nav a{color:#b8cce8;text-decoration:none;font-size:.8rem;padding:.6rem .6rem;
+    font-family:'Noto Sans TC',system-ui,sans-serif;transition:.15s;white-space:nowrap;}
+  .top-nav a:hover{background:var(--nav-hover);color:#fff;}
+  .top-nav a.active{background:var(--accent);color:#fff;font-weight:600;}
+  .layout{display:flex;min-height:calc(100vh - 42px);}
+  .sidebar{width:190px;min-width:190px;flex-shrink:0;background:var(--surface);
+    border-right:1px solid var(--border);position:sticky;top:42px;
+    height:calc(100vh - 42px);overflow-y:auto;padding:.8rem 0;}
+  .sidebar-title{font-family:'Noto Sans TC',system-ui,sans-serif;font-size:.7rem;
+    font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;
+    padding:.4rem 1rem .8rem;}
+  .sidebar a{display:block;padding:.35rem 1rem;font-size:.78rem;color:var(--txt);
+    text-decoration:none;font-family:'Noto Sans TC',system-ui,sans-serif;
+    transition:.1s;border-left:3px solid transparent;line-height:1.3;}
+  .sidebar a:hover{background:var(--bg);color:var(--accent);}
+  .sidebar a.h2-link{font-weight:600;color:var(--hdr);font-size:.8rem;}
+  .sidebar a.h3-link{padding-left:1.5rem;font-size:.73rem;color:var(--muted);}
+  .sidebar a.active{border-left-color:var(--accent);color:var(--accent);background:var(--bg);}
+  .main{flex:1;min-width:0;padding:0 max(16px,env(safe-area-inset-right,0px)) 4rem max(24px,env(safe-area-inset-left,0px));}
+  .main-inner{max-width:var(--max);margin:0 auto;}
+  h1{color:var(--hdr);font-size:1.6rem;font-weight:700;line-height:1.3;margin:0 0 .4rem;padding-top:2rem;text-wrap:balance;}
+  h2{color:var(--hdr);font-size:1.15rem;font-weight:700;margin:2.5rem 0 .8rem;
+    padding:.5rem .8rem;border-left:4px solid var(--accent);background:var(--surface);
+    scroll-margin-top:50px;}
+  h3{color:var(--accent);font-size:1rem;font-weight:700;margin:1.5rem 0 .5rem;scroll-margin-top:50px;}
+  h4{font-size:.95rem;font-weight:700;margin:1.2rem 0 .4rem;color:var(--hdr);}
+  p{margin:.8rem 0;font-size:1rem;}
+  .subtitle{color:var(--muted);font-size:.9rem;margin:0 0 2rem;font-family:'Noto Sans TC',system-ui,sans-serif;}
+  .divider{border:none;border-top:1px solid var(--border);margin:2rem 0;}
+  .highlight{background:var(--surface);border-left:4px solid var(--accent);padding:.8rem 1rem;margin:1rem 0;border-radius:0 6px 6px 0;}
+  .term{font-weight:700;color:var(--accent);}
+  figure{margin:1.5rem 0;text-align:center;}
+  figure img{max-width:100%;border-radius:8px;box-shadow:0 2px 12px rgba(0,0,0,.12);}
+  figcaption{font-size:.8rem;color:var(--muted);margin-top:.5rem;font-family:'Noto Sans TC',system-ui,sans-serif;font-style:italic;}
+  ul,ol{padding-left:1.4rem;margin:.6rem 0;}
+  li{margin:.35rem 0;}
+  .box{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:1rem 1.2rem;margin:1.2rem 0;}
+  .box-title{font-weight:700;font-size:.9rem;color:var(--hdr);margin-bottom:.5rem;font-family:'Noto Sans TC',system-ui,sans-serif;}
+  .section-block{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:20px 24px;margin-bottom:20px;}
+  .fig-box{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:12px;margin:16px 0;text-align:center;}
+  .fig-box img{max-width:100%;border-radius:4px;}
+  .fig-box .fig-cap{font-family:'Noto Sans TC',sans-serif;font-size:.82rem;color:var(--muted);font-style:italic;margin-top:6px;}
+  .note-box{background:#fff8e8;border-left:4px solid #d4a800;border-radius:0 8px 8px 0;padding:12px 16px;margin:16px 0;font-size:.9rem;}
+  @media(prefers-color-scheme:dark){:root:not([data-theme="light"]) .note-box{background:#1e1a08;border-left-color:#a08000;}}
+  :root[data-theme="dark"] .note-box{background:#1e1a08;border-left-color:#a08000;}
+  .test-card{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:16px;margin-bottom:14px;}
+  .test-card .test-name{font-family:'Noto Sans TC',sans-serif;font-weight:700;font-size:.95rem;color:var(--accent);margin-bottom:8px;}
+  .badge{background:var(--accent);color:white;font-family:'Noto Sans TC',sans-serif;font-size:.75rem;font-weight:700;padding:2px 10px;border-radius:20px;}
+  .lgpt-card{background:var(--surface);border:2px solid var(--accent);border-radius:10px;padding:20px;margin-bottom:20px;}
+  .chapter-banner{background:var(--hdr);color:#fff;padding:20px 24px;border-radius:8px;margin-bottom:28px;border-left:5px solid var(--accent);}
+  .chapter-banner h2{font-size:1.2rem;font-weight:700;color:#fff;}
+  .two-col{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+  .three-col{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;}
+  .grounding-list{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:16px 0;}
+  .grounding-item{background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:12px;font-size:.9rem;}
+  .grounding-item .gi-num{font-family:'Noto Sans TC',sans-serif;font-weight:700;font-size:.8rem;color:var(--accent);margin-bottom:4px;}
+  table{width:100%;border-collapse:collapse;font-size:.85rem;}
+  th{background:var(--hdr);color:#fff;padding:8px 10px;font-family:'Noto Sans TC',sans-serif;font-size:.8rem;}
+  td{padding:7px 9px;border:1px solid var(--border);vertical-align:top;}
+  tr:nth-child(even) td{background:var(--bg);}
+  .ref-list{counter-reset:ref;}
+  .ref-list li{margin:.6rem 0;font-size:.9rem;line-height:1.5;}
+  @media(max-width:700px){.sidebar{display:none;} h1{font-size:1.3rem;} h2{font-size:1rem;} .two-col,.three-col,.grounding-list{grid-template-columns:1fr;}}
+</style>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;700&family=Noto+Sans+TC:wght@400;600;700&display=swap">
+<nav class="top-nav"><span class="brand">AIA 步態與接地</span><a href="aia-ch1.html">第一章</a><a href="aia-ch2.html">第二章</a><a href="aia-ch3.html">第三章</a><a href="aia-ch4.html">第四章</a><a href="aia-ch5.html">第五章</a><a href="aia-ch6.html">第六章</a><a href="aia-ch7.html">第七章</a><a href="aia-ch8.html" class="active">第八章</a><a href="aia-ch9.html">第九章</a><a href="aia-ch10.html">第十章</a></nav>
+<div class="layout">
+  <nav class="sidebar"><div class="sidebar-title">本章內容</div>
+<a href="#8-a-aia-應用概念摘要" class="h2-link">8-A. AIA 應用概念摘要</a>
+<a href="#8-b-aia-4-5-6-全身診斷框架" class="h2-link">8-B. AIA 4-5-6 全身診斷框架</a>
+  </nav>
+  <main class="main"><div class="main-inner">
+<h1>第八章：AIA 以身體為本的治療規劃</h1>
+  <p class="subtitle">AIA Gait &amp; Grounding — Chapter 8: AIA Body-Generated Treatment Planning</p>
+
+  <h2 id="8-a-aia-應用概念摘要">8-A. AIA 應用概念摘要</h2>
+
+  <div class="box">
+    <div class="box-title">AIA 治療的四大核心概念</div>
+    <ol>
+      <li><strong>旋轉對位（Rotational Alignment）</strong></li>
+      <li><strong>接地訓練（Grounding Training）</strong></li>
+      <li><strong>橫膈膜整合（Diaphragm Integration）</strong></li>
+      <li><strong>佔據訓練（Occupancy Training）</strong></li>
+    </ol>
+  </div>
+
+  <p>在整個人體中所見到的壓縮和接地功能障礙，是 SOP（側化模式光譜）上識別出的旋轉對位問題普遍存在的核心原因。這些身體腔室壓縮與接地功能障礙狀態，以及由此產生的旋轉對位問題，最終導致身體的三個功能性橫膈膜（骨盆、呼吸和下頜骨）無法按照應有的方式協同工作，以統一的功能性「非模式」（稱為「佔據」）維持身體節段在一起。</p>
+
+  <div class="highlight">
+    <p><strong>簡單來說</strong>：在身體各腔室中建立正確對位的適當壓縮，是身體獲得適當接地和動作整合所需的。旋轉對位為接地訓練奠定基礎，而接地訓練反過來又通過支撐整個身體正確對位的旋轉來回報。</p>
+    <p>接地訓練還增強和強化了骨盆、呼吸和下頜骨橫膈膜成功整合所需的功能，反之亦然。橫膈膜整合對於治療功能障礙身體模式和功能障礙身體接地模式至關重要。</p>
+  </div>
+
+  <p>實現身體居中狀態（通過整個身體的靜態測試陰性結果來驗證）是「佔據」的副產品。幫助患者實現這種狀態有時具有挑戰性，但對於有經驗的 AIA 動作專家來說大多數時候很容易實現。然而，身體居中並不是治療程序的終點——它仍然是開始的一部分。患者必須能夠展示高水平的「佔據」表現，這通過 G-HOPE 評分系統衡量。</p>
+
+  <p>低分說明患者可能無法在日常生活中使用新獲得的「佔據」能力，但執行者意識到用於實現低水平「佔據」的方法或裝置是正確的。這就是為什麼應告知患者：雖然症狀可能在早期減輕，但如果無法實現雙側半球「佔據」，這些症狀可能會回來。</p>
+
+  <p>當一側的高水平「佔據」（較高的 G-HOPE 分數）建立後，對側半球的「佔據」才被追求。實現單側高水平「佔據」的好處是：一旦達到 G-HOPE 5-7 分，患者應能在該側展示「佔據」，也能在對側展示。</p>
+
+  <div class="highlight">
+    <p><strong>AIA「佔據」的兩個重要組成部分</strong>（從地板到顱骨）：<br>
+    ① 適當的對位壓縮<br>
+    ② 通過適當的橫膈膜整合建立穩固的接地感<br>
+    治療程序的目標是讓患者能夠在輕度挑戰和重大挑戰時都能「佔據」任意半球。</p>
+  </div>
+
+  <hr class="divider">
+  <h2 id="8-b-aia-4-5-6-全身診斷框架">8-B. AIA 4-5-6 全身診斷框架</h2>
+
+  <div class="box">
+    <div class="box-title">4 件我們可以修正的事</div>
+    <ol>
+      <li>對身體和頭部產生負面影響的足部問題</li>
+      <li>對足部和/或頭部產生負面影響的身體問題</li>
+      <li>對身體和足部產生負面影響的牙科問題</li>
+      <li>對身體和足部產生負面影響的視覺影響</li>
+    </ol>
+  </div>
+
+  <div class="box">
+    <div class="box-title">5 個核心問題</div>
+    <ol>
+      <li>身體模式是什麼？</li>
+      <li>接地模式是什麼？</li>
+      <li>患者需要足部矯形器嗎？</li>
+      <li>患者需要牙科整合嗎？</li>
+      <li>患者需要視覺整合嗎？</li>
+    </ol>
+  </div>
+
+  <div class="box">
+    <div class="box-title">6 個工具（AIA 治療選項）</div>
+    <ol>
+      <li><strong>G-DiRT 和 G-HOPE 身體訓練</strong></li>
+      <li><strong>足部矯形器/鞋類</strong></li>
+      <li><strong>AIA PADA</strong>（顎位調整裝置）</li>
+      <li><strong>Nordstrom ALF</strong>（輕型靈活功能矯正器）</li>
+      <li><strong>肌功能治療/舌繫帶手術</strong></li>
+      <li><strong>AIA Vision</strong>（視覺整合）</li>
+    </ol>
+  </div>
+</div>
+
+<!-- ========== CHAPTER 10 ========== -->
+  </div></main>
+</div>
+<script>
+(function(){
+  var links=document.querySelectorAll('.sidebar a');
+  if(!links.length) return;
+  var observer=new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      if(e.isIntersecting){
+        var id=e.target.id;
+        links.forEach(function(l){l.classList.toggle('active',l.getAttribute('href')==='#'+id);});
+      }
+    });
+  },{rootMargin:'-10% 0px -80% 0px'});
+  document.querySelectorAll('h2[id],h3[id]').forEach(function(h){observer.observe(h);});
+})();
+</script>
+</body></html>
