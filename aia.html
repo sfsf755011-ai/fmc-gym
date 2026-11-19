@@ -1,0 +1,237 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AIA 步態與接地手冊</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap">
+<style>
+:root {
+  --bg: #f7f6f3;
+  --surface: #ffffff;
+  --border: #e4e2dc;
+  --fg: #1a1a1a;
+  --fg2: #666;
+  --accent: #2d6a4f;
+  --accent-light: #d8f3dc;
+  --hover: #f0faf3;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #141414;
+    --surface: #1e1e1e;
+    --border: #2e2e2e;
+    --fg: #e8e6df;
+    --fg2: #999;
+    --accent: #52b788;
+    --accent-light: #1b3a2b;
+    --hover: #1a2e22;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #141414;
+  --surface: #1e1e1e;
+  --border: #2e2e2e;
+  --fg: #e8e6df;
+  --fg2: #999;
+  --accent: #52b788;
+  --accent-light: #1b3a2b;
+  --hover: #1a2e22;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Noto Sans TC', sans-serif;
+  background: var(--bg);
+  color: var(--fg);
+  min-height: 100vh;
+  padding: 48px max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+.container {
+  max-width: 680px;
+  margin: 0 auto;
+}
+header {
+  text-align: center;
+  margin-bottom: 48px;
+}
+.badge {
+  display: inline-block;
+  background: var(--accent-light);
+  color: var(--accent);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 4px 12px;
+  border-radius: 20px;
+  margin-bottom: 16px;
+}
+h1 {
+  font-size: clamp(24px, 5vw, 36px);
+  font-weight: 700;
+  color: var(--fg);
+  line-height: 1.3;
+  margin-bottom: 10px;
+  text-wrap: balance;
+}
+.subtitle {
+  color: var(--fg2);
+  font-size: 15px;
+}
+.chapters {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.chapter-link {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 18px 20px;
+  text-decoration: none;
+  color: var(--fg);
+  transition: background 0.15s, border-color 0.15s, transform 0.1s;
+}
+.chapter-link:hover {
+  background: var(--hover);
+  border-color: var(--accent);
+  transform: translateX(2px);
+}
+.ch-num {
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--accent-light);
+  color: var(--accent);
+  font-size: 13px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.ch-info { flex: 1; min-width: 0; }
+.ch-title {
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.4;
+}
+.ch-sub {
+  font-size: 12px;
+  color: var(--fg2);
+  margin-top: 2px;
+}
+.arrow {
+  flex-shrink: 0;
+  color: var(--fg2);
+  font-size: 18px;
+}
+footer {
+  text-align: center;
+  margin-top: 48px;
+  color: var(--fg2);
+  font-size: 13px;
+}
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <div class="badge">Applied Integration Academy</div>
+    <h1>AIA 步態與接地手冊</h1>
+    <p class="subtitle">Gait &amp; Grounding Manual — 完整十章</p>
+  </header>
+
+  <div class="chapters">
+    <a href="aia-ch1.html" class="chapter-link">
+      <div class="ch-num">Ch1</div>
+      <div class="ch-info">
+        <div class="ch-title">第一章　簡介</div>
+        <div class="ch-sub">Introduction</div>
+      </div>
+      <span class="arrow">›</span>
+    </a>
+    <a href="aia-ch2.html" class="chapter-link">
+      <div class="ch-num">Ch2</div>
+      <div class="ch-info">
+        <div class="ch-title">第二章　身體基礎</div>
+        <div class="ch-sub">Body Foundations</div>
+      </div>
+      <span class="arrow">›</span>
+    </a>
+    <a href="aia-ch3.html" class="chapter-link">
+      <div class="ch-num">Ch3</div>
+      <div class="ch-info">
+        <div class="ch-title">第三章　AIA 光譜</div>
+        <div class="ch-sub">AIA Spectrum</div>
+      </div>
+      <span class="arrow">›</span>
+    </a>
+    <a href="aia-ch4.html" class="chapter-link">
+      <div class="ch-num">Ch4</div>
+      <div class="ch-info">
+        <div class="ch-title">第四章　壓縮與接地</div>
+        <div class="ch-sub">Compression and Grounding</div>
+      </div>
+      <span class="arrow">›</span>
+    </a>
+    <a href="aia-ch5.html" class="chapter-link">
+      <div class="ch-num">Ch5</div>
+      <div class="ch-info">
+        <div class="ch-title">第五章　AIA 接地測試</div>
+        <div class="ch-sub">AIA Grounding Tests</div>
+      </div>
+      <span class="arrow">›</span>
+    </a>
+    <a href="aia-ch6.html" class="chapter-link">
+      <div class="ch-num">Ch6</div>
+      <div class="ch-info">
+        <div class="ch-title">第六章　側化與佔據</div>
+        <div class="ch-sub">Lateralization vs Occupancy</div>
+      </div>
+      <span class="arrow">›</span>
+    </a>
+    <a href="aia-ch7.html" class="chapter-link">
+      <div class="ch-num">Ch7</div>
+      <div class="ch-info">
+        <div class="ch-title">第七章　接地與佔據訓練</div>
+        <div class="ch-sub">Grounding and Occupation Training</div>
+      </div>
+      <span class="arrow">›</span>
+    </a>
+    <a href="aia-ch8.html" class="chapter-link">
+      <div class="ch-num">Ch8</div>
+      <div class="ch-info">
+        <div class="ch-title">第八章　身體生成治療計畫</div>
+        <div class="ch-sub">Body-Generated Treatment Planning</div>
+      </div>
+      <span class="arrow">›</span>
+    </a>
+    <a href="aia-ch9.html" class="chapter-link">
+      <div class="ch-num">Ch9</div>
+      <div class="ch-info">
+        <div class="ch-title">第九章　參考文獻</div>
+        <div class="ch-sub">References</div>
+      </div>
+      <span class="arrow">›</span>
+    </a>
+    <a href="aia-ch10.html" class="chapter-link">
+      <div class="ch-num">Ch10</div>
+      <div class="ch-info">
+        <div class="ch-title">第十章　詞彙表</div>
+        <div class="ch-sub">Glossary</div>
+      </div>
+      <span class="arrow">›</span>
+    </a>
+  </div>
+
+  <footer>© Applied Integration Academy, LLC — 版權所有</footer>
+</div>
+</body>
+</html>
