@@ -146,11 +146,12 @@ body > *{position:relative;z-index:1}
         </div>
         <div class="twocol" style="margin-top:18px">
           <div class="field">
-            <label class="flbl">人數</label>
+            <label class="flbl">人數<span class="req">*</span></label>
             <div class="chiprow">
               <div class="chip"><input type="radio" name="人數" value="一對一" id="pax1"><label for="pax1">一對一</label></div>
               <div class="chip"><input type="radio" name="人數" value="一對二" id="pax2"><label for="pax2">一對二</label></div>
             </div>
+            <div id="paxErr" class="errmsg">請選擇人數</div>
           </div>
           <div class="field">
             <label class="flbl" for="fAge">年齡</label>
@@ -353,8 +354,19 @@ form.addEventListener('submit',function(e){
   phoneErr.style.display='none';
   prefListErr.style.display='none';
   goalErr.style.display='none';
+  document.getElementById('paxErr').style.display='none';
 
   var valid=true;
+
+  if(!document.querySelector('input[name="人數"]:checked')){
+    document.getElementById('paxErr').style.display='block';
+    valid=false;
+  }
+
+  if(!document.querySelector('input[name="性別"]:checked')){
+    // gender already has required, but add to valid flag for topErr
+    valid=false;
+  }
 
   var phone=phoneInput.value.trim();
   if(!phone||!/^0\d{8,9}$/.test(phone.replace(/[-\s]/g,''))){

@@ -145,11 +145,12 @@ body > *{position:relative;z-index:1}
       </div>
 
       <div class="field">
-        <label class="flbl">人數</label>
+        <label class="flbl">人數 <span style="color:#e53e3e">*</span></label>
         <div style="display:flex;gap:10px;flex-wrap:wrap">
           <div class="chip"><input type="radio" name="人數" value="一對一" id="pax1"><label for="pax1">一對一</label></div>
           <div class="chip"><input type="radio" name="人數" value="一對二" id="pax2"><label for="pax2">一對二</label></div>
         </div>
+        <div class="ferr" id="paxErr" style="display:none">請選擇人數</div>
       </div>
 
       <div class="field">
@@ -158,11 +159,12 @@ body > *{position:relative;z-index:1}
       </div>
 
       <div class="field">
-        <label class="flbl">性別</label>
+        <label class="flbl">性別 <span style="color:#e53e3e">*</span></label>
         <div style="display:flex;gap:10px;flex-wrap:wrap">
           <div class="chip"><input type="radio" name="性別" value="男" id="g1"><label for="g1">男</label></div>
           <div class="chip"><input type="radio" name="性別" value="女" id="g2"><label for="g2">女</label></div>
         </div>
+        <div class="ferr" id="genderErr" style="display:none">請選擇性別</div>
       </div>
 
       <div class="field">
@@ -481,8 +483,21 @@ nextBtn.addEventListener('click', function(){
   topErr.style.display = 'none';
   phoneErr.style.display = 'none';
   prefListErr.style.display = 'none';
+  document.getElementById('paxErr').style.display = 'none';
+  document.getElementById('genderErr').style.display = 'none';
 
   if (!fNameInput.reportValidity() || !fLineInput.reportValidity()) return;
+
+  var paxSelected = document.querySelector('input[name="人數"]:checked');
+  if (!paxSelected) {
+    document.getElementById('paxErr').style.display = 'block';
+    return;
+  }
+  var genderSelected = document.querySelector('input[name="性別"]:checked');
+  if (!genderSelected) {
+    document.getElementById('genderErr').style.display = 'block';
+    return;
+  }
 
   var phone = phoneInput.value.trim();
   if (phone && !/^0\d{8,9}$/.test(phone.replace(/[-\s]/g,''))) {
