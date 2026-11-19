@@ -236,28 +236,28 @@ body > *{position:relative;z-index:1}
         <div class="fhint" style="margin-top:0;margin-bottom:12px">我們最終會依據實際專業評估後，與您共同討論決定正課訓練安排</div>
         <div id="goalGroup">
           <div class="goalitem">
-            <input type="checkbox" name="目標" value="減少體脂肪" id="g1">
-            <label for="g1"><span>減少體脂肪</span><span class="gorder"></span></label>
+            <input type="checkbox" name="目標" value="減少體脂肪" id="goal1">
+            <label for="goal1"><span>減少體脂肪</span><span class="gorder"></span></label>
           </div>
           <div class="goalitem">
-            <input type="checkbox" name="目標" value="增加肌肉量" id="g2">
-            <label for="g2"><span>增加肌肉量</span><span class="gorder"></span></label>
+            <input type="checkbox" name="目標" value="增加肌肉量" id="goal2">
+            <label for="goal2"><span>增加肌肉量</span><span class="gorder"></span></label>
           </div>
           <div class="goalitem">
-            <input type="checkbox" name="目標" value="日常痠痛減少" id="g3">
-            <label for="g3"><span>日常痠痛減少</span><span class="gorder"></span></label>
+            <input type="checkbox" name="目標" value="日常痠痛減少" id="goal3">
+            <label for="goal3"><span>日常痠痛減少</span><span class="gorder"></span></label>
           </div>
           <div class="goalitem">
-            <input type="checkbox" name="目標" value="外觀體態視覺改變" id="g4">
-            <label for="g4"><span>外觀體態視覺改變</span><span class="gorder"></span></label>
+            <input type="checkbox" name="目標" value="外觀體態視覺改變" id="goal4">
+            <label for="goal4"><span>外觀體態視覺改變</span><span class="gorder"></span></label>
           </div>
           <div class="goalitem">
-            <input type="checkbox" name="目標" value="健康培養運動習慣" id="g5">
-            <label for="g5"><span>健康培養運動習慣</span><span class="gorder"></span></label>
+            <input type="checkbox" name="目標" value="健康培養運動習慣" id="goal5">
+            <label for="goal5"><span>健康培養運動習慣</span><span class="gorder"></span></label>
           </div>
           <div class="goalitem">
-            <input type="checkbox" name="目標" value="疼痛康復改善" id="g6">
-            <label for="g6"><span>疼痛康復改善</span><span class="gorder"></span></label>
+            <input type="checkbox" name="目標" value="疼痛康復改善" id="goal6">
+            <label for="goal6"><span>疼痛康復改善</span><span class="gorder"></span></label>
           </div>
         </div>
         <div class="errmsg" id="goalErr">請至少選擇一項</div>
@@ -267,23 +267,6 @@ body > *{position:relative;z-index:1}
       <div class="field" id="discomfortField" style="display:none">
         <label class="flbl">稍微詳加描述一下您目前的不適狀況？</label>
         <textarea class="ftextarea" name="不適狀況描述" id="fDiscomfort" placeholder="請簡述目前的痠痛或疼痛狀況（選填）"></textarea>
-      </div>
-
-      <div class="field">
-        <label class="flbl">您過往有對於這個目標嘗試過什麼方法嗎？</label>
-        <div class="chiprow" id="methodGroup">
-          <div class="chip"><input type="checkbox" name="過往嘗試方法" value="自主訓練" id="m1"><label for="m1">自主訓練</label></div>
-          <div class="chip"><input type="checkbox" name="過往嘗試方法" value="團體課程" id="m2"><label for="m2">團體課程</label></div>
-          <div class="chip"><input type="checkbox" name="過往嘗試方法" value="私教課程" id="m3"><label for="m3">私教課程</label></div>
-          <div class="chip"><input type="checkbox" name="過往嘗試方法" value="物理治療與復健" id="m4"><label for="m4">物理治療與復健</label></div>
-          <div class="chip"><input type="checkbox" name="過往嘗試方法" value="任何醫療端藥物介入" id="m6"><label for="m6">任何醫療端藥物介入</label></div>
-          <div class="chip"><input type="checkbox" name="過往嘗試方法" value="初次嘗試" id="m5"><label for="m5">初次嘗試</label></div>
-        </div>
-      </div>
-
-      <div class="field">
-        <label class="flbl">結果如何？（簡述）</label>
-        <textarea class="ftextarea" name="結果簡述" id="fResult" placeholder="簡單描述當時的成效或狀況（選填）"></textarea>
       </div>
 
       <div class="field">
@@ -456,19 +439,7 @@ assignGroup.addEventListener('change', function(e){
   genderLockHint.style.display = show ? 'block' : 'none';
 });
 
-// 過往嘗試方法：選「初次嘗試」會清空其他選項，反之亦然
-var methodGroup = document.getElementById('methodGroup');
-methodGroup.addEventListener('change', function(e){
-  var input = e.target;
-  if (input.name !== '過往嘗試方法') return;
-  var firstTime = document.getElementById('m5');
-  if (input === firstTime && input.checked) {
-    methodGroup.querySelectorAll('input[name="過往嘗試方法"]').forEach(function(i){
-      if (i !== firstTime) i.checked = false;
-    });
-  } else if (input !== firstTime && input.checked) {
-    firstTime.checked = false;
-  }
+// (過往嘗試方法已移除)
 });
 
 // 分頁切換
