@@ -1906,11 +1906,12 @@ function qSearch() {
   }
   if (matches.length===1) { hideQKb(); showQResult(matches[0]); }
   else if (matches.length>1) {
+    hideQKb();
     var box = document.getElementById('q-multi');
     var html = '<div style="font-size:14px;color:#666;margin-bottom:8px">找到多位學員：</div>';
     for (var i=0;i<matches.length;i++) html += '<button class="multibtn" onclick="showQResultById(' + matches[i].id + ')">' + matches[i].name + '</button>';
     box.innerHTML = html; box.style.display = 'block';
-    setTimeout(function(){ box.scrollIntoView({behavior:'smooth', block:'nearest'}); }, 50);
+    setTimeout(function(){ box.scrollIntoView({behavior:'smooth', block:'start'}); }, 50);
   } else if (val.length>=2) { document.getElementById('q-notfound').style.display = 'block'; }
 }
 
