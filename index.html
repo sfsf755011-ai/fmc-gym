@@ -1912,7 +1912,7 @@ function qSearch() {
     box.innerHTML = html; box.style.display = 'block';
     setTimeout(function(){
       var body = document.querySelector('#s-query .pbody');
-      if (body) body.scrollTop = box.offsetTop - 60;
+      if (body) body.scrollTop = 0;
     }, 50);
   } else if (val.length>=2) { document.getElementById('q-notfound').style.display = 'block'; }
 }
