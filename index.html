@@ -156,12 +156,10 @@ select.finput option{background:#1e1e2e;color:#fff}
 
 /* ── Custom Keyboard ── */
 .custom-kb{
-  position:fixed;bottom:80px;left:0;right:0;z-index:100;
   background:rgba(220,222,230,0.98);
   border-top:1px solid #b0b4c0;
-  border-bottom:1px solid #b0b4c0;
-  padding:10px 8px 12px;
-  backdrop-filter:blur(10px);
+  padding:10px 8px 0;
+  padding-bottom:calc(env(safe-area-inset-bottom,0px) + 72px);
 }
 .kb-rows{display:flex;flex-direction:column;gap:7px}
 .kb-row{display:flex;justify-content:center;gap:6px}
@@ -611,35 +609,6 @@ select.finput option{background:#1e1e2e;color:#fff}
       <input class="finput" id="q-name" type="text" placeholder="請輸入編號或姓名"
         readonly style="cursor:pointer;caret-color:transparent"
         autocomplete="off" onclick="showQKb()">
-      <div class="custom-kb" id="query-kb" style="display:none">
-        <div class="kb-rows">
-          <div class="kb-row">
-            <button class="kb-key" onclick="qKbPress('A')">A</button>
-            <button class="kb-key" onclick="qKbPress('B')">B</button>
-            <button class="kb-key" onclick="qKbPress('F')">F</button>
-            <button class="kb-key" onclick="qKbPress('J')">J</button>
-            <button class="kb-key" onclick="qKbPress('K')">K</button>
-            <button class="kb-key" onclick="qKbPress('O')">O</button>
-            <button class="kb-key" onclick="qKbPress('S')">S</button>
-            <button class="kb-key" onclick="qKbPress('W')">W</button>
-            <button class="kb-key" onclick="qKbPress('Y')">Y</button>
-            <button class="kb-key" onclick="qKbPress('Z')">Z</button>
-          </div>
-          <div class="kb-row">
-            <button class="kb-key" onclick="qKbPress('1')">1</button>
-            <button class="kb-key" onclick="qKbPress('2')">2</button>
-            <button class="kb-key" onclick="qKbPress('3')">3</button>
-            <button class="kb-key" onclick="qKbPress('4')">4</button>
-            <button class="kb-key" onclick="qKbPress('5')">5</button>
-            <button class="kb-key" onclick="qKbPress('6')">6</button>
-            <button class="kb-key" onclick="qKbPress('7')">7</button>
-            <button class="kb-key" onclick="qKbPress('8')">8</button>
-            <button class="kb-key" onclick="qKbPress('9')">9</button>
-            <button class="kb-key" onclick="qKbPress('0')">0</button>
-            <button class="kb-key kb-del" onclick="qKbDel()">⌫</button>
-          </div>
-        </div>
-      </div>
       <div class="notfound" id="q-notfound" style="margin-top:10px">找不到此學員</div>
       <div class="multibox" id="q-multi" style="margin-top:10px"></div>
     </div>
@@ -655,6 +624,35 @@ select.finput option{background:#1e1e2e;color:#fff}
       </div>
       <div class="qcard"><div class="qsect">付款狀態</div><div id="q-pay"></div></div>
       <div class="qcard"><div class="qsect">最近上課紀錄</div><div id="q-hist"></div></div>
+    </div>
+  </div>
+  <div class="custom-kb" id="query-kb" style="display:none">
+    <div class="kb-rows">
+      <div class="kb-row">
+        <button class="kb-key" onclick="qKbPress('A')">A</button>
+        <button class="kb-key" onclick="qKbPress('B')">B</button>
+        <button class="kb-key" onclick="qKbPress('F')">F</button>
+        <button class="kb-key" onclick="qKbPress('J')">J</button>
+        <button class="kb-key" onclick="qKbPress('K')">K</button>
+        <button class="kb-key" onclick="qKbPress('O')">O</button>
+        <button class="kb-key" onclick="qKbPress('S')">S</button>
+        <button class="kb-key" onclick="qKbPress('W')">W</button>
+        <button class="kb-key" onclick="qKbPress('Y')">Y</button>
+        <button class="kb-key" onclick="qKbPress('Z')">Z</button>
+      </div>
+      <div class="kb-row">
+        <button class="kb-key" onclick="qKbPress('1')">1</button>
+        <button class="kb-key" onclick="qKbPress('2')">2</button>
+        <button class="kb-key" onclick="qKbPress('3')">3</button>
+        <button class="kb-key" onclick="qKbPress('4')">4</button>
+        <button class="kb-key" onclick="qKbPress('5')">5</button>
+        <button class="kb-key" onclick="qKbPress('6')">6</button>
+        <button class="kb-key" onclick="qKbPress('7')">7</button>
+        <button class="kb-key" onclick="qKbPress('8')">8</button>
+        <button class="kb-key" onclick="qKbPress('9')">9</button>
+        <button class="kb-key" onclick="qKbPress('0')">0</button>
+        <button class="kb-key kb-del" onclick="qKbDel()">⌫</button>
+      </div>
     </div>
   </div>
   <div class="lbottom">
@@ -1997,15 +1995,11 @@ function kbDel() {
 function showQKb() {
   if (!isTouchDevice()) return;
   var kb = document.getElementById('query-kb');
-  if (kb) { kb.style.display = 'block'; kb.style.position = 'fixed'; kb.style.bottom = '60px'; kb.style.left = '0'; kb.style.right = '0'; kb.style.zIndex = '100'; }
-  var body = document.querySelector('#s-query .pbody');
-  if (body) body.style.paddingBottom = '400px';
+  if (kb) { kb.style.display = 'block'; kb.style.position = ''; kb.style.bottom = ''; kb.style.left = ''; kb.style.right = ''; kb.style.zIndex = ''; }
 }
 function hideQKb() {
   var kb = document.getElementById('query-kb');
   if (kb) kb.style.display = 'none';
-  var body = document.querySelector('#s-query .pbody');
-  if (body) body.style.paddingBottom = '';
 }
 function qKbPress(key) {
   var inp = document.getElementById('q-name');
