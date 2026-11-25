@@ -723,6 +723,8 @@ function getPeriodInfo(s){
   var used=s.usedSessions||0;
   var contracts=(s.contracts||[]).filter(function(c){return((c.sessions||0)+(c.giftSessions||0))>0;});
   if(!contracts.length){var t=s.totalSessions||0;return{period:1,totalPeriods:1,periodTotal:t,usedInPeriod:used,remaining:Math.max(0,t-used)};}
+  // Single contract: trust totalSessions (admin may edit it without updating the contract record)
+  if(contracts.length===1){var t=s.totalSessions||(contracts[0].sessions||0)+(contracts[0].giftSessions||0);return{period:1,totalPeriods:1,periodTotal:t,usedInPeriod:used,remaining:Math.max(0,t-used)};}
   var cum=0;
   for(var i=0;i<contracts.length;i++){var c=contracts[i];var pt=(c.sessions||0)+(c.giftSessions||0);if(used<cum+pt)return{period:i+1,totalPeriods:contracts.length,periodTotal:pt,usedInPeriod:used-cum,remaining:cum+pt-used};cum+=pt;}
   var lc=contracts[contracts.length-1];var lpt=(lc.sessions||0)+(lc.giftSessions||0);
@@ -811,13 +813,14 @@ function startRealtimeSync() {
   loadRecords();
 }
 
-function loadRecords() {
+function loadRecords(cb) {
   db.ref('data/records').once('value', function(snap) {
     var raw = toArr(snap.val());
     records = raw.filter(function(r){ return r && r.date; }).sort(function(a,b){
       var da = a.date+(a.time||''); var db2 = b.date+(b.time||'');
       return da > db2 ? -1 : da < db2 ? 1 : 0;
     });
+    if (cb) cb();
   });
 }
 
@@ -881,7 +884,7 @@ function saveRecords(cb) {
 
 // ══ Logo ══
 function setLogos() {
-  var ids = ['welcome-logo','topbar-logo','name-logo','sig-logo','q-logo','session-type-logo'];
+  var ids = ['welcome-logo','topbar-logo','name-logo','sig-logo','q-logo','session-type-logo','trial-name-logo','trial-type-logo'];
   for (var i = 0; i < ids.length; i++) {
     var el = document.getElementById(ids[i]);
     if (el) el.src = FMC_LOGO;
@@ -1597,6 +1600,22 @@ function submitBackfill() {
   }, function() { hideLoading(); alert('讀取學員失敗，請重試'); });
 }
 
+var PLANS={
+  'single-1':    {label:'單堂課程',                   sessions:1,  price:1800,  type:'1v1'},
+  'n1v1-10':     {label:'1v1・10堂',                 sessions:10, price:16999, type:'1v1'},
+  'n1v1-20':     {label:'1v1・20堂',                 sessions:20, price:31999, type:'1v1'},
+  'n1v2-10':     {label:'1v2・10堂',                 sessions:10, price:24000, type:'1v2'},
+  'n1v2-20':     {label:'1v2・20堂',                 sessions:20, price:43000, type:'1v2'},
+  'n1v1-30':     {label:'1v1・30堂',                 sessions:30, price:39000, type:'1v1'},
+  'n1v2-30':     {label:'1v2・30堂',                 sessions:30, price:54000, type:'1v2'},
+  's1v1-20':     {label:'長青1v1・20堂',             sessions:20, price:28000, type:'1v1'},
+  's1v2-20':     {label:'長青1v2・20堂',             sessions:20, price:39000, type:'1v2'},
+  'p-single':    {label:'皮拉提斯・單堂',             sessions:1,  price:2100,  type:'1v1', category:'pilates'},
+  'p1v1-10':     {label:'皮拉提斯・1v1 10堂',        sessions:10, price:19999, type:'1v1', category:'pilates'},
+  'combo-10-2':  {label:'綜合・10重訓＋2皮拉提斯', sessions:10, pilateSessions:2,  price:20999, type:'1v1', category:'combo'},
+  'combo-20-4':  {label:'綜合・20重訓＋4皮拉提斯', sessions:20, pilateSessions:4,  price:39999, type:'1v1', category:'combo'},
+  'pilates-addon-4': {label:'加購皮拉提斯四堂',      sessions:4,  price:6999,  type:'1v1', category:'pilates-addon'}
+};
 var _PILATES_PLAN_IDS = ['p-single', 'p1v1-10', 'pilates-addon-4'];
 function _hasPilatesPlan(s) {
   return (s.contracts || []).some(function(c) { return _PILATES_PLAN_IDS.indexOf(c.planId) !== -1; });
@@ -1672,9 +1691,8 @@ function submitCheckin() {
     else if (nr <= 2) tag = '<span class="rbadge rlow">⚠️'+pTag+' 剩餘 ' + nr + ' 堂，請記得續購</span>';
     else tag = '<span class="rbadge rok">'+pTag+' 剩餘堂數：' + nr + ' 堂</span>';
     if (sr) sr.innerHTML = tag;
-    loadRecords();
-    buildSuccessDetail(stu);
     goScreen('s-success');
+    loadRecords(function() { buildSuccessDetail(stu); });
   }
 
   // ── 體驗課程分支 ──
@@ -1786,9 +1804,8 @@ function submitCheckin() {
             if (nr <= 0) tag = '<span class="rbadge rout">皮拉提斯堂數已全數使用</span>';
             else tag = '<span class="rbadge" style="background:rgba(168,85,247,.12);color:#a855f7">器械皮拉提斯剩餘 ' + nr + ' 堂</span>';
             if (sr) sr.innerHTML = tag;
-            loadRecords();
-            buildSuccessDetail(stu);
             goScreen('s-success');
+            loadRecords(function() { buildSuccessDetail(stu); });
           });
         }, function(err) { fail('讀取資料失敗，請重試'); });
       } else {
@@ -1857,7 +1874,7 @@ function buildSuccessDetail(stu) {
     }
   }
   var myRec = [];
-  for (var i=0;i<records.length;i++) { if(records[i].student===stu.name) myRec.push(records[i]); }
+  for (var i=0;i<records.length;i++) { var _r=records[i]; if((_r.stuId&&String(_r.stuId)===String(stu.id))||_r.student===stu.name) myRec.push(_r); }
   var histHTML = '';
   if (!myRec.length) { histHTML = '<div style="font-size:13px;color:#aaa;padding:6px 0">尚無紀錄</div>'; }
   else {
@@ -1969,7 +1986,7 @@ function showQResult(stu) {
   }
   document.getElementById('q-pay').innerHTML = payHTML;
   var myRec=[];
-  for (var i=0;i<records.length;i++) { if(records[i].student===stu.name) myRec.push(records[i]); if(myRec.length>=8) break; }
+  for (var i=0;i<records.length;i++) { var _r2=records[i]; if((_r2.stuId&&String(_r2.stuId)===String(stu.id))||_r2.student===stu.name) myRec.push(_r2); if(myRec.length>=8) break; }
   var histHTML=!myRec.length?'<div style="font-size:13px;color:#aaa;padding:6px 0">尚無上課紀錄</div>':'';
   for (var i=0;i<myRec.length;i++) {
     var r=myRec[i];

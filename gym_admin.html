@@ -1224,11 +1224,6 @@ function fbSaveSingleStudent(stu, sessionCountsAlreadyFresh) {
     }, function() { doSet(stu); }); // 讀取失敗仍儲存
   }
 }
-function fbDeleteStudent(stuId) {
-  fbdb.ref('data/students/' + stuId).remove(function(err) {
-    if (err) console.error('Delete student error:', err);
-  });
-}
 function fbSaveRecords() {
   fbdb.ref('data/records').set(records, function(err) {
     if (err) console.error('Save records error:', err);
@@ -1955,6 +1950,8 @@ var PERSONAL_ALLOWANCE = { apple: 4000 };
 var PERSONAL_ALLOWANCE_DEFAULT = 3500;
 var HEALTH_SUBSIDY = { apple: -1386, jenny: -943, jay: -500, yoyo: 3726, sherry: 2226, dolly: -500, elly: -500 };
 var STORE2_MANAGER_BONUS = { sherry: 1500 }; // 二店副店長加給
+var EDUCATION_ALLOWANCE = { dolly: 1500 }; // 教育訓練補助
+var EXTRA_ALLOWANCE = { dolly: 1500 }; // 額外補助
 
 var COMMISSION_JUNIOR = [
   {from:31,to:40,rate:250},{from:41,to:50,rate:350},{from:51,to:60,rate:450},
@@ -2293,10 +2290,14 @@ function renderSalary2(){
       rows2s.push({name:'堂數抽成（前30堂不計，共 '+(cr.totalSessions||0)+' 堂）',amt:0,type:'muted'});
     }
     if((cr.v2Sessions||0)>0)rows2s.push({name:'1v2加成（'+(cr.v2Sessions||0)+'堂 × $100）',amt:cr.v2Bonus||0,type:'green'});
+    if((cr.pilatesAddonBonus||0)>0)rows2s.push({name:'皮拉提斯加給（'+(cr.pilatesAddonSessions||0)+'堂 × $200）',amt:cr.pilatesAddonBonus,type:'green'});
+    if((cr.single1Bonus||0)>0)rows2s.push({name:'單堂補助（'+(cr.single1Sessions||0)+'堂 × $200）',amt:cr.single1Bonus,type:'green'});
     if((cr.revenueBonus||0)>0) rows2s.push({name:'業績加成',amt:cr.revenueBonus,type:'green'});
     if((cr.revenuePenalty||0)>0) rows2s.push({name:'業績未達標',amt:-(cr.revenuePenalty),type:'red'});
     if((cr.subsidy||0)!==0) rows2s.push({name:'健/就保自付額',amt:cr.subsidy||0,type:(cr.subsidy||0)>=0?'green':'red'});
     if((cr.store2Bonus||0)>0) rows2s.push({name:'二店副店長加給',amt:cr.store2Bonus,type:'green'});
+    if((cr.educationAllowance||0)>0)rows2s.push({name:'教育訓練補助',amt:cr.educationAllowance,type:'green'});
+    if((cr.extraAllowance||0)>0)rows2s.push({name:'額外補助',amt:cr.extraAllowance,type:'green'});
     if((cr.groupBonus||0)>0) rows2s.push({name:'團體課程獎金',amt:cr.groupBonus,type:'green'});
     rows2s.push({name:'最終薪資',amt:cr.finalSalary||0,type:'total'});
     var bdHtml='';
@@ -2353,10 +2354,14 @@ function renderSalary2(){
     rows2.push({name:'堂數抽成（前30堂不計，共 '+r.totalSessions+' 堂）',amt:0,type:'muted'});
   }
   if(r.v2Sessions>0)rows2.push({name:'1v2加成（'+r.v2Sessions+'堂 × $100）',amt:r.v2Bonus||0,type:'green'});
+  if((r.pilatesAddonBonus||0)>0)rows2.push({name:'皮拉提斯加給（'+(r.pilatesAddonSessions||0)+'堂 × $200）',amt:r.pilatesAddonBonus,type:'green'});
+  if((r.single1Bonus||0)>0)rows2.push({name:'單堂補助（'+(r.single1Sessions||0)+'堂 × $200）',amt:r.single1Bonus,type:'green'});
   if(r.revenueBonus>0) rows2.push({name:'業績加成（'+fmtMoney(r.revenue)+' × '+(getRevenueBonusRate(r.revenue)*100)+'%）',amt:r.revenueBonus,type:'green'});
   if(r.revenuePenalty>0) rows2.push({name:'業績未達標（計薪'+r.paidSessions+'堂 × -$50）',amt:-r.revenuePenalty,type:'red'});
   if((r.subsidy||0)!==0) rows2.push({name:'健/就保自付額',amt:r.subsidy,type:r.subsidy>=0?'green':'red'});
   if((r.store2Bonus||0)>0) rows2.push({name:'二店副店長加給',amt:r.store2Bonus,type:'green'});
+  if((r.educationAllowance||0)>0)rows2.push({name:'教育訓練補助',amt:r.educationAllowance,type:'green'});
+  if((r.extraAllowance||0)>0)rows2.push({name:'額外補助',amt:r.extraAllowance,type:'green'});
   if(gbVal>0) rows2.push({name:'團體課程獎金',amt:gbVal,type:'green'});
   rows2.push({name:'最終薪資',amt:r.finalSalary,type:'total'});
   var bd2='';
@@ -2700,6 +2705,8 @@ function _renderSalaryInner(){
       ];
       if((cr.pilatesAddonBonus||0)>0) rows.push({name:'皮拉提斯加給（'+(cr.pilatesAddonSessions||0)+'堂 × $200）',amt:cr.pilatesAddonBonus,type:'green'});
       if((cr.single1Bonus||0)>0) rows.push({name:'單堂補助（'+(cr.single1Sessions||0)+'堂 × $200）',amt:cr.single1Bonus,type:'green'});
+      if((cr.educationAllowance||0)>0) rows.push({name:'教育訓練補助',amt:cr.educationAllowance,type:'green'});
+      if((cr.extraAllowance||0)>0) rows.push({name:'額外補助',amt:cr.extraAllowance,type:'green'});
       if((cr.revenueBonus||0)>0) rows.push({name:'業績加成',amt:cr.revenueBonus,type:'green'});
       if((cr.revenuePenalty||0)>0) rows.push({name:'業績未達標',amt:-(cr.revenuePenalty),type:'red'});
       if((cr.subsidy||0)!==0) rows.push({name:'健/就保自付額',amt:cr.subsidy||0,type:(cr.subsidy||0)>=0?'green':'red'});
@@ -2826,6 +2833,8 @@ function _renderSalaryInner(){
   var revenuePenalty=(revenue>0&&revenue<120000)?paidSessions*50:0; // exact integer
   var subsidy=HEALTH_SUBSIDY[coachName]||0; // exact integer
   var store2Bonus=STORE2_MANAGER_BONUS[coachName]||0;
+  var educationAllowance=EDUCATION_ALLOWANCE[coachName]||0;
+  var extraAllowance=EXTRA_ALLOWANCE[coachName]||0;
   var _agbEl=document.getElementById('agb-'+coachName);
   var groupBonus=(_salaryAdmin&&_agbEl)
     ?parseInt(_agbEl.value)||0
@@ -2887,7 +2896,7 @@ function _renderSalaryInner(){
     return;
   }
 
-  subtotal=BASE_SALARY+allowance+commission+v2Bonus+pilatesAddonBonus+single1Bonus+revenueBonus-revenuePenalty+subsidy+store2Bonus+groupBonus;
+  subtotal=BASE_SALARY+allowance+commission+v2Bonus+pilatesAddonBonus+single1Bonus+revenueBonus-revenuePenalty+subsidy+store2Bonus+educationAllowance+extraAllowance+groupBonus;
   finalSalary=Math.round(subtotal*mult);
 
   // Metrics
@@ -2916,6 +2925,8 @@ function _renderSalaryInner(){
   if(v2Sessions>0)rows.push({name:'1v2加成（'+v2Sessions+'堂 × $100）',amt:v2Bonus,type:'green'});
   if(pilatesAddonSessions>0)rows.push({name:'皮拉提斯加給（'+pilatesAddonSessions+'堂 × $200）',amt:pilatesAddonBonus,type:'green'});
   if(single1Sessions>0)rows.push({name:'單堂補助（'+single1Sessions+'堂 × $200）',amt:single1Bonus,type:'green'});
+  if(educationAllowance>0)rows.push({name:'教育訓練補助',amt:educationAllowance,type:'green'});
+  if(extraAllowance>0)rows.push({name:'額外補助',amt:extraAllowance,type:'green'});
   if(revenueBonus>0)rows.push({name:'業績加成（'+fmtMoney(revenue)+' × '+(bonusRate*100)+'%）',amt:revenueBonus,type:'green'});
   if(revenuePenalty>0)rows.push({name:'業績未達標（計薪'+paidSessions+'堂 × -$50）',amt:-revenuePenalty,type:'red'});
   if(subsidy!==0)rows.push({name:'健/就保自付額',amt:subsidy,type:subsidy>0?'green':'red'});
@@ -3094,6 +3105,7 @@ function saveAdminSettings(){
         v2Bonus:r.v2Bonus,
         pilatesAddonSessions:r.pilatesAddonSessions||0, pilatesAddonBonus:Math.round(r.pilatesAddonBonus||0),
         single1Sessions:r.single1Sessions||0, single1Bonus:Math.round(r.single1Bonus||0),
+        educationAllowance:r.educationAllowance||0, extraAllowance:r.extraAllowance||0,
         revenueBonus:Math.round(r.revenueBonus),
         revenuePenalty:Math.round(r.revenuePenalty),
         subsidy:r.subsidy,
@@ -3164,7 +3176,9 @@ function calcCoachSalary(coachKey, month, storeRev, groupBonus, trialCount){
   var revenuePenalty=isStore2?0:(revenue>0&&revenue<120000?paidSessions*50:0); // 二店暫無罰款
   var subsidy=HEALTH_SUBSIDY[coachKey]||0;
   var store2Bonus=STORE2_MANAGER_BONUS[coachKey]||0;
-  var subtotal=BASE_SALARY+allowance+commission+v2Bonus+pilatesAddonBonus+single1Bonus+revenueBonus-revenuePenalty+subsidy+groupBonus+store2Bonus;
+  var educationAllowance=EDUCATION_ALLOWANCE[coachKey]||0;
+  var extraAllowance=EXTRA_ALLOWANCE[coachKey]||0;
+  var subtotal=BASE_SALARY+allowance+commission+v2Bonus+pilatesAddonBonus+single1Bonus+revenueBonus-revenuePenalty+subsidy+groupBonus+store2Bonus+educationAllowance+extraAllowance;
   var finalSalary=Math.round(subtotal*mult);
   return {
     coachKey:coachKey, coachName:coachName, isStore2:isStore2,
@@ -3176,6 +3190,7 @@ function calcCoachSalary(coachKey, month, storeRev, groupBonus, trialCount){
     single1Sessions:single1Sessions, single1Bonus:single1Bonus,
     revenueBonus:revenueBonus, revenuePenalty:revenuePenalty,
     subsidy:subsidy, store2Bonus:store2Bonus, allowance:allowance, groupBonus:groupBonus,
+    educationAllowance:educationAllowance, extraAllowance:extraAllowance,
     subtotal:subtotal, mult:mult, finalSalary:finalSalary
   };
 }
@@ -4249,12 +4264,17 @@ function deleteStu(){
   var id=s.id;
   if(!confirm('確定要刪除「'+s.name+'」的所有資料嗎？此操作無法還原'))return;
   logAction('刪除學員',s.name,s.coach,'共 '+s.totalSessions+' 堂，已上 '+s.usedSessions+' 堂');
-  var delIdx=students.findIndex(function(st){return String(st.id)===String(id);});
   students=students.filter(function(st){return String(st.id)!==String(id);});
-  if(delIdx>=0)fbdb.ref('data/students/'+delIdx).remove(function(err){if(err)console.error('Delete error:',err);});
   try{save('gym_students',students);}catch(e){}
   toast('已刪除：'+s.name);
   filterEditStudents();document.getElementById('edit-stu-form').style.display='none';
+  // Read Firebase to find actual index(es) for this student ID and remove them all
+  fbdb.ref('data/students').once('value',function(snap){
+    var raw=snap.val();if(!raw)return;
+    var updates={};
+    Object.keys(raw).forEach(function(k){if(raw[k]&&String(raw[k].id)===String(id))updates['data/students/'+k]=null;});
+    if(Object.keys(updates).length)fbdb.ref().update(updates,function(err){if(err)console.error('Delete student error:',err);});
+  });
 }
 function applyPeriodChange(stuId,ci){
   var s=students.find(function(st){return String(st.id)===String(stuId);});
