@@ -2698,6 +2698,8 @@ function _renderSalaryInner(){
         {name:'堂數抽成小計（計薪 '+(cr.paidSessions||0)+' 堂）',amt:cr.commission||0,type:'bold'},
         {name:'1v2加成（'+(cr.v2Sessions||0)+'堂 × $100）',amt:cr.v2Bonus||0,type:'green'},
       ];
+      if((cr.pilatesAddonBonus||0)>0) rows.push({name:'皮拉提斯加給（'+(cr.pilatesAddonSessions||0)+'堂 × $200）',amt:cr.pilatesAddonBonus,type:'green'});
+      if((cr.single1Bonus||0)>0) rows.push({name:'單堂補助（'+(cr.single1Sessions||0)+'堂 × $200）',amt:cr.single1Bonus,type:'green'});
       if((cr.revenueBonus||0)>0) rows.push({name:'業績加成',amt:cr.revenueBonus,type:'green'});
       if((cr.revenuePenalty||0)>0) rows.push({name:'業績未達標',amt:-(cr.revenuePenalty),type:'red'});
       if((cr.subsidy||0)!==0) rows.push({name:'健/就保自付額',amt:cr.subsidy||0,type:(cr.subsidy||0)>=0?'green':'red'});
@@ -2812,10 +2814,13 @@ function _renderSalaryInner(){
   var commResult=calcCommission(paidSessions,template,totalSessions);
   var commission=commResult.total; // exact integer
   var v2Bonus=v2Sessions*100; // exact integer
-  // 皮拉提斯加給 NT$200/堂（p-single / p1v1-10 / pilates-addon-4）
+  // 皮拉提斯加給 NT$200/堂（p-single / p1v1-10 / pilates-addon-4 / combo pilates）
   var _PILATES_IDS=['p-single','p1v1-10','pilates-addon-4'];
-  var pilatesAddonSessions=monthRecs.filter(function(r){return _PILATES_IDS.indexOf(r.planId)!==-1;}).length;
+  var pilatesAddonSessions=monthRecs.filter(function(r){return _PILATES_IDS.indexOf(r.planId)!==-1||r.planType==='pilates'||r.sessionType==='pilates';}).length;
   var pilatesAddonBonus=pilatesAddonSessions*200;
+  // 單堂補助 NT$200/堂（single-1）
+  var single1Sessions=monthRecs.filter(function(r){return r.planId==='single-1';}).length;
+  var single1Bonus=single1Sessions*200;
   var bonusRate=getRevenueBonusRate(revenue);
   var revenueBonus=(revenue>=120001)?revenue*bonusRate:0; // float - don't round yet
   var revenuePenalty=(revenue>0&&revenue<120000)?paidSessions*50:0; // exact integer
@@ -2882,7 +2887,7 @@ function _renderSalaryInner(){
     return;
   }
 
-  subtotal=BASE_SALARY+allowance+commission+v2Bonus+pilatesAddonBonus+revenueBonus-revenuePenalty+subsidy+store2Bonus+groupBonus;
+  subtotal=BASE_SALARY+allowance+commission+v2Bonus+pilatesAddonBonus+single1Bonus+revenueBonus-revenuePenalty+subsidy+store2Bonus+groupBonus;
   finalSalary=Math.round(subtotal*mult);
 
   // Metrics
@@ -2910,6 +2915,7 @@ function _renderSalaryInner(){
   }
   if(v2Sessions>0)rows.push({name:'1v2加成（'+v2Sessions+'堂 × $100）',amt:v2Bonus,type:'green'});
   if(pilatesAddonSessions>0)rows.push({name:'皮拉提斯加給（'+pilatesAddonSessions+'堂 × $200）',amt:pilatesAddonBonus,type:'green'});
+  if(single1Sessions>0)rows.push({name:'單堂補助（'+single1Sessions+'堂 × $200）',amt:single1Bonus,type:'green'});
   if(revenueBonus>0)rows.push({name:'業績加成（'+fmtMoney(revenue)+' × '+(bonusRate*100)+'%）',amt:revenueBonus,type:'green'});
   if(revenuePenalty>0)rows.push({name:'業績未達標（計薪'+paidSessions+'堂 × -$50）',amt:-revenuePenalty,type:'red'});
   if(subsidy!==0)rows.push({name:'健/就保自付額',amt:subsidy,type:subsidy>0?'green':'red'});
@@ -3086,6 +3092,8 @@ function saveAdminSettings(){
         baseSalary:25200, allowance:r.allowance,
         commission:Math.round(r.commission),
         v2Bonus:r.v2Bonus,
+        pilatesAddonSessions:r.pilatesAddonSessions||0, pilatesAddonBonus:Math.round(r.pilatesAddonBonus||0),
+        single1Sessions:r.single1Sessions||0, single1Bonus:Math.round(r.single1Bonus||0),
         revenueBonus:Math.round(r.revenueBonus),
         revenuePenalty:Math.round(r.revenuePenalty),
         subsidy:r.subsidy,
@@ -3147,14 +3155,16 @@ function calcCoachSalary(coachKey, month, storeRev, groupBonus, trialCount){
   var commission=commResult.total;
   var v2Bonus=v2Sessions*100;
   var _PILATES_IDS2=['p-single','p1v1-10','pilates-addon-4'];
-  var pilatesAddonSessions=monthRecs.filter(function(r){return _PILATES_IDS2.indexOf(r.planId)!==-1;}).length;
+  var pilatesAddonSessions=monthRecs.filter(function(r){return _PILATES_IDS2.indexOf(r.planId)!==-1||r.planType==='pilates'||r.sessionType==='pilates';}).length;
   var pilatesAddonBonus=pilatesAddonSessions*200;
+  var single1Sessions=monthRecs.filter(function(r){return r.planId==='single-1';}).length;
+  var single1Bonus=single1Sessions*200;
   var bonusRate=isStore2?getRevenueBonusRateStore2(revenue):getRevenueBonusRate(revenue);
   var revenueBonus=isStore2?(revenue>=100001?revenue*bonusRate:0):(revenue>=120001?revenue*bonusRate:0);
   var revenuePenalty=isStore2?0:(revenue>0&&revenue<120000?paidSessions*50:0); // 二店暫無罰款
   var subsidy=HEALTH_SUBSIDY[coachKey]||0;
   var store2Bonus=STORE2_MANAGER_BONUS[coachKey]||0;
-  var subtotal=BASE_SALARY+allowance+commission+v2Bonus+pilatesAddonBonus+revenueBonus-revenuePenalty+subsidy+groupBonus+store2Bonus;
+  var subtotal=BASE_SALARY+allowance+commission+v2Bonus+pilatesAddonBonus+single1Bonus+revenueBonus-revenuePenalty+subsidy+groupBonus+store2Bonus;
   var finalSalary=Math.round(subtotal*mult);
   return {
     coachKey:coachKey, coachName:coachName, isStore2:isStore2,
@@ -3162,6 +3172,8 @@ function calcCoachSalary(coachKey, month, storeRev, groupBonus, trialCount){
     trialCount:(trialCount||0),
     revenue:revenue, commission:commission, v2Bonus:v2Bonus,
     commTierLabel:commResult.tierLabel, commRate:commResult.rate, commDetails:commResult.details,
+    pilatesAddonSessions:pilatesAddonSessions, pilatesAddonBonus:pilatesAddonBonus,
+    single1Sessions:single1Sessions, single1Bonus:single1Bonus,
     revenueBonus:revenueBonus, revenuePenalty:revenuePenalty,
     subsidy:subsidy, store2Bonus:store2Bonus, allowance:allowance, groupBonus:groupBonus,
     subtotal:subtotal, mult:mult, finalSalary:finalSalary

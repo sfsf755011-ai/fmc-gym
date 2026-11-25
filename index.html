@@ -1798,7 +1798,13 @@ function submitCheckin() {
           if (String(students[k].id) === String(stu.id)) { students[k] = stu; break; }
         }
         var _planType=(stu.contracts||[]).some(function(c){return (c.planId&&c.planId.indexOf('1v2')!==-1)||(c.planLabel&&c.planLabel.indexOf('1v2')!==-1);})? '1v2':'1v1';
+        // Find planId of the contract used for this session (using newUsed-1 = before deduction)
+        var _prevStu={contracts:stu.contracts,usedSessions:newUsed-1};
+        var _prevPeriod=getPeriodInfo(_prevStu);
+        var _nonEmptyCs=(stu.contracts||[]).filter(function(c){return((c.sessions||0)+(c.giftSessions||0))>0;});
+        var _activePlanId=(_nonEmptyCs.length>0&&_prevPeriod.period>=1&&_prevPeriod.period<=_nonEmptyCs.length)?(_nonEmptyCs[_prevPeriod.period-1].planId||''):'';
         var rec = {date:todayStr(), time:nowStr(), student:stu.name, stuId:stu.id, coach:selCoach.name, remainAfter:nr, planType:_planType};
+        if (_activePlanId) rec.planId = _activePlanId;
         if (sessionCategory === 'pilates') rec.planId = _getPilatesPlanId(stu);
         var _sigData = getCompressedSig();
         var _sigDate = rec.date, _sigTime = rec.time, _sigStuId = stu.id;
