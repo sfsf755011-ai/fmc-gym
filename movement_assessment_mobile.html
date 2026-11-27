@@ -212,6 +212,29 @@ body{
 .notes-ta:focus{outline:none;border-color:var(--sl700);background:#fff}
 .notes-ta::placeholder{color:var(--sl400)}
 
+/* GHOPE score block */
+.ghope-score-row{display:flex;gap:16px;margin-bottom:14px}
+.ghope-score-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px}
+.ghope-side-lbl{font-size:15px;font-weight:700;color:var(--sl800);letter-spacing:.05em}
+.ghope-score-inp{
+  width:100%;max-width:120px;text-align:center;
+  border:2px solid var(--sl300);border-radius:var(--rs);
+  padding:12px 8px;font-size:28px;font-weight:700;color:var(--sl900);
+  background:var(--sl50);-moz-appearance:textfield;appearance:textfield;
+}
+.ghope-score-inp::-webkit-inner-spin-button,.ghope-score-inp::-webkit-outer-spin-button{-webkit-appearance:none}
+.ghope-score-inp:focus{outline:none;border-color:var(--sl700);background:#fff}
+.ghope-score-hint{font-size:11px;color:var(--sl400);letter-spacing:.03em}
+.ghope-desc-row{display:flex;flex-direction:column;gap:6px}
+.ghope-desc-lbl{font-size:13px;font-weight:600;color:var(--sl600)}
+.ghope-desc-ta{
+  width:100%;border:1.5px solid var(--sl300);border-radius:var(--rs);
+  padding:10px 12px;font-size:14px;color:var(--sl900);background:var(--sl50);
+  resize:vertical;min-height:70px;line-height:1.7;font-family:inherit;
+}
+.ghope-desc-ta:focus{outline:none;border-color:var(--sl700);background:#fff}
+.ghope-desc-ta::placeholder{color:var(--sl400)}
+
 /* results summary */
 .results-grid{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}
 .result-row{
@@ -654,6 +677,28 @@ body{
           <option value="L">左側</option>
           <option value="R">右側</option>
         </select>
+      </div>
+    </div>
+  </div>
+
+  <div class="sum-card">
+    <div class="sum-hd">GHOPE 分數評估</div>
+    <div class="sum-body">
+      <div class="ghope-score-row">
+        <div class="ghope-score-col">
+          <div class="ghope-side-lbl">左　L</div>
+          <input class="ghope-score-inp" type="number" id="ghope-score-L" inputmode="numeric" min="1" max="7" placeholder="–" oninput="save()">
+          <div class="ghope-score-hint">1 – 7 分</div>
+        </div>
+        <div class="ghope-score-col">
+          <div class="ghope-side-lbl">右　R</div>
+          <input class="ghope-score-inp" type="number" id="ghope-score-R" inputmode="numeric" min="1" max="7" placeholder="–" oninput="save()">
+          <div class="ghope-score-hint">1 – 7 分</div>
+        </div>
+      </div>
+      <div class="ghope-desc-row">
+        <label class="ghope-desc-lbl">敘述補充</label>
+        <textarea class="ghope-desc-ta" id="ghope-desc" placeholder="觀察重點、補充說明…" oninput="save()"></textarea>
       </div>
     </div>
   </div>
