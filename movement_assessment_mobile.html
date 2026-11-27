@@ -465,6 +465,50 @@ body{
     </div>
   </div>
 
+  <div class="test-card is-sag" data-test="hip-er">
+    <div class="card-hd"><span class="star">★</span> HP. ER　髖外旋<span class="ref">&gt;45°</span></div>
+    <div class="m-cols">
+      <div class="m-col">
+        <div class="phase-lbl pre">前測 PRE</div>
+        <div class="side-row"><span class="side-lbl">左</span><div class="nw"><input type="number" inputmode="decimal" min="0" max="90" placeholder="–" oninput="calc(this);save()"><span class="nu">°</span></div></div>
+        <div class="side-row"><span class="side-lbl">右</span><div class="nw"><input type="number" inputmode="decimal" min="0" max="90" placeholder="–" oninput="calc(this);save()"><span class="nu">°</span></div></div>
+        <div class="badge" id="pre-hip-er">–</div>
+      </div>
+      <div class="m-col">
+        <div class="phase-lbl post">後測 POST</div>
+        <div class="side-row"><span class="side-lbl">左</span><div class="nw"><input type="number" inputmode="decimal" min="0" max="90" placeholder="–" oninput="calc(this);save()"><span class="nu">°</span></div></div>
+        <div class="side-row"><span class="side-lbl">右</span><div class="nw"><input type="number" inputmode="decimal" min="0" max="90" placeholder="–" oninput="calc(this);save()"><span class="nu">°</span></div></div>
+        <div class="badge" id="post-hip-er">–</div>
+      </div>
+    </div>
+    <div class="desc-row">
+      <div class="desc-tog" onclick="toggleDesc(this)"><span class="desc-tog-icon">＋</span>敘述補充</div>
+      <div class="desc-body"><input class="desc-inp" type="text" placeholder="敘述補充…" oninput="save()"></div>
+    </div>
+  </div>
+
+  <div class="test-card is-sag" data-test="hip-ir">
+    <div class="card-hd"><span class="star">★</span> HP. IR　髖內旋<span class="ref">&gt;40°</span></div>
+    <div class="m-cols">
+      <div class="m-col">
+        <div class="phase-lbl pre">前測 PRE</div>
+        <div class="side-row"><span class="side-lbl">左</span><div class="nw"><input type="number" inputmode="decimal" min="0" max="90" placeholder="–" oninput="calc(this);save()"><span class="nu">°</span></div></div>
+        <div class="side-row"><span class="side-lbl">右</span><div class="nw"><input type="number" inputmode="decimal" min="0" max="90" placeholder="–" oninput="calc(this);save()"><span class="nu">°</span></div></div>
+        <div class="badge" id="pre-hip-ir">–</div>
+      </div>
+      <div class="m-col">
+        <div class="phase-lbl post">後測 POST</div>
+        <div class="side-row"><span class="side-lbl">左</span><div class="nw"><input type="number" inputmode="decimal" min="0" max="90" placeholder="–" oninput="calc(this);save()"><span class="nu">°</span></div></div>
+        <div class="side-row"><span class="side-lbl">右</span><div class="nw"><input type="number" inputmode="decimal" min="0" max="90" placeholder="–" oninput="calc(this);save()"><span class="nu">°</span></div></div>
+        <div class="badge" id="post-hip-ir">–</div>
+      </div>
+    </div>
+    <div class="desc-row">
+      <div class="desc-tog" onclick="toggleDesc(this)"><span class="desc-tog-icon">＋</span>敘述補充</div>
+      <div class="desc-body"><input class="desc-inp" type="text" placeholder="敘述補充…" oninput="save()"></div>
+    </div>
+  </div>
+
 </div>
 
 <!-- PAGE 1: GPT – 接地功能 -->
@@ -663,11 +707,14 @@ const TESTS={
   'shoulder-er':  {leftLat:(L,R)=>R<L},
   'shoulder-ir':  {leftLat:(L,R)=>L<R},
   'slr':          {leftLat:(L,R)=>R<L},
-  'hip-ext':      {leftLat:(L,R)=>R<L}
+  'hip-ext':      {leftLat:(L,R)=>R<L},
+  'hip-er':       {leftLat:(L,R)=>R<L},
+  'hip-ir':       {leftLat:(L,R)=>L<R}
 };
 const TEST_NAMES={
   'cervical-rot':'頸旋轉','pelvis-rot':'骨盆旋轉','shoulder-abd':'肩外展',
-  'shoulder-er':'肩外旋','shoulder-ir':'肩內旋','slr':'直腿抬高','hip-ext':'髖伸'
+  'shoulder-er':'肩外旋','shoulder-ir':'肩內旋','slr':'直腿抬高','hip-ext':'髖伸',
+  'hip-er':'髖外旋','hip-ir':'髖內旋'
 };
 const STORAGE_KEY='fmc-assess-v1';
 let curPage=0;
